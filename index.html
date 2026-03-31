@@ -95,6 +95,8 @@ textarea{resize:vertical;min-height:78px}
 .loading{text-align:center;padding:40px 20px;color:var(--g400)}
 .spinner{width:18px;height:18px;border:3px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:inline-block}
 .spinner-g{width:28px;height:28px;border:3px solid var(--g100);border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite;display:inline-block}
+.upload-progress{height:6px;background:var(--g100);border-radius:20px;overflow:hidden;margin-top:8px;display:none}
+.upload-progress-fill{height:100%;background:var(--green);border-radius:20px;transition:width .3s}
 @keyframes spin{to{transform:rotate(360deg)}}
 #toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--green);color:#fff;padding:11px 22px;border-radius:30px;font-size:13px;font-weight:600;box-shadow:var(--shl);opacity:0;pointer-events:none;transition:opacity .3s;z-index:999;white-space:nowrap}
 #toast.show{opacity:1}#toast.error{background:var(--red)}
@@ -164,6 +166,7 @@ textarea{resize:vertical;min-height:78px}
         <div style="font-size:28px;margin-bottom:5px">📷</div>
         <p style="font-size:13px;color:var(--g400)">Toca para tomar foto o seleccionar</p>
       </div>
+      <div class="upload-progress" id="prog-nuevo"><div class="upload-progress-fill" id="prog-nuevo-fill"></div></div>
       <div class="photo-prev" id="prev-nuevo"></div>
     </div>
     <button class="btn btn-primary" id="btn-guardar" onclick="guardarObservacion()">Guardar observación</button>
@@ -246,6 +249,7 @@ textarea{resize:vertical;min-height:78px}
         <div style="font-size:28px;margin-bottom:5px">📷</div>
         <p style="font-size:13px;color:var(--g400)">Foto de la situación corregida</p>
       </div>
+      <div class="upload-progress" id="prog-cierre"><div class="upload-progress-fill" id="prog-cierre-fill"></div></div>
       <div class="photo-prev" id="prev-cierre"></div>
     </div>
     <div style="display:flex;gap:10px;margin-top:4px">
@@ -260,8 +264,8 @@ textarea{resize:vertical;min-height:78px}
   <div class="modal">
     <div class="modal-title">✏️ Editar observación</div>
     <input type="hidden" id="me-obs-id">
-    <div class="fg"><label>Descripción</label><textarea id="me-obs" placeholder="Descripción..."></textarea></div>
-    <div class="fg"><label>Responsable</label><input type="text" id="me-resp" placeholder="Responsable del área"></div>
+    <div class="fg"><label>Descripción</label><textarea id="me-obs"></textarea></div>
+    <div class="fg"><label>Responsable</label><input type="text" id="me-resp"></div>
     <div class="fg">
       <label>Estado</label>
       <select id="me-status">
@@ -282,7 +286,7 @@ textarea{resize:vertical;min-height:78px}
   <div class="modal">
     <div class="modal-title">🗑️ Eliminar observación</div>
     <input type="hidden" id="mdel-id">
-    <p style="font-size:14px;color:var(--g700);margin-bottom:16px;line-height:1.6">¿Estás seguro que deseas eliminar esta observación? Esta acción no se puede deshacer.</p>
+    <p style="font-size:14px;color:var(--g700);margin-bottom:16px;line-height:1.6">¿Estás seguro? Esta acción no se puede deshacer.</p>
     <div style="display:flex;gap:10px">
       <button class="btn btn-primary" onclick="confirmarEliminar()" style="flex:1;background:var(--red)">Sí, eliminar</button>
       <button class="btn-ghost" onclick="closeModal('modal-eliminar')">Cancelar</button>
@@ -294,10 +298,12 @@ textarea{resize:vertical;min-height:78px}
 
 <script>
 // ═══════════════════════════════════════
-// SUPABASE
+// CONFIG
 // ═══════════════════════════════════════
-const { createClient } = supabase;
-const sb = createClient('https://aedzzbrguoodnsynfpyl.supabase.co', 'sb_publishable_3HxZO2sfSwc6xQvEw3iIYg_kksCk9Xm');
+const {createClient}=supabase;
+const sb=createClient("https://aedzzbrguoodnsynfpyl.supabase.co","sb_publishable_3HxZO2sfSwc6xQvEw3iIYg_kksCk9Xm");
+const CLD_CLOUD="dw5ucvvie";
+const CLD_PRESET="fotos5s";
 
 // ═══════════════════════════════════════
 // DATOS MAESTROS
@@ -331,13 +337,9 @@ const TIPOS=[
 ];
 
 // ═══════════════════════════════════════
-// ESTADO LOCAL
+// ESTADO
 // ═══════════════════════════════════════
-let observations=[];
-let acciones=[];
-let selectedS="";
-let photosNuevo=[];
-let photoCierre=null;
+let observations=[],acciones=[],selectedS="",photosNuevo=[],photoCierre=null;
 
 // ═══════════════════════════════════════
 // INIT
@@ -363,7 +365,7 @@ function getWeek(d){
 }
 
 // ═══════════════════════════════════════
-// CARGAR DATOS DESDE SUPABASE
+// CARGAR DATOS
 // ═══════════════════════════════════════
 async function cargarTodo(){
   try{
@@ -371,12 +373,9 @@ async function cargarTodo(){
       sb.from("observaciones").select("*").order("created_at",{ascending:false}),
       sb.from("acciones").select("*").order("created_at",{ascending:true})
     ]);
-    if(e1||e2) throw e1||e2;
-    observations=obs||[];
-    acciones=acc||[];
-    renderList();
-    renderAcciones();
-    renderDashboard();
+    if(e1||e2)throw e1||e2;
+    observations=obs||[];acciones=acc||[];
+    renderList();renderAcciones();renderDashboard();
   }catch(e){
     console.error(e);
     showToast("Error conectando con la base de datos",true);
@@ -384,7 +383,35 @@ async function cargarTodo(){
 }
 
 // ═══════════════════════════════════════
-// FORMULARIO CASCADA
+// CLOUDINARY UPLOAD
+// ═══════════════════════════════════════
+async function subirCloudinary(file, progBar, progFill){
+  if(progBar)progBar.style.display="block";
+  const fd=new FormData();
+  fd.append("file",file);
+  fd.append("upload_preset",CLD_PRESET);
+  fd.append("folder","fotos5s");
+  return new Promise((resolve,reject)=>{
+    const xhr=new XMLHttpRequest();
+    xhr.open("POST",`https://api.cloudinary.com/v1_1/${CLD_CLOUD}/image/upload`);
+    xhr.upload.onprogress=e=>{
+      if(progFill&&e.lengthComputable){
+        progFill.style.width=Math.round(e.loaded/e.total*100)+"%";
+      }
+    };
+    xhr.onload=()=>{
+      if(progBar)progBar.style.display="none";
+      const data=JSON.parse(xhr.responseText);
+      if(xhr.status===200)resolve(data.secure_url);
+      else reject(new Error(data.error?.message||"Upload failed"));
+    };
+    xhr.onerror=()=>reject(new Error("Network error"));
+    xhr.send(fd);
+  });
+}
+
+// ═══════════════════════════════════════
+// FORMULARIO
 // ═══════════════════════════════════════
 function updateZonas(){
   const area=document.getElementById("f-area").value;
@@ -412,7 +439,7 @@ function selectS(v){
 function handlePhotos(input){
   const prev=document.getElementById("prev-nuevo");
   Array.from(input.files).forEach(file=>{
-    if(photosNuevo.length>=5){showToast("Máximo 5 fotos",true);return;}
+    if(photosNuevo.length>=5){showToast("Máximo 5 archivos",true);return;}
     photosNuevo.push(file);
     const r=new FileReader();
     r.onload=e=>{
@@ -432,16 +459,6 @@ function handleFotoCierre(input){
   r.readAsDataURL(file);
 }
 
-// Subir foto a Supabase Storage
-async function subirFoto(file, carpeta, nombre){
-  const ext=file.name.split(".").pop();
-  const path=`${carpeta}/${nombre}.${ext}`;
-  const {error}=await sb.storage.from("fotos5s").upload(path,file,{upsert:true});
-  if(error) throw error;
-  const {data}=sb.storage.from("fotos5s").getPublicUrl(path);
-  return data.publicUrl;
-}
-
 // ═══════════════════════════════════════
 // GUARDAR OBSERVACIÓN
 // ═══════════════════════════════════════
@@ -454,29 +471,27 @@ async function guardarObservacion(){
   const btn=document.getElementById("btn-guardar");
   btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Guardando...';
   try{
-    // Subir fotos
     const fotosUrls=[];
+    const progBar=document.getElementById("prog-nuevo");
+    const progFill=document.getElementById("prog-nuevo-fill");
     for(let i=0;i<photosNuevo.length;i++){
-      const url=await subirFoto(photosNuevo[i],`antes`,`obs_${Date.now()}_${i}`);
+      showToast(`Subiendo archivo ${i+1} de ${photosNuevo.length}...`);
+      const url=await subirCloudinary(photosNuevo[i],progBar,progFill);
       fotosUrls.push(url);
     }
     const {data,error}=await sb.from("observaciones").insert({
-      num: observations.length+1,
-      sem: document.getElementById("f-sem").value,
-      fecha: document.getElementById("f-fecha").value,
-      auditor,
-      area: area.replace(/_/g," "),
-      sector: document.getElementById("f-sector").value,
-      zona: document.getElementById("f-zona").value,
-      tipo, s: selectedS||"—",
-      obs,
-      responsable: document.getElementById("f-responsable").value.trim(),
-      status: "PENDIENTE",
-      fotos: fotosUrls
+      num:observations.length+1,
+      sem:document.getElementById("f-sem").value,
+      fecha:document.getElementById("f-fecha").value,
+      auditor,area:area.replace(/_/g," "),
+      sector:document.getElementById("f-sector").value,
+      zona:document.getElementById("f-zona").value,
+      tipo,s:selectedS||"—",obs,
+      responsable:document.getElementById("f-responsable").value.trim(),
+      status:"PENDIENTE",fotos:fotosUrls
     }).select().single();
-    if(error) throw error;
+    if(error)throw error;
     observations.unshift(data);
-    // Reset form
     ["f-area","f-sector","f-zona","f-tipo","f-obs","f-responsable","f-auditor"].forEach(id=>{
       const el=document.getElementById(id);
       if(el.tagName==="SELECT"&&id!=="f-area"&&id!=="f-tipo")el.disabled=true;
@@ -485,11 +500,11 @@ async function guardarObservacion(){
     document.getElementById("prev-nuevo").innerHTML="";
     document.querySelectorAll(".s-btn").forEach(b=>b.classList.remove("active"));
     selectedS="";photosNuevo=[];
-    showToast("✅ Observación guardada en Supabase");
+    showToast("✅ Observación guardada");
     renderList();renderDashboard();
   }catch(e){
     console.error(e);
-    showToast("Error al guardar: "+e.message,true);
+    showToast("Error: "+e.message,true);
   }
   btn.disabled=false;btn.innerHTML="Guardar observación";
 }
@@ -517,7 +532,7 @@ async function confirmarEditar(){
     const idx=observations.findIndex(o=>o.id===id);
     if(idx>-1){observations[idx].obs=obsText;observations[idx].responsable=resp;observations[idx].status=status;}
     closeModal("modal-editar");
-    showToast("✅ Observación actualizada");
+    showToast("✅ Actualizado");
     renderList();renderDashboard();
   }catch(e){showToast("Error: "+e.message,true);}
 }
@@ -525,10 +540,7 @@ async function confirmarEditar(){
 // ═══════════════════════════════════════
 // ELIMINAR OBSERVACIÓN
 // ═══════════════════════════════════════
-function abrirEliminar(id){
-  document.getElementById("mdel-id").value=id;
-  openModal("modal-eliminar");
-}
+function abrirEliminar(id){document.getElementById("mdel-id").value=id;openModal("modal-eliminar");}
 async function confirmarEliminar(){
   const id=parseInt(document.getElementById("mdel-id").value);
   try{
@@ -537,7 +549,7 @@ async function confirmarEliminar(){
     observations=observations.filter(o=>o.id!==id);
     acciones=acciones.filter(a=>a.obs_id!==id);
     closeModal("modal-eliminar");
-    showToast("🗑️ Observación eliminada");
+    showToast("🗑️ Eliminada");
     renderList();renderAcciones();renderDashboard();
   }catch(e){showToast("Error: "+e.message,true);}
 }
@@ -554,11 +566,7 @@ function abrirModalAccion(obsId,accId){
   document.getElementById("modal-accion-title").textContent=accId?"✏️ Editar acción":"➕ Agregar acción";
   if(accId){
     const acc=acciones.find(a=>a.id===accId);
-    if(acc){
-      document.getElementById("ma-desc").value=acc.descripcion||"";
-      document.getElementById("ma-resp").value=acc.responsable||"";
-      document.getElementById("ma-fecha").value=acc.fecha_limite||"";
-    }
+    if(acc){document.getElementById("ma-desc").value=acc.descripcion||"";document.getElementById("ma-resp").value=acc.responsable||"";document.getElementById("ma-fecha").value=acc.fecha_limite||"";}
   }
   openModal("modal-accion");
 }
@@ -578,12 +586,7 @@ async function guardarAccion(){
       const idx=acciones.findIndex(a=>a.id===parseInt(accId));
       if(idx>-1){acciones[idx].descripcion=descripcion;acciones[idx].responsable=responsable;acciones[idx].fecha_limite=fecha_limite;}
     }else{
-      const {data,error}=await sb.from("acciones").insert({
-        obs_id:obsId,
-        num_accion:accsDeObs.length+1,
-        descripcion,responsable,fecha_limite,
-        status:"PENDIENTE"
-      }).select().single();
+      const {data,error}=await sb.from("acciones").insert({obs_id:obsId,num_accion:accsDeObs.length+1,descripcion,responsable,fecha_limite,status:"PENDIENTE"}).select().single();
       if(error)throw error;
       acciones.push(data);
     }
@@ -611,14 +614,16 @@ async function cerrarAccion(){
   try{
     let foto_cierre=null;
     if(photoCierre){
-      foto_cierre=await subirFoto(photoCierre,"despues",`acc_${accId}_${Date.now()}`);
+      showToast("Subiendo foto de cierre...");
+      const progBar=document.getElementById("prog-cierre");
+      const progFill=document.getElementById("prog-cierre-fill");
+      foto_cierre=await subirCloudinary(photoCierre,progBar,progFill);
     }
     const fecha_cierre=new Date().toISOString().split("T")[0];
     const {error}=await sb.from("acciones").update({status:"CERRADA",firma,comentario_cierre:comentario,fecha_cierre,foto_cierre}).eq("id",accId);
     if(error)throw error;
     const idx=acciones.findIndex(a=>a.id===accId);
-    if(idx>-1){Object.assign(acciones[idx],{status:"CERRADA",firma,comentario_cierre:comentario,fecha_cierre,foto_cierre});}
-    // Si todas las acciones de la obs están cerradas → obs corregida
+    if(idx>-1)Object.assign(acciones[idx],{status:"CERRADA",firma,comentario_cierre:comentario,fecha_cierre,foto_cierre});
     const accsObs=acciones.filter(a=>a.obs_id===obsId);
     if(accsObs.length>0&&accsObs.every(a=>a.status==="CERRADA")){
       await sb.from("observaciones").update({status:"CORREGIDO"}).eq("id",obsId);
@@ -646,7 +651,7 @@ function renderList(){
     const sBadge=`b-${(o.s||"1s").toLowerCase()}`;
     const accsObs=acciones.filter(a=>a.obs_id===o.id);
     const canAdd=accsObs.length<3;
-    const fotos=(o.fotos||[]).slice(0,3).map(f=>`<img src="${f}" style="width:54px;height:54px;object-fit:cover;border-radius:6px;border:2px solid var(--g200)">`).join("");
+    const fotos=(o.fotos||[]).slice(0,3).map(f=>`<img src="${f}" style="width:54px;height:54px;object-fit:cover;border-radius:6px;border:2px solid var(--g200);cursor:pointer" onclick="window.open('${f}','_blank')">`).join("");
     const accsHtml=accsObs.map((a,i)=>{
       const aCls=a.status==="CERRADA"?"cerrada":a.status==="EN PROGRESO"?"en-progreso":"";
       const aBCls=a.status==="CERRADA"?"b-ok":a.status==="EN PROGRESO"?"b-prog":"b-pen";
@@ -655,7 +660,7 @@ function renderList(){
         <div style="font-size:13px;margin-bottom:5px">${a.descripcion}</div>
         <div style="font-size:11px;color:var(--g400)">👤 ${a.responsable}${a.fecha_limite?` · 📅 ${a.fecha_limite}`:""}${a.fecha_cierre?` · ✅ ${a.fecha_cierre}`:""}</div>
         ${a.comentario_cierre?`<div style="font-size:12px;color:var(--g700);margin-top:4px;font-style:italic">"${a.comentario_cierre}" — ${a.firma||""}</div>`:""}
-        ${a.foto_cierre?`<img src="${a.foto_cierre}" style="width:54px;height:54px;object-fit:cover;border-radius:6px;margin-top:6px;border:2px solid var(--g200)">`:""}
+        ${a.foto_cierre?`<img src="${a.foto_cierre}" style="width:54px;height:54px;object-fit:cover;border-radius:6px;margin-top:6px;border:2px solid var(--g200);cursor:pointer" onclick="window.open('${a.foto_cierre}','_blank')">`:""}
         ${a.status!=="CERRADA"?`<div style="margin-top:8px;display:flex;gap:6px">
           <button class="btn-ghost" style="font-size:11px;padding:5px 9px" onclick="abrirModalAccion(${o.id},${a.id})">✏️ Editar</button>
           <button class="btn-ghost" style="font-size:11px;padding:5px 9px" onclick="abrirCierre(${a.id},${o.id})">✅ Cerrar</button>
@@ -702,7 +707,7 @@ function renderAcciones(){
   const el=document.getElementById("acc-list");
   const items=acciones.filter(a=>{
     const obs=observations.find(o=>o.id===a.obs_id);
-    return (!area||(obs&&obs.area===area.replace(/_/g," ")))&&(!status||a.status===status);
+    return(!area||(obs&&obs.area===area.replace(/_/g," ")))&&(!status||a.status===status);
   });
   if(!items.length){el.innerHTML='<div class="empty"><div class="empty-ico">🎯</div><p>No hay acciones.</p></div>';return;}
   el.innerHTML=items.map(a=>{
@@ -720,7 +725,7 @@ function renderAcciones(){
       <div style="font-size:13px;margin-bottom:5px">${a.descripcion}</div>
       <div style="font-size:11px;color:var(--g400)">👤 ${a.responsable}${a.fecha_limite?` · 📅 ${a.fecha_limite}`:""}${a.fecha_cierre?` · ✅ ${a.fecha_cierre}`:""}</div>
       ${a.comentario_cierre?`<div style="font-size:12px;color:var(--g700);margin-top:4px;font-style:italic">"${a.comentario_cierre}" — ${a.firma||""}</div>`:""}
-      ${a.foto_cierre?`<img src="${a.foto_cierre}" style="width:60px;height:60px;object-fit:cover;border-radius:6px;margin-top:6px;border:2px solid var(--g200)">`:""}
+      ${a.foto_cierre?`<img src="${a.foto_cierre}" style="width:60px;height:60px;object-fit:cover;border-radius:6px;margin-top:6px;border:2px solid var(--g200);cursor:pointer" onclick="window.open('${a.foto_cierre}','_blank')">`:""}
       ${a.status!=="CERRADA"?`<div style="margin-top:8px;display:flex;gap:6px">
         <button class="btn-ghost" style="font-size:12px;padding:6px 10px" onclick="abrirModalAccion(${a.obs_id},${a.id})">✏️ Editar</button>
         <button class="btn-ghost" style="font-size:12px;padding:6px 10px" onclick="abrirCierre(${a.id},${a.obs_id})">✅ Cerrar</button>

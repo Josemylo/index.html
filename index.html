@@ -99,6 +99,25 @@ textarea{resize:vertical;min-height:78px}
 .upload-progress{height:6px;background:var(--g100);border-radius:20px;overflow:hidden;margin-top:8px;display:none}
 .upload-progress-fill{height:100%;background:var(--green);border-radius:20px;transition:width .3s}
 @keyframes spin{to{transform:rotate(360deg)}}
+
+/* DASHBOARD GERENCIAL */
+.kpi-box{background:#fff;border-radius:8px;box-shadow:var(--sh);padding:10px 6px;text-align:center;border-top:3px solid var(--g200)}
+.kpi-box.green{border-top-color:var(--green)}
+.kpi-box.red{border-top-color:var(--red)}
+.kpi-box.amber{border-top-color:var(--amber)}
+.kpi-val{font-family:"Barlow Condensed",sans-serif;font-size:24px;font-weight:800;line-height:1;color:var(--g900)}
+.kpi-box.green .kpi-val{color:var(--green)}
+.kpi-box.red .kpi-val{color:var(--red)}
+.kpi-box.amber .kpi-val{color:var(--amber)}
+.kpi-lbl{font-size:9px;color:var(--g400);font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-top:2px}
+.dash-card{background:#fff;border-radius:10px;box-shadow:var(--sh);padding:12px 12px 14px}
+.dash-card-title{font-family:"Barlow Condensed",sans-serif;font-size:12px;font-weight:700;color:var(--g700);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;border-left:3px solid var(--red);padding-left:8px}
+.dash-legend-row{display:flex;align-items:center;gap:6px;padding:3px 0;border-bottom:1px solid var(--g100)}
+.dash-legend-row:last-child{border-bottom:none}
+.dash-legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.dash-legend-label{font-size:10px;color:var(--g700);flex:1}
+.dash-legend-val{font-family:"Barlow Condensed",sans-serif;font-size:13px;font-weight:700;color:var(--g900)}
+.dash-legend-pct{font-size:10px;color:var(--g400);min-width:30px;text-align:right}
 #toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--green);color:#fff;padding:11px 22px;border-radius:30px;font-size:13px;font-weight:600;box-shadow:var(--shl);opacity:0;pointer-events:none;transition:opacity .3s;z-index:999;white-space:nowrap}
 #toast.show{opacity:1}#toast.error{background:var(--red)}
 @media(max-width:600px){
@@ -233,12 +252,12 @@ textarea{resize:vertical;min-height:78px}
 <!-- TAB DASHBOARD -->
 <div id="tab-dashboard" class="section">
 
-  <!-- Filtros -->
-  <div class="dash-grid-2" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
-    <select id="d-fil-sem" onchange="renderDashboard()" style="width:100%;padding:10px 12px;border:1.5px solid var(--g200);border-radius:8px;font-family:Barlow,sans-serif;font-size:13px;-webkit-appearance:none">
+  <!-- Filtros compactos -->
+  <div style="display:flex;gap:8px;margin-bottom:12px">
+    <select id="d-fil-sem" onchange="renderDashboard()" style="flex:1;padding:8px 10px;border:1.5px solid var(--g200);border-radius:8px;font-family:Barlow,sans-serif;font-size:12px;-webkit-appearance:none;background:#fff">
       <option value="">Todas las semanas</option>
     </select>
-    <select id="d-fil-sector" onchange="renderDashboard()" style="width:100%;padding:10px 12px;border:1.5px solid var(--g200);border-radius:8px;font-family:Barlow,sans-serif;font-size:13px;-webkit-appearance:none">
+    <select id="d-fil-sector" onchange="renderDashboard()" style="flex:1;padding:8px 10px;border:1.5px solid var(--g200);border-radius:8px;font-family:Barlow,sans-serif;font-size:12px;-webkit-appearance:none;background:#fff">
       <option value="">Todos los sectores</option>
       <option value="A">Sector A</option>
       <option value="B">Sector B</option>
@@ -246,60 +265,89 @@ textarea{resize:vertical;min-height:78px}
     </select>
   </div>
 
-  <!-- KPIs 2x2 -->
-  <div class="stats-grid dash-kpis" style="grid-template-columns:1fr 1fr;margin-bottom:14px">
-    <div class="stat-box"><div class="stat-num" id="d-total">0</div><div class="stat-label">Total obs.</div></div>
-    <div class="stat-box"><div class="stat-num amber" id="d-pct">0%</div><div class="stat-label">% Cumplimiento</div></div>
-    <div class="stat-box"><div class="stat-num" id="d-corregidas">0</div><div class="stat-label">Corregidas</div></div>
-    <div class="stat-box"><div class="stat-num red" id="d-no-corregidas">0</div><div class="stat-label">No corregidas</div></div>
+  <!-- KPIs fila -->
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px">
+    <div class="kpi-box">
+      <div class="kpi-val" id="d-total">0</div>
+      <div class="kpi-lbl">Total</div>
+    </div>
+    <div class="kpi-box green">
+      <div class="kpi-val" id="d-corregidas">0</div>
+      <div class="kpi-lbl">Corregidas</div>
+    </div>
+    <div class="kpi-box red">
+      <div class="kpi-val" id="d-no-corregidas">0</div>
+      <div class="kpi-lbl">No Corr.</div>
+    </div>
+    <div class="kpi-box amber">
+      <div class="kpi-val" id="d-pct">0%</div>
+      <div class="kpi-lbl">Cumplim.</div>
+    </div>
   </div>
 
-  <!-- Donuts: uno por fila en móvil, dos en desktop -->
-  <div class="dash-grid-2" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
-    <div class="card" style="margin-bottom:0">
-      <div class="card-title" style="font-size:12px;margin-bottom:8px">🔵 Estado observaciones</div>
-      <canvas id="chart-donut-status"></canvas>
-    </div>
-    <div class="card" style="margin-bottom:0">
-      <div class="card-title" style="font-size:12px;margin-bottom:8px">🏷️ Fallos por S</div>
-      <canvas id="chart-donut-s"></canvas>
-    </div>
-  </div>
-
-  <!-- Barras área — scroll horizontal en móvil -->
-  <div class="card">
-    <div class="card-title">📊 Corregidas vs No Corregidas por área</div>
-    <div style="overflow-x:auto;-webkit-overflow-scrolling:touch">
-      <div style="min-width:320px">
-        <canvas id="chart-barras-area"></canvas>
+  <!-- Fila: 2 donuts pequeños lado a lado -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+    <div class="dash-card">
+      <div class="dash-card-title">Estado obs.</div>
+      <div style="position:relative;width:110px;height:110px;margin:0 auto">
+        <canvas id="chart-donut-status"></canvas>
+        <div id="donut-status-center" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:var(--green)" id="d-pct2">0%</div>
+          <div style="font-size:9px;color:var(--g400);font-weight:600;text-transform:uppercase">Cumpl.</div>
+        </div>
       </div>
+      <div id="donut-status-legend" style="margin-top:8px"></div>
     </div>
-  </div>
-
-  <!-- Tendencia semanal — scroll horizontal en móvil -->
-  <div class="card">
-    <div class="card-title">📈 Tendencia semanal</div>
-    <div style="overflow-x:auto;-webkit-overflow-scrolling:touch">
-      <div style="min-width:320px">
-        <canvas id="chart-tendencia"></canvas>
+    <div class="dash-card">
+      <div class="dash-card-title">Fallos por S</div>
+      <div style="position:relative;width:110px;height:110px;margin:0 auto">
+        <canvas id="chart-donut-s"></canvas>
+        <div id="donut-s-center" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:var(--red)" id="d-top-s">—</div>
+          <div style="font-size:9px;color:var(--g400);font-weight:600;text-transform:uppercase">Top fallo</div>
+        </div>
       </div>
+      <div id="donut-s-legend" style="margin-top:8px"></div>
     </div>
   </div>
 
-  <!-- Cumplimiento por sector -->
-  <div class="card">
-    <div class="card-title">🏭 Cumplimiento por sector</div>
-    <canvas id="chart-sectores"></canvas>
+  <!-- Barras por área -->
+  <div class="dash-card" style="margin-bottom:12px">
+    <div class="dash-card-title">📊 Obs. por área — Corregidas vs No Corregidas</div>
+    <div style="overflow-x:auto">
+      <canvas id="chart-barras-area" style="min-width:300px"></canvas>
+    </div>
   </div>
 
-  <!-- Acciones: donut + KPIs -->
-  <div class="dash-grid-2" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
-    <div class="card" style="margin-bottom:0">
-      <div class="card-title" style="font-size:12px;margin-bottom:8px">🎯 Estado acciones</div>
-      <canvas id="chart-donut-acc"></canvas>
+  <!-- Tendencia semanal -->
+  <div class="dash-card" style="margin-bottom:12px">
+    <div class="dash-card-title">📈 Tendencia semanal</div>
+    <div style="overflow-x:auto">
+      <canvas id="chart-tendencia" style="min-width:300px"></canvas>
     </div>
-    <div class="card" style="margin-bottom:0">
-      <div class="card-title" style="font-size:12px;margin-bottom:8px">📋 Resumen</div>
+  </div>
+
+  <!-- Cumplimiento por sector — barras horizontales compactas -->
+  <div class="dash-card" style="margin-bottom:12px">
+    <div class="dash-card-title">🏭 Cumplimiento por sector</div>
+    <div id="d-sectores"></div>
+  </div>
+
+  <!-- Acciones: donut pequeño + tabla KPIs -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+    <div class="dash-card">
+      <div class="dash-card-title">🎯 Acciones</div>
+      <div style="position:relative;width:110px;height:110px;margin:0 auto">
+        <canvas id="chart-donut-acc"></canvas>
+        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:var(--green)" id="d-acc-pct">0%</div>
+          <div style="font-size:9px;color:var(--g400);font-weight:600;text-transform:uppercase">Cerradas</div>
+        </div>
+      </div>
+      <div id="donut-acc-legend" style="margin-top:8px"></div>
+    </div>
+    <div class="dash-card">
+      <div class="dash-card-title">📋 Resumen</div>
       <div id="d-acc-kpis"></div>
     </div>
   </div>
@@ -988,71 +1036,86 @@ function renderDashboard(){
   const filSector = document.getElementById("d-fil-sector")?.value||"";
   const today = new Date(); today.setHours(0,0,0,0);
 
-  // Llenar semanas
-  const sems = [...new Set(observations.map(o=>String(o.sem)).filter(Boolean))].sort((a,b)=>Number(a)-Number(b));
-  ["d-fil-sem","fil-sem","d-fil-s-sem"].forEach(id=>{
-    const el=document.getElementById(id); if(!el)return;
+  // Llenar selectores semana
+  const sems=[...new Set(observations.map(o=>String(o.sem)).filter(Boolean))].sort((a,b)=>Number(a)-Number(b));
+  ["d-fil-sem","fil-sem"].forEach(id=>{
+    const el=document.getElementById(id);if(!el)return;
     const cur=el.value;
     el.innerHTML=`<option value="">Todas las semanas</option>`;
     sems.forEach(s=>{el.innerHTML+=`<option value="${s}" ${s===cur?"selected":""}>${"Sem. "+s}</option>`;});
   });
 
-  // Filtrar
-  let obsF = observations.filter(o=>{
-    if(filSem && String(o.sem)!==filSem) return false;
-    if(filSector && o.sector!==filSector) return false;
+  // Filtrar observaciones
+  const obsF=observations.filter(o=>{
+    if(filSem&&String(o.sem)!==filSem)return false;
+    if(filSector&&o.sector!==filSector)return false;
     return true;
   });
 
-  const total = obsF.length;
-  const corregidas = obsF.filter(o=>o.status==="CORREGIDO").length;
-  const noCorregidas = obsF.filter(o=>o.status==="NO CORREGIDO").length;
-  const pendientes = obsF.filter(o=>o.status==="PENDIENTE").length;
-  const pct = total ? Math.round(corregidas/total*100) : 0;
+  const total=obsF.length;
+  const corregidas=obsF.filter(o=>o.status==="CORREGIDO").length;
+  const noCorr=obsF.filter(o=>o.status==="NO CORREGIDO").length;
+  const pendientes=obsF.filter(o=>o.status==="PENDIENTE").length;
+  const pct=total?Math.round(corregidas/total*100):0;
 
-  document.getElementById("d-total").textContent = total;
-  document.getElementById("d-corregidas").textContent = corregidas;
-  document.getElementById("d-no-corregidas").textContent = noCorregidas;
-  document.getElementById("d-pct").textContent = pct+"%";
+  // KPIs
+  document.getElementById("d-total").textContent=total;
+  document.getElementById("d-corregidas").textContent=corregidas;
+  document.getElementById("d-no-corregidas").textContent=noCorr;
+  document.getElementById("d-pct").textContent=pct+"%";
+  document.getElementById("d-pct2").textContent=pct+"%";
 
-  const GREEN="#1E7C34", RED="#E63329", AMBER="#D97706", BLUE="#1565C0",
-        GREEN_L="#2DA04880", RED_L="#E6332980", AMBER_L="#D9770680";
+  const GREEN="#1E7C34",RED="#E63329",AMBER="#D97706",BLUE="#1565C0",PURPLE="#6B21A8";
 
-  // ── DONUT: Estado observaciones ───────────────────────────────────
+  // Helper: mini leyenda
+  function miniLeyenda(elId, items){
+    const el=document.getElementById(elId);if(!el)return;
+    el.innerHTML=items.map(({color,label,val,pct})=>`
+      <div class="dash-legend-row">
+        <div class="dash-legend-dot" style="background:${color}"></div>
+        <span class="dash-legend-label">${label}</span>
+        <span class="dash-legend-val">${val}</span>
+        <span class="dash-legend-pct">${pct}%</span>
+      </div>`).join("");
+  }
+
+  // ── DONUT: Estado observaciones ──────────────────────────────────
   destroyChart("chart-donut-status");
   new Chart(document.getElementById("chart-donut-status"),{
     type:"doughnut",
     data:{
       labels:["Corregidas","No Corregidas","Pendientes"],
-      datasets:[{data:[corregidas,noCorregidas,pendientes],backgroundColor:[GREEN,RED,AMBER],borderWidth:2,borderColor:"#fff"}]
+      datasets:[{data:[corregidas,noCorr,pendientes],backgroundColor:[GREEN,RED,AMBER],borderWidth:1,borderColor:"#fff",hoverOffset:4}]
     },
-    options:{
-      responsive:true,maintainAspectRatio:true,cutout:"65%",
-      plugins:{legend:{position:"bottom",labels:{font:{size:11},padding:10}},
-        tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${ctx.raw} (${total?Math.round(ctx.raw/total*100):0}%)`}}}
-    }
+    options:{responsive:true,maintainAspectRatio:true,cutout:"72%",
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${ctx.raw}`}}}}
   });
+  miniLeyenda("donut-status-legend",[
+    {color:GREEN,label:"Corregidas",val:corregidas,pct:total?Math.round(corregidas/total*100):0},
+    {color:RED,label:"No Corregidas",val:noCorr,pct:total?Math.round(noCorr/total*100):0},
+    {color:AMBER,label:"Pendientes",val:pendientes,pct:total?Math.round(pendientes/total*100):0}
+  ]);
 
-  // ── DONUT: Fallos por S ────────────────────────────────────────────
+  // ── DONUT: Fallos por S ──────────────────────────────────────────
   const byS={};
   obsF.forEach(o=>{const k=o.s||"—";byS[k]=(byS[k]||0)+1;});
   const sColors={"1S":"#E65100","2S":"#1B5E20","3S":"#0D47A1","4S":"#4A148C","5S":"#880E4F","EPP":"#C2410C","—":"#888"};
   const sEntries=Object.entries(byS).sort((a,b)=>b[1]-a[1]);
+  const topS=sEntries[0]?sEntries[0][0]:"—";
+  document.getElementById("d-top-s").textContent=topS;
   destroyChart("chart-donut-s");
   new Chart(document.getElementById("chart-donut-s"),{
     type:"doughnut",
     data:{
       labels:sEntries.map(([s])=>s),
-      datasets:[{data:sEntries.map(([,n])=>n),backgroundColor:sEntries.map(([s])=>sColors[s]||"#888"),borderWidth:2,borderColor:"#fff"}]
+      datasets:[{data:sEntries.map(([,n])=>n),backgroundColor:sEntries.map(([s])=>sColors[s]||"#888"),borderWidth:1,borderColor:"#fff",hoverOffset:4}]
     },
-    options:{
-      responsive:true,cutout:"65%",
-      plugins:{legend:{position:"bottom",labels:{font:{size:11},padding:8}},
-        tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${ctx.raw} (${total?Math.round(ctx.raw/total*100):0}%)`}}}
-    }
+    options:{responsive:true,maintainAspectRatio:true,cutout:"72%",
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${ctx.raw}`}}}}
   });
+  miniLeyenda("donut-s-legend",sEntries.map(([s,n])=>({color:sColors[s]||"#888",label:s,val:n,pct:total?Math.round(n/total*100):0})));
 
-  // ── BARRAS: Corregidas vs No Corregidas por área ───────────────────
+  // ── BARRAS: por área ─────────────────────────────────────────────
   const byArea={};
   obsF.forEach(o=>{
     if(!byArea[o.area])byArea[o.area]={corr:0,no:0,pen:0};
@@ -1060,159 +1123,136 @@ function renderDashboard(){
     else if(o.status==="NO CORREGIDO")byArea[o.area].no++;
     else byArea[o.area].pen++;
   });
-  const areaLabels=Object.keys(byArea).sort((a,b)=>{
-    const ta=byArea[a].corr+byArea[a].no+byArea[a].pen;
-    const tb=byArea[b].corr+byArea[b].no+byArea[b].pen;
-    return tb-ta;
-  });
+  const areaLabels=Object.keys(byArea).sort((a,b)=>(byArea[b].corr+byArea[b].no+byArea[b].pen)-(byArea[a].corr+byArea[a].no+byArea[a].pen));
   destroyChart("chart-barras-area");
   new Chart(document.getElementById("chart-barras-area"),{
     type:"bar",
     data:{
       labels:areaLabels,
       datasets:[
-        {label:"Corregidas",data:areaLabels.map(a=>byArea[a].corr),backgroundColor:GREEN,borderRadius:4},
-        {label:"No Corregidas",data:areaLabels.map(a=>byArea[a].no),backgroundColor:RED,borderRadius:4},
-        {label:"Pendientes",data:areaLabels.map(a=>byArea[a].pen),backgroundColor:AMBER,borderRadius:4}
+        {label:"Corregidas",data:areaLabels.map(a=>byArea[a].corr),backgroundColor:GREEN+"CC",borderRadius:3,borderSkipped:false},
+        {label:"No Corregidas",data:areaLabels.map(a=>byArea[a].no),backgroundColor:RED+"CC",borderRadius:3,borderSkipped:false},
+        {label:"Pendientes",data:areaLabels.map(a=>byArea[a].pen),backgroundColor:AMBER+"CC",borderRadius:3,borderSkipped:false}
       ]
     },
     options:{
       responsive:true,maintainAspectRatio:true,
-      plugins:{legend:{position:"top",labels:{font:{size:10},boxWidth:12,padding:8}},
+      plugins:{legend:{position:"top",align:"start",labels:{font:{size:10},boxWidth:10,padding:10}},
         tooltip:{mode:"index",intersect:false}},
       scales:{
-        x:{stacked:false,ticks:{font:{size:9},maxRotation:50},grid:{display:false}},
-        y:{beginAtZero:true,ticks:{stepSize:1,font:{size:10}},grid:{color:"#EEF0EC"}}
+        x:{ticks:{font:{size:9},maxRotation:45},grid:{display:false}},
+        y:{beginAtZero:true,ticks:{stepSize:1,font:{size:10}},grid:{color:"#f0f0f0"}}
       }
     }
   });
 
-  // ── LÍNEA: Tendencia semanal ───────────────────────────────────────
+  // ── LÍNEA: Tendencia semanal ─────────────────────────────────────
   const bySem={};
-  observations.forEach(o=>{
-    if(filSector && o.sector!==filSector) return;
-    const s="Sem."+o.sem;
+  observations.filter(o=>!filSector||o.sector===filSector).forEach(o=>{
+    const s="S"+o.sem;
     if(!bySem[s])bySem[s]={corr:0,no:0,pen:0};
     if(o.status==="CORREGIDO")bySem[s].corr++;
     else if(o.status==="NO CORREGIDO")bySem[s].no++;
     else bySem[s].pen++;
   });
-  const semLabels=Object.keys(bySem).sort((a,b)=>Number(a.replace("Sem.",""))-Number(b.replace("Sem.","")));
+  const semLabels=Object.keys(bySem).sort((a,b)=>Number(a.slice(1))-Number(b.slice(1)));
   destroyChart("chart-tendencia");
   new Chart(document.getElementById("chart-tendencia"),{
     type:"line",
     data:{
       labels:semLabels,
       datasets:[
-        {label:"Corregidas",data:semLabels.map(s=>bySem[s].corr),borderColor:GREEN,backgroundColor:GREEN_L,fill:true,tension:0.4,pointRadius:4,pointBackgroundColor:GREEN},
-        {label:"No Corregidas",data:semLabels.map(s=>bySem[s].no),borderColor:RED,backgroundColor:RED_L,fill:true,tension:0.4,pointRadius:4,pointBackgroundColor:RED},
-        {label:"Pendientes",data:semLabels.map(s=>bySem[s].pen),borderColor:AMBER,backgroundColor:AMBER_L,fill:true,tension:0.4,pointRadius:4,pointBackgroundColor:AMBER}
+        {label:"Corregidas",data:semLabels.map(s=>bySem[s].corr),borderColor:GREEN,backgroundColor:GREEN+"22",fill:true,tension:0.4,pointRadius:3,pointBackgroundColor:GREEN,borderWidth:2},
+        {label:"No Corregidas",data:semLabels.map(s=>bySem[s].no),borderColor:RED,backgroundColor:RED+"22",fill:true,tension:0.4,pointRadius:3,pointBackgroundColor:RED,borderWidth:2},
+        {label:"Pendientes",data:semLabels.map(s=>bySem[s].pen),borderColor:AMBER,backgroundColor:AMBER+"22",fill:true,tension:0.4,pointRadius:3,pointBackgroundColor:AMBER,borderWidth:2}
       ]
     },
     options:{
-      responsive:true,
-      plugins:{legend:{position:"top",labels:{font:{size:10},boxWidth:12,padding:8}},
+      responsive:true,maintainAspectRatio:true,
+      plugins:{legend:{position:"top",align:"start",labels:{font:{size:10},boxWidth:10,padding:10}},
         tooltip:{mode:"index",intersect:false}},
       scales:{
-        x:{ticks:{font:{size:9},maxRotation:45},grid:{display:false}},
-        y:{beginAtZero:true,ticks:{stepSize:1,font:{size:10}},grid:{color:"#EEF0EC"}}
+        x:{ticks:{font:{size:9}},grid:{display:false}},
+        y:{beginAtZero:true,ticks:{stepSize:1,font:{size:10}},grid:{color:"#f0f0f0"}}
       }
     }
   });
 
-  // ── BARRAS HORIZONTALES: Cumplimiento por sector ───────────────────
-  const sectores={A:{t:0,ok:0},B:{t:0,ok:0},C:{t:0,ok:0},D:{t:0,ok:0}};
+  // ── SECTORES: barras horizontales compactas (sin Chart.js) ────────
+  const sectores={A:{t:0,ok:0,nombre:"Sector A"},B:{t:0,ok:0,nombre:"Sector B"},C:{t:0,ok:0,nombre:"Sector C"},D:{t:0,ok:0,nombre:"Sector D"}};
   obsF.forEach(o=>{
     const s=o.sector||"C";
-    if(!sectores[s])sectores[s]={t:0,ok:0};
-    sectores[s].t++;
-    if(o.status==="CORREGIDO")sectores[s].ok++;
+    if(!sectores[s])sectores[s]={t:0,ok:0,nombre:`Sector ${s}`};
+    sectores[s].t++;if(o.status==="CORREGIDO")sectores[s].ok++;
   });
-  const sectLabels=Object.keys(sectores).filter(s=>sectores[s].t>0).map(s=>`Sector ${s}`);
-  const sectKeys=Object.keys(sectores).filter(s=>sectores[s].t>0);
-  const sectPct=sectKeys.map(s=>sectores[s].t?Math.round(sectores[s].ok/sectores[s].t*100):0);
-  const sectColors=sectPct.map(p=>p>=80?GREEN:p>=50?AMBER:RED);
-  destroyChart("chart-sectores");
-  new Chart(document.getElementById("chart-sectores"),{
-    type:"bar",
-    data:{
-      labels:sectLabels,
-      datasets:[{
-        label:"% Cumplimiento",
-        data:sectPct,
-        backgroundColor:sectColors,
-        borderRadius:6,
-        barThickness:30
-      }]
-    },
-    options:{
-      indexAxis:"y",responsive:true,
-      plugins:{legend:{display:false},
-        tooltip:{callbacks:{label:ctx=>`Cumplimiento: ${ctx.raw}%`}},
-        datalabels:{display:false}},
-      scales:{
-        x:{min:0,max:100,ticks:{callback:v=>v+"%",font:{size:11}},grid:{color:"#EEF0EC"}},
-        y:{ticks:{font:{size:12,weight:"600"}},grid:{display:false}}
-      }
-    }
-  });
+  const sectEl=document.getElementById("d-sectores");
+  sectEl.innerHTML=Object.entries(sectores).filter(([,v])=>v.t>0).map(([,v])=>{
+    const p=Math.round(v.ok/v.t*100);
+    const col=p>=80?GREEN:p>=50?AMBER:RED;
+    return `<div style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">
+        <span style="font-size:11px;font-weight:700;color:var(--g700)">${v.nombre}</span>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:10px;color:var(--g400)">${v.ok}/${v.t} obs</span>
+          <span style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;color:${col}">${p}%</span>
+        </div>
+      </div>
+      <div style="height:6px;background:var(--g100);border-radius:20px;overflow:hidden">
+        <div style="height:100%;width:${p}%;background:${col};border-radius:20px;transition:width .6s"></div>
+      </div>
+    </div>`;
+  }).join("")||'<p style="font-size:12px;color:var(--g400)">Sin datos.</p>';
 
-  // ── DONUT: Estado acciones ─────────────────────────────────────────
-  let accCerradas=0,accVencidas=0,accEnProg=0,accPend=0;
+  // ── DONUT: Acciones ───────────────────────────────────────────────
+  let accCerr=0,accVenc=0,accProg=0,accPend=0;
   acciones.forEach(a=>{
     const obs=observations.find(o=>o.id===a.obs_id);
-    if(filSem && obs && String(obs.sem)!==filSem) return;
-    if(filSector && obs && obs.sector!==filSector) return;
-    if(a.status==="CERRADA"){accCerradas++;return;}
-    if(a.fecha_limite){
-      const fl=new Date(a.fecha_limite);fl.setHours(0,0,0,0);
-      if(fl<today){accVencidas++;return;}
-    }
-    if(a.status==="EN PROGRESO")accEnProg++;
-    else accPend++;
+    if(filSem&&obs&&String(obs.sem)!==filSem)return;
+    if(filSector&&obs&&obs.sector!==filSector)return;
+    if(a.status==="CERRADA"){accCerr++;return;}
+    if(a.fecha_limite){const fl=new Date(a.fecha_limite);fl.setHours(0,0,0,0);if(fl<today){accVenc++;return;}}
+    if(a.status==="EN PROGRESO")accProg++;else accPend++;
   });
-  const totalAcc=accCerradas+accVencidas+accEnProg+accPend||1;
+  const totalAcc=accCerr+accVenc+accProg+accPend||1;
+  const pctAcc=Math.round(accCerr/totalAcc*100);
+  document.getElementById("d-acc-pct").textContent=pctAcc+"%";
   destroyChart("chart-donut-acc");
   new Chart(document.getElementById("chart-donut-acc"),{
     type:"doughnut",
     data:{
       labels:["Cerradas","Vencidas","En progreso","Pendientes"],
-      datasets:[{data:[accCerradas,accVencidas,accEnProg,accPend],backgroundColor:[GREEN,RED,BLUE,AMBER],borderWidth:2,borderColor:"#fff"}]
+      datasets:[{data:[accCerr,accVenc,accProg,accPend],backgroundColor:[GREEN,RED,BLUE,AMBER],borderWidth:1,borderColor:"#fff",hoverOffset:4}]
     },
-    options:{
-      responsive:true,cutout:"65%",
-      plugins:{legend:{position:"bottom",labels:{font:{size:10},padding:8}},
-        tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${ctx.raw}`}}}
-    }
+    options:{responsive:true,maintainAspectRatio:true,cutout:"72%",
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${ctx.raw}`}}}}
   });
+  miniLeyenda("donut-acc-legend",[
+    {color:GREEN,label:"Cerradas",val:accCerr,pct:Math.round(accCerr/totalAcc*100)},
+    {color:RED,label:"Vencidas",val:accVenc,pct:Math.round(accVenc/totalAcc*100)},
+    {color:BLUE,label:"En progreso",val:accProg,pct:Math.round(accProg/totalAcc*100)},
+    {color:AMBER,label:"Pendientes",val:accPend,pct:Math.round(accPend/totalAcc*100)}
+  ]);
 
-  // KPIs acciones
-  const pctAcc=Math.round(accCerradas/totalAcc*100);
+  // Resumen acciones
   document.getElementById("d-acc-kpis").innerHTML=`
-    <div style="display:flex;flex-direction:column;gap:8px">
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:#E8F5E9;border-radius:8px">
-        <span style="font-size:12px;color:var(--green);font-weight:600">✅ Cerradas</span>
-        <span style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;color:var(--green)">${accCerradas}</span>
-      </div>
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:#FFEBEE;border-radius:8px">
-        <span style="font-size:12px;color:var(--red);font-weight:600">🔴 Vencidas</span>
-        <span style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;color:var(--red)">${accVencidas}</span>
-      </div>
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:#E3F2FD;border-radius:8px">
-        <span style="font-size:12px;color:${BLUE};font-weight:600">🔵 En progreso</span>
-        <span style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;color:${BLUE}">${accEnProg}</span>
-      </div>
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:#FFF8E1;border-radius:8px">
-        <span style="font-size:12px;color:var(--amber);font-weight:600">🟡 Pendientes</span>
-        <span style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;color:var(--amber)">${accPend}</span>
-      </div>
+    <div style="display:flex;flex-direction:column;gap:6px">
+      ${[
+        {color:GREEN,ico:"✅",label:"Cerradas",val:accCerr},
+        {color:RED,ico:"🔴",label:"Vencidas",val:accVenc},
+        {color:BLUE,ico:"🔵",label:"En progreso",val:accProg},
+        {color:AMBER,ico:"🟡",label:"Pendientes",val:accPend}
+      ].map(r=>`
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:5px 8px;background:${r.color}15;border-radius:6px;border-left:3px solid ${r.color}">
+          <span style="font-size:11px;color:${r.color};font-weight:600">${r.ico} ${r.label}</span>
+          <span style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;color:${r.color}">${r.val}</span>
+        </div>`).join("")}
       <div style="margin-top:4px">
-        <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px">
-          <span style="color:var(--g700);font-weight:600">Progreso</span>
-          <span style="color:var(--green);font-weight:700">${pctAcc}%</span>
+        <div style="display:flex;justify-content:space-between;font-size:10px;margin-bottom:2px">
+          <span style="color:var(--g700);font-weight:600">Progreso total</span>
+          <span style="color:${GREEN};font-weight:700">${pctAcc}%</span>
         </div>
-        <div style="height:8px;background:var(--g100);border-radius:20px;overflow:hidden">
-          <div style="height:100%;width:${pctAcc}%;background:var(--green);border-radius:20px;transition:width .6s"></div>
+        <div style="height:5px;background:var(--g100);border-radius:20px;overflow:hidden">
+          <div style="height:100%;width:${pctAcc}%;background:${GREEN};border-radius:20px"></div>
         </div>
       </div>
     </div>`;

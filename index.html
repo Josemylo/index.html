@@ -10,7 +10,7 @@
 <style>
 :root{
   --green:#1E7C34;--green-d:#155A25;--green-l:#2DA048;
-  --red:#E63329;--red-d:#B3221A;--amber:#D97706;
+  --red:#E63329;--amber:#D97706;
   --g50:#F7F8F6;--g100:#EEF0EC;--g200:#D5DAD3;
   --g400:#8F9B8A;--g700:#3A3F37;--g900:#1A1D18;
   --r:10px;--sh:0 2px 12px rgba(30,124,52,.13);--shl:0 6px 32px rgba(30,124,52,.18);
@@ -24,11 +24,11 @@ header{background:var(--green);position:sticky;top:0;z-index:100;box-shadow:0 3p
 .hdr-txt{flex:1}
 .hdr-txt h1{font-family:"Barlow Condensed",sans-serif;font-size:20px;font-weight:800;color:#fff;letter-spacing:.5px;line-height:1.1}
 .hdr-txt span{font-size:11px;color:rgba(255,255,255,.82)}
-.hdr-sync{background:rgba(255,255,255,.15);border:none;color:#fff;border-radius:7px;padding:7px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:"Barlow",sans-serif;display:flex;align-items:center;gap:5px;transition:background .18s}
+.hdr-sync{background:rgba(255,255,255,.15);border:none;color:#fff;border-radius:7px;padding:7px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:"Barlow",sans-serif;transition:background .18s}
 .hdr-sync:hover{background:rgba(255,255,255,.25)}
 nav{background:var(--green-d);display:flex;overflow-x:auto;scrollbar-width:none}
 nav::-webkit-scrollbar{display:none}
-.tab{flex-shrink:0;padding:11px 18px;color:rgba(255,255,255,.6);font-family:"Barlow Condensed",sans-serif;font-size:15px;font-weight:700;cursor:pointer;border-bottom:3px solid transparent;transition:all .18s;user-select:none;white-space:nowrap}
+.tab{flex-shrink:0;padding:11px 20px;color:rgba(255,255,255,.6);font-family:"Barlow Condensed",sans-serif;font-size:15px;font-weight:700;cursor:pointer;border-bottom:3px solid transparent;transition:all .18s;user-select:none;white-space:nowrap}
 .tab.active{color:#fff;border-bottom-color:var(--red)}
 .tab:hover:not(.active){color:rgba(255,255,255,.9)}
 main{max-width:720px;margin:0 auto;padding:18px 14px 100px}
@@ -37,17 +37,16 @@ main{max-width:720px;margin:0 auto;padding:18px 14px 100px}
 .card-title{font-family:"Barlow Condensed",sans-serif;font-size:17px;font-weight:700;color:var(--green);margin-bottom:14px;text-transform:uppercase;letter-spacing:.4px;border-left:4px solid var(--red);padding-left:10px}
 .fg{margin-bottom:13px}
 label{display:block;font-size:11px;font-weight:600;color:var(--g700);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
-select,input[type=text],input[type=date],textarea{width:100%;padding:10px 12px;border:1.5px solid var(--g200);border-radius:8px;font-family:"Barlow",sans-serif;font-size:15px;color:var(--g900);background:#fff;transition:border-color .18s;-webkit-appearance:none}
+select,input[type=text],textarea{width:100%;padding:10px 12px;border:1.5px solid var(--g200);border-radius:8px;font-family:"Barlow",sans-serif;font-size:15px;color:var(--g900);background:#fff;transition:border-color .18s;-webkit-appearance:none}
 select:focus,input:focus,textarea:focus{outline:none;border-color:var(--green)}
 textarea{resize:vertical;min-height:78px}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.btn{display:inline-flex;align-items:center;gap:6px;padding:11px 18px;border:none;border-radius:8px;font-family:"Barlow",sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .18s}
-.btn-primary{background:var(--green);color:#fff;width:100%;justify-content:center;font-size:15px}
+.btn-primary{background:var(--green);color:#fff;width:100%;padding:12px;border:none;border-radius:8px;font-family:"Barlow",sans-serif;font-size:15px;font-weight:600;cursor:pointer;transition:background .18s;display:flex;align-items:center;justify-content:center;gap:8px}
 .btn-primary:hover{background:var(--green-l)}
 .btn-primary:disabled{background:var(--g200);cursor:not-allowed;color:var(--g400)}
 .btn-ghost{background:transparent;color:var(--green);border:1.5px solid var(--green);padding:7px 12px;font-size:13px;border-radius:8px;cursor:pointer;font-family:"Barlow",sans-serif;font-weight:600;transition:all .18s;display:inline-flex;align-items:center;gap:4px}
 .btn-ghost:hover{background:var(--green);color:#fff}
-.btn-red{background:transparent;color:var(--red);border:1.5px solid var(--red);padding:6px 10px;font-size:12px;border-radius:7px;cursor:pointer;font-family:"Barlow",sans-serif;font-weight:600;transition:all .18s}
+.btn-red{background:transparent;color:var(--red);border:1.5px solid var(--red);padding:7px 12px;font-size:13px;border-radius:8px;cursor:pointer;font-family:"Barlow",sans-serif;font-weight:600;transition:all .18s}
 .btn-red:hover{background:var(--red);color:#fff}
 .s-sel{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .s-btn{padding:9px 6px;border:2px solid var(--g200);border-radius:8px;background:#fff;cursor:pointer;text-align:center;font-family:"Barlow Condensed",sans-serif;font-size:13px;font-weight:700;transition:all .15s;color:var(--g700)}
@@ -63,54 +62,22 @@ textarea{resize:vertical;min-height:78px}
 .b-3s{background:#E3F2FD;color:#0D47A1}.b-4s{background:#F3E5F5;color:#4A148C}
 .b-5s{background:#FCE4EC;color:#880E4F}.b-epp{background:#FFF3E0;color:#E65100}
 .b-ok{background:#E8F5E9;color:#1B5E20}.b-no{background:#FFEBEE;color:#B71C1C}
-.b-pen{background:#FFF8E1;color:#F57F17}.b-prog{background:#E3F2FD;color:#0D47A1}
-.obs-card{background:#fff;border-radius:var(--r);box-shadow:var(--sh);padding:14px 15px;margin-bottom:12px;border-left:4px solid var(--g200)}
-.obs-card.corregido{border-left-color:var(--green)}.obs-card.no-corregido{border-left-color:var(--red)}.obs-card.pendiente{border-left-color:#FFC107}
-.obs-hdr{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:8px}
-.obs-meta{font-size:11px;color:var(--g400);margin-top:3px}
-.obs-txt{font-size:14px;margin-bottom:8px;line-height:1.5}
-.obs-footer{display:flex;flex-wrap:wrap;gap:5px;align-items:center}
-.acc-wrap{margin-top:12px;padding-top:12px;border-top:1px solid var(--g100)}
-.acc-item{background:var(--g50);border-radius:8px;padding:11px 13px;margin-bottom:8px;border:1.5px solid var(--g200)}
-.acc-item.cerrada{border-color:var(--green);background:#f0fdf4}
-.acc-item.en-progreso{border-color:#3B82F6;background:#eff6ff}
-.acc-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
-.acc-num{font-family:"Barlow Condensed",sans-serif;font-size:12px;font-weight:700;color:var(--g400);text-transform:uppercase}
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;padding:20px;overflow-y:auto}
+.b-pen{background:#FFF8E1;color:#F57F17}
+.obs-card{background:#fff;border-radius:var(--r);box-shadow:var(--sh);margin-bottom:10px;border-left:4px solid var(--g200);overflow:hidden;cursor:pointer}
+.obs-card.corregido{border-left-color:var(--green)}
+.obs-card.no-corregido{border-left-color:var(--red)}
+.obs-card.pendiente{border-left-color:#FFC107}
+.obs-summary{padding:12px 14px}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;padding:16px;overflow-y:auto}
 .modal-overlay.show{display:flex;align-items:flex-start;justify-content:center}
 .modal{background:#fff;border-radius:14px;padding:20px;width:100%;max-width:500px;box-shadow:var(--shl);margin:auto}
 .modal-title{font-family:"Barlow Condensed",sans-serif;font-size:18px;font-weight:800;color:var(--green);margin-bottom:16px;text-transform:uppercase;border-left:4px solid var(--red);padding-left:10px}
-.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
-.stat-box{background:#fff;border-radius:var(--r);box-shadow:var(--sh);padding:14px;text-align:center}
-.stat-num{font-family:"Barlow Condensed",sans-serif;font-size:38px;font-weight:800;line-height:1;color:var(--green)}
-.stat-num.red{color:var(--red)}.stat-num.amber{color:var(--amber)}
-.stat-label{font-size:11px;color:var(--g400);font-weight:600;text-transform:uppercase;letter-spacing:.4px;margin-top:3px}
-.prog-wrap{margin-bottom:9px}
-.prog-lbl{display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px}
-.prog-track{height:9px;background:var(--g100);border-radius:20px;overflow:hidden}
-.prog-fill{height:100%;background:var(--green);border-radius:20px;transition:width .6s}
-.prog-fill.low{background:var(--red)}.prog-fill.mid{background:var(--amber)}
-.filters{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
-.empty{text-align:center;padding:38px 20px;color:var(--g400)}
-.empty-ico{font-size:38px;margin-bottom:8px}
-.loading{text-align:center;padding:40px 20px;color:var(--g400)}
-.spinner{width:18px;height:18px;border:3px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:inline-block}
-.spinner-g{width:28px;height:28px;border:3px solid var(--g100);border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite;display:inline-block}
-.upload-progress{height:6px;background:var(--g100);border-radius:20px;overflow:hidden;margin-top:8px;display:none}
-.upload-progress-fill{height:100%;background:var(--green);border-radius:20px;transition:width .3s}
-@keyframes spin{to{transform:rotate(360deg)}}
-
-/* DASHBOARD GERENCIAL */
 .kpi-box{background:#fff;border-radius:8px;box-shadow:var(--sh);padding:10px 6px;text-align:center;border-top:3px solid var(--g200)}
-.kpi-box.green{border-top-color:var(--green)}
-.kpi-box.red{border-top-color:var(--red)}
-.kpi-box.amber{border-top-color:var(--amber)}
+.kpi-box.green{border-top-color:var(--green)}.kpi-box.red{border-top-color:var(--red)}.kpi-box.amber{border-top-color:var(--amber)}
 .kpi-val{font-family:"Barlow Condensed",sans-serif;font-size:24px;font-weight:800;line-height:1;color:var(--g900)}
-.kpi-box.green .kpi-val{color:var(--green)}
-.kpi-box.red .kpi-val{color:var(--red)}
-.kpi-box.amber .kpi-val{color:var(--amber)}
+.kpi-box.green .kpi-val{color:var(--green)}.kpi-box.red .kpi-val{color:var(--red)}.kpi-box.amber .kpi-val{color:var(--amber)}
 .kpi-lbl{font-size:9px;color:var(--g400);font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-top:2px}
-.dash-card{background:#fff;border-radius:10px;box-shadow:var(--sh);padding:12px 12px 14px}
+.dash-card{background:#fff;border-radius:10px;box-shadow:var(--sh);padding:12px 12px 14px;margin-bottom:12px}
 .dash-card-title{font-family:"Barlow Condensed",sans-serif;font-size:12px;font-weight:700;color:var(--g700);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;border-left:3px solid var(--red);padding-left:8px}
 .dash-legend-row{display:flex;align-items:center;gap:6px;padding:3px 0;border-bottom:1px solid var(--g100)}
 .dash-legend-row:last-child{border-bottom:none}
@@ -118,19 +85,18 @@ textarea{resize:vertical;min-height:78px}
 .dash-legend-label{font-size:10px;color:var(--g700);flex:1}
 .dash-legend-val{font-family:"Barlow Condensed",sans-serif;font-size:13px;font-weight:700;color:var(--g900)}
 .dash-legend-pct{font-size:10px;color:var(--g400);min-width:30px;text-align:right}
-#toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--green);color:#fff;padding:11px 22px;border-radius:30px;font-size:13px;font-weight:600;box-shadow:var(--shl);opacity:0;pointer-events:none;transition:opacity .3s;z-index:999;white-space:nowrap}
+.filter-small{padding:8px 10px;border:1.5px solid var(--g200);border-radius:8px;font-family:"Barlow",sans-serif;font-size:12px;-webkit-appearance:none;background:#fff;width:100%}
+.upload-progress{height:5px;background:var(--g100);border-radius:20px;overflow:hidden;margin-top:8px;display:none}
+.upload-progress-fill{height:100%;background:var(--green);border-radius:20px;transition:width .3s}
+.empty{text-align:center;padding:38px 20px;color:var(--g400)}
+.empty-ico{font-size:38px;margin-bottom:8px}
+.loading{text-align:center;padding:40px 20px;color:var(--g400)}
+.spinner{width:18px;height:18px;border:3px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:inline-block}
+.spinner-g{width:28px;height:28px;border:3px solid var(--g100);border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite;display:inline-block}
+#toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--green);color:#fff;padding:11px 22px;border-radius:30px;font-size:13px;font-weight:600;box-shadow:var(--shl);opacity:0;pointer-events:none;transition:opacity .3s;z-index:999;white-space:nowrap;max-width:90vw}
 #toast.show{opacity:1}#toast.error{background:var(--red)}
-@media(max-width:600px){
-  .row2,.filters,.stats-grid{grid-template-columns:1fr!important}
-  .dash-grid-2{grid-template-columns:1fr!important}
-  .dash-kpis{grid-template-columns:1fr 1fr!important}
-}
-@media(max-width:420px){
-  .row2,.filters,.stats-grid{grid-template-columns:1fr!important}
-  .dash-grid-2{grid-template-columns:1fr!important}
-  .dash-kpis{grid-template-columns:1fr 1fr!important}
-  .stat-num{font-size:28px!important}
-}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media(max-width:480px){.row2{grid-template-columns:1fr}.kpi-val{font-size:20px}}
 </style>
 </head>
 <body>
@@ -147,21 +113,20 @@ textarea{resize:vertical;min-height:78px}
 </header>
 
 <nav>
-  <div class="tab active" onclick="showTab('nuevo')">+ Nueva obs.</div>
+  <div class="tab active" onclick="showTab('nuevo')">+ Nueva</div>
   <div class="tab" onclick="showTab('lista')">Observaciones</div>
-  <div class="tab" onclick="showTab('acciones')">Acciones</div>
   <div class="tab" onclick="showTab('dashboard')">Dashboard</div>
 </nav>
 
 <main>
 
-<!-- TAB NUEVO -->
+<!-- ═══ TAB NUEVO ═══ -->
 <div id="tab-nuevo" class="section active">
   <div class="card">
     <div class="card-title">📋 Nueva observación</div>
-    <div class="row2">
-      <div class="fg"><label>Semana</label><input type="text" id="f-sem" readonly style="background:var(--g50)"></div>
-      <div class="fg"><label>Fecha</label><input type="date" id="f-fecha"></div>
+    <div class="fg">
+      <label>Semana</label>
+      <input type="text" id="f-sem" readonly style="background:var(--g50);font-weight:700;color:var(--green)">
     </div>
     <div class="fg"><label>Responsable de Registro</label><input type="text" id="f-auditor" placeholder="Tu nombre completo"></div>
     <div class="fg">
@@ -188,7 +153,10 @@ textarea{resize:vertical;min-height:78px}
       </div>
     </div>
     <div class="fg"><label>Descripción</label><textarea id="f-obs" placeholder="Describe la situación encontrada..."></textarea></div>
-    <div class="fg"><label>Responsable del área</label><input type="text" id="f-responsable" placeholder="Se asigna automáticamente al elegir área" readonly style="background:var(--g50);color:var(--g700)"></div>
+    <div class="fg">
+      <label>Responsable del área</label>
+      <input type="text" id="f-responsable" readonly style="background:var(--g50);color:var(--g700)" placeholder="Se asigna automáticamente">
+    </div>
     <div class="fg">
       <label>Foto de evidencia (antes)</label>
       <div class="photo-drop">
@@ -199,32 +167,28 @@ textarea{resize:vertical;min-height:78px}
       <div class="upload-progress" id="prog-nuevo"><div class="upload-progress-fill" id="prog-nuevo-fill"></div></div>
       <div class="photo-prev" id="prev-nuevo"></div>
     </div>
-    <button class="btn btn-primary" id="btn-guardar" onclick="guardarObservacion()">Guardar observación</button>
+    <button class="btn-primary" id="btn-guardar" onclick="guardarObservacion()">Guardar observación</button>
   </div>
 </div>
 
-<!-- TAB LISTA -->
+<!-- ═══ TAB LISTA ═══ -->
 <div id="tab-lista" class="section">
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
-    <select id="fil-area" onchange="filtrar()"><option value="">Todas las áreas</option></select>
-    <select id="fil-status" onchange="filtrar()">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+    <select id="fil-area" class="filter-small" onchange="filtrar()"><option value="">Todas las áreas</option></select>
+    <select id="fil-status" class="filter-small" onchange="filtrar()">
       <option value="">Todos los estados</option>
       <option value="PENDIENTE">Pendiente</option>
       <option value="CORREGIDO">Corregido</option>
       <option value="NO CORREGIDO">No corregido</option>
     </select>
-    <select id="fil-sector" onchange="filtrar()">
+    <select id="fil-sector" class="filter-small" onchange="filtrar()">
       <option value="">Todos los sectores</option>
       <option value="A">Sector A</option>
       <option value="B">Sector B</option>
       <option value="C">Sector C</option>
     </select>
-    <select id="fil-sem" onchange="filtrar()"><option value="">Todas las semanas</option></select>
-  </div>
-  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px">
-    <input type="date" id="fil-fecha-ini" onchange="filtrar()" style="padding:8px 10px;border:1.5px solid var(--g200);border-radius:8px;font-family:Barlow,sans-serif;font-size:13px" placeholder="Desde">
-    <input type="date" id="fil-fecha-fin" onchange="filtrar()" style="padding:8px 10px;border:1.5px solid var(--g200);border-radius:8px;font-family:Barlow,sans-serif;font-size:13px" placeholder="Hasta">
-    <select id="fil-orden" onchange="filtrar()">
+    <select id="fil-sem" class="filter-small" onchange="filtrar()"><option value="">Todas las semanas</option></select>
+    <select id="fil-orden" class="filter-small" onchange="filtrar()">
       <option value="fecha-desc">Más reciente</option>
       <option value="fecha-asc">Más antiguo</option>
       <option value="status">Por estado</option>
@@ -234,176 +198,103 @@ textarea{resize:vertical;min-height:78px}
   <div id="obs-list"><div class="loading"><div class="spinner-g"></div><p style="margin-top:12px;font-size:13px">Cargando...</p></div></div>
 </div>
 
-<!-- TAB ACCIONES -->
-<div id="tab-acciones" class="section">
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
-    <select id="fil-acc-area" onchange="filtrarAcc()"><option value="">Todas las áreas</option></select>
-    <select id="fil-acc-status" onchange="filtrarAcc()">
-      <option value="">Todos los estados</option>
-      <option value="PENDIENTE">Pendiente</option>
-      <option value="EN PROGRESO">En progreso</option>
-      <option value="CERRADA">Cerrada</option>
-      <option value="VENCIDA">Vencidas</option>
-    </select>
-  </div>
-  <div id="acc-list"><div class="loading"><div class="spinner-g"></div><p style="margin-top:12px;font-size:13px">Cargando...</p></div></div>
-</div>
-
-<!-- TAB DASHBOARD -->
+<!-- ═══ TAB DASHBOARD ═══ -->
 <div id="tab-dashboard" class="section">
-
-  <!-- Filtros compactos -->
   <div style="display:flex;gap:8px;margin-bottom:12px">
-    <select id="d-fil-sem" onchange="renderDashboard()" style="flex:1;padding:8px 10px;border:1.5px solid var(--g200);border-radius:8px;font-family:Barlow,sans-serif;font-size:12px;-webkit-appearance:none;background:#fff">
-      <option value="">Todas las semanas</option>
-    </select>
-    <select id="d-fil-sector" onchange="renderDashboard()" style="flex:1;padding:8px 10px;border:1.5px solid var(--g200);border-radius:8px;font-family:Barlow,sans-serif;font-size:12px;-webkit-appearance:none;background:#fff">
+    <select id="d-fil-sem" onchange="renderDashboard()" class="filter-small"><option value="">Todas las semanas</option></select>
+    <select id="d-fil-sector" onchange="renderDashboard()" class="filter-small">
       <option value="">Todos los sectores</option>
       <option value="A">Sector A</option>
       <option value="B">Sector B</option>
       <option value="C">Sector C</option>
     </select>
   </div>
-
-  <!-- KPIs fila -->
   <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px">
-    <div class="kpi-box">
-      <div class="kpi-val" id="d-total">0</div>
-      <div class="kpi-lbl">Total</div>
-    </div>
-    <div class="kpi-box green">
-      <div class="kpi-val" id="d-corregidas">0</div>
-      <div class="kpi-lbl">Corregidas</div>
-    </div>
-    <div class="kpi-box red">
-      <div class="kpi-val" id="d-no-corregidas">0</div>
-      <div class="kpi-lbl">No Corr.</div>
-    </div>
-    <div class="kpi-box amber">
-      <div class="kpi-val" id="d-pct">0%</div>
-      <div class="kpi-lbl">Cumplim.</div>
-    </div>
+    <div class="kpi-box"><div class="kpi-val" id="d-total">0</div><div class="kpi-lbl">Total</div></div>
+    <div class="kpi-box green"><div class="kpi-val" id="d-corregidas">0</div><div class="kpi-lbl">Corregidas</div></div>
+    <div class="kpi-box red"><div class="kpi-val" id="d-no-corregidas">0</div><div class="kpi-lbl">No Corr.</div></div>
+    <div class="kpi-box amber"><div class="kpi-val" id="d-pct">0%</div><div class="kpi-lbl">Cumplim.</div></div>
   </div>
-
-  <!-- Fila: 2 donuts pequeños lado a lado -->
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
-    <div class="dash-card">
+    <div class="dash-card" style="margin-bottom:0">
       <div class="dash-card-title">Estado obs.</div>
-      <div style="position:relative;width:110px;height:110px;margin:0 auto">
+      <div style="position:relative;width:100px;height:100px;margin:0 auto">
         <canvas id="chart-donut-status"></canvas>
-        <div id="donut-status-center" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none">
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:var(--green)" id="d-pct2">0%</div>
-          <div style="font-size:9px;color:var(--g400);font-weight:600;text-transform:uppercase">Cumpl.</div>
+        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;color:var(--green)" id="d-pct2">0%</div>
+          <div style="font-size:8px;color:var(--g400);font-weight:600;text-transform:uppercase">Cumpl.</div>
         </div>
       </div>
       <div id="donut-status-legend" style="margin-top:8px"></div>
     </div>
-    <div class="dash-card">
+    <div class="dash-card" style="margin-bottom:0">
       <div class="dash-card-title">Fallos por S</div>
-      <div style="position:relative;width:110px;height:110px;margin:0 auto">
+      <div style="position:relative;width:100px;height:100px;margin:0 auto">
         <canvas id="chart-donut-s"></canvas>
-        <div id="donut-s-center" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none">
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:var(--red)" id="d-top-s">—</div>
-          <div style="font-size:9px;color:var(--g400);font-weight:600;text-transform:uppercase">Top fallo</div>
+        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;color:var(--red)" id="d-top-s">—</div>
+          <div style="font-size:8px;color:var(--g400);font-weight:600;text-transform:uppercase">Top</div>
         </div>
       </div>
       <div id="donut-s-legend" style="margin-top:8px"></div>
     </div>
   </div>
-
-  <!-- Barras por área -->
-  <div class="dash-card" style="margin-bottom:12px">
-    <div class="dash-card-title">📊 Obs. por área — Corregidas vs No Corregidas</div>
-    <div style="overflow-x:auto">
-      <canvas id="chart-barras-area" style="min-width:300px"></canvas>
-    </div>
+  <div class="dash-card">
+    <div class="dash-card-title">📊 Obs. por área</div>
+    <div style="overflow-x:auto"><canvas id="chart-barras-area" style="min-width:280px"></canvas></div>
   </div>
-
-  <!-- Tendencia semanal -->
-  <div class="dash-card" style="margin-bottom:12px">
+  <div class="dash-card">
     <div class="dash-card-title">📈 Tendencia semanal</div>
-    <div style="overflow-x:auto">
-      <canvas id="chart-tendencia" style="min-width:300px"></canvas>
-    </div>
+    <div style="overflow-x:auto"><canvas id="chart-tendencia" style="min-width:280px"></canvas></div>
   </div>
-
-  <!-- Cumplimiento por sector — barras horizontales compactas -->
-  <div class="dash-card" style="margin-bottom:12px">
+  <div class="dash-card">
     <div class="dash-card-title">🏭 Cumplimiento por sector</div>
     <div id="d-sectores"></div>
   </div>
-
-  <!-- Acciones: donut pequeño + tabla KPIs -->
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
-    <div class="dash-card">
-      <div class="dash-card-title">🎯 Acciones</div>
-      <div style="position:relative;width:110px;height:110px;margin:0 auto">
-        <canvas id="chart-donut-acc"></canvas>
-        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none">
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:var(--green)" id="d-acc-pct">0%</div>
-          <div style="font-size:9px;color:var(--g400);font-weight:600;text-transform:uppercase">Cerradas</div>
-        </div>
-      </div>
-      <div id="donut-acc-legend" style="margin-top:8px"></div>
-    </div>
-    <div class="dash-card">
-      <div class="dash-card-title">📋 Resumen</div>
-      <div id="d-acc-kpis"></div>
-    </div>
+  <div class="dash-card">
+    <div class="dash-card-title">👤 Cumplimiento por responsable</div>
+    <div id="d-responsables"></div>
   </div>
-
 </div>
 
 </main>
 
-<!-- MODAL: AGREGAR/EDITAR ACCIÓN -->
-<div class="modal-overlay" id="modal-accion">
+<!-- MODAL DETALLE / CIERRE -->
+<div class="modal-overlay" id="modal-obs">
   <div class="modal">
-    <div class="modal-title" id="modal-accion-title">➕ Agregar acción</div>
-    <input type="hidden" id="ma-obs-id">
-    <input type="hidden" id="ma-acc-id">
-    <div class="fg"><label>Descripción de la acción</label><textarea id="ma-desc" placeholder="¿Qué se debe hacer?"></textarea></div>
-    <div class="row2">
-      <div class="fg"><label>Responsable</label><input type="text" id="ma-resp" placeholder="Nombre"></div>
-      <div class="fg"><label>Fecha límite</label><input type="date" id="ma-fecha"></div>
-    </div>
-    <div style="display:flex;gap:10px;margin-top:4px">
-      <button class="btn btn-primary" onclick="guardarAccion()" style="flex:1">Guardar acción</button>
-      <button class="btn-ghost" onclick="closeModal('modal-accion')">Cancelar</button>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL: CERRAR ACCIÓN -->
-<div class="modal-overlay" id="modal-cierre">
-  <div class="modal">
-    <div class="modal-title">✅ Cerrar acción</div>
-    <input type="hidden" id="mc-acc-id">
-    <input type="hidden" id="mc-obs-id">
-    <div class="fg"><label>Tu nombre (quien cierra)</label><input type="text" id="mc-firma" placeholder="Nombre completo"></div>
-    <div class="fg"><label>Comentario de cierre</label><textarea id="mc-comentario" placeholder="¿Cómo se resolvió?"></textarea></div>
-    <div class="fg">
-      <label>Foto del "después"</label>
-      <div class="photo-drop">
-        <input type="file" accept="image/*" capture="environment" onchange="handleFotoCierre(this)">
-        <div style="font-size:28px;margin-bottom:5px">📷</div>
-        <p style="font-size:13px;color:var(--g400)">Foto de la situación corregida</p>
+    <div class="modal-title" id="modal-obs-title">Observación</div>
+    <input type="hidden" id="mo-id">
+    <div id="mo-detalle" style="margin-bottom:14px;background:var(--g50);border-radius:8px;padding:12px;font-size:13px;line-height:1.8;color:var(--g700)"></div>
+    <div id="mo-fotos-antes" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px"></div>
+    <div id="mo-cierre-section">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.4px;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--g100)">✅ Cerrar observación</div>
+      <div class="fg"><label>Comentario de corrección</label><textarea id="mo-comentario" placeholder="¿Cómo se corrigió?"></textarea></div>
+      <div class="fg">
+        <label>Foto del "después" (opcional)</label>
+        <div class="photo-drop">
+          <input type="file" accept="image/*" capture="environment" onchange="handleFotoCierre(this)">
+          <div style="font-size:24px;margin-bottom:4px">📷</div>
+          <p style="font-size:12px;color:var(--g400)">Foto de evidencia del cierre</p>
+        </div>
+        <div class="upload-progress" id="prog-cierre"><div class="upload-progress-fill" id="prog-cierre-fill"></div></div>
+        <div class="photo-prev" id="prev-cierre"></div>
       </div>
-      <div class="upload-progress" id="prog-cierre"><div class="upload-progress-fill" id="prog-cierre-fill"></div></div>
-      <div class="photo-prev" id="prev-cierre"></div>
+      <button class="btn-primary" id="btn-cerrar-obs" onclick="cerrarObservacion()" style="margin-bottom:10px">✓ Marcar como CORREGIDO</button>
     </div>
-    <div style="display:flex;gap:10px;margin-top:4px">
-      <button class="btn btn-primary" onclick="cerrarAccion()" style="flex:1">✓ Confirmar cierre</button>
-      <button class="btn-ghost" onclick="closeModal('modal-cierre')">Cancelar</button>
+    <div id="mo-foto-despues" style="display:none;margin-bottom:14px"></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn-ghost" onclick="abrirEditar()" style="flex:1;justify-content:center">✏️ Editar</button>
+      <button class="btn-red" onclick="abrirEliminar()">🗑️</button>
+      <button class="btn-ghost" onclick="closeModal('modal-obs')" style="border-color:var(--g200);color:var(--g400);flex:1;justify-content:center">Cerrar</button>
     </div>
   </div>
 </div>
 
-<!-- MODAL: EDITAR OBSERVACIÓN -->
+<!-- MODAL EDITAR -->
 <div class="modal-overlay" id="modal-editar">
   <div class="modal">
     <div class="modal-title">✏️ Editar observación</div>
-    <input type="hidden" id="me-obs-id">
+    <input type="hidden" id="me-id">
     <div class="fg"><label>Descripción</label><textarea id="me-obs"></textarea></div>
     <div class="fg"><label>Responsable</label><input type="text" id="me-resp"></div>
     <div class="fg">
@@ -415,20 +306,20 @@ textarea{resize:vertical;min-height:78px}
       </select>
     </div>
     <div style="display:flex;gap:10px;margin-top:4px">
-      <button class="btn btn-primary" onclick="confirmarEditar()" style="flex:1">Guardar cambios</button>
+      <button class="btn-primary" onclick="confirmarEditar()" style="flex:1">Guardar</button>
       <button class="btn-ghost" onclick="closeModal('modal-editar')">Cancelar</button>
     </div>
   </div>
 </div>
 
-<!-- MODAL: CONFIRMAR ELIMINAR -->
+<!-- MODAL ELIMINAR -->
 <div class="modal-overlay" id="modal-eliminar">
   <div class="modal">
-    <div class="modal-title">🗑️ Eliminar observación</div>
+    <div class="modal-title">🗑️ Eliminar</div>
     <input type="hidden" id="mdel-id">
     <p style="font-size:14px;color:var(--g700);margin-bottom:16px;line-height:1.6">¿Estás seguro? Esta acción no se puede deshacer.</p>
     <div style="display:flex;gap:10px">
-      <button class="btn btn-primary" onclick="confirmarEliminar()" style="flex:1;background:var(--red)">Sí, eliminar</button>
+      <button class="btn-primary" onclick="confirmarEliminar()" style="flex:1;background:var(--red)">Sí, eliminar</button>
       <button class="btn-ghost" onclick="closeModal('modal-eliminar')">Cancelar</button>
     </div>
   </div>
@@ -437,74 +328,46 @@ textarea{resize:vertical;min-height:78px}
 <div id="toast"></div>
 
 <script>
-// ═══════════════════════════════════════
-// CONFIG
-// ═══════════════════════════════════════
+// ═══ CONFIG ═══
 const {createClient}=supabase;
 const sb=createClient("https://aedzzbrguoodnsynfpyl.supabase.co","sb_publishable_3HxZO2sfSwc6xQvEw3iIYg_kksCk9Xm");
 const CLD_CLOUD="dw5ucvvie";
 const CLD_PRESET="fotos5s";
 
-
-// ═══════════════════════════════════════
-// RESPONSABLES POR ÁREA/ZONA
-// ═══════════════════════════════════════
-const RESPONSABLES_AREA = {
-  "LINEA1": "JUNIOR GERVACIO / DANIEL TABOADA / JUAN GORDILLO",
-  "LINEA2": "JUNIOR GERVACIO / DANIEL TABOADA / JUAN GORDILLO",
-  "LINEA3": "JUNIOR GERVACIO / DANIEL TABOADA / JUAN GORDILLO",
-  "LINEA4": "JUNIOR GERVACIO / DANIEL TABOADA / JUAN GORDILLO",
-  "LINEA5": "YONER ANGULO / FABRICIO POLO",
-  "LINEA6": "YONER ANGULO / FABRICIO POLO",
-  "LINEA7": "YONER ANGULO / FABRICIO POLO",
-  "LINEA8": "YONER ANGULO / FABRICIO POLO",
-  "LINEA9": "JUNIOR GERVACIO / DANIEL TABOADA / JUAN GORDILLO",
-  "LINEA10": "YONER ANGULO / FABRICIO POLO",
-  "SALA_MANEJOS": "DARLENE CRUZ",
-  "SALA_FUERZA": "JUNIOR GERVACIO / DANIEL TABOADA / JUAN GORDILLO",
-  "SALA_CALDEROS": "AYRTON COTRINA",
-  "TRATAMIENTO_AGUA": "DEBORAH SANTILLAN",
-  "SALA_JARABE": "JUNIOR GERVACIO / DANIEL TABOADA / JUAN GORDILLO",
-  "ALMACEN": "HECTOR ARTEAGA"
+// ═══ RESPONSABLES ═══
+const RESPONSABLES_AREA={
+  "LINEA1":"JUNIOR GERVACIO / DANIEL TABOADA / JUAN GORDILLO",
+  "LINEA2":"JUNIOR GERVACIO / DANIEL TABOADA / JUAN GORDILLO",
+  "LINEA3":"JUNIOR GERVACIO / DANIEL TABOADA / JUAN GORDILLO",
+  "LINEA4":"JUNIOR GERVACIO / DANIEL TABOADA / JUAN GORDILLO",
+  "LINEA5":"YONER ANGULO / FABRICIO POLO",
+  "LINEA6":"YONER ANGULO / FABRICIO POLO",
+  "LINEA7":"YONER ANGULO / FABRICIO POLO",
+  "LINEA8":"YONER ANGULO / FABRICIO POLO",
+  "LINEA9":"JUNIOR GERVACIO / DANIEL TABOADA / JUAN GORDILLO",
+  "LINEA10":"YONER ANGULO / FABRICIO POLO",
+  "SALA_MANEJOS":"DARLENE CRUZ",
+  "SALA_FUERZA":"JUNIOR GERVACIO / DANIEL TABOADA / JUAN GORDILLO",
+  "SALA_CALDEROS":"AYRTON COTRINA",
+  "TRATAMIENTO_AGUA":"DEBORAH SANTILLAN",
+  "SALA_JARABE":"JUNIOR GERVACIO / DANIEL TABOADA / JUAN GORDILLO",
+  "ALMACEN":"HECTOR ARTEAGA",
+  "OFICINAS":""
 };
-
-const RESPONSABLES_ZONA = {
-  "OFICINA PRODUCCION":      "HENRY TREVIÑOS",
-  "OFICINA MEJORA CONTINUA": "DARLENE CRUZ",
-  "AREA CALIDAD":            "ITALO BUEN DIA",
-  "OFICINA PLANIFICACION":   "CARLOS LUYO",
-  "JEFATURA PRODUCCION":     "HENRY TREVIÑOS",
-  "JEFATURA PLANTA":         "FABIO CALDAS",
-  "SEGURIDAD INDUSTRIAL":    "JUAN ESPINOZA",
-  "GESTION HUMANA":          "ALVARO SOTOMAYOR",
-  "ALMACEN INSUMOS":         "HECTOR ARTEAGA",
-  "ALMACEN REPUESTOS":       "HECTOR ARTEAGA",
-  "ALMACEN TEMPORAL":        "HECTOR ARTEAGA",
-  "MANTENIMIENTO ELECTRICO": "PAULO MEDINA",
-  "MANTENIMIENTO MECANICO":  "RICARDO ROSALES"
-};
-
-// ═══════════════════════════════════════
-// DATOS MAESTROS
-// ═══════════════════════════════════════
-const DATOS={
-  LINEA1:{sector:"A",zonas:["CAPSULADOR ALCOA B242","CODIFICAD IMAJE 1000 S8 CLASIC","LLENADORA LINEAL DE BIDONES MESAL","ALIMENTADOR TAPAS UNIMAC GHERRI GG/900","SOPLADORA ROTATIVA SBF 410 HERO","ETIQUETADORA SIDEL EVODECO SL100","POSICIONADOR POSIMAT ACCESS N-40","CODIFICADOR LASER VIDEOJET LP09"]},
-  LINEA2:{sector:"A",zonas:["CODIFICADOR VIDEOJET EXCEL 2000 02CWD","PROPORCIONADOR MESAL MIX-50","PROPORCIONADOR MOJONNIER 22-48","TRANSPORTADOR TABLILLAS LP04","APLICADOR PRECINTOS DASE SEAL XYL-450S","LLENADORA AWF","LLENADORA SIDEL SF300","TRANSPORTADOR NEUMATICO LP08","CHILLER TERMALCARE Q37.5"]},
-  LINEA3:{sector:"A",zonas:["PROPORCIONADOR MOJONNIER FE","DOSIFICADOR NITROGENO SC-350","ELEVADOR TAPAS JET FLOW ZEFP","LLENADORA 20 LITROS RERCPAC","CAPSULADOR UNIMAC GHERRI GG/300","TAPONADORA TAPA PLASTICO PRE-ROSCADO","EMPACADORA SIDEL EVO FILM","APLICADOR PRECINTOS SCALIGERA ULISSE","CHILLER TERMALCARE Q37.6"]},
-  LINEA4:{sector:"A",zonas:["EMPACADORA PACKERS VITZ","ELEVADOR TAPAS JET FLOW MESAL","ENVOLVEDORA TECMI EV 750","EMPACADORA EVOPACK T452","CODIFICADOR VIDEOJET EXCEL 2000 16CWD","PALETIZADOR SIDEL PALKOMBI","LLENADORA SACMI AHF+EPD","SOPLADORA TECHLONG CPX16A"]},
-  LINEA5:{sector:"B",zonas:["ETIQUETADORA TRINE 4600","ENVOLVEDORA TECMI EV 850","ETIQUETADORA TRINE 5500","CUCHILLA AIRE SONIC 70","DOSIFICADOR NITROGENO LIQUIDO","ALIMENTADOR TAPAS GEBO OPTIFEED","PASTEURIZADOR ALOE VERA HRS","LLENADORA TECHLONG CPX16A"]},
-  LINEA6:{sector:"B",zonas:["LLENADORA CROWN 50-10","ETIQUETADORA TRINE 4500FS","GENERADORES OXIGENO TITAN","RINSER 7 LITROS","DETECTOR VACIO GHERRI GG/670","ELEVADOR TAPAS MECANICO L06","TAPONADORA TAPA PLASTICO","EMPACADORA TECMI TT70","ALIMENTADOR TAPAS TECHLONG"]},
-  LINEA7:{sector:"B",zonas:["TRANSPORTADOR TABLILLAS LP01","LLENADORA MESAL ISOBARICA E50-60","LLENADORA MESAL ISOBARICA E80-100","SOPLADORA CHINA BIDONES","ENJUAGADOR AIRE MESAL ER50PM","ETIQUETADORA ROTATIVA OPERA 300","TRANSPORTADOR TABLILLAS SIDEL LP07","TUNEL VAPOR SCALIGERA","OZONIZADOR AGUAMUNDO"]},
-  LINEA8:{sector:"B",zonas:["CALDERO PIROTUBULAR INTESA 50 BHP","PASTEURIZADOR HUHTAMAKI 15000LH","OZONIZADOR INTERIN 20m3","SOPLADORA CHINA BIDONES 2 MOLDES","ENVOLVEDORA TECMI EV 750","CODIFICADOR LASER VIDEOJET 1620","SOPLADORA SIDEL MATRIX SBO 16","INSPECTOR NIVEL LLENADO"]},
-  LINEA9:{sector:"A",zonas:["POSICIONADOR BOTELLA POSIMAT MASTER 20","TRANSPORTADOR TABLILLAS LP02","SEPARADOR LIQUIDO MEBRAFE SLT","APLICADOR ADHESIVO DURABLUE","ESTERILIZADOR TAPAS BEVCO","EMPACADORA SMI SK 800 F","MIXER SIDEL SF300","TRANSPORTADOR TABLILLAS LP08"]},
-  LINEA10:{sector:"B",zonas:["AREA SOPLADO","TRANSPORTADOR NEUMATICO LP02","TRANSPORTADOR TABLILLAS MESAL LP03","ETIQUETADORA B&H 8000S","PALETIZADORA ARES 2 CP/P","CHILLER SOPLADORA MATRIX SBO 16","AREAS COMUNES"]},
-  OFICINAS:{sector:"C",zonas:["OFICINA PRODUCCION","OFICINA MEJORA CONTINUA","AREA CALIDAD","OFICINA PLANIFICACION","JEFATURA PRODUCCION","JEFATURA PLANTA","ALMACEN INSUMOS","ALMACEN REPUESTOS","ALMACEN TEMPORAL","MANTENIMIENTO ELECTRICO","MANTENIMIENTO MECANICO","SEGURIDAD INDUSTRIAL","GESTION HUMANA"]},
-  SALA_MANEJOS:{sector:"A",zonas:["AREA PALETIZADO MANUAL","SOPLADORA SIDEL SBO MATRIX 12/20","PALETIZADOR AUTOMATICO TMG-SIRIO","MESA ELEVADORA HIDRAULICA","PASTEURIZADOR ALFA LAVAL","CODIFICADOR VIDEOJET 3340","SECADOR BOTELLA TECHLONG"]},
-  ALMACEN:{sector:"C",zonas:["ALMACEN INSUMOS","ALMACEN TEMPORAL","ALMACEN REPUESTOS"]},
-  SALA_FUERZA:{sector:"C",zonas:["ALREDEDORES","SALA DE FUERZA"]},
-  SALA_CALDEROS:{sector:"C",zonas:["SALA DE CALDEROS"]},
-  TRATAMIENTO_AGUA:{sector:"B",zonas:["TRATAMIENTO DE AGUA","AREAS COMUNES"]},
-  SALA_JARABE:{sector:"A",zonas:["SALA DE JARABE","AREAS COMUNES"]}
+const RESPONSABLES_ZONA={
+  "OFICINA PRODUCCION":"HENRY TREVIÑOS",
+  "OFICINA MEJORA CONTINUA":"DARLENE CRUZ",
+  "AREA CALIDAD":"ITALO BUEN DIA",
+  "OFICINA PLANIFICACION":"CARLOS LUYO",
+  "JEFATURA PRODUCCION":"HENRY TREVIÑOS",
+  "JEFATURA PLANTA":"FABIO CALDAS",
+  "SEGURIDAD INDUSTRIAL":"JUAN ESPINOZA",
+  "GESTION HUMANA":"ALVARO SOTOMAYOR",
+  "ALMACEN INSUMOS":"HECTOR ARTEAGA",
+  "ALMACEN REPUESTOS":"HECTOR ARTEAGA",
+  "ALMACEN TEMPORAL":"HECTOR ARTEAGA",
+  "MANTENIMIENTO ELECTRICO":"PAULO MEDINA",
+  "MANTENIMIENTO MECANICO":"RICARDO ROSALES"
 };
 const TIPOS=[
   {tipo:"Presencia de Innecesarios",s:"1S"},
@@ -514,25 +377,40 @@ const TIPOS=[
   {tipo:"Incumplimiento del Estándar",s:"5S"},
   {tipo:"Falta de EPP",s:"EPP"}
 ];
+const DATOS={
+  LINEA1:{sector:"A",zonas:["CAPSULADOR ALCOA B242","CODIFICAD IMAJE 1000 S8 CLASIC 4490004U","CODIFICADOR IMAJE 1000 S8 IP-65 2420242A","LLENADORA LINEAL DE BIDONES MESAL","ALIMENTADOR D TAPAS UNIMAC GHERRI GG/900","MÁQUINA SOPLADORA ROTATIVA MODELO SBF 410 HERO","ETIQUETADORA SIDEL EVODECO SL100","POSICIONADOR POSIMAT ACCESS N-40","CODIFICADOR LASER VIDEOJET - LP09"]},
+  LINEA2:{sector:"A",zonas:["CODIFICADOR VIDEOJET EXCEL 2000 02CWD","CONJTO PROPORCIONADOR MESAL MIX-50","CONJTO PROPORCIONADOR MOJONNIER 22-48","TRANSPORTADOR A TABLILLAS CONVEY LP04","APLICADOR D PRECINTOS DASE SEAL XYL-450S","LLENADORA AWF","LLENADORA SIDEL SF300","TRANSPORTADOR NEUMATICO PNEUMATIC LP08","CHILLER TERMALCARE Q37.5 - LP09"]},
+  LINEA3:{sector:"A",zonas:["CONJTO PROPORCIONADOR MOJONNIER FE","DOSIFICADOR DE NITROGENO SC-350","ELEVADOR DE TAPAS TIPO JET FLOW ZEFP","LLENADORA 20 LITROS RERCPAC SA","CAPSULADOR UNIMAC GHERRI GG/300","TAPONADORA DE TAPA EN PLÁSTICO PRE-ROSCADO FLAT DIÁM. 29/25 MM","EMPACADORA SIDEL EVO FILM ACCESS","APLICADOR D PRECINTOS SCALIGERA ULISSE 40000","CHILLER TERMALCARE Q37.6 - LP09"]},
+  LINEA4:{sector:"A",zonas:["EMPACADORA PACKERS VITZ","ELEVADOR DE TAPAS TIPO JET FLOW MESAL","ENVOLVEDORA TECMI EV 750,50 J0.EV50.024","EMPACADORA EVOPACK T452","CODIFICADOR VIDEOJET EXCEL 2000 16CWD","CHILLER PARA LA SOPLADORA ROTATIVA MODELO SBF 410 HERO","PALETIZADOR SIDEL PALKOMBI","LLENADORA SACMI AHF+EPD 50.20.50.15","SOPLADORA TECHLONG CPX16A - LP09"]},
+  LINEA5:{sector:"B",zonas:["ETIQUETADORA TRINE 4600 6364","ENVOLVEDORA TECMI EV 850-50 J0.EV50.011","ETIQUETADORA TRINE 4600 6364","ETIQUETADORA TRINE 5500_LP04","CUCHILLA DE AIRE SONIC 70","DOSIFICADOR DE NITRÓGENO LÍQUIDO 75.000 BPH","ALIMENTADOR DE TAPAS GEBO OPTIFEED","PASTEURIZADOR DE ALOE VERA HRS","LLENADORA TECHLONG CPX16A - LP09"]},
+  LINEA6:{sector:"B",zonas:["LLENADORA CROWN 50-10","ETIQUETADORA TRINE 4500FS","GENERADORES DE OXIGENO P P TITAN","RINSER DE 7 LITROS","DETECTOR DE VACIO GHERRI GG/670","ELEVADOR DE TAPAS MECÁNICO LINEA 06","TAPONADORA DE TAPA EN PLÁSTICO PRE-ROSCADO","EMPACADORA TECMI TT70.45X3C LP08","ALIMENTADOR DE TAPAS TECHLONG - LP09"]},
+  LINEA7:{sector:"B",zonas:["TRANSPORTADOR A TABLILLAS CONVEYOR LP01","LLEN MESAL ISOBARICA E50-60-15IA S-0790","LLENAD MESAL ISOB E80-100-25IA2 S-09021","SOPLADORA CHINA DE BIDONES","ENJUAGADOR DE AIRE MESAL ER50PM","ETIQUETADORA ROTATIVA OPERA 300 RF 24T/R 2/4/265 S1/E1","TRANSPORTADOR A TABLILLLAS SIDEL LP07","TUNEL DE VAPOR SCALIGERA PACKAGING","OZONIZADOR AGUAMUNDO - LP09"]},
+  LINEA8:{sector:"B",zonas:["CALDERO PIROTUBULAR INTESA 50 BHP","PASTEURIZADOR HUHTAMAKI 15000LH","OZONIZADOR INTERIN 20m3","SOPLADORA CHINA DE BIDONES 2 MOLDES","ENVOLVEDORA TECMI EV 750,50 EQ.AÑO1.043","CODIFICADOR LASER VIDEOJET 1620","SOPLADORA SIDEL MATRIX SBO 16","CODIFICADOR VIDEOJET EXCEL 2000 LP08","INSPECTOR DE NIVEL DE LLENADO - LP09"]},
+  LINEA9:{sector:"A",zonas:["POSICIONADOR BOTELLA POSIMAT MASTER 20","TRANSPORTADOR A TABLILLAS CONVEYOR LP02","SEPARAD LIQ HORIZONTAL MEBRAFE SLT 900-3","APLICADOR DE ADHESIVO DURABLUE","ESTERILIZADOR DE TAPAS BEVCO ZPPI-31","EMPACADORA SMI - MODELO SK 800 F","MIXER SIDEL SF300","TRANSPORTADOR A TABLILLLAS LP08","TRANSP TABLILLA LLENA-ETIQ - LP09"]},
+  LINEA10:{sector:"B",zonas:["AREA DE SOPLADO","TRANSPORTADOR NEUMATICO PNEUMATIC LP02","TRANSPORTADOR A TABLILLAS MESAL LP03","AREAS COMUNES","ETIQUETADORA B&H 8000S","PALETIZADORA ARES 2 CP/P","CHILLER PARA LA SOPLADORA ROTATIVA MODELO MATRIX SBO 16","AREAS COMUNES","TRANSP TABLILLA ETIQ-EMPAC - LP09"]},
+  OFICINAS:{sector:"C",zonas:["OFICINA PRODUCCION","OFICINA MEJORA CONTINUA","AREA CALIDAD","OFICINA PLANIFICACION","JEFATURA PRODUCCION","JEFATURA PLANTA","ALMACEN INSUMOS","ALMACEN REPUESTOS","ALMACEN TEMPORAL","MANTENIMIENTO ELECTRICO","MANTENIMIENTO MECANICO","SEGURIDAD INDUSTRIAL","GESTION HUMANA"]},
+  SALA_MANEJOS:{sector:"A",zonas:["AREA DE PALETIZADO MANUAL","SOPLADORA SIDEL SBO MATRIX 12/20","PALETIZADOR AUTOMATICO TMG-SIRIO S2S","MESA ELEVADORA HIDRAULICA","PASTEURIZADOR ALFA LAVAL","CODIFICADOR VIDEOJET EXCEL 3340 LP07","SECADOR DE BOTELLA TECHLONG - LP09"]},
+  ALMACEN:{sector:"C",zonas:["ALMACEN DE INSUMOS","ALMACEN TEMPORAL","ALMACEN DE REPUESTOS Y SUMINISTROS"]},
+  SALA_FUERZA:{sector:"C",zonas:["ALREDEDORES","SALA DE FUERZA"]},
+  SALA_CALDEROS:{sector:"C",zonas:["SALA DE CALDEROS"]},
+  TRATAMIENTO_AGUA:{sector:"B",zonas:["TRATAMIENTO DE AGUA","AREAS COMUNES"]},
+  SALA_JARABE:{sector:"A",zonas:["SALA DE JARABE","AREAS COMUNES"]}
+};
 
-// ═══════════════════════════════════════
-// ESTADO
-// ═══════════════════════════════════════
-let observations=[],acciones=[],selectedS="",photosNuevo=[],photoCierre=null;
+// ═══ ESTADO ═══
+let observations=[],selectedS="",photosNuevo=[],photoCierre=null,obsActual=null;
 
-// ═══════════════════════════════════════
-// INIT
-// ═══════════════════════════════════════
+// ═══ INIT ═══
 (function init(){
   const today=new Date();
-  document.getElementById("f-fecha").value=today.toISOString().split("T")[0];
   document.getElementById("f-sem").value=getWeek(today);
+  // Guardar fecha internamente sin mostrarla
+  window._fecha=today.toISOString().split("T")[0];
   const aEl=document.getElementById("f-area");
   const fEl=document.getElementById("fil-area");
-  const fAEl=document.getElementById("fil-acc-area");
   Object.keys(DATOS).forEach(a=>{
     const lbl=a.replace(/_/g," ");
-    [aEl,fEl,fAEl].forEach(el=>el.innerHTML+=`<option value="${a}">${lbl}</option>`);
+    [aEl,fEl].forEach(el=>el.innerHTML+=`<option value="${a}">${lbl}</option>`);
   });
   document.getElementById("f-tipo").innerHTML+=TIPOS.map(t=>`<option value="${t.tipo}">${t.tipo}</option>`).join("");
   cargarTodo();
@@ -543,28 +421,22 @@ function getWeek(d){
   return Math.ceil((((d-jan)/86400000)+jan.getDay()+1)/7);
 }
 
-// ═══════════════════════════════════════
-// CARGAR DATOS
-// ═══════════════════════════════════════
+// ═══ SUPABASE ═══
 async function cargarTodo(){
   try{
-    const [{data:obs,error:e1},{data:acc,error:e2}]=await Promise.all([
-      sb.from("observaciones").select("*").order("created_at",{ascending:false}),
-      sb.from("acciones").select("*").order("created_at",{ascending:true})
-    ]);
-    if(e1||e2)throw e1||e2;
-    observations=obs||[];acciones=acc||[];
-    filtrar();renderAcciones();renderDashboard();
+    const {data,error}=await sb.from("observaciones").select("*").order("created_at",{ascending:false});
+    if(error)throw error;
+    observations=data||[];
+    filtrar();
+    renderDashboard();
   }catch(e){
     console.error(e);
-    showToast("Error conectando con la base de datos",true);
+    showToast("Error: "+(e.message||e.details||JSON.stringify(e)),true);
   }
 }
 
-// ═══════════════════════════════════════
-// CLOUDINARY UPLOAD
-// ═══════════════════════════════════════
-async function subirCloudinary(file, progBar, progFill){
+// ═══ CLOUDINARY ═══
+async function subirCloudinary(file,progBar,progFill){
   if(progBar)progBar.style.display="block";
   const fd=new FormData();
   fd.append("file",file);
@@ -574,45 +446,37 @@ async function subirCloudinary(file, progBar, progFill){
     const xhr=new XMLHttpRequest();
     xhr.open("POST",`https://api.cloudinary.com/v1_1/${CLD_CLOUD}/image/upload`);
     xhr.upload.onprogress=e=>{
-      if(progFill&&e.lengthComputable){
+      if(progFill&&e.lengthComputable)
         progFill.style.width=Math.round(e.loaded/e.total*100)+"%";
-      }
     };
     xhr.onload=()=>{
       if(progBar)progBar.style.display="none";
-      const data=JSON.parse(xhr.responseText);
-      if(xhr.status===200)resolve(data.secure_url);
-      else reject(new Error(data.error?.message||"Upload failed"));
+      const res=JSON.parse(xhr.responseText);
+      if(xhr.status===200)resolve(res.secure_url);
+      else reject(new Error(res.error?.message||"Upload failed"));
     };
     xhr.onerror=()=>reject(new Error("Network error"));
     xhr.send(fd);
   });
 }
 
-// ═══════════════════════════════════════
-// FORMULARIO
-// ═══════════════════════════════════════
+// ═══ FORMULARIO ═══
 function updateZonas(){
   const area=document.getElementById("f-area").value;
   const sEl=document.getElementById("f-sector"),zEl=document.getElementById("f-zona");
-  sEl.innerHTML="<option>— Sector —</option>";zEl.innerHTML="<option>— Zona —</option>";
+  sEl.innerHTML="<option>— Sector —</option>";
+  zEl.innerHTML="<option>— Zona —</option>";
   if(!area){sEl.disabled=true;zEl.disabled=true;document.getElementById("f-responsable").value="";return;}
   sEl.innerHTML=`<option value="${DATOS[area].sector}">Sector ${DATOS[area].sector}</option>`;
   sEl.disabled=false;
   DATOS[area].zonas.forEach(z=>{zEl.innerHTML+=`<option value="${z}">${z}</option>`;});
   zEl.disabled=false;
-  // Asignar responsable por área
-  const resp=RESPONSABLES_AREA[area]||"";
-  document.getElementById("f-responsable").value=resp;
+  document.getElementById("f-responsable").value=RESPONSABLES_AREA[area]||"";
 }
-
 function onZonaChange(){
   const zona=document.getElementById("f-zona").value;
   const area=document.getElementById("f-area").value;
-  // Primero buscar por zona específica, si no hay usar el del área
-  const respZona=RESPONSABLES_ZONA[zona];
-  const respArea=RESPONSABLES_AREA[area]||"";
-  document.getElementById("f-responsable").value=respZona||respArea;
+  document.getElementById("f-responsable").value=RESPONSABLES_ZONA[zona]||RESPONSABLES_AREA[area]||"";
 }
 function autoS(){
   const found=TIPOS.find(t=>t.tipo===document.getElementById("f-tipo").value);
@@ -621,21 +485,22 @@ function autoS(){
 function selectS(v){
   selectedS=v;
   document.querySelectorAll(".s-btn").forEach(b=>b.classList.remove("active"));
-  document.querySelectorAll(".s-btn").forEach(b=>{if(b.childNodes[0].textContent.trim()===v)b.classList.add("active");});
+  document.querySelectorAll(".s-btn").forEach(b=>{
+    if(b.childNodes[0].textContent.trim()===v)b.classList.add("active");
+  });
 }
 
-// ═══════════════════════════════════════
-// FOTOS
-// ═══════════════════════════════════════
+// ═══ FOTOS ═══
 function handlePhotos(input){
   const prev=document.getElementById("prev-nuevo");
   Array.from(input.files).forEach(file=>{
-    if(photosNuevo.length>=5){showToast("Máximo 5 archivos",true);return;}
+    if(photosNuevo.length>=5){showToast("Máximo 5 fotos",true);return;}
     photosNuevo.push(file);
     const r=new FileReader();
     r.onload=e=>{
       const img=document.createElement("img");
-      img.src=e.target.result;prev.appendChild(img);
+      img.src=e.target.result;
+      prev.appendChild(img);
     };
     r.readAsDataURL(file);
   });
@@ -646,43 +511,50 @@ function handleFotoCierre(input){
   const file=input.files[0];if(!file)return;
   photoCierre=file;
   const r=new FileReader();
-  r.onload=e=>{document.getElementById("prev-cierre").innerHTML=`<img src="${e.target.result}" style="width:68px;height:68px;object-fit:cover;border-radius:6px;border:2px solid var(--g200)">`;};
+  r.onload=e=>{
+    document.getElementById("prev-cierre").innerHTML=
+      `<img src="${e.target.result}" style="width:68px;height:68px;object-fit:cover;border-radius:6px;border:2px solid var(--g200)">`;
+  };
   r.readAsDataURL(file);
 }
 
-// ═══════════════════════════════════════
-// GUARDAR OBSERVACIÓN
-// ═══════════════════════════════════════
+// ═══ GUARDAR ═══
 async function guardarObservacion(){
   const area=document.getElementById("f-area").value;
   const tipo=document.getElementById("f-tipo").value;
   const obs=document.getElementById("f-obs").value.trim();
   const auditor=document.getElementById("f-auditor").value.trim();
-  if(!area||!tipo||!obs||!auditor){showToast("Completa: nombre, área, tipo y descripción",true);return;}
+  if(!area||!tipo||!obs||!auditor){
+    showToast("Completa: nombre, área, tipo y descripción",true);return;
+  }
   const btn=document.getElementById("btn-guardar");
   btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Guardando...';
   try{
     const fotosUrls=[];
-    const progBar=document.getElementById("prog-nuevo");
-    const progFill=document.getElementById("prog-nuevo-fill");
+    const pb=document.getElementById("prog-nuevo");
+    const pf=document.getElementById("prog-nuevo-fill");
     for(let i=0;i<photosNuevo.length;i++){
-      showToast(`Subiendo archivo ${i+1} de ${photosNuevo.length}...`);
-      const url=await subirCloudinary(photosNuevo[i],progBar,progFill);
-      fotosUrls.push(url);
+      showToast(`Subiendo foto ${i+1} de ${photosNuevo.length}...`);
+      fotosUrls.push(await subirCloudinary(photosNuevo[i],pb,pf));
     }
     const {data,error}=await sb.from("observaciones").insert({
       num:observations.length+1,
       sem:document.getElementById("f-sem").value,
-      fecha:document.getElementById("f-fecha").value,
-      auditor,area:area.replace(/_/g," "),
+      fecha:window._fecha,
+      auditor,
+      area:area.replace(/_/g," "),
       sector:document.getElementById("f-sector").value,
       zona:document.getElementById("f-zona").value,
-      tipo,s:selectedS||"—",obs,
+      tipo,
+      s:selectedS||"—",
+      obs,
       responsable:document.getElementById("f-responsable").value.trim(),
-      status:"PENDIENTE",fotos:fotosUrls
+      status:"PENDIENTE",
+      fotos:fotosUrls
     }).select().single();
     if(error)throw error;
     observations.unshift(data);
+    // Reset
     ["f-area","f-sector","f-zona","f-tipo","f-obs","f-responsable","f-auditor"].forEach(id=>{
       const el=document.getElementById(id);
       if(el.tagName==="SELECT"&&id!=="f-area"&&id!=="f-tipo")el.disabled=true;
@@ -692,27 +564,107 @@ async function guardarObservacion(){
     document.querySelectorAll(".s-btn").forEach(b=>b.classList.remove("active"));
     selectedS="";photosNuevo=[];
     showToast("✅ Observación guardada");
-    renderList();renderDashboard();
+    filtrar();renderDashboard();
   }catch(e){
     console.error(e);
-    showToast("Error: "+e.message,true);
+    showToast("Error: "+(e.message||JSON.stringify(e)),true);
   }
   btn.disabled=false;btn.innerHTML="Guardar observación";
 }
 
-// ═══════════════════════════════════════
-// EDITAR OBSERVACIÓN
-// ═══════════════════════════════════════
-function abrirEditar(id){
+// ═══ DETALLE ═══
+function abrirDetalle(id){
   const obs=observations.find(o=>o.id===id);if(!obs)return;
-  document.getElementById("me-obs-id").value=id;
+  obsActual=obs;
+  const corregida=obs.status==="CORREGIDO";
+  document.getElementById("mo-id").value=id;
+  document.getElementById("modal-obs-title").textContent=
+    `OBS-${String(obs.num).padStart(3,"0")} — ${obs.area}`;
+  document.getElementById("mo-detalle").innerHTML=`
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 14px;font-size:12px">
+      <div><span style="color:var(--g400)">Semana:</span> <strong>${obs.sem}</strong></div>
+      <div><span style="color:var(--g400)">Sector:</span> <strong>${obs.sector||"—"}</strong></div>
+      <div style="grid-column:1/-1"><span style="color:var(--g400)">Área:</span> <strong>${obs.area}</strong></div>
+      <div style="grid-column:1/-1"><span style="color:var(--g400)">Zona:</span> <strong>${obs.zona||"—"}</strong></div>
+      <div style="grid-column:1/-1"><span style="color:var(--g400)">Tipo:</span> <strong>${obs.tipo}</strong> &nbsp;<span style="background:#EEF0EC;padding:2px 7px;border-radius:10px;font-size:10px;font-weight:700">${obs.s||"—"}</span></div>
+      <div style="grid-column:1/-1;padding:8px;background:#fff;border-radius:6px;border:1px solid var(--g200)"><span style="color:var(--g400)">Descripción:</span><br><strong>${obs.obs}</strong></div>
+      <div style="grid-column:1/-1"><span style="color:var(--g400)">Responsable área:</span> <strong>${obs.responsable||"—"}</strong></div>
+      <div style="grid-column:1/-1"><span style="color:var(--g400)">Registrado por:</span> <strong>${obs.auditor||"—"}</strong></div>
+      ${obs.comentario_cierre?`<div style="grid-column:1/-1;margin-top:6px;padding:8px;background:#E8F5E9;border-radius:6px;border-left:3px solid var(--green)"><span style="color:var(--green);font-weight:700">✅ Corrección:</span><br>${obs.comentario_cierre}</div>`:""}
+      ${obs.fecha_cierre?`<div style="grid-column:1/-1"><span style="color:var(--g400)">Fecha cierre:</span> <strong>${obs.fecha_cierre}</strong></div>`:""}
+    </div>`;
+  // Fotos antes
+  document.getElementById("mo-fotos-antes").innerHTML=
+    (obs.fotos||[]).map(f=>`<img src="${f}" style="width:72px;height:72px;object-fit:cover;border-radius:8px;border:2px solid var(--g200);cursor:pointer" onclick="window.open('${f}','_blank')">`).join("");
+  // Foto después
+  const fdEl=document.getElementById("mo-foto-despues");
+  if(corregida&&obs.foto_despues){
+    fdEl.style.display="block";
+    fdEl.innerHTML=`<p style="font-size:11px;font-weight:700;color:var(--green);margin-bottom:6px;text-transform:uppercase">📸 Foto después:</p>
+      <img src="${obs.foto_despues}" style="width:80px;height:80px;object-fit:cover;border-radius:8px;border:2px solid var(--green);cursor:pointer" onclick="window.open('${obs.foto_despues}','_blank')">`;
+  }else{fdEl.style.display="none";}
+  // Sección cierre
+  const sc=document.getElementById("mo-cierre-section");
+  if(corregida){
+    sc.style.display="none";
+  }else{
+    sc.style.display="block";
+    document.getElementById("mo-comentario").value="";
+    document.getElementById("prev-cierre").innerHTML="";
+    photoCierre=null;
+  }
+  openModal("modal-obs");
+}
+
+// ═══ CERRAR ═══
+async function cerrarObservacion(){
+  const id=parseInt(document.getElementById("mo-id").value);
+  const comentario=document.getElementById("mo-comentario").value.trim();
+  if(!comentario){showToast("Agrega un comentario de corrección",true);return;}
+  const btn=document.getElementById("btn-cerrar-obs");
+  btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Guardando...';
+  try{
+    let foto_despues=null;
+    if(photoCierre){
+      showToast("Subiendo foto...");
+      foto_despues=await subirCloudinary(
+        photoCierre,
+        document.getElementById("prog-cierre"),
+        document.getElementById("prog-cierre-fill")
+      );
+    }
+    const fecha_cierre=new Date().toISOString().split("T")[0];
+    const {error}=await sb.from("observaciones").update({
+      status:"CORREGIDO",
+      comentario_cierre:comentario,
+      foto_despues,
+      fecha_cierre
+    }).eq("id",id);
+    if(error)throw error;
+    const idx=observations.findIndex(o=>o.id===id);
+    if(idx>-1)Object.assign(observations[idx],{status:"CORREGIDO",comentario_cierre:comentario,foto_despues,fecha_cierre});
+    closeModal("modal-obs");
+    showToast("✅ Observación corregida");
+    filtrar();renderDashboard();
+  }catch(e){
+    console.error(e);
+    showToast("Error: "+(e.message||JSON.stringify(e)),true);
+  }
+  btn.disabled=false;btn.innerHTML="✓ Marcar como CORREGIDO";
+}
+
+// ═══ EDITAR ═══
+function abrirEditar(){
+  const obs=obsActual;if(!obs)return;
+  closeModal("modal-obs");
+  document.getElementById("me-id").value=obs.id;
   document.getElementById("me-obs").value=obs.obs;
   document.getElementById("me-resp").value=obs.responsable||"";
   document.getElementById("me-status").value=obs.status;
   openModal("modal-editar");
 }
 async function confirmarEditar(){
-  const id=parseInt(document.getElementById("me-obs-id").value);
+  const id=parseInt(document.getElementById("me-id").value);
   const obsText=document.getElementById("me-obs").value.trim();
   const resp=document.getElementById("me-resp").value.trim();
   const status=document.getElementById("me-status").value;
@@ -721,401 +673,164 @@ async function confirmarEditar(){
     const {error}=await sb.from("observaciones").update({obs:obsText,responsable:resp,status}).eq("id",id);
     if(error)throw error;
     const idx=observations.findIndex(o=>o.id===id);
-    if(idx>-1){observations[idx].obs=obsText;observations[idx].responsable=resp;observations[idx].status=status;}
+    if(idx>-1)Object.assign(observations[idx],{obs:obsText,responsable:resp,status});
     closeModal("modal-editar");
     showToast("✅ Actualizado");
-    renderList();renderDashboard();
-  }catch(e){showToast("Error: "+e.message,true);}
+    filtrar();renderDashboard();
+  }catch(e){showToast("Error: "+(e.message||JSON.stringify(e)),true);}
 }
 
-// ═══════════════════════════════════════
-// ELIMINAR OBSERVACIÓN
-// ═══════════════════════════════════════
-function abrirEliminar(id){document.getElementById("mdel-id").value=id;openModal("modal-eliminar");}
+// ═══ ELIMINAR ═══
+function abrirEliminar(){
+  const obs=obsActual;if(!obs)return;
+  closeModal("modal-obs");
+  document.getElementById("mdel-id").value=obs.id;
+  openModal("modal-eliminar");
+}
 async function confirmarEliminar(){
   const id=parseInt(document.getElementById("mdel-id").value);
   try{
     const {error}=await sb.from("observaciones").delete().eq("id",id);
     if(error)throw error;
     observations=observations.filter(o=>o.id!==id);
-    acciones=acciones.filter(a=>a.obs_id!==id);
     closeModal("modal-eliminar");
     showToast("🗑️ Eliminada");
-    renderList();renderAcciones();renderDashboard();
-  }catch(e){showToast("Error: "+e.message,true);}
+    filtrar();renderDashboard();
+  }catch(e){showToast("Error: "+(e.message||JSON.stringify(e)),true);}
 }
 
-// ═══════════════════════════════════════
-// ACCIONES
-// ═══════════════════════════════════════
-function abrirModalAccion(obsId,accId){
-  document.getElementById("ma-obs-id").value=obsId;
-  document.getElementById("ma-acc-id").value=accId||"";
-  document.getElementById("ma-desc").value="";
-  document.getElementById("ma-resp").value="";
-  document.getElementById("ma-fecha").value="";
-  document.getElementById("modal-accion-title").textContent=accId?"✏️ Editar acción":"➕ Agregar acción";
-  if(accId){
-    const acc=acciones.find(a=>a.id===accId);
-    if(acc){document.getElementById("ma-desc").value=acc.descripcion||"";document.getElementById("ma-resp").value=acc.responsable||"";document.getElementById("ma-fecha").value=acc.fecha_limite||"";}
-  }
-  openModal("modal-accion");
-}
-async function guardarAccion(){
-  const obsId=parseInt(document.getElementById("ma-obs-id").value);
-  const accId=document.getElementById("ma-acc-id").value;
-  const descripcion=document.getElementById("ma-desc").value.trim();
-  const responsable=document.getElementById("ma-resp").value.trim();
-  const fecha_limite=document.getElementById("ma-fecha").value||null;
-  if(!descripcion||!responsable){showToast("Completa descripción y responsable",true);return;}
-  const accsDeObs=acciones.filter(a=>a.obs_id===obsId);
-  if(!accId&&accsDeObs.length>=3){showToast("Máximo 3 acciones por observación",true);return;}
-  try{
-    if(accId){
-      const {error}=await sb.from("acciones").update({descripcion,responsable,fecha_limite}).eq("id",parseInt(accId));
-      if(error)throw error;
-      const idx=acciones.findIndex(a=>a.id===parseInt(accId));
-      if(idx>-1){acciones[idx].descripcion=descripcion;acciones[idx].responsable=responsable;acciones[idx].fecha_limite=fecha_limite;}
-    }else{
-      const {data,error}=await sb.from("acciones").insert({obs_id:obsId,num_accion:accsDeObs.length+1,descripcion,responsable,fecha_limite,status:"PENDIENTE"}).select().single();
-      if(error)throw error;
-      acciones.push(data);
-    }
-    closeModal("modal-accion");
-    showToast("✅ Acción guardada");
-    renderList();renderAcciones();renderDashboard();
-  }catch(e){showToast("Error: "+e.message,true);}
-}
-
-function abrirCierre(accId,obsId){
-  document.getElementById("mc-acc-id").value=accId;
-  document.getElementById("mc-obs-id").value=obsId;
-  document.getElementById("mc-firma").value="";
-  document.getElementById("mc-comentario").value="";
-  document.getElementById("prev-cierre").innerHTML="";
-  photoCierre=null;
-  openModal("modal-cierre");
-}
-async function cerrarAccion(){
-  const accId=parseInt(document.getElementById("mc-acc-id").value);
-  const obsId=parseInt(document.getElementById("mc-obs-id").value);
-  const firma=document.getElementById("mc-firma").value.trim();
-  const comentario=document.getElementById("mc-comentario").value.trim();
-  if(!firma||!comentario){showToast("Completa firma y comentario",true);return;}
-  try{
-    let foto_cierre=null;
-    if(photoCierre){
-      showToast("Subiendo foto de cierre...");
-      const progBar=document.getElementById("prog-cierre");
-      const progFill=document.getElementById("prog-cierre-fill");
-      foto_cierre=await subirCloudinary(photoCierre,progBar,progFill);
-    }
-    const fecha_cierre=new Date().toISOString().split("T")[0];
-    const {error}=await sb.from("acciones").update({status:"CERRADA",firma,comentario_cierre:comentario,fecha_cierre,foto_cierre}).eq("id",accId);
-    if(error)throw error;
-    const idx=acciones.findIndex(a=>a.id===accId);
-    if(idx>-1)Object.assign(acciones[idx],{status:"CERRADA",firma,comentario_cierre:comentario,fecha_cierre,foto_cierre});
-    const accsObs=acciones.filter(a=>a.obs_id===obsId);
-    if(accsObs.length>0&&accsObs.every(a=>a.status==="CERRADA")){
-      await sb.from("observaciones").update({status:"CORREGIDO"}).eq("id",obsId);
-      const oIdx=observations.findIndex(o=>o.id===obsId);
-      if(oIdx>-1)observations[oIdx].status="CORREGIDO";
-    }
-    closeModal("modal-cierre");
-    showToast("✅ Acción cerrada");
-    renderList();renderAcciones();renderDashboard();
-  }catch(e){showToast("Error: "+e.message,true);}
-}
-
-// ═══════════════════════════════════════
-// RENDER LISTA
-// ═══════════════════════════════════════
-function renderList(){
-  const area = document.getElementById("fil-area").value;
-  const status = document.getElementById("fil-status").value;
-  const sector = document.getElementById("fil-sector")?.value||"";
-  const sem = document.getElementById("fil-sem")?.value||"";
-  const fechaIni = document.getElementById("fil-fecha-ini")?.value||"";
-  const fechaFin = document.getElementById("fil-fecha-fin")?.value||"";
-  const orden = document.getElementById("fil-orden")?.value||"fecha-desc";
-
-  let list = observations.filter(o => {
-    if(area && o.area !== area.replace(/_/g," ")) return false;
-    if(status && o.status !== status) return false;
-    if(sector && o.sector !== sector) return false;
-    if(sem && String(o.sem) !== String(sem)) return false;
-    if(fechaIni && o.fecha < fechaIni) return false;
-    if(fechaFin && o.fecha > fechaFin) return false;
+// ═══ RENDER LISTA ═══
+function filtrar(){
+  const area=document.getElementById("fil-area").value;
+  const status=document.getElementById("fil-status").value;
+  const sector=document.getElementById("fil-sector").value;
+  const orden=document.getElementById("fil-orden").value;
+  const semEl=document.getElementById("fil-sem");
+  const semCur=semEl.value;
+  // Llenar semanas
+  const sems=[...new Set(observations.map(o=>String(o.sem)).filter(Boolean))].sort((a,b)=>Number(b)-Number(a));
+  semEl.innerHTML='<option value="">Todas las semanas</option>';
+  sems.forEach(s=>{semEl.innerHTML+=`<option value="${s}" ${s===semCur?"selected":""}>${"Sem. "+s}</option>`;});
+  const sem=semEl.value;
+  let list=observations.filter(o=>{
+    if(area&&o.area!==area.replace(/_/g," "))return false;
+    if(status&&o.status!==status)return false;
+    if(sector&&o.sector!==sector)return false;
+    if(sem&&String(o.sem)!==sem)return false;
     return true;
   });
-
-  // Ordenar
-  if(orden==="fecha-asc") list.sort((a,b)=>a.fecha>b.fecha?1:-1);
-  else if(orden==="fecha-desc") list.sort((a,b)=>a.fecha<b.fecha?1:-1);
-  else if(orden==="status") list.sort((a,b)=>a.status.localeCompare(b.status));
-  else if(orden==="area") list.sort((a,b)=>a.area.localeCompare(b.area));
-
-  const el = document.getElementById("obs-list");
+  if(orden==="fecha-asc")list.sort((a,b)=>a.fecha>b.fecha?1:-1);
+  else if(orden==="fecha-desc")list.sort((a,b)=>a.fecha<b.fecha?1:-1);
+  else if(orden==="status")list.sort((a,b)=>a.status.localeCompare(b.status));
+  else if(orden==="area")list.sort((a,b)=>a.area.localeCompare(b.area));
+  const el=document.getElementById("obs-list");
   if(!list.length){
-    el.innerHTML='<div class="empty"><div class="empty-ico">📋</div><p>No hay observaciones con esos filtros.</p></div>';
+    el.innerHTML='<div class="empty"><div class="empty-ico">📋</div><p>No hay observaciones.</p></div>';
     return;
   }
-
-  const today = new Date(); today.setHours(0,0,0,0);
-
-  el.innerHTML = list.map(o => {
-    const cls = o.status==="CORREGIDO"?"corregido":o.status==="NO CORREGIDO"?"no-corregido":"pendiente";
-    const bCls = o.status==="CORREGIDO"?"b-ok":o.status==="NO CORREGIDO"?"b-no":"b-pen";
-    const sBadge = `b-${(o.s||"1s").toLowerCase()}`;
-    const accsObs = acciones.filter(a=>a.obs_id===o.id);
-    const canAdd = accsObs.length<3;
-
-    // Días transcurridos
-    const fechaObs = new Date(o.fecha); fechaObs.setHours(0,0,0,0);
-    const diasTransc = Math.floor((today-fechaObs)/(1000*60*60*24));
-    const diasColor = diasTransc>14?"color:var(--red)":diasTransc>7?"color:var(--amber)":"color:var(--g400)";
-
-    const fotos = (o.fotos||[]).slice(0,3).map(f=>
-      `<img src="${f}" style="width:54px;height:54px;object-fit:cover;border-radius:6px;border:2px solid var(--g200);cursor:pointer" onclick="window.open('${f}','_blank')">`
-    ).join("");
-
-    const accsHtml = accsObs.map((a,i) => {
-      const aCls = a.status==="CERRADA"?"cerrada":a.status==="EN PROGRESO"?"en-progreso":"";
-      const aBCls = a.status==="CERRADA"?"b-ok":a.status==="EN PROGRESO"?"b-prog":"b-pen";
-      // Semáforo de urgencia
-      let urgencia = "";
-      if(a.status!=="CERRADA" && a.fecha_limite){
-        const fl = new Date(a.fecha_limite); fl.setHours(0,0,0,0);
-        const diff = Math.floor((fl-today)/(1000*60*60*24));
-        if(diff<0) urgencia = `<span style="background:#FFEBEE;color:var(--red);font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;margin-left:6px">🔴 VENCIDA ${Math.abs(diff)}d</span>`;
-        else if(diff<=3) urgencia = `<span style="background:#FFF8E1;color:var(--amber);font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;margin-left:6px">🟡 ${diff}d restantes</span>`;
-        else urgencia = `<span style="background:#E8F5E9;color:var(--green);font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;margin-left:6px">🟢 ${diff}d restantes</span>`;
-      }
-      return `<div class="acc-item ${aCls}">
-        <div class="acc-hdr">
-          <span class="acc-num">Acción ${i+1}</span>
-          <div style="display:flex;align-items:center;gap:4px">
-            <span class="badge ${aBCls}">${a.status}</span>${urgencia}
+  const today=new Date();today.setHours(0,0,0,0);
+  el.innerHTML=list.map(o=>{
+    const cls=o.status==="CORREGIDO"?"corregido":o.status==="NO CORREGIDO"?"no-corregido":"pendiente";
+    const bCls=o.status==="CORREGIDO"?"b-ok":o.status==="NO CORREGIDO"?"b-no":"b-pen";
+    const sBadge=`b-${(o.s||"1s").toLowerCase()}`;
+    const fechaObs=new Date(o.fecha);fechaObs.setHours(0,0,0,0);
+    const dias=Math.floor((today-fechaObs)/(1000*60*60*24));
+    const diasColor=dias>14?"color:var(--red)":dias>7?"color:var(--amber)":"color:var(--g400)";
+    const foto=o.fotos&&o.fotos[0]
+      ?`<img src="${o.fotos[0]}" style="width:52px;height:52px;object-fit:cover;border-radius:6px;border:1.5px solid var(--g200);flex-shrink:0">`
+      :`<div style="width:52px;height:52px;background:var(--g100);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">📷</div>`;
+    return `<div class="obs-card ${cls}" onclick="abrirDetalle(${o.id})">
+      <div class="obs-summary">
+        <div style="display:flex;gap:10px;align-items:flex-start">
+          ${foto}
+          <div style="flex:1;min-width:0">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:6px;margin-bottom:3px">
+              <div>
+                <strong style="font-size:13px">OBS-${String(o.num).padStart(3,"0")} — ${o.area}</strong>
+                <div style="font-size:11px;color:var(--g400);margin-top:1px">Sem.${o.sem} · ${o.zona||"—"} · 👤 ${o.auditor||""}</div>
+                <div style="font-size:10px;margin-top:1px;${diasColor}">⏱ ${dias===0?"Hoy":dias===1?"Hace 1 día":`Hace ${dias} días`}</div>
+              </div>
+              <span class="badge ${bCls}" style="flex-shrink:0;font-size:10px">${o.status}</span>
+            </div>
+            <div style="font-size:13px;color:var(--g700);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:4px">${o.obs}</div>
+            <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:5px">
+              ${o.s!=="—"?`<span class="badge ${sBadge}" style="font-size:10px">${o.s}</span>`:""}
+              <span style="font-size:10px;color:var(--g400)">${o.tipo}</span>
+            </div>
           </div>
         </div>
-        <div style="font-size:13px;margin-bottom:5px">${a.descripcion}</div>
-        <div style="font-size:11px;color:var(--g400)">👤 ${a.responsable}${a.fecha_limite?` · 📅 ${a.fecha_limite}`:""}${a.fecha_cierre?` · ✅ ${a.fecha_cierre}`:""}</div>
-        ${a.comentario_cierre?`<div style="font-size:12px;color:var(--g700);margin-top:4px;font-style:italic">"${a.comentario_cierre}" — ${a.firma||""}</div>`:""}
-        ${a.foto_cierre?`<img src="${a.foto_cierre}" style="width:54px;height:54px;object-fit:cover;border-radius:6px;margin-top:6px;border:2px solid var(--g200);cursor:pointer" onclick="window.open('${a.foto_cierre}','_blank')">`:""}
-        ${a.status!=="CERRADA"?`<div style="margin-top:8px;display:flex;gap:6px">
-          <button class="btn-ghost" style="font-size:11px;padding:5px 9px" onclick="abrirModalAccion(${o.id},${a.id})">✏️ Editar</button>
-          <button class="btn-ghost" style="font-size:11px;padding:5px 9px" onclick="abrirCierre(${a.id},${o.id})">✅ Cerrar</button>
-        </div>`:""}
-      </div>`;
-    }).join("");
-
-    return `<div class="obs-card ${cls}">
-      <div class="obs-hdr">
-        <div>
-          <strong style="font-size:14px">OBS-${String(o.num).padStart(3,"0")} — ${o.area}</strong>
-          <div class="obs-meta">${o.zona||""}  ·  Sem.${o.sem}  ·  ${o.fecha}  ·  👤 ${o.auditor||""}</div>
-          <div style="font-size:11px;margin-top:2px;${diasColor}">⏱ ${diasTransc===0?"Hoy":diasTransc===1?"Hace 1 día":`Hace ${diasTransc} días`}</div>
-        </div>
-        <span class="badge ${bCls}">${o.status}</span>
-      </div>
-      <div class="obs-txt">${o.obs}</div>
-      <div class="obs-footer">
-        ${o.s!=="—"?`<span class="badge ${sBadge}">${o.s}</span>`:""}
-        <span style="font-size:11px;color:var(--g400)">${o.tipo}</span>
-        ${o.responsable?`<span style="font-size:11px;color:var(--g400)">👤 ${o.responsable}</span>`:""}
-      </div>
-      ${fotos?`<div style="display:flex;gap:6px;margin-top:9px;flex-wrap:wrap">${fotos}</div>`:""}
-      <div class="acc-wrap">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-          <span style="font-size:12px;font-weight:700;color:var(--g700);text-transform:uppercase">Acciones (${accsObs.length}/3)</span>
-          ${canAdd?`<button class="btn-ghost" style="font-size:12px;padding:5px 10px" onclick="abrirModalAccion(${o.id},null)">+ Acción</button>`:""}
-        </div>
-        ${accsHtml||'<p style="font-size:12px;color:var(--g400);text-align:center;padding:6px">Sin acciones asignadas</p>'}
-      </div>
-      <div style="margin-top:10px;display:flex;gap:7px;flex-wrap:wrap">
-        <button class="btn-ghost" style="font-size:12px;padding:6px 10px" onclick="abrirEditar(${o.id})">✏️ Editar</button>
-        <button class="btn-red" onclick="abrirEliminar(${o.id})">🗑️ Eliminar</button>
       </div>
     </div>`;
   }).join("");
 }
 
-function filtrar(){
-  // Llenar semanas disponibles
-  const semSelect = document.getElementById("fil-sem");
-  const semActual = semSelect.value;
-  const sems = [...new Set(observations.map(o=>o.sem).filter(Boolean))].sort((a,b)=>b-a);
-  semSelect.innerHTML = '<option value="">Todas las semanas</option>';
-  sems.forEach(s=>{ semSelect.innerHTML += `<option value="${s}" ${s==semActual?"selected":""}>${"Semana "+s}</option>`; });
-  renderList();
-}
+// ═══ DASHBOARD ═══
+function destroyChart(id){const e=Chart.getChart(id);if(e)e.destroy();}
 
-// ═══════════════════════════════════════
-// RENDER TAB ACCIONES
-// ═══════════════════════════════════════
-function renderAcciones(){
-  const area = document.getElementById("fil-acc-area").value;
-  const statusFil = document.getElementById("fil-acc-status").value;
-  const el = document.getElementById("acc-list");
-  const today = new Date(); today.setHours(0,0,0,0);
-
-  const items = acciones.filter(a => {
-    const obs = observations.find(o=>o.id===a.obs_id);
-    if(area && obs && obs.area !== area.replace(/_/g," ")) return false;
-    // Filtro especial VENCIDA
-    if(statusFil==="VENCIDA"){
-      if(a.status==="CERRADA") return false;
-      if(!a.fecha_limite) return false;
-      const fl = new Date(a.fecha_limite); fl.setHours(0,0,0,0);
-      return fl < today;
-    }
-    if(statusFil && a.status !== statusFil) return false;
-    return true;
-  });
-
-  if(!items.length){
-    el.innerHTML='<div class="empty"><div class="empty-ico">🎯</div><p>No hay acciones.</p></div>';
-    return;
-  }
-
-  el.innerHTML = items.map(a => {
-    const obs = observations.find(o=>o.id===a.obs_id);
-    const bCls = a.status==="CERRADA"?"b-ok":a.status==="EN PROGRESO"?"b-prog":"b-pen";
-    const cls = a.status==="CERRADA"?"cerrada":a.status==="EN PROGRESO"?"en-progreso":"";
-
-    // Semáforo urgencia
-    let urgencia = "";
-    let borderColor = "var(--g200)";
-    if(a.status!=="CERRADA"){
-      if(a.fecha_limite){
-        const fl = new Date(a.fecha_limite); fl.setHours(0,0,0,0);
-        const diff = Math.floor((fl-today)/(1000*60*60*24));
-        if(diff<0){
-          urgencia = `<div style="background:#FFEBEE;color:var(--red);font-size:11px;font-weight:700;padding:4px 10px;border-radius:8px;margin-top:6px;display:inline-block">🔴 VENCIDA hace ${Math.abs(diff)} día${Math.abs(diff)!==1?"s":""}</div>`;
-          borderColor = "var(--red)";
-        } else if(diff<=3){
-          urgencia = `<div style="background:#FFF8E1;color:var(--amber);font-size:11px;font-weight:700;padding:4px 10px;border-radius:8px;margin-top:6px;display:inline-block">🟡 Vence en ${diff} día${diff!==1?"s":""}</div>`;
-          borderColor = "var(--amber)";
-        } else {
-          urgencia = `<div style="background:#E8F5E9;color:var(--green);font-size:11px;font-weight:700;padding:4px 10px;border-radius:8px;margin-top:6px;display:inline-block">🟢 ${diff} días restantes</div>`;
-          borderColor = "var(--green)";
-        }
-      } else {
-        urgencia = `<div style="background:var(--g100);color:var(--g400);font-size:11px;padding:4px 10px;border-radius:8px;margin-top:6px;display:inline-block">⚪ Sin fecha límite</div>`;
-      }
-    }
-
-    return `<div class="acc-item ${cls}" style="background:#fff;box-shadow:var(--sh);margin-bottom:10px;border-color:${borderColor}">
-      <div class="acc-hdr">
-        <div>
-          <span style="font-size:12px;font-weight:700;color:var(--g700)">OBS-${obs?String(obs.num).padStart(3,"0"):"???"} — ${obs?obs.area:""}</span>
-          <span class="acc-num" style="margin-left:8px">Acción ${a.num_accion}</span>
-        </div>
-        <span class="badge ${bCls}">${a.status}</span>
-      </div>
-      <div style="font-size:13px;margin-bottom:5px">${a.descripcion}</div>
-      <div style="font-size:11px;color:var(--g400)">👤 ${a.responsable}${a.fecha_limite?` · 📅 ${a.fecha_limite}`:""}${a.fecha_cierre?` · ✅ ${a.fecha_cierre}`:""}</div>
-      ${urgencia}
-      ${a.comentario_cierre?`<div style="font-size:12px;color:var(--g700);margin-top:6px;font-style:italic">"${a.comentario_cierre}" — ${a.firma||""}</div>`:""}
-      ${a.foto_cierre?`<img src="${a.foto_cierre}" style="width:60px;height:60px;object-fit:cover;border-radius:6px;margin-top:6px;border:2px solid var(--g200);cursor:pointer" onclick="window.open('${a.foto_cierre}','_blank')">`:""}
-      ${a.status!=="CERRADA"?`<div style="margin-top:8px;display:flex;gap:6px">
-        <button class="btn-ghost" style="font-size:12px;padding:6px 10px" onclick="abrirModalAccion(${a.obs_id},${a.id})">✏️ Editar</button>
-        <button class="btn-ghost" style="font-size:12px;padding:6px 10px" onclick="abrirCierre(${a.id},${a.obs_id})">✅ Cerrar</button>
-      </div>`:""}
-    </div>`;
-  }).join("");
-}
-
-function filtrarAcc(){renderAcciones();}
-
-// ═══════════════════════════════════════
-// DASHBOARD
-// ═══════════════════════════════════════
 function renderDashboard(){
-  const filSem = document.getElementById("d-fil-sem")?.value||"";
-  const filSector = document.getElementById("d-fil-sector")?.value||"";
-  const today = new Date(); today.setHours(0,0,0,0);
-
-  // Llenar selectores semana
+  const filSem=document.getElementById("d-fil-sem")?.value||"";
+  const filSector=document.getElementById("d-fil-sector")?.value||"";
+  // Llenar semanas en ambos selectores
   const sems=[...new Set(observations.map(o=>String(o.sem)).filter(Boolean))].sort((a,b)=>Number(a)-Number(b));
   ["d-fil-sem","fil-sem"].forEach(id=>{
     const el=document.getElementById(id);if(!el)return;
     const cur=el.value;
-    el.innerHTML=`<option value="">Todas las semanas</option>`;
+    el.innerHTML='<option value="">Todas las semanas</option>';
     sems.forEach(s=>{el.innerHTML+=`<option value="${s}" ${s===cur?"selected":""}>${"Sem. "+s}</option>`;});
   });
-
-  // Filtrar observaciones
   const obsF=observations.filter(o=>{
     if(filSem&&String(o.sem)!==filSem)return false;
     if(filSector&&o.sector!==filSector)return false;
     return true;
   });
-
   const total=obsF.length;
-  const corregidas=obsF.filter(o=>o.status==="CORREGIDO").length;
+  const corr=obsF.filter(o=>o.status==="CORREGIDO").length;
   const noCorr=obsF.filter(o=>o.status==="NO CORREGIDO").length;
-  const pendientes=obsF.filter(o=>o.status==="PENDIENTE").length;
-  const pct=total?Math.round(corregidas/total*100):0;
-
-  // KPIs
+  const pend=obsF.filter(o=>o.status==="PENDIENTE").length;
+  const pct=total?Math.round(corr/total*100):0;
   document.getElementById("d-total").textContent=total;
-  document.getElementById("d-corregidas").textContent=corregidas;
+  document.getElementById("d-corregidas").textContent=corr;
   document.getElementById("d-no-corregidas").textContent=noCorr;
   document.getElementById("d-pct").textContent=pct+"%";
   document.getElementById("d-pct2").textContent=pct+"%";
-
-  const GREEN="#1E7C34",RED="#E63329",AMBER="#D97706",BLUE="#1565C0",PURPLE="#6B21A8";
-
-  // Helper: mini leyenda
-  function miniLeyenda(elId, items){
+  const G="#1E7C34",R="#E63329",A="#D97706",B="#1565C0";
+  function miniLeg(elId,items){
     const el=document.getElementById(elId);if(!el)return;
-    el.innerHTML=items.map(({color,label,val,pct})=>`
+    const tot=items.reduce((s,i)=>s+i.val,0)||1;
+    el.innerHTML=items.map(({color,label,val})=>`
       <div class="dash-legend-row">
         <div class="dash-legend-dot" style="background:${color}"></div>
         <span class="dash-legend-label">${label}</span>
         <span class="dash-legend-val">${val}</span>
-        <span class="dash-legend-pct">${pct}%</span>
+        <span class="dash-legend-pct">${Math.round(val/tot*100)}%</span>
       </div>`).join("");
   }
-
-  // ── DONUT: Estado observaciones ──────────────────────────────────
+  // Donut estado
   destroyChart("chart-donut-status");
   new Chart(document.getElementById("chart-donut-status"),{
     type:"doughnut",
-    data:{
-      labels:["Corregidas","No Corregidas","Pendientes"],
-      datasets:[{data:[corregidas,noCorr,pendientes],backgroundColor:[GREEN,RED,AMBER],borderWidth:1,borderColor:"#fff",hoverOffset:4}]
-    },
-    options:{responsive:true,maintainAspectRatio:true,cutout:"72%",
+    data:{labels:["Corregidas","No Corregidas","Pendientes"],
+      datasets:[{data:[corr,noCorr,pend],backgroundColor:[G,R,A],borderWidth:1,borderColor:"#fff"}]},
+    options:{responsive:true,maintainAspectRatio:true,cutout:"70%",
       plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${ctx.raw}`}}}}
   });
-  miniLeyenda("donut-status-legend",[
-    {color:GREEN,label:"Corregidas",val:corregidas,pct:total?Math.round(corregidas/total*100):0},
-    {color:RED,label:"No Corregidas",val:noCorr,pct:total?Math.round(noCorr/total*100):0},
-    {color:AMBER,label:"Pendientes",val:pendientes,pct:total?Math.round(pendientes/total*100):0}
-  ]);
-
-  // ── DONUT: Fallos por S ──────────────────────────────────────────
+  miniLeg("donut-status-legend",[{color:G,label:"Corregidas",val:corr},{color:R,label:"No Corr.",val:noCorr},{color:A,label:"Pendientes",val:pend}]);
+  // Donut S
   const byS={};
   obsF.forEach(o=>{const k=o.s||"—";byS[k]=(byS[k]||0)+1;});
-  const sColors={"1S":"#E65100","2S":"#1B5E20","3S":"#0D47A1","4S":"#4A148C","5S":"#880E4F","EPP":"#C2410C","—":"#888"};
-  const sEntries=Object.entries(byS).sort((a,b)=>b[1]-a[1]);
-  const topS=sEntries[0]?sEntries[0][0]:"—";
-  document.getElementById("d-top-s").textContent=topS;
+  const sCols={"1S":"#E65100","2S":"#1B5E20","3S":"#0D47A1","4S":"#4A148C","5S":"#880E4F","EPP":"#C2410C","—":"#888"};
+  const sEnt=Object.entries(byS).sort((a,b)=>b[1]-a[1]);
+  document.getElementById("d-top-s").textContent=sEnt[0]?sEnt[0][0]:"—";
   destroyChart("chart-donut-s");
   new Chart(document.getElementById("chart-donut-s"),{
     type:"doughnut",
-    data:{
-      labels:sEntries.map(([s])=>s),
-      datasets:[{data:sEntries.map(([,n])=>n),backgroundColor:sEntries.map(([s])=>sColors[s]||"#888"),borderWidth:1,borderColor:"#fff",hoverOffset:4}]
-    },
-    options:{responsive:true,maintainAspectRatio:true,cutout:"72%",
+    data:{labels:sEnt.map(([s])=>s),
+      datasets:[{data:sEnt.map(([,n])=>n),backgroundColor:sEnt.map(([s])=>sCols[s]||"#888"),borderWidth:1,borderColor:"#fff"}]},
+    options:{responsive:true,maintainAspectRatio:true,cutout:"70%",
       plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${ctx.raw}`}}}}
   });
-  miniLeyenda("donut-s-legend",sEntries.map(([s,n])=>({color:sColors[s]||"#888",label:s,val:n,pct:total?Math.round(n/total*100):0})));
-
-  // ── BARRAS: por área ─────────────────────────────────────────────
+  miniLeg("donut-s-legend",sEnt.map(([s,n])=>({color:sCols[s]||"#888",label:s,val:n})));
+  // Barras área
   const byArea={};
   obsF.forEach(o=>{
     if(!byArea[o.area])byArea[o.area]={corr:0,no:0,pen:0};
@@ -1123,77 +838,53 @@ function renderDashboard(){
     else if(o.status==="NO CORREGIDO")byArea[o.area].no++;
     else byArea[o.area].pen++;
   });
-  const areaLabels=Object.keys(byArea).sort((a,b)=>(byArea[b].corr+byArea[b].no+byArea[b].pen)-(byArea[a].corr+byArea[a].no+byArea[a].pen));
+  const aLbls=Object.keys(byArea).sort((a,b)=>(byArea[b].corr+byArea[b].no+byArea[b].pen)-(byArea[a].corr+byArea[a].no+byArea[a].pen));
   destroyChart("chart-barras-area");
   new Chart(document.getElementById("chart-barras-area"),{
     type:"bar",
-    data:{
-      labels:areaLabels,
-      datasets:[
-        {label:"Corregidas",data:areaLabels.map(a=>byArea[a].corr),backgroundColor:GREEN+"CC",borderRadius:3,borderSkipped:false},
-        {label:"No Corregidas",data:areaLabels.map(a=>byArea[a].no),backgroundColor:RED+"CC",borderRadius:3,borderSkipped:false},
-        {label:"Pendientes",data:areaLabels.map(a=>byArea[a].pen),backgroundColor:AMBER+"CC",borderRadius:3,borderSkipped:false}
-      ]
-    },
-    options:{
-      responsive:true,maintainAspectRatio:true,
-      plugins:{legend:{position:"top",align:"start",labels:{font:{size:10},boxWidth:10,padding:10}},
-        tooltip:{mode:"index",intersect:false}},
-      scales:{
-        x:{ticks:{font:{size:9},maxRotation:45},grid:{display:false}},
-        y:{beginAtZero:true,ticks:{stepSize:1,font:{size:10}},grid:{color:"#f0f0f0"}}
-      }
-    }
+    data:{labels:aLbls,datasets:[
+      {label:"Corregidas",data:aLbls.map(a=>byArea[a].corr),backgroundColor:G+"CC",borderRadius:3},
+      {label:"No Corregidas",data:aLbls.map(a=>byArea[a].no),backgroundColor:R+"CC",borderRadius:3},
+      {label:"Pendientes",data:aLbls.map(a=>byArea[a].pen),backgroundColor:A+"CC",borderRadius:3}
+    ]},
+    options:{responsive:true,
+      plugins:{legend:{position:"top",align:"start",labels:{font:{size:10},boxWidth:10,padding:8}},tooltip:{mode:"index",intersect:false}},
+      scales:{x:{ticks:{font:{size:9},maxRotation:45},grid:{display:false}},
+        y:{beginAtZero:true,ticks:{stepSize:1,font:{size:10}},grid:{color:"#f0f0f0"}}}}
   });
-
-  // ── LÍNEA: Tendencia semanal ─────────────────────────────────────
+  // Tendencia semanal
   const bySem={};
   observations.filter(o=>!filSector||o.sector===filSector).forEach(o=>{
-    const s="S"+o.sem;
-    if(!bySem[s])bySem[s]={corr:0,no:0,pen:0};
+    const s="S"+o.sem;if(!bySem[s])bySem[s]={corr:0,no:0,pen:0};
     if(o.status==="CORREGIDO")bySem[s].corr++;
     else if(o.status==="NO CORREGIDO")bySem[s].no++;
     else bySem[s].pen++;
   });
-  const semLabels=Object.keys(bySem).sort((a,b)=>Number(a.slice(1))-Number(b.slice(1)));
+  const semLbls=Object.keys(bySem).sort((a,b)=>Number(a.slice(1))-Number(b.slice(1)));
   destroyChart("chart-tendencia");
   new Chart(document.getElementById("chart-tendencia"),{
     type:"line",
-    data:{
-      labels:semLabels,
-      datasets:[
-        {label:"Corregidas",data:semLabels.map(s=>bySem[s].corr),borderColor:GREEN,backgroundColor:GREEN+"22",fill:true,tension:0.4,pointRadius:3,pointBackgroundColor:GREEN,borderWidth:2},
-        {label:"No Corregidas",data:semLabels.map(s=>bySem[s].no),borderColor:RED,backgroundColor:RED+"22",fill:true,tension:0.4,pointRadius:3,pointBackgroundColor:RED,borderWidth:2},
-        {label:"Pendientes",data:semLabels.map(s=>bySem[s].pen),borderColor:AMBER,backgroundColor:AMBER+"22",fill:true,tension:0.4,pointRadius:3,pointBackgroundColor:AMBER,borderWidth:2}
-      ]
-    },
-    options:{
-      responsive:true,maintainAspectRatio:true,
-      plugins:{legend:{position:"top",align:"start",labels:{font:{size:10},boxWidth:10,padding:10}},
-        tooltip:{mode:"index",intersect:false}},
-      scales:{
-        x:{ticks:{font:{size:9}},grid:{display:false}},
-        y:{beginAtZero:true,ticks:{stepSize:1,font:{size:10}},grid:{color:"#f0f0f0"}}
-      }
-    }
+    data:{labels:semLbls,datasets:[
+      {label:"Corregidas",data:semLbls.map(s=>bySem[s].corr),borderColor:G,backgroundColor:G+"22",fill:true,tension:0.4,pointRadius:3,borderWidth:2},
+      {label:"No Corregidas",data:semLbls.map(s=>bySem[s].no),borderColor:R,backgroundColor:R+"22",fill:true,tension:0.4,pointRadius:3,borderWidth:2},
+      {label:"Pendientes",data:semLbls.map(s=>bySem[s].pen),borderColor:A,backgroundColor:A+"22",fill:true,tension:0.4,pointRadius:3,borderWidth:2}
+    ]},
+    options:{responsive:true,
+      plugins:{legend:{position:"top",align:"start",labels:{font:{size:10},boxWidth:10,padding:8}},tooltip:{mode:"index",intersect:false}},
+      scales:{x:{ticks:{font:{size:9}},grid:{display:false}},
+        y:{beginAtZero:true,ticks:{stepSize:1,font:{size:10}},grid:{color:"#f0f0f0"}}}}
   });
-
-  // ── SECTORES: barras horizontales compactas (sin Chart.js) ────────
-  const sectores={A:{t:0,ok:0,nombre:"Sector A"},B:{t:0,ok:0,nombre:"Sector B"},C:{t:0,ok:0,nombre:"Sector C"},D:{t:0,ok:0,nombre:"Sector D"}};
-  obsF.forEach(o=>{
-    const s=o.sector||"C";
-    if(!sectores[s])sectores[s]={t:0,ok:0,nombre:`Sector ${s}`};
-    sectores[s].t++;if(o.status==="CORREGIDO")sectores[s].ok++;
-  });
-  const sectEl=document.getElementById("d-sectores");
-  sectEl.innerHTML=Object.entries(sectores).filter(([,v])=>v.t>0).map(([,v])=>{
+  // Sectores
+  const sects={A:{t:0,ok:0},B:{t:0,ok:0},C:{t:0,ok:0},D:{t:0,ok:0}};
+  obsF.forEach(o=>{const s=o.sector||"C";if(!sects[s])sects[s]={t:0,ok:0};sects[s].t++;if(o.status==="CORREGIDO")sects[s].ok++;});
+  document.getElementById("d-sectores").innerHTML=Object.entries(sects).filter(([,v])=>v.t>0).map(([k,v])=>{
     const p=Math.round(v.ok/v.t*100);
-    const col=p>=80?GREEN:p>=50?AMBER:RED;
+    const col=p>=80?G:p>=50?A:R;
     return `<div style="margin-bottom:10px">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">
-        <span style="font-size:11px;font-weight:700;color:var(--g700)">${v.nombre}</span>
+        <span style="font-size:11px;font-weight:700;color:var(--g700)">Sector ${k}</span>
         <div style="display:flex;align-items:center;gap:8px">
-          <span style="font-size:10px;color:var(--g400)">${v.ok}/${v.t} obs</span>
+          <span style="font-size:10px;color:var(--g400)">${v.ok}/${v.t}</span>
           <span style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;color:${col}">${p}%</span>
         </div>
       </div>
@@ -1202,80 +893,50 @@ function renderDashboard(){
       </div>
     </div>`;
   }).join("")||'<p style="font-size:12px;color:var(--g400)">Sin datos.</p>';
-
-  // ── DONUT: Acciones ───────────────────────────────────────────────
-  let accCerr=0,accVenc=0,accProg=0,accPend=0;
-  acciones.forEach(a=>{
-    const obs=observations.find(o=>o.id===a.obs_id);
-    if(filSem&&obs&&String(obs.sem)!==filSem)return;
-    if(filSector&&obs&&obs.sector!==filSector)return;
-    if(a.status==="CERRADA"){accCerr++;return;}
-    if(a.fecha_limite){const fl=new Date(a.fecha_limite);fl.setHours(0,0,0,0);if(fl<today){accVenc++;return;}}
-    if(a.status==="EN PROGRESO")accProg++;else accPend++;
+  // Responsables
+  const byResp={};
+  obsF.forEach(o=>{
+    const r=o.responsable||"Sin asignar";
+    if(!byResp[r])byResp[r]={t:0,ok:0,no:0,pen:0};
+    byResp[r].t++;
+    if(o.status==="CORREGIDO")byResp[r].ok++;
+    else if(o.status==="NO CORREGIDO")byResp[r].no++;
+    else byResp[r].pen++;
   });
-  const totalAcc=accCerr+accVenc+accProg+accPend||1;
-  const pctAcc=Math.round(accCerr/totalAcc*100);
-  document.getElementById("d-acc-pct").textContent=pctAcc+"%";
-  destroyChart("chart-donut-acc");
-  new Chart(document.getElementById("chart-donut-acc"),{
-    type:"doughnut",
-    data:{
-      labels:["Cerradas","Vencidas","En progreso","Pendientes"],
-      datasets:[{data:[accCerr,accVenc,accProg,accPend],backgroundColor:[GREEN,RED,BLUE,AMBER],borderWidth:1,borderColor:"#fff",hoverOffset:4}]
-    },
-    options:{responsive:true,maintainAspectRatio:true,cutout:"72%",
-      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${ctx.raw}`}}}}
-  });
-  miniLeyenda("donut-acc-legend",[
-    {color:GREEN,label:"Cerradas",val:accCerr,pct:Math.round(accCerr/totalAcc*100)},
-    {color:RED,label:"Vencidas",val:accVenc,pct:Math.round(accVenc/totalAcc*100)},
-    {color:BLUE,label:"En progreso",val:accProg,pct:Math.round(accProg/totalAcc*100)},
-    {color:AMBER,label:"Pendientes",val:accPend,pct:Math.round(accPend/totalAcc*100)}
-  ]);
-
-  // Resumen acciones
-  document.getElementById("d-acc-kpis").innerHTML=`
-    <div style="display:flex;flex-direction:column;gap:6px">
-      ${[
-        {color:GREEN,ico:"✅",label:"Cerradas",val:accCerr},
-        {color:RED,ico:"🔴",label:"Vencidas",val:accVenc},
-        {color:BLUE,ico:"🔵",label:"En progreso",val:accProg},
-        {color:AMBER,ico:"🟡",label:"Pendientes",val:accPend}
-      ].map(r=>`
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:5px 8px;background:${r.color}15;border-radius:6px;border-left:3px solid ${r.color}">
-          <span style="font-size:11px;color:${r.color};font-weight:600">${r.ico} ${r.label}</span>
-          <span style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;color:${r.color}">${r.val}</span>
-        </div>`).join("")}
-      <div style="margin-top:4px">
-        <div style="display:flex;justify-content:space-between;font-size:10px;margin-bottom:2px">
-          <span style="color:var(--g700);font-weight:600">Progreso total</span>
-          <span style="color:${GREEN};font-weight:700">${pctAcc}%</span>
+  document.getElementById("d-responsables").innerHTML=Object.entries(byResp)
+    .sort((a,b)=>b[1].t-a[1].t)
+    .map(([resp,v])=>{
+      const p=Math.round(v.ok/v.t*100);
+      const col=p>=80?G:p>=50?A:R;
+      const nombre=resp.length>35?resp.substring(0,33)+"…":resp;
+      return `<div style="margin-bottom:10px;padding:10px 12px;background:var(--g50);border-radius:8px;border-left:3px solid ${col}">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:5px">
+          <span style="font-size:11px;font-weight:700;color:var(--g700);flex:1;line-height:1.3">${nombre}</span>
+          <span style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:${col};margin-left:8px">${p}%</span>
         </div>
-        <div style="height:5px;background:var(--g100);border-radius:20px;overflow:hidden">
-          <div style="height:100%;width:${pctAcc}%;background:${GREEN};border-radius:20px"></div>
+        <div style="height:5px;background:var(--g200);border-radius:20px;overflow:hidden;margin-bottom:6px">
+          <div style="height:100%;width:${p}%;background:${col};border-radius:20px;transition:width .6s"></div>
         </div>
-      </div>
-    </div>`;
+        <div style="display:flex;gap:10px;font-size:10px">
+          <span style="color:${G}">✅ ${v.ok}</span>
+          <span style="color:${R}">❌ ${v.no}</span>
+          <span style="color:${A}">⏳ ${v.pen}</span>
+          <span style="color:var(--g400);margin-left:auto">${v.t} total</span>
+        </div>
+      </div>`;
+    }).join("")||'<p style="font-size:12px;color:var(--g400)">Sin datos.</p>';
 }
 
-// Destruir chart anterior usando Chart.getChart() nativo
-function destroyChart(id){
-  const existing = Chart.getChart(id);
-  if(existing) existing.destroy();
-}
-
-
-// ═══════════════════════════════════════
-// HELPERS UI
-// ═══════════════════════════════════════
+// ═══ UI HELPERS ═══
 function showTab(name){
   document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
   document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
   document.getElementById("tab-"+name).classList.add("active");
-  ["nuevo","lista","acciones","dashboard"].forEach((t,i)=>{if(t===name)document.querySelectorAll(".tab")[i].classList.add("active");});
-  if(name==="lista"){filtrar();}
+  ["nuevo","lista","dashboard"].forEach((t,i)=>{
+    if(t===name)document.querySelectorAll(".tab")[i].classList.add("active");
+  });
+  if(name==="lista")filtrar();
   if(name==="dashboard")renderDashboard();
-  if(name==="acciones")renderAcciones();
 }
 function openModal(id){document.getElementById(id).classList.add("show");document.body.style.overflow="hidden";}
 function closeModal(id){document.getElementById(id).classList.remove("show");document.body.style.overflow="";}
@@ -1283,7 +944,7 @@ let toastT;
 function showToast(msg,isErr){
   const t=document.getElementById("toast");
   t.textContent=msg;t.className="show"+(isErr?" error":"");
-  clearTimeout(toastT);toastT=setTimeout(()=>t.className="",3200);
+  clearTimeout(toastT);toastT=setTimeout(()=>t.className="",3500);
 }
 </script>
 </body>

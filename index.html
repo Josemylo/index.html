@@ -620,7 +620,7 @@ function abrirDetalle(id){
 async function cerrarObservacion(){
   const id=parseInt(document.getElementById("mo-id").value);
   const comentario=document.getElementById("mo-comentario").value.trim();
-  if(!comentario){showToast("Agrega un comentario de corrección",true);return;}
+  if(!comentario){showToast("Agrega un comentario de cierre",true);return;}
   const btn=document.getElementById("btn-cerrar-obs");
   btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Guardando...';
   try{

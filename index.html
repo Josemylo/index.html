@@ -6,6 +6,7 @@
 <title>Recorrido 5S — Industrias San Miguel</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
 :root{
   --green:#1E7C34;--green-d:#155A25;--green-l:#2DA048;
@@ -133,14 +134,14 @@ textarea{resize:vertical;min-height:78px}
       <div class="fg"><label>Semana</label><input type="text" id="f-sem" readonly style="background:var(--g50)"></div>
       <div class="fg"><label>Fecha</label><input type="date" id="f-fecha"></div>
     </div>
-    <div class="fg"><label>Tu nombre completo</label><input type="text" id="f-auditor" placeholder="Ej: Juan Pérez"></div>
+    <div class="fg"><label>Responsable de Registro</label><input type="text" id="f-auditor" placeholder="Tu nombre completo"></div>
     <div class="fg">
       <label>Área</label>
       <select id="f-area" onchange="updateZonas()"><option value="">— Selecciona área —</option></select>
     </div>
     <div class="row2">
       <div class="fg"><label>Sector</label><select id="f-sector" disabled><option value="">— Elige área —</option></select></div>
-      <div class="fg"><label>Zona / Equipo</label><select id="f-zona" disabled><option value="">— Elige área —</option></select></div>
+      <div class="fg"><label>Zona / Equipo</label><select id="f-zona" disabled onchange="onZonaChange()"><option value="">— Elige área —</option></select></div>
     </div>
     <div class="fg">
       <label>Tipo de observación</label>
@@ -158,7 +159,7 @@ textarea{resize:vertical;min-height:78px}
       </div>
     </div>
     <div class="fg"><label>Descripción</label><textarea id="f-obs" placeholder="Describe la situación encontrada..."></textarea></div>
-    <div class="fg"><label>Responsable del área</label><input type="text" id="f-responsable" placeholder="Nombre del responsable"></div>
+    <div class="fg"><label>Responsable del área</label><input type="text" id="f-responsable" placeholder="Se asigna automáticamente al elegir área" readonly style="background:var(--g50);color:var(--g700)"></div>
     <div class="fg">
       <label>Foto de evidencia (antes)</label>
       <div class="photo-drop">
@@ -175,7 +176,7 @@ textarea{resize:vertical;min-height:78px}
 
 <!-- TAB LISTA -->
 <div id="tab-lista" class="section">
-  <div class="filters">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
     <select id="fil-area" onchange="filtrar()"><option value="">Todas las áreas</option></select>
     <select id="fil-status" onchange="filtrar()">
       <option value="">Todos los estados</option>
@@ -183,19 +184,37 @@ textarea{resize:vertical;min-height:78px}
       <option value="CORREGIDO">Corregido</option>
       <option value="NO CORREGIDO">No corregido</option>
     </select>
+    <select id="fil-sector" onchange="filtrar()">
+      <option value="">Todos los sectores</option>
+      <option value="A">Sector A</option>
+      <option value="B">Sector B</option>
+      <option value="C">Sector C</option>
+    </select>
+    <select id="fil-sem" onchange="filtrar()"><option value="">Todas las semanas</option></select>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px">
+    <input type="date" id="fil-fecha-ini" onchange="filtrar()" style="padding:8px 10px;border:1.5px solid var(--g200);border-radius:8px;font-family:Barlow,sans-serif;font-size:13px" placeholder="Desde">
+    <input type="date" id="fil-fecha-fin" onchange="filtrar()" style="padding:8px 10px;border:1.5px solid var(--g200);border-radius:8px;font-family:Barlow,sans-serif;font-size:13px" placeholder="Hasta">
+    <select id="fil-orden" onchange="filtrar()">
+      <option value="fecha-desc">Más reciente</option>
+      <option value="fecha-asc">Más antiguo</option>
+      <option value="status">Por estado</option>
+      <option value="area">Por área</option>
+    </select>
   </div>
   <div id="obs-list"><div class="loading"><div class="spinner-g"></div><p style="margin-top:12px;font-size:13px">Cargando...</p></div></div>
 </div>
 
 <!-- TAB ACCIONES -->
 <div id="tab-acciones" class="section">
-  <div class="filters">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
     <select id="fil-acc-area" onchange="filtrarAcc()"><option value="">Todas las áreas</option></select>
     <select id="fil-acc-status" onchange="filtrarAcc()">
       <option value="">Todos los estados</option>
       <option value="PENDIENTE">Pendiente</option>
       <option value="EN PROGRESO">En progreso</option>
       <option value="CERRADA">Cerrada</option>
+      <option value="VENCIDA">Vencidas</option>
     </select>
   </div>
   <div id="acc-list"><div class="loading"><div class="spinner-g"></div><p style="margin-top:12px;font-size:13px">Cargando...</p></div></div>
@@ -203,15 +222,70 @@ textarea{resize:vertical;min-height:78px}
 
 <!-- TAB DASHBOARD -->
 <div id="tab-dashboard" class="section">
-  <div class="stats-grid">
-    <div class="stat-box"><div class="stat-num" id="d-total">0</div><div class="stat-label">Total obs.</div></div>
-    <div class="stat-box"><div class="stat-num red" id="d-abiertas">0</div><div class="stat-label">Abiertas</div></div>
-    <div class="stat-box"><div class="stat-num" id="d-corregidas">0</div><div class="stat-label">Corregidas</div></div>
-    <div class="stat-box"><div class="stat-num amber" id="d-pct">0%</div><div class="stat-label">Cumplimiento</div></div>
+
+  <!-- Filtros -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+    <select id="d-fil-sem" onchange="renderDashboard()" style="width:100%;padding:10px 12px;border:1.5px solid var(--g200);border-radius:8px;font-family:Barlow,sans-serif;font-size:13px;-webkit-appearance:none">
+      <option value="">Todas las semanas</option>
+    </select>
+    <select id="d-fil-sector" onchange="renderDashboard()" style="width:100%;padding:10px 12px;border:1.5px solid var(--g200);border-radius:8px;font-family:Barlow,sans-serif;font-size:13px;-webkit-appearance:none">
+      <option value="">Todos los sectores</option>
+      <option value="A">Sector A</option>
+      <option value="B">Sector B</option>
+      <option value="C">Sector C</option>
+    </select>
   </div>
-  <div class="card"><div class="card-title">📊 Cumplimiento por área</div><div id="d-areas"></div></div>
-  <div class="card"><div class="card-title">🎯 Acciones por estado</div><div id="d-acc-stat"></div></div>
-  <div class="card"><div class="card-title">🏷️ Por tipo de S</div><div id="d-s"></div></div>
+
+  <!-- KPIs -->
+  <div class="stats-grid" style="grid-template-columns:1fr 1fr 1fr 1fr">
+    <div class="stat-box"><div class="stat-num" id="d-total">0</div><div class="stat-label">Total obs.</div></div>
+    <div class="stat-box"><div class="stat-num" id="d-corregidas">0</div><div class="stat-label">Corregidas</div></div>
+    <div class="stat-box"><div class="stat-num red" id="d-no-corregidas">0</div><div class="stat-label">No corregidas</div></div>
+    <div class="stat-box"><div class="stat-num amber" id="d-pct">0%</div><div class="stat-label">% Cumplimiento</div></div>
+  </div>
+
+  <!-- Fila 1: Donut estado + Donut S -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+    <div class="card" style="margin-bottom:0">
+      <div class="card-title" style="font-size:13px">Estado obs.</div>
+      <canvas id="chart-donut-status" height="200"></canvas>
+    </div>
+    <div class="card" style="margin-bottom:0">
+      <div class="card-title" style="font-size:13px">Fallos por S</div>
+      <canvas id="chart-donut-s" height="200"></canvas>
+    </div>
+  </div>
+
+  <!-- Fila 2: Barras por área -->
+  <div class="card">
+    <div class="card-title">📊 Corregidas vs No Corregidas por área</div>
+    <canvas id="chart-barras-area" height="220"></canvas>
+  </div>
+
+  <!-- Fila 3: Tendencia semanal -->
+  <div class="card">
+    <div class="card-title">📈 Tendencia semanal de observaciones</div>
+    <canvas id="chart-tendencia" height="200"></canvas>
+  </div>
+
+  <!-- Fila 4: Cumplimiento por sector -->
+  <div class="card">
+    <div class="card-title">🏭 Cumplimiento por sector</div>
+    <canvas id="chart-sectores" height="160"></canvas>
+  </div>
+
+  <!-- Fila 5: Acciones resumen -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+    <div class="card" style="margin-bottom:0">
+      <div class="card-title" style="font-size:13px">Estado acciones</div>
+      <canvas id="chart-donut-acc" height="200"></canvas>
+    </div>
+    <div class="card" style="margin-bottom:0">
+      <div class="card-title" style="font-size:13px">Acciones</div>
+      <div id="d-acc-kpis" style="padding-top:10px"></div>
+    </div>
+  </div>
+
 </div>
 
 </main>
@@ -305,6 +379,45 @@ const sb=createClient("https://aedzzbrguoodnsynfpyl.supabase.co","sb_publishable
 const CLD_CLOUD="dw5ucvvie";
 const CLD_PRESET="fotos5s";
 
+
+// ═══════════════════════════════════════
+// RESPONSABLES POR ÁREA/ZONA
+// ═══════════════════════════════════════
+const RESPONSABLES_AREA = {
+  "LINEA1": "JUNIOR GERVACIO / DANIEL TABOADA / JUAN GORDILLO",
+  "LINEA2": "JUNIOR GERVACIO / DANIEL TABOADA / JUAN GORDILLO",
+  "LINEA3": "JUNIOR GERVACIO / DANIEL TABOADA / JUAN GORDILLO",
+  "LINEA4": "JUNIOR GERVACIO / DANIEL TABOADA / JUAN GORDILLO",
+  "LINEA5": "YONER ANGULO / FABRICIO POLO",
+  "LINEA6": "YONER ANGULO / FABRICIO POLO",
+  "LINEA7": "YONER ANGULO / FABRICIO POLO",
+  "LINEA8": "YONER ANGULO / FABRICIO POLO",
+  "LINEA9": "JUNIOR GERVACIO / DANIEL TABOADA / JUAN GORDILLO",
+  "LINEA10": "YONER ANGULO / FABRICIO POLO",
+  "SALA_MANEJOS": "DARLENE CRUZ",
+  "SALA_FUERZA": "JUNIOR GERVACIO / DANIEL TABOADA / JUAN GORDILLO",
+  "SALA_CALDEROS": "AYRTON COTRINA",
+  "TRATAMIENTO_AGUA": "DEBORAH SANTILLAN",
+  "SALA_JARABE": "JUNIOR GERVACIO / DANIEL TABOADA / JUAN GORDILLO",
+  "ALMACEN": "HECTOR ARTEAGA"
+};
+
+const RESPONSABLES_ZONA = {
+  "OFICINA PRODUCCION":      "HENRY TREVIÑOS",
+  "OFICINA MEJORA CONTINUA": "DARLENE CRUZ",
+  "AREA CALIDAD":            "ITALO BUEN DIA",
+  "OFICINA PLANIFICACION":   "CARLOS LUYO",
+  "JEFATURA PRODUCCION":     "HENRY TREVIÑOS",
+  "JEFATURA PLANTA":         "FABIO CALDAS",
+  "SEGURIDAD INDUSTRIAL":    "JUAN ESPINOZA",
+  "GESTION HUMANA":          "ALVARO SOTOMAYOR",
+  "ALMACEN INSUMOS":         "HECTOR ARTEAGA",
+  "ALMACEN REPUESTOS":       "HECTOR ARTEAGA",
+  "ALMACEN TEMPORAL":        "HECTOR ARTEAGA",
+  "MANTENIMIENTO ELECTRICO": "PAULO MEDINA",
+  "MANTENIMIENTO MECANICO":  "RICARDO ROSALES"
+};
+
 // ═══════════════════════════════════════
 // DATOS MAESTROS
 // ═══════════════════════════════════════
@@ -375,7 +488,7 @@ async function cargarTodo(){
     ]);
     if(e1||e2)throw e1||e2;
     observations=obs||[];acciones=acc||[];
-    renderList();renderAcciones();renderDashboard();
+    filtrar();renderAcciones();renderDashboard();
   }catch(e){
     console.error(e);
     showToast("Error conectando con la base de datos",true);
@@ -417,11 +530,23 @@ function updateZonas(){
   const area=document.getElementById("f-area").value;
   const sEl=document.getElementById("f-sector"),zEl=document.getElementById("f-zona");
   sEl.innerHTML="<option>— Sector —</option>";zEl.innerHTML="<option>— Zona —</option>";
-  if(!area){sEl.disabled=true;zEl.disabled=true;return;}
+  if(!area){sEl.disabled=true;zEl.disabled=true;document.getElementById("f-responsable").value="";return;}
   sEl.innerHTML=`<option value="${DATOS[area].sector}">Sector ${DATOS[area].sector}</option>`;
   sEl.disabled=false;
   DATOS[area].zonas.forEach(z=>{zEl.innerHTML+=`<option value="${z}">${z}</option>`;});
   zEl.disabled=false;
+  // Asignar responsable por área
+  const resp=RESPONSABLES_AREA[area]||"";
+  document.getElementById("f-responsable").value=resp;
+}
+
+function onZonaChange(){
+  const zona=document.getElementById("f-zona").value;
+  const area=document.getElementById("f-area").value;
+  // Primero buscar por zona específica, si no hay usar el del área
+  const respZona=RESPONSABLES_ZONA[zona];
+  const respArea=RESPONSABLES_AREA[area]||"";
+  document.getElementById("f-responsable").value=respZona||respArea;
 }
 function autoS(){
   const found=TIPOS.find(t=>t.tipo===document.getElementById("f-tipo").value);
@@ -640,23 +765,73 @@ async function cerrarAccion(){
 // RENDER LISTA
 // ═══════════════════════════════════════
 function renderList(){
-  const area=document.getElementById("fil-area").value;
-  const status=document.getElementById("fil-status").value;
-  const list=observations.filter(o=>(!area||o.area===area.replace(/_/g," "))&&(!status||o.status===status));
-  const el=document.getElementById("obs-list");
-  if(!list.length){el.innerHTML='<div class="empty"><div class="empty-ico">📋</div><p>No hay observaciones.</p></div>';return;}
-  el.innerHTML=list.map(o=>{
-    const cls=o.status==="CORREGIDO"?"corregido":o.status==="NO CORREGIDO"?"no-corregido":"pendiente";
-    const bCls=o.status==="CORREGIDO"?"b-ok":o.status==="NO CORREGIDO"?"b-no":"b-pen";
-    const sBadge=`b-${(o.s||"1s").toLowerCase()}`;
-    const accsObs=acciones.filter(a=>a.obs_id===o.id);
-    const canAdd=accsObs.length<3;
-    const fotos=(o.fotos||[]).slice(0,3).map(f=>`<img src="${f}" style="width:54px;height:54px;object-fit:cover;border-radius:6px;border:2px solid var(--g200);cursor:pointer" onclick="window.open('${f}','_blank')">`).join("");
-    const accsHtml=accsObs.map((a,i)=>{
-      const aCls=a.status==="CERRADA"?"cerrada":a.status==="EN PROGRESO"?"en-progreso":"";
-      const aBCls=a.status==="CERRADA"?"b-ok":a.status==="EN PROGRESO"?"b-prog":"b-pen";
+  const area = document.getElementById("fil-area").value;
+  const status = document.getElementById("fil-status").value;
+  const sector = document.getElementById("fil-sector")?.value||"";
+  const sem = document.getElementById("fil-sem")?.value||"";
+  const fechaIni = document.getElementById("fil-fecha-ini")?.value||"";
+  const fechaFin = document.getElementById("fil-fecha-fin")?.value||"";
+  const orden = document.getElementById("fil-orden")?.value||"fecha-desc";
+
+  let list = observations.filter(o => {
+    if(area && o.area !== area.replace(/_/g," ")) return false;
+    if(status && o.status !== status) return false;
+    if(sector && o.sector !== sector) return false;
+    if(sem && String(o.sem) !== String(sem)) return false;
+    if(fechaIni && o.fecha < fechaIni) return false;
+    if(fechaFin && o.fecha > fechaFin) return false;
+    return true;
+  });
+
+  // Ordenar
+  if(orden==="fecha-asc") list.sort((a,b)=>a.fecha>b.fecha?1:-1);
+  else if(orden==="fecha-desc") list.sort((a,b)=>a.fecha<b.fecha?1:-1);
+  else if(orden==="status") list.sort((a,b)=>a.status.localeCompare(b.status));
+  else if(orden==="area") list.sort((a,b)=>a.area.localeCompare(b.area));
+
+  const el = document.getElementById("obs-list");
+  if(!list.length){
+    el.innerHTML='<div class="empty"><div class="empty-ico">📋</div><p>No hay observaciones con esos filtros.</p></div>';
+    return;
+  }
+
+  const today = new Date(); today.setHours(0,0,0,0);
+
+  el.innerHTML = list.map(o => {
+    const cls = o.status==="CORREGIDO"?"corregido":o.status==="NO CORREGIDO"?"no-corregido":"pendiente";
+    const bCls = o.status==="CORREGIDO"?"b-ok":o.status==="NO CORREGIDO"?"b-no":"b-pen";
+    const sBadge = `b-${(o.s||"1s").toLowerCase()}`;
+    const accsObs = acciones.filter(a=>a.obs_id===o.id);
+    const canAdd = accsObs.length<3;
+
+    // Días transcurridos
+    const fechaObs = new Date(o.fecha); fechaObs.setHours(0,0,0,0);
+    const diasTransc = Math.floor((today-fechaObs)/(1000*60*60*24));
+    const diasColor = diasTransc>14?"color:var(--red)":diasTransc>7?"color:var(--amber)":"color:var(--g400)";
+
+    const fotos = (o.fotos||[]).slice(0,3).map(f=>
+      `<img src="${f}" style="width:54px;height:54px;object-fit:cover;border-radius:6px;border:2px solid var(--g200);cursor:pointer" onclick="window.open('${f}','_blank')">`
+    ).join("");
+
+    const accsHtml = accsObs.map((a,i) => {
+      const aCls = a.status==="CERRADA"?"cerrada":a.status==="EN PROGRESO"?"en-progreso":"";
+      const aBCls = a.status==="CERRADA"?"b-ok":a.status==="EN PROGRESO"?"b-prog":"b-pen";
+      // Semáforo de urgencia
+      let urgencia = "";
+      if(a.status!=="CERRADA" && a.fecha_limite){
+        const fl = new Date(a.fecha_limite); fl.setHours(0,0,0,0);
+        const diff = Math.floor((fl-today)/(1000*60*60*24));
+        if(diff<0) urgencia = `<span style="background:#FFEBEE;color:var(--red);font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;margin-left:6px">🔴 VENCIDA ${Math.abs(diff)}d</span>`;
+        else if(diff<=3) urgencia = `<span style="background:#FFF8E1;color:var(--amber);font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;margin-left:6px">🟡 ${diff}d restantes</span>`;
+        else urgencia = `<span style="background:#E8F5E9;color:var(--green);font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;margin-left:6px">🟢 ${diff}d restantes</span>`;
+      }
       return `<div class="acc-item ${aCls}">
-        <div class="acc-hdr"><span class="acc-num">Acción ${i+1}</span><span class="badge ${aBCls}">${a.status}</span></div>
+        <div class="acc-hdr">
+          <span class="acc-num">Acción ${i+1}</span>
+          <div style="display:flex;align-items:center;gap:4px">
+            <span class="badge ${aBCls}">${a.status}</span>${urgencia}
+          </div>
+        </div>
         <div style="font-size:13px;margin-bottom:5px">${a.descripcion}</div>
         <div style="font-size:11px;color:var(--g400)">👤 ${a.responsable}${a.fecha_limite?` · 📅 ${a.fecha_limite}`:""}${a.fecha_cierre?` · ✅ ${a.fecha_cierre}`:""}</div>
         ${a.comentario_cierre?`<div style="font-size:12px;color:var(--g700);margin-top:4px;font-style:italic">"${a.comentario_cierre}" — ${a.firma||""}</div>`:""}
@@ -667,11 +842,13 @@ function renderList(){
         </div>`:""}
       </div>`;
     }).join("");
+
     return `<div class="obs-card ${cls}">
       <div class="obs-hdr">
         <div>
           <strong style="font-size:14px">OBS-${String(o.num).padStart(3,"0")} — ${o.area}</strong>
           <div class="obs-meta">${o.zona||""}  ·  Sem.${o.sem}  ·  ${o.fecha}  ·  👤 ${o.auditor||""}</div>
+          <div style="font-size:11px;margin-top:2px;${diasColor}">⏱ ${diasTransc===0?"Hoy":diasTransc===1?"Hace 1 día":`Hace ${diasTransc} días`}</div>
         </div>
         <span class="badge ${bCls}">${o.status}</span>
       </div>
@@ -696,25 +873,73 @@ function renderList(){
     </div>`;
   }).join("");
 }
-function filtrar(){renderList();}
+
+function filtrar(){
+  // Llenar semanas disponibles
+  const semSelect = document.getElementById("fil-sem");
+  const semActual = semSelect.value;
+  const sems = [...new Set(observations.map(o=>o.sem).filter(Boolean))].sort((a,b)=>b-a);
+  semSelect.innerHTML = '<option value="">Todas las semanas</option>';
+  sems.forEach(s=>{ semSelect.innerHTML += `<option value="${s}" ${s==semActual?"selected":""}>${"Semana "+s}</option>`; });
+  renderList();
+}
 
 // ═══════════════════════════════════════
 // RENDER TAB ACCIONES
 // ═══════════════════════════════════════
 function renderAcciones(){
-  const area=document.getElementById("fil-acc-area").value;
-  const status=document.getElementById("fil-acc-status").value;
-  const el=document.getElementById("acc-list");
-  const items=acciones.filter(a=>{
-    const obs=observations.find(o=>o.id===a.obs_id);
-    return(!area||(obs&&obs.area===area.replace(/_/g," ")))&&(!status||a.status===status);
+  const area = document.getElementById("fil-acc-area").value;
+  const statusFil = document.getElementById("fil-acc-status").value;
+  const el = document.getElementById("acc-list");
+  const today = new Date(); today.setHours(0,0,0,0);
+
+  const items = acciones.filter(a => {
+    const obs = observations.find(o=>o.id===a.obs_id);
+    if(area && obs && obs.area !== area.replace(/_/g," ")) return false;
+    // Filtro especial VENCIDA
+    if(statusFil==="VENCIDA"){
+      if(a.status==="CERRADA") return false;
+      if(!a.fecha_limite) return false;
+      const fl = new Date(a.fecha_limite); fl.setHours(0,0,0,0);
+      return fl < today;
+    }
+    if(statusFil && a.status !== statusFil) return false;
+    return true;
   });
-  if(!items.length){el.innerHTML='<div class="empty"><div class="empty-ico">🎯</div><p>No hay acciones.</p></div>';return;}
-  el.innerHTML=items.map(a=>{
-    const obs=observations.find(o=>o.id===a.obs_id);
-    const bCls=a.status==="CERRADA"?"b-ok":a.status==="EN PROGRESO"?"b-prog":"b-pen";
-    const cls=a.status==="CERRADA"?"cerrada":a.status==="EN PROGRESO"?"en-progreso":"";
-    return `<div class="acc-item ${cls}" style="background:#fff;box-shadow:var(--sh);margin-bottom:10px">
+
+  if(!items.length){
+    el.innerHTML='<div class="empty"><div class="empty-ico">🎯</div><p>No hay acciones.</p></div>';
+    return;
+  }
+
+  el.innerHTML = items.map(a => {
+    const obs = observations.find(o=>o.id===a.obs_id);
+    const bCls = a.status==="CERRADA"?"b-ok":a.status==="EN PROGRESO"?"b-prog":"b-pen";
+    const cls = a.status==="CERRADA"?"cerrada":a.status==="EN PROGRESO"?"en-progreso":"";
+
+    // Semáforo urgencia
+    let urgencia = "";
+    let borderColor = "var(--g200)";
+    if(a.status!=="CERRADA"){
+      if(a.fecha_limite){
+        const fl = new Date(a.fecha_limite); fl.setHours(0,0,0,0);
+        const diff = Math.floor((fl-today)/(1000*60*60*24));
+        if(diff<0){
+          urgencia = `<div style="background:#FFEBEE;color:var(--red);font-size:11px;font-weight:700;padding:4px 10px;border-radius:8px;margin-top:6px;display:inline-block">🔴 VENCIDA hace ${Math.abs(diff)} día${Math.abs(diff)!==1?"s":""}</div>`;
+          borderColor = "var(--red)";
+        } else if(diff<=3){
+          urgencia = `<div style="background:#FFF8E1;color:var(--amber);font-size:11px;font-weight:700;padding:4px 10px;border-radius:8px;margin-top:6px;display:inline-block">🟡 Vence en ${diff} día${diff!==1?"s":""}</div>`;
+          borderColor = "var(--amber)";
+        } else {
+          urgencia = `<div style="background:#E8F5E9;color:var(--green);font-size:11px;font-weight:700;padding:4px 10px;border-radius:8px;margin-top:6px;display:inline-block">🟢 ${diff} días restantes</div>`;
+          borderColor = "var(--green)";
+        }
+      } else {
+        urgencia = `<div style="background:var(--g100);color:var(--g400);font-size:11px;padding:4px 10px;border-radius:8px;margin-top:6px;display:inline-block">⚪ Sin fecha límite</div>`;
+      }
+    }
+
+    return `<div class="acc-item ${cls}" style="background:#fff;box-shadow:var(--sh);margin-bottom:10px;border-color:${borderColor}">
       <div class="acc-hdr">
         <div>
           <span style="font-size:12px;font-weight:700;color:var(--g700)">OBS-${obs?String(obs.num).padStart(3,"0"):"???"} — ${obs?obs.area:""}</span>
@@ -724,7 +949,8 @@ function renderAcciones(){
       </div>
       <div style="font-size:13px;margin-bottom:5px">${a.descripcion}</div>
       <div style="font-size:11px;color:var(--g400)">👤 ${a.responsable}${a.fecha_limite?` · 📅 ${a.fecha_limite}`:""}${a.fecha_cierre?` · ✅ ${a.fecha_cierre}`:""}</div>
-      ${a.comentario_cierre?`<div style="font-size:12px;color:var(--g700);margin-top:4px;font-style:italic">"${a.comentario_cierre}" — ${a.firma||""}</div>`:""}
+      ${urgencia}
+      ${a.comentario_cierre?`<div style="font-size:12px;color:var(--g700);margin-top:6px;font-style:italic">"${a.comentario_cierre}" — ${a.firma||""}</div>`:""}
       ${a.foto_cierre?`<img src="${a.foto_cierre}" style="width:60px;height:60px;object-fit:cover;border-radius:6px;margin-top:6px;border:2px solid var(--g200);cursor:pointer" onclick="window.open('${a.foto_cierre}','_blank')">`:""}
       ${a.status!=="CERRADA"?`<div style="margin-top:8px;display:flex;gap:6px">
         <button class="btn-ghost" style="font-size:12px;padding:6px 10px" onclick="abrirModalAccion(${a.obs_id},${a.id})">✏️ Editar</button>
@@ -733,46 +959,253 @@ function renderAcciones(){
     </div>`;
   }).join("");
 }
+
 function filtrarAcc(){renderAcciones();}
 
 // ═══════════════════════════════════════
 // DASHBOARD
 // ═══════════════════════════════════════
 function renderDashboard(){
-  const total=observations.length;
-  const corr=observations.filter(o=>o.status==="CORREGIDO").length;
-  const pct=total?Math.round(corr/total*100):0;
-  document.getElementById("d-total").textContent=total;
-  document.getElementById("d-abiertas").textContent=total-corr;
-  document.getElementById("d-corregidas").textContent=corr;
-  document.getElementById("d-pct").textContent=pct+"%";
-  const byArea={};
-  observations.forEach(o=>{if(!byArea[o.area])byArea[o.area]={t:0,ok:0};byArea[o.area].t++;if(o.status==="CORREGIDO")byArea[o.area].ok++;});
-  document.getElementById("d-areas").innerHTML=Object.entries(byArea).sort((a,b)=>b[1].t-a[1].t).map(([area,v])=>{
-    const p=Math.round(v.ok/v.t*100);
-    const cls=p>=80?"":p>=50?"mid":"low";
-    return `<div class="prog-wrap"><div class="prog-lbl"><span style="font-size:12px;font-weight:600">${area}</span><span style="font-size:11px;color:var(--g400)">${v.ok}/${v.t} · ${p}%</span></div><div class="prog-track"><div class="prog-fill ${cls}" style="width:${p}%"></div></div></div>`;
-  }).join("")||'<p style="font-size:13px;color:var(--g400)">Sin datos.</p>';
-  const accSt={PENDIENTE:0,"EN PROGRESO":0,CERRADA:0};
-  acciones.forEach(a=>accSt[a.status]=(accSt[a.status]||0)+1);
-  const totAcc=Object.values(accSt).reduce((s,v)=>s+v,0)||1;
-  const accCol={PENDIENTE:"#FFC107","EN PROGRESO":"#3B82F6",CERRADA:"#1E7C34"};
-  document.getElementById("d-acc-stat").innerHTML=Object.entries(accSt).map(([st,n])=>`
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
-      <span style="font-size:12px;font-weight:600;min-width:90px;color:var(--g700)">${st}</span>
-      <div style="flex:1;height:9px;background:var(--g100);border-radius:20px;overflow:hidden"><div style="height:100%;width:${Math.round(n/totAcc*100)}%;background:${accCol[st]};border-radius:20px"></div></div>
-      <span style="font-size:12px;color:var(--g400);min-width:20px;text-align:right">${n}</span>
-    </div>`).join("");
+  const filSem = document.getElementById("d-fil-sem")?.value||"";
+  const filSector = document.getElementById("d-fil-sector")?.value||"";
+  const today = new Date(); today.setHours(0,0,0,0);
+
+  // Llenar semanas
+  const sems = [...new Set(observations.map(o=>String(o.sem)).filter(Boolean))].sort((a,b)=>Number(a)-Number(b));
+  ["d-fil-sem","fil-sem","d-fil-s-sem"].forEach(id=>{
+    const el=document.getElementById(id); if(!el)return;
+    const cur=el.value;
+    el.innerHTML=`<option value="">Todas las semanas</option>`;
+    sems.forEach(s=>{el.innerHTML+=`<option value="${s}" ${s===cur?"selected":""}>${"Sem. "+s}</option>`;});
+  });
+
+  // Filtrar
+  let obsF = observations.filter(o=>{
+    if(filSem && String(o.sem)!==filSem) return false;
+    if(filSector && o.sector!==filSector) return false;
+    return true;
+  });
+
+  const total = obsF.length;
+  const corregidas = obsF.filter(o=>o.status==="CORREGIDO").length;
+  const noCorregidas = obsF.filter(o=>o.status==="NO CORREGIDO").length;
+  const pendientes = obsF.filter(o=>o.status==="PENDIENTE").length;
+  const pct = total ? Math.round(corregidas/total*100) : 0;
+
+  document.getElementById("d-total").textContent = total;
+  document.getElementById("d-corregidas").textContent = corregidas;
+  document.getElementById("d-no-corregidas").textContent = noCorregidas;
+  document.getElementById("d-pct").textContent = pct+"%";
+
+  const GREEN="#1E7C34", RED="#E63329", AMBER="#D97706", BLUE="#1565C0",
+        GREEN_L="#2DA04880", RED_L="#E6332980", AMBER_L="#D9770680";
+
+  // ── DONUT: Estado observaciones ───────────────────────────────────
+  destroyChart("chart-donut-status");
+  new Chart(document.getElementById("chart-donut-status"),{
+    type:"doughnut",
+    data:{
+      labels:["Corregidas","No Corregidas","Pendientes"],
+      datasets:[{data:[corregidas,noCorregidas,pendientes],backgroundColor:[GREEN,RED,AMBER],borderWidth:2,borderColor:"#fff"}]
+    },
+    options:{
+      responsive:true,cutout:"65%",
+      plugins:{legend:{position:"bottom",labels:{font:{size:11},padding:10}},
+        tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${ctx.raw} (${total?Math.round(ctx.raw/total*100):0}%)`}}}
+    }
+  });
+
+  // ── DONUT: Fallos por S ────────────────────────────────────────────
   const byS={};
-  observations.forEach(o=>{const k=o.s||"—";byS[k]=(byS[k]||0)+1;});
-  const sCol={"1S":"#E65100","2S":"#1B5E20","3S":"#0D47A1","4S":"#4A148C","5S":"#880E4F","EPP":"#C2410C","—":"#888"};
-  document.getElementById("d-s").innerHTML=Object.entries(byS).map(([s,n])=>`
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
-      <span class="badge" style="background:${sCol[s]||"#888"}20;color:${sCol[s]||"#888"};min-width:38px;justify-content:center">${s}</span>
-      <div style="flex:1;height:9px;background:var(--g100);border-radius:20px;overflow:hidden"><div style="height:100%;width:${total?Math.round(n/total*100):0}%;background:${sCol[s]||"#888"};border-radius:20px"></div></div>
-      <span style="font-size:12px;color:var(--g400);min-width:20px;text-align:right">${n}</span>
-    </div>`).join("")||'<p style="font-size:13px;color:var(--g400)">Sin datos.</p>';
+  obsF.forEach(o=>{const k=o.s||"—";byS[k]=(byS[k]||0)+1;});
+  const sColors={"1S":"#E65100","2S":"#1B5E20","3S":"#0D47A1","4S":"#4A148C","5S":"#880E4F","EPP":"#C2410C","—":"#888"};
+  const sEntries=Object.entries(byS).sort((a,b)=>b[1]-a[1]);
+  destroyChart("chart-donut-s");
+  new Chart(document.getElementById("chart-donut-s"),{
+    type:"doughnut",
+    data:{
+      labels:sEntries.map(([s])=>s),
+      datasets:[{data:sEntries.map(([,n])=>n),backgroundColor:sEntries.map(([s])=>sColors[s]||"#888"),borderWidth:2,borderColor:"#fff"}]
+    },
+    options:{
+      responsive:true,cutout:"65%",
+      plugins:{legend:{position:"bottom",labels:{font:{size:11},padding:8}},
+        tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${ctx.raw} (${total?Math.round(ctx.raw/total*100):0}%)`}}}
+    }
+  });
+
+  // ── BARRAS: Corregidas vs No Corregidas por área ───────────────────
+  const byArea={};
+  obsF.forEach(o=>{
+    if(!byArea[o.area])byArea[o.area]={corr:0,no:0,pen:0};
+    if(o.status==="CORREGIDO")byArea[o.area].corr++;
+    else if(o.status==="NO CORREGIDO")byArea[o.area].no++;
+    else byArea[o.area].pen++;
+  });
+  const areaLabels=Object.keys(byArea).sort((a,b)=>{
+    const ta=byArea[a].corr+byArea[a].no+byArea[a].pen;
+    const tb=byArea[b].corr+byArea[b].no+byArea[b].pen;
+    return tb-ta;
+  });
+  destroyChart("chart-barras-area");
+  new Chart(document.getElementById("chart-barras-area"),{
+    type:"bar",
+    data:{
+      labels:areaLabels,
+      datasets:[
+        {label:"Corregidas",data:areaLabels.map(a=>byArea[a].corr),backgroundColor:GREEN,borderRadius:4},
+        {label:"No Corregidas",data:areaLabels.map(a=>byArea[a].no),backgroundColor:RED,borderRadius:4},
+        {label:"Pendientes",data:areaLabels.map(a=>byArea[a].pen),backgroundColor:AMBER,borderRadius:4}
+      ]
+    },
+    options:{
+      responsive:true,
+      plugins:{legend:{position:"top",labels:{font:{size:11}}},
+        tooltip:{mode:"index",intersect:false}},
+      scales:{
+        x:{stacked:false,ticks:{font:{size:10},maxRotation:45},grid:{display:false}},
+        y:{beginAtZero:true,ticks:{stepSize:1,font:{size:11}},grid:{color:"#EEF0EC"}}
+      }
+    }
+  });
+
+  // ── LÍNEA: Tendencia semanal ───────────────────────────────────────
+  const bySem={};
+  observations.forEach(o=>{
+    if(filSector && o.sector!==filSector) return;
+    const s="Sem."+o.sem;
+    if(!bySem[s])bySem[s]={corr:0,no:0,pen:0};
+    if(o.status==="CORREGIDO")bySem[s].corr++;
+    else if(o.status==="NO CORREGIDO")bySem[s].no++;
+    else bySem[s].pen++;
+  });
+  const semLabels=Object.keys(bySem).sort((a,b)=>Number(a.replace("Sem.",""))-Number(b.replace("Sem.","")));
+  destroyChart("chart-tendencia");
+  new Chart(document.getElementById("chart-tendencia"),{
+    type:"line",
+    data:{
+      labels:semLabels,
+      datasets:[
+        {label:"Corregidas",data:semLabels.map(s=>bySem[s].corr),borderColor:GREEN,backgroundColor:GREEN_L,fill:true,tension:0.4,pointRadius:4,pointBackgroundColor:GREEN},
+        {label:"No Corregidas",data:semLabels.map(s=>bySem[s].no),borderColor:RED,backgroundColor:RED_L,fill:true,tension:0.4,pointRadius:4,pointBackgroundColor:RED},
+        {label:"Pendientes",data:semLabels.map(s=>bySem[s].pen),borderColor:AMBER,backgroundColor:AMBER_L,fill:true,tension:0.4,pointRadius:4,pointBackgroundColor:AMBER}
+      ]
+    },
+    options:{
+      responsive:true,
+      plugins:{legend:{position:"top",labels:{font:{size:11}}},
+        tooltip:{mode:"index",intersect:false}},
+      scales:{
+        x:{ticks:{font:{size:11}},grid:{display:false}},
+        y:{beginAtZero:true,ticks:{stepSize:1,font:{size:11}},grid:{color:"#EEF0EC"}}
+      }
+    }
+  });
+
+  // ── BARRAS HORIZONTALES: Cumplimiento por sector ───────────────────
+  const sectores={A:{t:0,ok:0},B:{t:0,ok:0},C:{t:0,ok:0},D:{t:0,ok:0}};
+  obsF.forEach(o=>{
+    const s=o.sector||"C";
+    if(!sectores[s])sectores[s]={t:0,ok:0};
+    sectores[s].t++;
+    if(o.status==="CORREGIDO")sectores[s].ok++;
+  });
+  const sectLabels=Object.keys(sectores).filter(s=>sectores[s].t>0).map(s=>`Sector ${s}`);
+  const sectKeys=Object.keys(sectores).filter(s=>sectores[s].t>0);
+  const sectPct=sectKeys.map(s=>sectores[s].t?Math.round(sectores[s].ok/sectores[s].t*100):0);
+  const sectColors=sectPct.map(p=>p>=80?GREEN:p>=50?AMBER:RED);
+  destroyChart("chart-sectores");
+  new Chart(document.getElementById("chart-sectores"),{
+    type:"bar",
+    data:{
+      labels:sectLabels,
+      datasets:[{
+        label:"% Cumplimiento",
+        data:sectPct,
+        backgroundColor:sectColors,
+        borderRadius:6,
+        barThickness:30
+      }]
+    },
+    options:{
+      indexAxis:"y",responsive:true,
+      plugins:{legend:{display:false},
+        tooltip:{callbacks:{label:ctx=>`Cumplimiento: ${ctx.raw}%`}},
+        datalabels:{display:false}},
+      scales:{
+        x:{min:0,max:100,ticks:{callback:v=>v+"%",font:{size:11}},grid:{color:"#EEF0EC"}},
+        y:{ticks:{font:{size:12,weight:"600"}},grid:{display:false}}
+      }
+    }
+  });
+
+  // ── DONUT: Estado acciones ─────────────────────────────────────────
+  let accCerradas=0,accVencidas=0,accEnProg=0,accPend=0;
+  acciones.forEach(a=>{
+    const obs=observations.find(o=>o.id===a.obs_id);
+    if(filSem && obs && String(obs.sem)!==filSem) return;
+    if(filSector && obs && obs.sector!==filSector) return;
+    if(a.status==="CERRADA"){accCerradas++;return;}
+    if(a.fecha_limite){
+      const fl=new Date(a.fecha_limite);fl.setHours(0,0,0,0);
+      if(fl<today){accVencidas++;return;}
+    }
+    if(a.status==="EN PROGRESO")accEnProg++;
+    else accPend++;
+  });
+  const totalAcc=accCerradas+accVencidas+accEnProg+accPend||1;
+  destroyChart("chart-donut-acc");
+  new Chart(document.getElementById("chart-donut-acc"),{
+    type:"doughnut",
+    data:{
+      labels:["Cerradas","Vencidas","En progreso","Pendientes"],
+      datasets:[{data:[accCerradas,accVencidas,accEnProg,accPend],backgroundColor:[GREEN,RED,BLUE,AMBER],borderWidth:2,borderColor:"#fff"}]
+    },
+    options:{
+      responsive:true,cutout:"65%",
+      plugins:{legend:{position:"bottom",labels:{font:{size:10},padding:8}},
+        tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${ctx.raw}`}}}
+    }
+  });
+
+  // KPIs acciones
+  const pctAcc=Math.round(accCerradas/totalAcc*100);
+  document.getElementById("d-acc-kpis").innerHTML=`
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:#E8F5E9;border-radius:8px">
+        <span style="font-size:12px;color:var(--green);font-weight:600">✅ Cerradas</span>
+        <span style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;color:var(--green)">${accCerradas}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:#FFEBEE;border-radius:8px">
+        <span style="font-size:12px;color:var(--red);font-weight:600">🔴 Vencidas</span>
+        <span style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;color:var(--red)">${accVencidas}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:#E3F2FD;border-radius:8px">
+        <span style="font-size:12px;color:${BLUE};font-weight:600">🔵 En progreso</span>
+        <span style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;color:${BLUE}">${accEnProg}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:#FFF8E1;border-radius:8px">
+        <span style="font-size:12px;color:var(--amber);font-weight:600">🟡 Pendientes</span>
+        <span style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;color:var(--amber)">${accPend}</span>
+      </div>
+      <div style="margin-top:4px">
+        <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px">
+          <span style="color:var(--g700);font-weight:600">Progreso</span>
+          <span style="color:var(--green);font-weight:700">${pctAcc}%</span>
+        </div>
+        <div style="height:8px;background:var(--g100);border-radius:20px;overflow:hidden">
+          <div style="height:100%;width:${pctAcc}%;background:var(--green);border-radius:20px;transition:width .6s"></div>
+        </div>
+      </div>
+    </div>`;
 }
+
+// Destruir chart anterior usando Chart.getChart() nativo
+function destroyChart(id){
+  const existing = Chart.getChart(id);
+  if(existing) existing.destroy();
+}
+
 
 // ═══════════════════════════════════════
 // HELPERS UI
@@ -782,7 +1215,7 @@ function showTab(name){
   document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
   document.getElementById("tab-"+name).classList.add("active");
   ["nuevo","lista","acciones","dashboard"].forEach((t,i)=>{if(t===name)document.querySelectorAll(".tab")[i].classList.add("active");});
-  if(name==="lista")renderList();
+  if(name==="lista"){filtrar();}
   if(name==="dashboard")renderDashboard();
   if(name==="acciones")renderAcciones();
 }

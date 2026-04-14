@@ -65,17 +65,14 @@ textarea{resize:vertical;min-height:78px}
 .b-5s{background:#FCE4EC;color:#880E4F}.b-epp{background:#FFF3E0;color:#E65100}
 .b-ok{background:#E8F5E9;color:#1B5E20}.b-no{background:#FFEBEE;color:#B71C1C}
 .b-pen{background:#FFF8E1;color:#F57F17}
-/* OBS CARD */
 .obs-card{background:#fff;border-radius:var(--r);box-shadow:var(--sh);margin-bottom:10px;border-left:4px solid var(--g200);overflow:hidden;cursor:pointer}
 .obs-card.corregido{border-left-color:var(--green)}
 .obs-card.no-corregido{border-left-color:var(--red)}
 .obs-card.pendiente{border-left-color:#FFC107}
-/* MODAL */
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;padding:16px;overflow-y:auto}
 .modal-overlay.show{display:flex;align-items:flex-start;justify-content:center}
 .modal{background:#fff;border-radius:14px;padding:20px;width:100%;max-width:500px;box-shadow:var(--shl);margin:auto}
 .modal-title{font-family:"Barlow Condensed",sans-serif;font-size:18px;font-weight:800;color:var(--green);margin-bottom:16px;text-transform:uppercase;border-left:4px solid var(--red);padding-left:10px}
-/* DASHBOARD */
 .kpi-box{background:#fff;border-radius:8px;box-shadow:var(--sh);padding:10px 6px;text-align:center;border-top:3px solid var(--g200)}
 .kpi-box.green{border-top-color:var(--green)}.kpi-box.red{border-top-color:var(--red)}.kpi-box.amber{border-top-color:var(--amber)}
 .kpi-val{font-family:"Barlow Condensed",sans-serif;font-size:24px;font-weight:800;line-height:1;color:var(--g900)}
@@ -89,12 +86,17 @@ textarea{resize:vertical;min-height:78px}
 .dash-legend-label{font-size:10px;color:var(--g700);flex:1}
 .dash-legend-val{font-family:"Barlow Condensed",sans-serif;font-size:13px;font-weight:700;color:var(--g900)}
 .dash-legend-pct{font-size:10px;color:var(--g400);min-width:30px;text-align:right}
-/* Selector semana/mes */
-.period-sel{display:flex;gap:0;margin-bottom:10px;border-radius:8px;overflow:hidden;border:1.5px solid var(--g200)}
-.period-btn{flex:1;padding:8px;border:none;background:#fff;font-family:"Barlow",sans-serif;font-size:12px;font-weight:600;cursor:pointer;color:var(--g400);transition:all .18s}
+.period-sel{display:flex;gap:0;border-radius:8px;overflow:hidden;border:1.5px solid var(--g200)}
+.period-btn{flex:1;padding:7px;border:none;background:#fff;font-family:"Barlow",sans-serif;font-size:11px;font-weight:600;cursor:pointer;color:var(--g400);transition:all .18s}
 .period-btn.active{background:var(--green);color:#fff}
-/* MISC */
 .filter-small{padding:8px 10px;border:1.5px solid var(--g200);border-radius:8px;font-family:"Barlow",sans-serif;font-size:12px;-webkit-appearance:none;background:#fff;width:100%}
+.dtbl{width:100%;border-collapse:collapse;font-size:11px}
+.dtbl th{background:var(--green);color:#fff;padding:6px 8px;font-size:10px;font-weight:700;white-space:nowrap;text-align:center}
+.dtbl th.left{text-align:left}
+.dtbl td{padding:5px 8px;border-bottom:1px solid var(--g100);text-align:center;color:var(--g900)}
+.dtbl td.left{text-align:left;font-weight:600;color:var(--g700);white-space:nowrap}
+.dtbl tr:last-child td{border-bottom:none}
+.dtbl .total-row td{background:var(--g50);font-weight:700;border-top:2px solid var(--g200)}
 .upload-progress{height:5px;background:var(--g100);border-radius:20px;overflow:hidden;margin-top:8px;display:none}
 .upload-progress-fill{height:100%;background:var(--green);border-radius:20px;transition:width .3s}
 .empty{text-align:center;padding:38px 20px;color:var(--g400)}
@@ -104,62 +106,36 @@ textarea{resize:vertical;min-height:78px}
 .spinner-g{width:28px;height:28px;border:3px solid var(--g100);border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite;display:inline-block}
 #toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--green);color:#fff;padding:11px 22px;border-radius:30px;font-size:13px;font-weight:600;box-shadow:var(--shl);opacity:0;pointer-events:none;transition:opacity .3s;z-index:999;white-space:nowrap;max-width:90vw}
 #toast.show{opacity:1}#toast.error{background:var(--red)}
-.dtbl{width:100%;border-collapse:collapse;font-size:11px}
-.dtbl th{background:var(--green);color:#fff;padding:6px 8px;font-size:10px;font-weight:700;white-space:nowrap;text-align:center}
-.dtbl th.left{text-align:left}
-.dtbl td{padding:5px 8px;border-bottom:1px solid var(--g100);text-align:center;color:var(--g900)}
-.dtbl td.left{text-align:left;font-weight:600;color:var(--g700);white-space:nowrap}
-.dtbl tr:last-child td{border-bottom:none}
-.dtbl .total-row td{background:var(--g50);font-weight:700;border-top:2px solid var(--g200)}
-.dtbl .pct-ok{color:var(--green);font-weight:700}
-.dtbl .pct-no{color:var(--red);font-weight:700}
-.dtbl .pct-pen{color:var(--amber);font-weight:700}
 @keyframes spin{to{transform:rotate(360deg)}}
 @media(max-width:480px){.row2{grid-template-columns:1fr}.kpi-val{font-size:20px}}
 </style>
 </head>
 <body>
-
 <header>
   <div class="hdr">
     <div class="logo-box"><img src="data:image/jpeg;base64,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" alt="ISM"></div>
-    <div class="hdr-txt">
-      <h1>Recorrido 5S</h1>
-      <span>Industrias San Miguel</span>
-    </div>
+    <div class="hdr-txt"><h1>Recorrido 5S</h1><span>Industrias San Miguel</span></div>
     <button class="hdr-sync" onclick="cargarTodo()">🔄 Sync</button>
   </div>
 </header>
-
 <nav>
   <div class="tab active" onclick="showTab('nuevo')">+ Nueva</div>
   <div class="tab" onclick="showTab('lista')">Observaciones</div>
   <div class="tab" onclick="showTab('dashboard')">Dashboard</div>
 </nav>
-
 <main>
-
 <!-- TAB NUEVO -->
 <div id="tab-nuevo" class="section active">
   <div class="card">
     <div class="card-title">📋 Nueva observación</div>
-    <div class="fg">
-      <label>Semana</label>
-      <input type="text" id="f-sem" readonly style="background:var(--g50);font-weight:700;color:var(--green)">
-    </div>
+    <div class="fg"><label>Semana</label><input type="text" id="f-sem" readonly style="background:var(--g50);font-weight:700;color:var(--green)"></div>
     <div class="fg"><label>Responsable de Registro</label><input type="text" id="f-auditor" placeholder="Tu nombre completo"></div>
-    <div class="fg">
-      <label>Área</label>
-      <select id="f-area" onchange="updateZonas()"><option value="">— Selecciona área —</option></select>
-    </div>
+    <div class="fg"><label>Área</label><select id="f-area" onchange="updateZonas()"><option value="">— Selecciona área —</option></select></div>
     <div class="row2">
       <div class="fg"><label>Sector</label><select id="f-sector" disabled><option value="">—</option></select></div>
       <div class="fg"><label>Zona / Equipo</label><select id="f-zona" disabled onchange="onZonaChange()"><option value="">—</option></select></div>
     </div>
-    <div class="fg">
-      <label>Tipo de observación</label>
-      <select id="f-tipo" onchange="autoS()"><option value="">— Selecciona tipo —</option></select>
-    </div>
+    <div class="fg"><label>Tipo de observación</label><select id="f-tipo" onchange="autoS()"><option value="">— Selecciona tipo —</option></select></div>
     <div class="fg">
       <label>"S" observada</label>
       <div class="s-sel">
@@ -172,10 +148,7 @@ textarea{resize:vertical;min-height:78px}
       </div>
     </div>
     <div class="fg"><label>Descripción</label><textarea id="f-obs" placeholder="Describe la situación encontrada..."></textarea></div>
-    <div class="fg">
-      <label>Responsable del área</label>
-      <input type="text" id="f-responsable" readonly style="background:var(--g50);color:var(--g700)" placeholder="Se asigna automáticamente al elegir área/zona">
-    </div>
+    <div class="fg"><label>Responsable del área</label><input type="text" id="f-responsable" readonly style="background:var(--g50);color:var(--g700)" placeholder="Se asigna automáticamente"></div>
     <div class="fg">
       <label>Foto de evidencia (antes)</label>
       <div class="photo-drop">
@@ -219,46 +192,23 @@ textarea{resize:vertical;min-height:78px}
 
 <!-- TAB DASHBOARD -->
 <div id="tab-dashboard" class="section">
-
-  <!-- Filtros + botón PDF -->
   <div style="display:flex;gap:8px;margin-bottom:12px;align-items:center">
-    <select id="d-fil-sector" onchange="renderDashboard()" class="filter-small">
-      <option value="">Todos los sectores</option>
-      <option value="A">Sector A</option>
-      <option value="B">Sector B</option>
-      <option value="C">Sector C</option>
-    </select>
-    <select id="d-fil-area" onchange="renderDashboard()" class="filter-small">
-      <option value="">Todas las áreas</option>
-    </select>
-    <button onclick="exportarPDF()" style="flex-shrink:0;background:var(--red);color:#fff;border:none;border-radius:8px;padding:8px 12px;font-family:Barlow,sans-serif;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px;white-space:nowrap">
-      📄 PDF
-    </button>
+    <select id="d-fil-sector" onchange="renderDashboard()" class="filter-small"><option value="">Todos los sectores</option><option value="A">Sector A</option><option value="B">Sector B</option><option value="C">Sector C</option></select>
+    <select id="d-fil-area" onchange="renderDashboard()" class="filter-small"><option value="">Todas las áreas</option></select>
+    <button onclick="exportarPDF()" style="flex-shrink:0;background:var(--red);color:#fff;border:none;border-radius:8px;padding:8px 12px;font-family:Barlow,sans-serif;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">📄 PDF</button>
   </div>
-
-  <!-- Tablas gerenciales (ocultas visualmente, usadas para PDF también) -->
-  <div class="dash-card">
-    <div class="dash-card-title">📋 Resumen por sector y estado</div>
-    <div style="overflow-x:auto"><table id="tabla-pivot" class="dtbl"></table></div>
-  </div>
-  <div class="dash-card">
-    <div class="dash-card-title">📊 % Cumplimiento por área</div>
-    <div style="overflow-x:auto"><table id="tabla-cumpl" class="dtbl"></table></div>
-  </div>
-
   <!-- KPIs -->
-  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px">
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:8px">
     <div class="kpi-box"><div class="kpi-val" id="d-total">0</div><div class="kpi-lbl">Total obs.</div></div>
     <div class="kpi-box green"><div class="kpi-val" id="d-corregidas">0</div><div class="kpi-lbl">Corregidas</div></div>
     <div class="kpi-box red"><div class="kpi-val" id="d-no-corr">0</div><div class="kpi-lbl">No Corregidas</div></div>
   </div>
   <div style="margin-bottom:12px">
     <div class="kpi-box amber" style="padding:10px 16px;display:flex;align-items:center;justify-content:space-between">
-      <div class="kpi-lbl" style="margin-top:0;font-size:10px">% CUMPLIMIENTO GENERAL</div>
-      <div class="kpi-val" id="d-pct" style="font-size:32px">0%</div>
+      <div class="kpi-lbl" style="margin-top:0">% CUMPLIMIENTO GENERAL</div>
+      <div class="kpi-val" id="d-pct" style="font-size:28px">0%</div>
     </div>
   </div>
-
   <!-- Donuts -->
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
     <div class="dash-card" style="margin-bottom:0">
@@ -284,43 +234,36 @@ textarea{resize:vertical;min-height:78px}
       <div id="legend-s" style="margin-top:8px"></div>
     </div>
   </div>
-
-  <!-- Evolución temporal con selector semana/mes -->
+  <!-- Evolución -->
   <div class="dash-card">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
       <div class="dash-card-title" style="margin-bottom:0">📈 Evolución de observaciones</div>
-      <div class="period-sel" style="width:140px">
+      <div class="period-sel" style="width:130px">
         <button class="period-btn active" id="btn-sem" onclick="setPeriod('sem')">Semanal</button>
         <button class="period-btn" id="btn-mes" onclick="setPeriod('mes')">Mensual</button>
       </div>
     </div>
     <div style="overflow-x:auto"><canvas id="chart-evolucion" style="min-width:280px"></canvas></div>
   </div>
-
-  <!-- Evolución por área (todas en un gráfico) -->
+  <!-- Evolución por área -->
   <div class="dash-card">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
       <div class="dash-card-title" style="margin-bottom:0">📊 Evolución por área</div>
-      <div class="period-sel" style="width:140px">
+      <div class="period-sel" style="width:130px">
         <button class="period-btn active" id="btn-area-sem" onclick="setPeriodArea('sem')">Semanal</button>
         <button class="period-btn" id="btn-area-mes" onclick="setPeriodArea('mes')">Mensual</button>
       </div>
     </div>
     <div style="overflow-x:auto"><canvas id="chart-area-evol" style="min-width:280px"></canvas></div>
   </div>
-
-  <!-- Cumplimiento por sector -->
-  <div class="dash-card">
-    <div class="dash-card-title">🏭 Cumplimiento por sector</div>
-    <div id="d-sectores"></div>
-  </div>
-
-  <!-- Cumplimiento por responsable -->
-  <div class="dash-card">
-    <div class="dash-card-title">👤 Cumplimiento por responsable</div>
-    <div id="d-responsables"></div>
-  </div>
-
+  <!-- Sectores -->
+  <div class="dash-card"><div class="dash-card-title">🏭 Cumplimiento por sector</div><div id="d-sectores"></div></div>
+  <!-- Responsables -->
+  <div class="dash-card"><div class="dash-card-title">👤 Cumplimiento por responsable</div><div id="d-responsables"></div></div>
+  <!-- Tabla pivot -->
+  <div class="dash-card"><div class="dash-card-title">📋 Resumen por sector y estado</div><div style="overflow-x:auto"><table id="tabla-pivot" class="dtbl"></table></div></div>
+  <!-- Tabla cumplimiento -->
+  <div class="dash-card"><div class="dash-card-title">📊 % Cumplimiento por área</div><div style="overflow-x:auto"><table id="tabla-cumpl" class="dtbl"></table></div></div>
 </div>
 </main>
 
@@ -354,7 +297,6 @@ textarea{resize:vertical;min-height:78px}
     </div>
   </div>
 </div>
-
 <!-- MODAL EDITAR -->
 <div class="modal-overlay" id="modal-editar">
   <div class="modal">
@@ -362,13 +304,8 @@ textarea{resize:vertical;min-height:78px}
     <input type="hidden" id="me-id">
     <div class="fg"><label>Descripción</label><textarea id="me-obs"></textarea></div>
     <div class="fg"><label>Responsable</label><input type="text" id="me-resp"></div>
-    <div class="fg">
-      <label>Estado</label>
-      <select id="me-status">
-        <option value="PENDIENTE">PENDIENTE</option>
-        <option value="CORREGIDO">CORREGIDO</option>
-        <option value="NO CORREGIDO">NO CORREGIDO</option>
-      </select>
+    <div class="fg"><label>Estado</label>
+      <select id="me-status"><option value="PENDIENTE">PENDIENTE</option><option value="CORREGIDO">CORREGIDO</option><option value="NO CORREGIDO">NO CORREGIDO</option></select>
     </div>
     <div style="display:flex;gap:10px;margin-top:4px">
       <button class="btn-primary" onclick="confirmarEditar()" style="flex:1">Guardar</button>
@@ -376,7 +313,6 @@ textarea{resize:vertical;min-height:78px}
     </div>
   </div>
 </div>
-
 <!-- MODAL ELIMINAR -->
 <div class="modal-overlay" id="modal-eliminar">
   <div class="modal">
@@ -389,84 +325,26 @@ textarea{resize:vertical;min-height:78px}
     </div>
   </div>
 </div>
-
 <div id="toast"></div>
 
 <script>
-// ═══ CONFIG ═══
+// CONFIG
 const {createClient}=supabase;
 const sb=createClient("https://aedzzbrguoodnsynfpyl.supabase.co","sb_publishable_3HxZO2sfSwc6xQvEw3iIYg_kksCk9Xm");
 const CLD_CLOUD="dw5ucvvie";
 const CLD_PRESET="fotos5s";
 
-// ═══ DATOS MAESTROS ═══
-const RESPONSABLES_AREA={
-  "LINEA1":"JUNIOR GERVACIO / DANIEL TABOADA / JUAN GORDILLO",
-  "LINEA2":"JUNIOR GERVACIO / DANIEL TABOADA / JUAN GORDILLO",
-  "LINEA3":"JUNIOR GERVACIO / DANIEL TABOADA / JUAN GORDILLO",
-  "LINEA4":"JUNIOR GERVACIO / DANIEL TABOADA / JUAN GORDILLO",
-  "LINEA5":"YONER ANGULO / FABRICIO POLO",
-  "LINEA6":"YONER ANGULO / FABRICIO POLO",
-  "LINEA7":"YONER ANGULO / FABRICIO POLO",
-  "LINEA8":"YONER ANGULO / FABRICIO POLO",
-  "LINEA9":"JUNIOR GERVACIO / DANIEL TABOADA / JUAN GORDILLO",
-  "LINEA10":"YONER ANGULO / FABRICIO POLO",
-  "SALA_MANEJOS":"DARLENE CRUZ",
-  "SALA_FUERZA":"JUNIOR GERVACIO / DANIEL TABOADA / JUAN GORDILLO",
-  "SALA_CALDEROS":"AYRTON COTRINA",
-  "TRATAMIENTO_AGUA":"DEBORAH SANTILLAN",
-  "SALA_JARABE":"JUNIOR GERVACIO / DANIEL TABOADA / JUAN GORDILLO",
-  "ALMACEN":"HECTOR ARTEAGA",
-  "OFICINAS":""
-};
-const RESPONSABLES_ZONA={
-  "OFICINA PRODUCCION":"HENRY TREVIÑOS",
-  "OFICINA MEJORA CONTINUA":"DARLENE CRUZ",
-  "AREA CALIDAD":"ITALO BUEN DIA",
-  "OFICINA PLANIFICACION":"CARLOS LUYO",
-  "JEFATURA PRODUCCION":"HENRY TREVIÑOS",
-  "JEFATURA PLANTA":"FABIO CALDAS",
-  "SEGURIDAD INDUSTRIAL":"JUAN ESPINOZA",
-  "GESTION HUMANA":"ALVARO SOTOMAYOR",
-  "ALMACEN INSUMOS":"HECTOR ARTEAGA",
-  "ALMACEN REPUESTOS":"HECTOR ARTEAGA",
-  "ALMACEN TEMPORAL":"HECTOR ARTEAGA",
-  "MANTENIMIENTO ELECTRICO":"PAULO MEDINA",
-  "MANTENIMIENTO MECANICO":"RICARDO ROSALES"
-};
-const TIPOS=[
-  {tipo:"Presencia de Innecesarios",s:"1S"},
-  {tipo:"Desorden",s:"2S"},
-  {tipo:"Falta de limpieza",s:"3S"},
-  {tipo:"Falta de rotulación y/o demarcación",s:"4S"},
-  {tipo:"Incumplimiento del Estándar",s:"5S"},
-  {tipo:"Falta de EPP",s:"EPP"}
-];
-const DATOS={
-  LINEA1:{sector:"A",zonas:["CAPSULADOR ALCOA B242","CODIFICAD IMAJE 1000 S8 CLASIC 4490004U","CODIFICADOR IMAJE 1000 S8 IP-65 2420242A","LLENADORA LINEAL DE BIDONES MESAL","ALIMENTADOR D TAPAS UNIMAC GHERRI GG/900","MÁQUINA SOPLADORA ROTATIVA MODELO SBF 410 HERO","ETIQUETADORA SIDEL EVODECO SL100","POSICIONADOR POSIMAT ACCESS N-40","CODIFICADOR LASER VIDEOJET - LP09"]},
-  LINEA2:{sector:"A",zonas:["CODIFICADOR VIDEOJET EXCEL 2000 02CWD","CONJTO PROPORCIONADOR MESAL MIX-50","CONJTO PROPORCIONADOR MOJONNIER 22-48","TRANSPORTADOR A TABLILLAS CONVEY LP04","APLICADOR D PRECINTOS DASE SEAL XYL-450S","LLENADORA AWF","LLENADORA SIDEL SF300","TRANSPORTADOR NEUMATICO PNEUMATIC LP08","CHILLER TERMALCARE Q37.5 - LP09"]},
-  LINEA3:{sector:"A",zonas:["CONJTO PROPORCIONADOR MOJONNIER FE","DOSIFICADOR DE NITROGENO SC-350","ELEVADOR DE TAPAS TIPO JET FLOW ZEFP","LLENADORA 20 LITROS RERCPAC SA","CAPSULADOR UNIMAC GHERRI GG/300","TAPONADORA DE TAPA EN PLÁSTICO PRE-ROSCADO FLAT DIÁM. 29/25 MM","EMPACADORA SIDEL EVO FILM ACCESS","APLICADOR D PRECINTOS SCALIGERA ULISSE 40000","CHILLER TERMALCARE Q37.6 - LP09"]},
-  LINEA4:{sector:"A",zonas:["EMPACADORA PACKERS VITZ","ELEVADOR DE TAPAS TIPO JET FLOW MESAL","ENVOLVEDORA TECMI EV 750,50 J0.EV50.024","EMPACADORA EVOPACK T452","CODIFICADOR VIDEOJET EXCEL 2000 16CWD","CHILLER PARA LA SOPLADORA ROTATIVA MODELO SBF 410 HERO","PALETIZADOR SIDEL PALKOMBI","LLENADORA SACMI AHF+EPD 50.20.50.15","SOPLADORA TECHLONG CPX16A - LP09"]},
-  LINEA5:{sector:"B",zonas:["ETIQUETADORA TRINE 4600 6364","ENVOLVEDORA TECMI EV 850-50 J0.EV50.011","ETIQUETADORA TRINE 4600 6364","ETIQUETADORA TRINE 5500_LP04","CUCHILLA DE AIRE SONIC 70","DOSIFICADOR DE NITRÓGENO LÍQUIDO 75.000 BPH","ALIMENTADOR DE TAPAS GEBO OPTIFEED","PASTEURIZADOR DE ALOE VERA HRS","LLENADORA TECHLONG CPX16A - LP09"]},
-  LINEA6:{sector:"B",zonas:["LLENADORA CROWN 50-10","ETIQUETADORA TRINE 4500FS","GENERADORES DE OXIGENO P P TITAN","RINSER DE 7 LITROS","DETECTOR DE VACIO GHERRI GG/670","ELEVADOR DE TAPAS MECÁNICO LINEA 06","TAPONADORA DE TAPA EN PLÁSTICO PRE-ROSCADO","EMPACADORA TECMI TT70.45X3C LP08","ALIMENTADOR DE TAPAS TECHLONG - LP09"]},
-  LINEA7:{sector:"B",zonas:["TRANSPORTADOR A TABLILLAS CONVEYOR LP01","LLEN MESAL ISOBARICA E50-60-15IA S-0790","LLENAD MESAL ISOB E80-100-25IA2 S-09021","SOPLADORA CHINA DE BIDONES","ENJUAGADOR DE AIRE MESAL ER50PM","ETIQUETADORA ROTATIVA OPERA 300 RF 24T/R 2/4/265 S1/E1","TRANSPORTADOR A TABLILLLAS SIDEL LP07","TUNEL DE VAPOR SCALIGERA PACKAGING","OZONIZADOR AGUAMUNDO - LP09"]},
-  LINEA8:{sector:"B",zonas:["CALDERO PIROTUBULAR INTESA 50 BHP","PASTEURIZADOR HUHTAMAKI 15000LH","OZONIZADOR INTERIN 20m3","SOPLADORA CHINA DE BIDONES 2 MOLDES","ENVOLVEDORA TECMI EV 750,50 EQ.AÑO1.043","CODIFICADOR LASER VIDEOJET 1620","SOPLADORA SIDEL MATRIX SBO 16","CODIFICADOR VIDEOJET EXCEL 2000 LP08","INSPECTOR DE NIVEL DE LLENADO - LP09"]},
-  LINEA9:{sector:"A",zonas:["POSICIONADOR BOTELLA POSIMAT MASTER 20","TRANSPORTADOR A TABLILLAS CONVEYOR LP02","SEPARAD LIQ HORIZONTAL MEBRAFE SLT 900-3","APLICADOR DE ADHESIVO DURABLUE","ESTERILIZADOR DE TAPAS BEVCO ZPPI-31","EMPACADORA SMI - MODELO SK 800 F","MIXER SIDEL SF300","TRANSPORTADOR A TABLILLLAS LP08","TRANSP TABLILLA LLENA-ETIQ - LP09"]},
-  LINEA10:{sector:"B",zonas:["AREA DE SOPLADO","TRANSPORTADOR NEUMATICO PNEUMATIC LP02","TRANSPORTADOR A TABLILLAS MESAL LP03","AREAS COMUNES","ETIQUETADORA B&H 8000S","PALETIZADORA ARES 2 CP/P","CHILLER PARA LA SOPLADORA ROTATIVA MODELO MATRIX SBO 16","AREAS COMUNES","TRANSP TABLILLA ETIQ-EMPAC - LP09"]},
-  OFICINAS:{sector:"C",zonas:["OFICINA PRODUCCION","OFICINA MEJORA CONTINUA","AREA CALIDAD","OFICINA PLANIFICACION","JEFATURA PRODUCCION","JEFATURA PLANTA","ALMACEN INSUMOS","ALMACEN REPUESTOS","ALMACEN TEMPORAL","MANTENIMIENTO ELECTRICO","MANTENIMIENTO MECANICO","SEGURIDAD INDUSTRIAL","GESTION HUMANA"]},
-  SALA_MANEJOS:{sector:"A",zonas:["AREA DE PALETIZADO MANUAL","SOPLADORA SIDEL SBO MATRIX 12/20","PALETIZADOR AUTOMATICO TMG-SIRIO S2S","MESA ELEVADORA HIDRAULICA","PASTEURIZADOR ALFA LAVAL","CODIFICADOR VIDEOJET EXCEL 3340 LP07","SECADOR DE BOTELLA TECHLONG - LP09"]},
-  ALMACEN:{sector:"C",zonas:["ALMACEN DE INSUMOS","ALMACEN TEMPORAL","ALMACEN DE REPUESTOS Y SUMINISTROS"]},
-  SALA_FUERZA:{sector:"C",zonas:["ALREDEDORES","SALA DE FUERZA"]},
-  SALA_CALDEROS:{sector:"C",zonas:["SALA DE CALDEROS"]},
-  TRATAMIENTO_AGUA:{sector:"B",zonas:["TRATAMIENTO DE AGUA","AREAS COMUNES"]},
-  SALA_JARABE:{sector:"A",zonas:["SALA DE JARABE","AREAS COMUNES"]}
-};
+// DATOS
+const RESP_AREA={"LINEA1":"JUNIOR GERVACIO / DANIEL TABOADA / JUAN GORDILLO","LINEA2":"JUNIOR GERVACIO / DANIEL TABOADA / JUAN GORDILLO","LINEA3":"JUNIOR GERVACIO / DANIEL TABOADA / JUAN GORDILLO","LINEA4":"JUNIOR GERVACIO / DANIEL TABOADA / JUAN GORDILLO","LINEA5":"YONER ANGULO / FABRICIO POLO","LINEA6":"YONER ANGULO / FABRICIO POLO","LINEA7":"YONER ANGULO / FABRICIO POLO","LINEA8":"YONER ANGULO / FABRICIO POLO","LINEA9":"JUNIOR GERVACIO / DANIEL TABOADA / JUAN GORDILLO","LINEA10":"YONER ANGULO / FABRICIO POLO","SALA_MANEJOS":"DARLENE CRUZ","SALA_FUERZA":"JUNIOR GERVACIO / DANIEL TABOADA / JUAN GORDILLO","SALA_CALDEROS":"AYRTON COTRINA","TRATAMIENTO_AGUA":"DEBORAH SANTILLAN","SALA_JARABE":"JUNIOR GERVACIO / DANIEL TABOADA / JUAN GORDILLO","ALMACEN":"HECTOR ARTEAGA","OFICINAS":""};
+const RESP_ZONA={"OFICINA PRODUCCION":"HENRY TREVIÑOS","OFICINA MEJORA CONTINUA":"DARLENE CRUZ","AREA CALIDAD":"ITALO BUEN DIA","OFICINA PLANIFICACION":"CARLOS LUYO","JEFATURA PRODUCCION":"HENRY TREVIÑOS","JEFATURA PLANTA":"FABIO CALDAS","SEGURIDAD INDUSTRIAL":"JUAN ESPINOZA","GESTION HUMANA":"ALVARO SOTOMAYOR","ALMACEN INSUMOS":"HECTOR ARTEAGA","ALMACEN REPUESTOS":"HECTOR ARTEAGA","ALMACEN TEMPORAL":"HECTOR ARTEAGA","MANTENIMIENTO ELECTRICO":"PAULO MEDINA","MANTENIMIENTO MECANICO":"RICARDO ROSALES"};
+const TIPOS=[{tipo:"Presencia de Innecesarios",s:"1S"},{tipo:"Desorden",s:"2S"},{tipo:"Falta de limpieza",s:"3S"},{tipo:"Falta de rotulación y/o demarcación",s:"4S"},{tipo:"Incumplimiento del Estándar",s:"5S"},{tipo:"Falta de EPP",s:"EPP"}];
+const DATOS={LINEA1:{sector:"A",zonas:["CAPSULADOR ALCOA B242","CODIFICAD IMAJE 1000 S8 CLASIC 4490004U","CODIFICADOR IMAJE 1000 S8 IP-65 2420242A","LLENADORA LINEAL DE BIDONES MESAL","ALIMENTADOR D TAPAS UNIMAC GHERRI GG/900","MAQUINA SOPLADORA ROTATIVA MODELO SBF 410 HERO","ETIQUETADORA SIDEL EVODECO SL100","POSICIONADOR POSIMAT ACCESS N-40","CODIFICADOR LASER VIDEOJET LP09"]},LINEA2:{sector:"A",zonas:["CODIFICADOR VIDEOJET EXCEL 2000 02CWD","CONJTO PROPORCIONADOR MESAL MIX-50","CONJTO PROPORCIONADOR MOJONNIER 22-48","TRANSPORTADOR A TABLILLAS CONVEY LP04","APLICADOR D PRECINTOS DASE SEAL XYL-450S","LLENADORA AWF","LLENADORA SIDEL SF300","TRANSPORTADOR NEUMATICO PNEUMATIC LP08","CHILLER TERMALCARE Q37.5 LP09"]},LINEA3:{sector:"A",zonas:["CONJTO PROPORCIONADOR MOJONNIER FE","DOSIFICADOR DE NITROGENO SC-350","ELEVADOR DE TAPAS TIPO JET FLOW ZEFP","LLENADORA 20 LITROS RERCPAC SA","CAPSULADOR UNIMAC GHERRI GG/300","TAPONADORA DE TAPA EN PLASTICO PRE-ROSCADO FLAT","EMPACADORA SIDEL EVO FILM ACCESS","APLICADOR D PRECINTOS SCALIGERA ULISSE 40000","CHILLER TERMALCARE Q37.6 LP09"]},LINEA4:{sector:"A",zonas:["EMPACADORA PACKERS VITZ","ELEVADOR DE TAPAS TIPO JET FLOW MESAL","ENVOLVEDORA TECMI EV 750","EMPACADORA EVOPACK T452","CODIFICADOR VIDEOJET EXCEL 2000 16CWD","CHILLER PARA LA SOPLADORA ROTATIVA MODELO SBF 410","PALETIZADOR SIDEL PALKOMBI","LLENADORA SACMI AHF+EPD","SOPLADORA TECHLONG CPX16A LP09"]},LINEA5:{sector:"B",zonas:["ETIQUETADORA TRINE 4600 6364","ENVOLVEDORA TECMI EV 850","ETIQUETADORA TRINE 5500","CUCHILLA DE AIRE SONIC 70","DOSIFICADOR DE NITROGENO LIQUIDO","ALIMENTADOR DE TAPAS GEBO OPTIFEED","PASTEURIZADOR DE ALOE VERA HRS","LLENADORA TECHLONG CPX16A LP09"]},LINEA6:{sector:"B",zonas:["LLENADORA CROWN 50-10","ETIQUETADORA TRINE 4500FS","GENERADORES DE OXIGENO TITAN","RINSER DE 7 LITROS","DETECTOR DE VACIO GHERRI GG/670","ELEVADOR DE TAPAS MECANICO LINEA 06","TAPONADORA DE TAPA EN PLASTICO PRE-ROSCADO","EMPACADORA TECMI TT70 LP08","ALIMENTADOR DE TAPAS TECHLONG LP09"]},LINEA7:{sector:"B",zonas:["TRANSPORTADOR A TABLILLAS CONVEYOR LP01","LLEN MESAL ISOBARICA E50-60","LLENAD MESAL ISOB E80-100","SOPLADORA CHINA DE BIDONES","ENJUAGADOR DE AIRE MESAL ER50PM","ETIQUETADORA ROTATIVA OPERA 300","TRANSPORTADOR A TABLILLAS SIDEL LP07","TUNEL DE VAPOR SCALIGERA","OZONIZADOR AGUAMUNDO LP09"]},LINEA8:{sector:"B",zonas:["CALDERO PIROTUBULAR INTESA 50 BHP","PASTEURIZADOR HUHTAMAKI 15000LH","OZONIZADOR INTERIN 20m3","SOPLADORA CHINA DE BIDONES 2 MOLDES","ENVOLVEDORA TECMI EV 750","CODIFICADOR LASER VIDEOJET 1620","SOPLADORA SIDEL MATRIX SBO 16","CODIFICADOR VIDEOJET EXCEL 2000 LP08","INSPECTOR DE NIVEL DE LLENADO LP09"]},LINEA9:{sector:"A",zonas:["POSICIONADOR BOTELLA POSIMAT MASTER 20","TRANSPORTADOR A TABLILLAS CONVEYOR LP02","SEPARAD LIQ HORIZONTAL MEBRAFE SLT 900-3","APLICADOR DE ADHESIVO DURABLUE","ESTERILIZADOR DE TAPAS BEVCO","EMPACADORA SMI SK 800 F","MIXER SIDEL SF300","TRANSPORTADOR A TABLILLAS LP08","TRANSP TABLILLA LLENA-ETIQ LP09"]},LINEA10:{sector:"B",zonas:["AREA DE SOPLADO","TRANSPORTADOR NEUMATICO LP02","TRANSPORTADOR A TABLILLAS MESAL LP03","AREAS COMUNES","ETIQUETADORA B&H 8000S","PALETIZADORA ARES 2 CP/P","CHILLER SOPLADORA MATRIX SBO 16","AREAS COMUNES","TRANSP TABLILLA ETIQ-EMPAC LP09"]},OFICINAS:{sector:"C",zonas:["OFICINA PRODUCCION","OFICINA MEJORA CONTINUA","AREA CALIDAD","OFICINA PLANIFICACION","JEFATURA PRODUCCION","JEFATURA PLANTA","ALMACEN INSUMOS","ALMACEN REPUESTOS","ALMACEN TEMPORAL","MANTENIMIENTO ELECTRICO","MANTENIMIENTO MECANICO","SEGURIDAD INDUSTRIAL","GESTION HUMANA"]},SALA_MANEJOS:{sector:"A",zonas:["AREA DE PALETIZADO MANUAL","SOPLADORA SIDEL SBO MATRIX 12/20","PALETIZADOR AUTOMATICO TMG-SIRIO","MESA ELEVADORA HIDRAULICA","PASTEURIZADOR ALFA LAVAL","CODIFICADOR VIDEOJET EXCEL 3340 LP07","SECADOR DE BOTELLA TECHLONG LP09"]},ALMACEN:{sector:"C",zonas:["ALMACEN DE INSUMOS","ALMACEN TEMPORAL","ALMACEN DE REPUESTOS Y SUMINISTROS"]},SALA_FUERZA:{sector:"C",zonas:["ALREDEDORES","SALA DE FUERZA"]},SALA_CALDEROS:{sector:"C",zonas:["SALA DE CALDEROS"]},TRATAMIENTO_AGUA:{sector:"B",zonas:["TRATAMIENTO DE AGUA","AREAS COMUNES"]},SALA_JARABE:{sector:"A",zonas:["SALA DE JARABE","AREAS COMUNES"]}};
 
-// ═══ ESTADO ═══
+// ESTADO
 let observations=[], selectedS="", photosNuevo=[], photoCierre=null, obsActual=null;
 let periodoEvol="sem", periodoArea="sem";
 
-// ═══ INIT ═══
+// INIT
 (function init(){
   const today=new Date();
   document.getElementById("f-sem").value=getWeek(today);
@@ -482,22 +360,10 @@ let periodoEvol="sem", periodoArea="sem";
   cargarTodo();
 })();
 
-function getWeek(d){
-  const jan=new Date(d.getFullYear(),0,1);
-  return Math.ceil((((d-jan)/86400000)+jan.getDay()+1)/7);
-}
-function getMes(fechaStr){
-  if(!fechaStr)return "—";
-  const meses=["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
-  const d=new Date(fechaStr);
-  return meses[d.getMonth()]+" "+d.getFullYear();
-}
-function getMesKey(fechaStr){
-  if(!fechaStr)return "0000-00";
-  return fechaStr.substring(0,7);
-}
+function getWeek(d){const jan=new Date(d.getFullYear(),0,1);return Math.ceil((((d-jan)/86400000)+jan.getDay()+1)/7);}
+function getMes(f){if(!f)return "—";const m=["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];const d=new Date(f);return m[d.getMonth()]+" "+d.getFullYear();}
+function getMesKey(f){return f?f.substring(0,7):"0000-00";}
 
-// ═══ SUPABASE ═══
 async function cargarTodo(){
   try{
     const {data,error}=await sb.from("observaciones").select("*").order("created_at",{ascending:false});
@@ -507,11 +373,10 @@ async function cargarTodo(){
     renderDashboard();
   }catch(e){
     console.error(e);
-    showToast("Error: "+(e.message||e.details||JSON.stringify(e)),true);
+    showToast("Error: "+(e.message||JSON.stringify(e)),true);
   }
 }
 
-// ═══ CLOUDINARY ═══
 async function subirCloudinary(file,pb,pf){
   if(pb)pb.style.display="block";
   const fd=new FormData();
@@ -520,17 +385,12 @@ async function subirCloudinary(file,pb,pf){
     const xhr=new XMLHttpRequest();
     xhr.open("POST",`https://api.cloudinary.com/v1_1/${CLD_CLOUD}/image/upload`);
     xhr.upload.onprogress=e=>{if(pf&&e.lengthComputable)pf.style.width=Math.round(e.loaded/e.total*100)+"%";};
-    xhr.onload=()=>{
-      if(pb)pb.style.display="none";
-      const r=JSON.parse(xhr.responseText);
-      xhr.status===200?res(r.secure_url):rej(new Error(r.error?.message||"Upload failed"));
-    };
+    xhr.onload=()=>{if(pb)pb.style.display="none";const r=JSON.parse(xhr.responseText);xhr.status===200?res(r.secure_url):rej(new Error(r.error?.message||"Upload failed"));};
     xhr.onerror=()=>rej(new Error("Network error"));
     xhr.send(fd);
   });
 }
 
-// ═══ FORMULARIO ═══
 function updateZonas(){
   const area=document.getElementById("f-area").value;
   const sEl=document.getElementById("f-sector"),zEl=document.getElementById("f-zona");
@@ -540,22 +400,17 @@ function updateZonas(){
   sEl.disabled=false;
   DATOS[area].zonas.forEach(z=>{zEl.innerHTML+=`<option value="${z}">${z}</option>`;});
   zEl.disabled=false;
-  document.getElementById("f-responsable").value=RESPONSABLES_AREA[area]||"";
+  document.getElementById("f-responsable").value=RESP_AREA[area]||"";
 }
 function onZonaChange(){
   const zona=document.getElementById("f-zona").value;
   const area=document.getElementById("f-area").value;
-  document.getElementById("f-responsable").value=RESPONSABLES_ZONA[zona]||RESPONSABLES_AREA[area]||"";
+  document.getElementById("f-responsable").value=RESP_ZONA[zona]||RESP_AREA[area]||"";
 }
 function autoS(){
-  // S se asigna siempre según el tipo — no modificable por el usuario
   const found=TIPOS.find(t=>t.tipo===document.getElementById("f-tipo").value);
-  if(found) selectS(found.s);
-  else {
-    // Si no hay tipo seleccionado, limpiar S
-    selectedS="";
-    document.querySelectorAll(".s-btn").forEach(b=>b.classList.remove("active"));
-  }
+  if(found)selectS(found.s);
+  else{selectedS="";document.querySelectorAll(".s-btn").forEach(b=>b.classList.remove("active"));}
 }
 function selectS(v){
   selectedS=v;
@@ -563,7 +418,6 @@ function selectS(v){
   document.querySelectorAll(".s-btn").forEach(b=>{if(b.childNodes[0].textContent.trim()===v)b.classList.add("active");});
 }
 
-// ═══ FOTOS ═══
 function handlePhotos(input){
   const prev=document.getElementById("prev-nuevo");
   Array.from(input.files).forEach(file=>{
@@ -583,7 +437,6 @@ function handleFotoCierre(input){
   r.readAsDataURL(file);
 }
 
-// ═══ GUARDAR ═══
 async function guardarObservacion(){
   const area=document.getElementById("f-area").value;
   const tipo=document.getElementById("f-tipo").value;
@@ -595,22 +448,11 @@ async function guardarObservacion(){
   try{
     const fotosUrls=[];
     const pb=document.getElementById("prog-nuevo"),pf=document.getElementById("prog-nuevo-fill");
-    for(let i=0;i<photosNuevo.length;i++){
-      showToast(`Subiendo foto ${i+1}/${photosNuevo.length}...`);
-      fotosUrls.push(await subirCloudinary(photosNuevo[i],pb,pf));
-    }
+    for(let i=0;i<photosNuevo.length;i++){showToast(`Subiendo foto ${i+1}/${photosNuevo.length}...`);fotosUrls.push(await subirCloudinary(photosNuevo[i],pb,pf));}
     const {data,error}=await sb.from("observaciones").insert({
-      num:observations.length+1,
-      sem:document.getElementById("f-sem").value,
-      fecha:window._fecha,
-      auditor,
-      area:area.replace(/_/g," "),
-      sector:document.getElementById("f-sector").value,
-      zona:document.getElementById("f-zona").value,
-      tipo, s:selectedS||"—", obs,
-      responsable:document.getElementById("f-responsable").value.trim(),
-      status:"PENDIENTE",
-      fotos:fotosUrls
+      num:observations.length+1,sem:document.getElementById("f-sem").value,fecha:window._fecha,auditor,
+      area:area.replace(/_/g," "),sector:document.getElementById("f-sector").value,zona:document.getElementById("f-zona").value,
+      tipo,s:selectedS||"—",obs,responsable:document.getElementById("f-responsable").value.trim(),status:"PENDIENTE",fotos:fotosUrls
     }).select().single();
     if(error)throw error;
     observations.unshift(data);
@@ -622,92 +464,63 @@ async function guardarObservacion(){
     document.getElementById("prev-nuevo").innerHTML="";
     document.querySelectorAll(".s-btn").forEach(b=>b.classList.remove("active"));
     selectedS="";photosNuevo=[];
-    showToast("✅ Observación guardada");
+    showToast("Observacion guardada");
     filtrar();renderDashboard();
-  }catch(e){
-    console.error(e);
-    showToast("Error: "+(e.message||JSON.stringify(e)),true);
-  }
+  }catch(e){console.error(e);showToast("Error: "+(e.message||JSON.stringify(e)),true);}
   btn.disabled=false;btn.innerHTML="Guardar observación";
 }
 
-// ═══ DETALLE ═══
 function abrirDetalle(id){
   const obs=observations.find(o=>o.id===id);if(!obs)return;
   obsActual=obs;
   const corregida=obs.status==="CORREGIDO";
   document.getElementById("mo-id").value=id;
-  document.getElementById("modal-obs-title").textContent=`OBS-${String(obs.num).padStart(3,"0")} — ${obs.area}`;
+  document.getElementById("modal-obs-title").textContent=`OBS-${String(obs.num).padStart(3,"0")} - ${obs.area}`;
   document.getElementById("mo-detalle").innerHTML=`
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 14px;font-size:12px">
       <div><span style="color:var(--g400)">Semana:</span> <strong>${obs.sem}</strong></div>
       <div><span style="color:var(--g400)">Sector:</span> <strong>${obs.sector||"—"}</strong></div>
-      <div style="grid-column:1/-1"><span style="color:var(--g400)">Área:</span> <strong>${obs.area}</strong></div>
+      <div style="grid-column:1/-1"><span style="color:var(--g400)">Area:</span> <strong>${obs.area}</strong></div>
       <div style="grid-column:1/-1"><span style="color:var(--g400)">Zona:</span> <strong>${obs.zona||"—"}</strong></div>
       <div style="grid-column:1/-1"><span style="color:var(--g400)">Tipo:</span> <strong>${obs.tipo}</strong> &nbsp;<span style="background:var(--g100);padding:2px 7px;border-radius:10px;font-size:10px;font-weight:700">${obs.s||"—"}</span></div>
-      <div style="grid-column:1/-1;padding:8px;background:#fff;border-radius:6px;border:1px solid var(--g200)"><span style="color:var(--g400)">Descripción:</span><br><strong>${obs.obs}</strong></div>
-      <div style="grid-column:1/-1"><span style="color:var(--g400)">Responsable área:</span> <strong>${obs.responsable||"—"}</strong></div>
+      <div style="grid-column:1/-1;padding:8px;background:#fff;border-radius:6px;border:1px solid var(--g200)"><span style="color:var(--g400)">Descripcion:</span><br><strong>${obs.obs}</strong></div>
+      <div style="grid-column:1/-1"><span style="color:var(--g400)">Responsable area:</span> <strong>${obs.responsable||"—"}</strong></div>
       <div style="grid-column:1/-1"><span style="color:var(--g400)">Registrado por:</span> <strong>${obs.auditor||"—"}</strong></div>
-      ${obs.comentario_cierre?`<div style="grid-column:1/-1;margin-top:6px;padding:8px;background:#E8F5E9;border-radius:6px;border-left:3px solid var(--green)"><span style="color:var(--green);font-weight:700">✅ Corrección:</span><br>${obs.comentario_cierre}</div>`:""}
+      ${obs.comentario_cierre?`<div style="grid-column:1/-1;margin-top:6px;padding:8px;background:#E8F5E9;border-radius:6px;border-left:3px solid var(--green)"><span style="color:var(--green);font-weight:700">Correccion:</span><br>${obs.comentario_cierre}</div>`:""}
       ${obs.fecha_cierre?`<div><span style="color:var(--g400)">Fecha cierre:</span> <strong>${obs.fecha_cierre}</strong></div>`:""}
     </div>`;
   document.getElementById("mo-fotos-antes").innerHTML=(obs.fotos||[]).map(f=>`<img src="${f}" style="width:72px;height:72px;object-fit:cover;border-radius:8px;border:2px solid var(--g200);cursor:pointer" onclick="window.open('${f}','_blank')">`).join("");
   const fdEl=document.getElementById("mo-foto-despues");
-  if(corregida&&obs.foto_despues){
-    fdEl.style.display="block";
-    fdEl.innerHTML=`<p style="font-size:11px;font-weight:700;color:var(--green);margin-bottom:6px;text-transform:uppercase">📸 Foto después:</p><img src="${obs.foto_despues}" style="width:80px;height:80px;object-fit:cover;border-radius:8px;border:2px solid var(--green);cursor:pointer" onclick="window.open('${obs.foto_despues}','_blank')">`;
+  if(corregida&&obs.foto_despues){fdEl.style.display="block";fdEl.innerHTML=`<p style="font-size:11px;font-weight:700;color:var(--green);margin-bottom:6px">Foto despues:</p><img src="${obs.foto_despues}" style="width:80px;height:80px;object-fit:cover;border-radius:8px;border:2px solid var(--green);cursor:pointer" onclick="window.open('${obs.foto_despues}','_blank')">`;
   }else{fdEl.style.display="none";}
   const sc=document.getElementById("mo-cierre-section");
-  if(corregida){
-    sc.style.display="none";
-  }else{
-    sc.style.display="block";
-    document.getElementById("mo-comentario").value="";
-    document.getElementById("prev-cierre").innerHTML="";
-    photoCierre=null;
-  }
+  if(corregida){sc.style.display="none";}
+  else{sc.style.display="block";document.getElementById("mo-comentario").value="";document.getElementById("prev-cierre").innerHTML="";photoCierre=null;}
   openModal("modal-obs");
 }
 
-// ═══ CERRAR OBSERVACIÓN ═══
 async function cerrarObservacion(){
   const id=parseInt(document.getElementById("mo-id").value);
-  const obs=observations.find(o=>o.id===id);
   const comentario=document.getElementById("mo-comentario").value.trim();
   if(!comentario){showToast("Agrega un comentario de corrección",true);return;}
   const btn=document.getElementById("btn-cerrar-obs");
   btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Guardando...';
   try{
     let foto_despues=null;
-    if(photoCierre){
-      showToast("Subiendo foto...");
-      foto_despues=await subirCloudinary(photoCierre,document.getElementById("prog-cierre"),document.getElementById("prog-cierre-fill"));
-    }
+    if(photoCierre){showToast("Subiendo foto...");foto_despues=await subirCloudinary(photoCierre,document.getElementById("prog-cierre"),document.getElementById("prog-cierre-fill"));}
     const fecha_cierre=new Date().toISOString().split("T")[0];
-    // El responsable viene directamente de la observación — sin reasignar
-    const {error}=await sb.from("observaciones").update({
-      status:"CORREGIDO",
-      comentario_cierre:comentario,
-      foto_despues,
-      fecha_cierre
-    }).eq("id",id);
+    const {error}=await sb.from("observaciones").update({status:"CORREGIDO",comentario_cierre:comentario,foto_despues,fecha_cierre}).eq("id",id);
     if(error)throw error;
     const idx=observations.findIndex(o=>o.id===id);
     if(idx>-1)Object.assign(observations[idx],{status:"CORREGIDO",comentario_cierre:comentario,foto_despues,fecha_cierre});
-    closeModal("modal-obs");
-    showToast("✅ Observación corregida");
+    closeModal("modal-obs");showToast("Observacion corregida");
     filtrar();renderDashboard();
-  }catch(e){
-    console.error(e);
-    showToast("Error: "+(e.message||JSON.stringify(e)),true);
-  }
-  btn.disabled=false;btn.innerHTML="✓ Marcar como CORREGIDO";
+  }catch(e){console.error(e);showToast("Error: "+(e.message||JSON.stringify(e)),true);}
+  btn.disabled=false;btn.innerHTML="Marcar como CORREGIDO";
 }
 
-// ═══ EDITAR ═══
 function abrirEditar(){
-  if(!obsActual)return;
-  closeModal("modal-obs");
+  if(!obsActual)return;closeModal("modal-obs");
   document.getElementById("me-id").value=obsActual.id;
   document.getElementById("me-obs").value=obsActual.obs;
   document.getElementById("me-resp").value=obsActual.responsable||"";
@@ -719,38 +532,29 @@ async function confirmarEditar(){
   const obsText=document.getElementById("me-obs").value.trim();
   const resp=document.getElementById("me-resp").value.trim();
   const status=document.getElementById("me-status").value;
-  if(!obsText){showToast("La descripción no puede estar vacía",true);return;}
+  if(!obsText){showToast("La descripcion no puede estar vacia",true);return;}
   try{
     const {error}=await sb.from("observaciones").update({obs:obsText,responsable:resp,status}).eq("id",id);
     if(error)throw error;
     const idx=observations.findIndex(o=>o.id===id);
     if(idx>-1)Object.assign(observations[idx],{obs:obsText,responsable:resp,status});
-    closeModal("modal-editar");
-    showToast("✅ Actualizado");
+    closeModal("modal-editar");showToast("Actualizado");
     filtrar();renderDashboard();
   }catch(e){showToast("Error: "+(e.message||JSON.stringify(e)),true);}
 }
 
-// ═══ ELIMINAR ═══
-function abrirEliminar(){
-  if(!obsActual)return;
-  closeModal("modal-obs");
-  document.getElementById("mdel-id").value=obsActual.id;
-  openModal("modal-eliminar");
-}
+function abrirEliminar(){if(!obsActual)return;closeModal("modal-obs");document.getElementById("mdel-id").value=obsActual.id;openModal("modal-eliminar");}
 async function confirmarEliminar(){
   const id=parseInt(document.getElementById("mdel-id").value);
   try{
     const {error}=await sb.from("observaciones").delete().eq("id",id);
     if(error)throw error;
     observations=observations.filter(o=>o.id!==id);
-    closeModal("modal-eliminar");
-    showToast("🗑️ Eliminada");
+    closeModal("modal-eliminar");showToast("Eliminada");
     filtrar();renderDashboard();
   }catch(e){showToast("Error: "+(e.message||JSON.stringify(e)),true);}
 }
 
-// ═══ RENDER LISTA ═══
 function filtrar(){
   const area=document.getElementById("fil-area").value;
   const status=document.getElementById("fil-status").value;
@@ -774,65 +578,31 @@ function filtrar(){
   else if(orden==="status")list.sort((a,b)=>a.status.localeCompare(b.status));
   else if(orden==="area")list.sort((a,b)=>a.area.localeCompare(b.area));
   const el=document.getElementById("obs-list");
-  if(!list.length){el.innerHTML='<div class="empty"><div class="empty-ico">📋</div><p>No hay observaciones.</p></div>';return;}
+  if(!list.length){el.innerHTML='<div class="empty"><div class="empty-ico">&#128203;</div><p>No hay observaciones.</p></div>';return;}
   const today=new Date();today.setHours(0,0,0,0);
   el.innerHTML=list.map(o=>{
     const cls=o.status==="CORREGIDO"?"corregido":o.status==="NO CORREGIDO"?"no-corregido":"pendiente";
     const bCls=o.status==="CORREGIDO"?"b-ok":o.status==="NO CORREGIDO"?"b-no":"b-pen";
-    const sBadge=`b-${(o.s||"1s").toLowerCase()}`;
+    const sBadge="b-"+(o.s||"1s").toLowerCase();
     const fechaObs=new Date(o.fecha);fechaObs.setHours(0,0,0,0);
     const dias=Math.floor((today-fechaObs)/(1000*60*60*24));
     const diasColor=dias>14?"color:var(--red)":dias>7?"color:var(--amber)":"color:var(--g400)";
-    const foto=o.fotos&&o.fotos[0]
-      ?`<img src="${o.fotos[0]}" style="width:52px;height:52px;object-fit:cover;border-radius:6px;border:1.5px solid var(--g200);flex-shrink:0">`
-      :`<div style="width:52px;height:52px;background:var(--g100);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">📷</div>`;
-    return `<div class="obs-card ${cls}" onclick="abrirDetalle(${o.id})">
-      <div style="padding:12px 14px">
-        <div style="display:flex;gap:10px;align-items:flex-start">
-          ${foto}
-          <div style="flex:1;min-width:0">
-            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:6px;margin-bottom:3px">
-              <div>
-                <strong style="font-size:13px">OBS-${String(o.num).padStart(3,"0")} — ${o.area}</strong>
-                <div style="font-size:11px;color:var(--g400);margin-top:1px">Sem.${o.sem} · ${o.zona||"—"} · 👤 ${o.auditor||""}</div>
-                <div style="font-size:10px;margin-top:1px;${diasColor}">⏱ ${dias===0?"Hoy":dias===1?"Hace 1 día":`Hace ${dias} días`}</div>
-              </div>
-              <span class="badge ${bCls}" style="flex-shrink:0;font-size:10px">${o.status}</span>
-            </div>
-            <div style="font-size:13px;color:var(--g700);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:4px">${o.obs}</div>
-            <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:5px">
-              ${o.s!=="—"?`<span class="badge ${sBadge}" style="font-size:10px">${o.s}</span>`:""}
-              <span style="font-size:10px;color:var(--g400)">${o.tipo}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>`;
+    const foto=o.fotos&&o.fotos[0]?`<img src="${o.fotos[0]}" style="width:52px;height:52px;object-fit:cover;border-radius:6px;border:1.5px solid var(--g200);flex-shrink:0">`:`<div style="width:52px;height:52px;background:var(--g100);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">&#128247;</div>`;
+    return `<div class="obs-card ${cls}" onclick="abrirDetalle(${o.id})"><div style="padding:12px 14px"><div style="display:flex;gap:10px;align-items:flex-start">${foto}<div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:6px;margin-bottom:3px"><div><strong style="font-size:13px">OBS-${String(o.num).padStart(3,"0")} - ${o.area}</strong><div style="font-size:11px;color:var(--g400);margin-top:1px">Sem.${o.sem} · ${o.zona||"—"} · ${o.auditor||""}</div><div style="font-size:10px;margin-top:1px;${diasColor}">${dias===0?"Hoy":dias===1?"Hace 1 dia":`Hace ${dias} dias`}</div></div><span class="badge ${bCls}" style="flex-shrink:0;font-size:10px">${o.status}</span></div><div style="font-size:13px;color:var(--g700);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:4px">${o.obs}</div><div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:5px">${o.s!=="—"?`<span class="badge ${sBadge}" style="font-size:10px">${o.s}</span>`:""}<span style="font-size:10px;color:var(--g400)">${o.tipo}</span></div></div></div></div></div>`;
   }).join("");
 }
 
-// ═══ DASHBOARD ═══
+// DASHBOARD
 function destroyChart(id){const e=Chart.getChart(id);if(e)e.destroy();}
-
-function setPeriod(p){
-  periodoEvol=p;
-  document.getElementById("btn-sem").classList.toggle("active",p==="sem");
-  document.getElementById("btn-mes").classList.toggle("active",p==="mes");
-  renderEvolucion();
-}
-function setPeriodArea(p){
-  periodoArea=p;
-  document.getElementById("btn-area-sem").classList.toggle("active",p==="sem");
-  document.getElementById("btn-area-mes").classList.toggle("active",p==="mes");
-  renderEvolArea();
-}
+function setPeriod(p){periodoEvol=p;document.getElementById("btn-sem").classList.toggle("active",p==="sem");document.getElementById("btn-mes").classList.toggle("active",p==="mes");renderEvolucion();}
+function setPeriodArea(p){periodoArea=p;document.getElementById("btn-area-sem").classList.toggle("active",p==="sem");document.getElementById("btn-area-mes").classList.toggle("active",p==="mes");renderEvolArea();}
 
 function getObsFiltradas(){
-  const filSector=document.getElementById("d-fil-sector")?.value||"";
-  const filArea=document.getElementById("d-fil-area")?.value||"";
+  const fs=document.getElementById("d-fil-sector")?.value||"";
+  const fa=document.getElementById("d-fil-area")?.value||"";
   return observations.filter(o=>{
-    if(filSector&&o.sector!==filSector)return false;
-    if(filArea&&o.area!==filArea.replace(/_/g," "))return false;
+    if(fs&&o.sector!==fs)return false;
+    if(fa&&o.area!==fa.replace(/_/g," "))return false;
     return true;
   });
 }
@@ -843,203 +613,62 @@ function renderDashboard(){
   const corr=obsF.filter(o=>o.status==="CORREGIDO").length;
   const noCorr=obsF.filter(o=>o.status==="NO CORREGIDO").length;
   const pct=total?Math.round(corr/total*100):0;
-
   document.getElementById("d-total").textContent=total;
   document.getElementById("d-corregidas").textContent=corr;
   document.getElementById("d-no-corr").textContent=noCorr;
   document.getElementById("d-pct").textContent=pct+"%";
   document.getElementById("d-pct2").textContent=pct+"%";
-
   const G="#1E7C34",R="#E63329",A="#D97706";
 
   function miniLeg(elId,items){
     const el=document.getElementById(elId);if(!el)return;
     const tot=items.reduce((s,i)=>s+i.val,0)||1;
-    el.innerHTML=items.map(({color,label,val})=>`
-      <div class="dash-legend-row">
-        <div class="dash-legend-dot" style="background:${color}"></div>
-        <span class="dash-legend-label">${label}</span>
-        <span class="dash-legend-val">${val}</span>
-        <span class="dash-legend-pct">${Math.round(val/tot*100)}%</span>
-      </div>`).join("");
+    el.innerHTML=items.map(({color,label,val})=>`<div class="dash-legend-row"><div class="dash-legend-dot" style="background:${color}"></div><span class="dash-legend-label">${label}</span><span class="dash-legend-val">${val}</span><span class="dash-legend-pct">${Math.round(val/tot*100)}%</span></div>`).join("");
   }
 
-  // Donut estado
   destroyChart("chart-donut-status");
-  new Chart(document.getElementById("chart-donut-status"),{
-    type:"doughnut",
-    data:{labels:["Corregidas","No Corregidas"],
-      datasets:[{data:[corr,noCorr],backgroundColor:[G,R],borderWidth:2,borderColor:"#fff"}]},
-    options:{responsive:true,maintainAspectRatio:true,cutout:"70%",
-      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${ctx.raw}`}}}}
-  });
+  new Chart(document.getElementById("chart-donut-status"),{type:"doughnut",data:{labels:["Corregidas","No Corregidas"],datasets:[{data:[corr,noCorr],backgroundColor:[G,R],borderWidth:2,borderColor:"#fff"}]},options:{responsive:true,maintainAspectRatio:true,cutout:"70%",plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${ctx.raw}`}}}}});
   miniLeg("legend-status",[{color:G,label:"Corregidas",val:corr},{color:R,label:"No Corregidas",val:noCorr}]);
 
-  // Donut S
-  const byS={};
-  obsF.forEach(o=>{const k=o.s||"—";byS[k]=(byS[k]||0)+1;});
+  const byS={};obsF.forEach(o=>{const k=o.s||"—";byS[k]=(byS[k]||0)+1;});
   const sCols={"1S":"#E65100","2S":"#1B5E20","3S":"#0D47A1","4S":"#4A148C","5S":"#880E4F","EPP":"#C2410C","—":"#888"};
   const sEnt=Object.entries(byS).sort((a,b)=>b[1]-a[1]);
   document.getElementById("d-top-s").textContent=sEnt[0]?sEnt[0][0]:"—";
   destroyChart("chart-donut-s");
-  new Chart(document.getElementById("chart-donut-s"),{
-    type:"doughnut",
-    data:{labels:sEnt.map(([s])=>s),
-      datasets:[{data:sEnt.map(([,n])=>n),backgroundColor:sEnt.map(([s])=>sCols[s]||"#888"),borderWidth:1,borderColor:"#fff"}]},
-    options:{responsive:true,maintainAspectRatio:true,cutout:"70%",
-      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${ctx.raw}`}}}}
-  });
+  new Chart(document.getElementById("chart-donut-s"),{type:"doughnut",data:{labels:sEnt.map(([s])=>s),datasets:[{data:sEnt.map(([,n])=>n),backgroundColor:sEnt.map(([s])=>sCols[s]||"#888"),borderWidth:1,borderColor:"#fff"}]},options:{responsive:true,maintainAspectRatio:true,cutout:"70%",plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${ctx.raw}`}}}}});
   miniLeg("legend-s",sEnt.map(([s,n])=>({color:sCols[s]||"#888",label:s,val:n})));
 
-  // Sectores
   const sects={A:{t:0,ok:0},B:{t:0,ok:0},C:{t:0,ok:0},D:{t:0,ok:0}};
   obsF.forEach(o=>{const s=o.sector||"C";if(!sects[s])sects[s]={t:0,ok:0};sects[s].t++;if(o.status==="CORREGIDO")sects[s].ok++;});
-  document.getElementById("d-sectores").innerHTML=Object.entries(sects).filter(([,v])=>v.t>0).map(([k,v])=>{
-    const p=Math.round(v.ok/v.t*100);
-    const col=p>=80?G:p>=50?A:R;
-    return `<div style="margin-bottom:10px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">
-        <span style="font-size:11px;font-weight:700;color:var(--g700)">Sector ${k}</span>
-        <div style="display:flex;align-items:center;gap:8px">
-          <span style="font-size:10px;color:var(--g400)">${v.ok}/${v.t}</span>
-          <span style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;color:${col}">${p}%</span>
-        </div>
-      </div>
-      <div style="height:6px;background:var(--g100);border-radius:20px;overflow:hidden">
-        <div style="height:100%;width:${p}%;background:${col};border-radius:20px;transition:width .6s"></div>
-      </div>
-    </div>`;
-  }).join("")||'<p style="font-size:12px;color:var(--g400)">Sin datos.</p>';
+  document.getElementById("d-sectores").innerHTML=Object.entries(sects).filter(([,v])=>v.t>0).map(([k,v])=>{const p=Math.round(v.ok/v.t*100);const col=p>=80?G:p>=50?A:R;return `<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px"><span style="font-size:11px;font-weight:700;color:var(--g700)">Sector ${k}</span><div style="display:flex;align-items:center;gap:8px"><span style="font-size:10px;color:var(--g400)">${v.ok}/${v.t}</span><span style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;color:${col}">${p}%</span></div></div><div style="height:6px;background:var(--g100);border-radius:20px;overflow:hidden"><div style="height:100%;width:${p}%;background:${col};border-radius:20px;transition:width .6s"></div></div></div>`;}).join("")||'<p style="font-size:12px;color:var(--g400)">Sin datos.</p>';
 
-  // Responsables
   const byResp={};
-  obsF.forEach(o=>{
-    const r=o.responsable||"Sin asignar";
-    if(!byResp[r])byResp[r]={t:0,ok:0,no:0,pen:0};
-    byResp[r].t++;
-    if(o.status==="CORREGIDO")byResp[r].ok++;
-    else if(o.status==="NO CORREGIDO")byResp[r].no++;
-    else byResp[r].pen++;
-  });
-  document.getElementById("d-responsables").innerHTML=Object.entries(byResp)
-    .sort((a,b)=>b[1].t-a[1].t)
-    .map(([resp,v])=>{
-      const p=Math.round(v.ok/v.t*100);
-      const col=p>=80?G:p>=50?A:R;
-      const nombre=resp.length>35?resp.substring(0,33)+"…":resp;
-      return `<div style="margin-bottom:10px;padding:10px 12px;background:var(--g50);border-radius:8px;border-left:3px solid ${col}">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:5px">
-          <span style="font-size:11px;font-weight:700;color:var(--g700);flex:1;line-height:1.3">${nombre}</span>
-          <span style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:${col};margin-left:8px">${p}%</span>
-        </div>
-        <div style="height:5px;background:var(--g200);border-radius:20px;overflow:hidden;margin-bottom:6px">
-          <div style="height:100%;width:${p}%;background:${col};border-radius:20px;transition:width .6s"></div>
-        </div>
-        <div style="display:flex;gap:10px;font-size:10px">
-          <span style="color:${G}">✅ ${v.ok} corr.</span>
-          <span style="color:${R}">❌ ${v.no} no corr.</span>
-          <span style="color:var(--g400);margin-left:auto">${v.t} total</span>
-        </div>
-      </div>`;
-    }).join("")||'<p style="font-size:12px;color:var(--g400)">Sin datos.</p>';
+  obsF.forEach(o=>{const r=o.responsable||"Sin asignar";if(!byResp[r])byResp[r]={t:0,ok:0,no:0};byResp[r].t++;if(o.status==="CORREGIDO")byResp[r].ok++;else if(o.status==="NO CORREGIDO")byResp[r].no++;});
+  document.getElementById("d-responsables").innerHTML=Object.entries(byResp).sort((a,b)=>b[1].t-a[1].t).map(([resp,v])=>{const p=Math.round(v.ok/v.t*100);const col=p>=80?G:p>=50?A:R;const nombre=resp.length>35?resp.substring(0,33)+"...":resp;return `<div style="margin-bottom:10px;padding:10px 12px;background:var(--g50);border-radius:8px;border-left:3px solid ${col}"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:5px"><span style="font-size:11px;font-weight:700;color:var(--g700);flex:1;line-height:1.3">${nombre}</span><span style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:${col};margin-left:8px">${p}%</span></div><div style="height:5px;background:var(--g200);border-radius:20px;overflow:hidden;margin-bottom:6px"><div style="height:100%;width:${p}%;background:${col};border-radius:20px;transition:width .6s"></div></div><div style="display:flex;gap:10px;font-size:10px"><span style="color:${G}">&#10003; ${v.ok} corr.</span><span style="color:${R}">&#10007; ${v.no} no corr.</span><span style="color:var(--g400);margin-left:auto">${v.t} total</span></div></div>`;}).join("")||'<p style="font-size:12px;color:var(--g400)">Sin datos.</p>';
 
+  renderTablas();
   renderEvolucion();
   renderEvolArea();
-  renderTablas();
 }
 
-// ═══ TABLAS GERENCIALES ═══
 function renderTablas(){
-  const obsF = getObsFiltradas();
-  const G="#1E7C34", R="#E63329", A="#D97706";
-
-  // Tabla pivot Sector × Estado
-  const sectores = {};
-  obsF.forEach(o=>{
-    const s=o.sector||"C";
-    if(!sectores[s])sectores[s]={corr:0,no:0,pen:0,total:0};
-    sectores[s].total++;
-    if(o.status==="CORREGIDO")sectores[s].corr++;
-    else if(o.status==="NO CORREGIDO")sectores[s].no++;
-    else sectores[s].pen++;
-  });
-  const tot={corr:0,no:0,pen:0,total:0};
-  Object.values(sectores).forEach(v=>{tot.corr+=v.corr;tot.no+=v.no;tot.pen+=v.pen;tot.total+=v.total;});
-
-  const pivotEl=document.getElementById("tabla-pivot");
-  if(pivotEl){
-    pivotEl.innerHTML=`
-      <thead><tr>
-        <th class="left">Sector</th>
-        <th style="background:#155A25">Corregidas</th>
-        <th style="background:#B3221A">No Corregidas</th>
-        <th style="background:#B45309">Pendientes</th>
-        <th>Total</th><th>% Cumpl.</th>
-      </tr></thead>
-      <tbody>
-        ${Object.entries(sectores).sort().map(([k,v])=>{
-          const p=v.total?Math.round(v.corr/v.total*100):0;
-          const col=p>=80?G:p>=50?A:R;
-          return `<tr>
-            <td class="left">Sector ${k}</td>
-            <td style="color:${G};font-weight:700">${v.corr}</td>
-            <td style="color:${R};font-weight:700">${v.no}</td>
-            <td><strong>${v.total}</strong></td>
-            <td style="color:${col};font-weight:800">${p}%</td>
-          </tr>`;
-        }).join("")}
-        <tr class="total-row">
-          <td class="left">TOTAL</td>
-          <td style="color:${G};font-weight:700">${tot.corr}</td>
-          <td style="color:${R};font-weight:700">${tot.no}</td>
-          <td style="color:${A};font-weight:700">${tot.pen}</td>
-          <td><strong>${tot.total}</strong></td>
-          <td style="color:${tot.total?Math.round(tot.corr/tot.total*100)>=80?G:Math.round(tot.corr/tot.total*100)>=50?A:R:A};font-weight:800">${tot.total?Math.round(tot.corr/tot.total*100):0}%</td>
-        </tr>
-      </tbody>`;
-  }
-
-  // Tabla cumplimiento por área
-  const byArea={};
-  obsF.forEach(o=>{
-    if(!byArea[o.area])byArea[o.area]={corr:0,no:0,pen:0,total:0};
-    byArea[o.area].total++;
-    if(o.status==="CORREGIDO")byArea[o.area].corr++;
-    else if(o.status==="NO CORREGIDO")byArea[o.area].no++;
-    else byArea[o.area].pen++;
-  });
-  const cumplEl=document.getElementById("tabla-cumpl");
-  if(cumplEl){
-    cumplEl.innerHTML=`
-      <thead><tr>
-        <th class="left">Área</th>
-        <th style="background:#155A25">Corr.</th>
-        <th style="background:#B3221A">No Corr.</th>
-        <th>Total</th><th>% Cumpl.</th>
-      </tr></thead>
-      <tbody>
-        ${Object.entries(byArea).sort((a,b)=>b[1].total-a[1].total).map(([area,v])=>{
-          const p=v.total?Math.round(v.corr/v.total*100):0;
-          const col=p>=80?G:p>=50?A:R;
-          return `<tr>
-            <td class="left" style="max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${area}</td>
-            <td style="color:${G};font-weight:700">${v.corr}</td>
-            <td style="color:${R};font-weight:700">${v.no}</td>
-            <td><strong>${v.total}</strong></td>
-            <td style="min-width:55px">
-              <span style="color:${col};font-weight:800">${p}%</span>
-              <div style="width:${p}%;height:3px;background:${col};border-radius:2px;margin-top:2px"></div>
-            </td>
-          </tr>`;
-        }).join("")}
-      </tbody>`;
-  }
-}
-
-// ═══ EVOLUCIÓN TEMPORAL ═══
-function renderEvolucion(){
   const obsF=getObsFiltradas();
   const G="#1E7C34",R="#E63329",A="#D97706";
+  const sects={};
+  obsF.forEach(o=>{const s=o.sector||"C";if(!sects[s])sects[s]={corr:0,no:0,total:0};sects[s].total++;if(o.status==="CORREGIDO")sects[s].corr++;else if(o.status==="NO CORREGIDO")sects[s].no++;});
+  const tot={corr:0,no:0,total:0};
+  Object.values(sects).forEach(v=>{tot.corr+=v.corr;tot.no+=v.no;tot.total+=v.total;});
+  const pe=document.getElementById("tabla-pivot");
+  if(pe)pe.innerHTML=`<thead><tr><th class="left">Sector</th><th style="background:#155A25">Corregidas</th><th style="background:#B3221A">No Corregidas</th><th>Total</th><th>% Cumpl.</th></tr></thead><tbody>${Object.entries(sects).sort().map(([k,v])=>{const p=v.total?Math.round(v.corr/v.total*100):0;const col=p>=80?G:p>=50?A:R;return `<tr><td class="left">Sector ${k}</td><td style="color:${G};font-weight:700">${v.corr}</td><td style="color:${R};font-weight:700">${v.no}</td><td><strong>${v.total}</strong></td><td style="color:${col};font-weight:800">${p}%</td></tr>`;}).join("")}<tr class="total-row"><td class="left">TOTAL</td><td style="color:${G};font-weight:700">${tot.corr}</td><td style="color:${R};font-weight:700">${tot.no}</td><td><strong>${tot.total}</strong></td><td style="color:${tot.total?Math.round(tot.corr/tot.total*100)>=80?G:Math.round(tot.corr/tot.total*100)>=50?A:R:A};font-weight:800">${tot.total?Math.round(tot.corr/tot.total*100):0}%</td></tr></tbody>`;
+  const byArea={};
+  obsF.forEach(o=>{if(!byArea[o.area])byArea[o.area]={corr:0,no:0,total:0};byArea[o.area].total++;if(o.status==="CORREGIDO")byArea[o.area].corr++;else if(o.status==="NO CORREGIDO")byArea[o.area].no++;});
+  const ce=document.getElementById("tabla-cumpl");
+  if(ce)ce.innerHTML=`<thead><tr><th class="left">Area</th><th style="background:#155A25">Corr.</th><th style="background:#B3221A">No Corr.</th><th>Total</th><th>% Cumpl.</th></tr></thead><tbody>${Object.entries(byArea).sort((a,b)=>b[1].total-a[1].total).map(([area,v])=>{const p=v.total?Math.round(v.corr/v.total*100):0;const col=p>=80?G:p>=50?A:R;return `<tr><td class="left" style="max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${area}</td><td style="color:${G};font-weight:700">${v.corr}</td><td style="color:${R};font-weight:700">${v.no}</td><td><strong>${v.total}</strong></td><td style="min-width:55px"><span style="color:${col};font-weight:800">${p}%</span><div style="width:${p}%;height:3px;background:${col};border-radius:2px;margin-top:2px"></div></td></tr>`;}).join("")}</tbody>`;
+}
+
+function renderEvolucion(){
+  const obsF=getObsFiltradas();
+  const G="#1E7C34",R="#E63329";
   const esPorSem=periodoEvol==="sem";
   const grupos={};
   obsF.forEach(o=>{
@@ -1053,454 +682,136 @@ function renderEvolucion(){
   const keys=Object.keys(grupos).sort();
   const labels=keys.map(k=>grupos[k].label);
   destroyChart("chart-evolucion");
-  new Chart(document.getElementById("chart-evolucion"),{
-    type:"bar",
-    data:{
-      labels,
-      datasets:[
-        {label:"Corregidas",data:keys.map(k=>grupos[k].corr),backgroundColor:G+"CC",borderRadius:4,stack:"s"},
-        {label:"No Corregidas",data:keys.map(k=>grupos[k].noCorr),backgroundColor:R+"CC",borderRadius:4,stack:"s"},
-        {label:"% Cumpl.",data:keys.map(k=>grupos[k].total?Math.round(grupos[k].corr/grupos[k].total*100):0),
-          type:"line",borderColor:"#1565C0",backgroundColor:"transparent",pointRadius:4,
-          pointBackgroundColor:"#1565C0",borderWidth:2,yAxisID:"y2",tension:0.3}
-      ]
-    },
-    options:{
-      responsive:true,
-      plugins:{legend:{position:"top",align:"start",labels:{font:{size:10},boxWidth:10,padding:8}},
-        tooltip:{mode:"index",intersect:false}},
-      scales:{
-        x:{ticks:{font:{size:9},maxRotation:45},grid:{display:false},stacked:true},
-        y:{beginAtZero:true,ticks:{stepSize:1,font:{size:10}},grid:{color:"#f0f0f0"},stacked:true},
-        y2:{position:"right",min:0,max:100,ticks:{callback:v=>v+"%",font:{size:9}},grid:{display:false}}
-      }
-    }
-  });
+  new Chart(document.getElementById("chart-evolucion"),{type:"bar",data:{labels,datasets:[{label:"Corregidas",data:keys.map(k=>grupos[k].corr),backgroundColor:G+"CC",borderRadius:4,stack:"s"},{label:"No Corregidas",data:keys.map(k=>grupos[k].noCorr),backgroundColor:R+"CC",borderRadius:4,stack:"s"},{label:"% Cumpl.",data:keys.map(k=>grupos[k].total?Math.round(grupos[k].corr/grupos[k].total*100):0),type:"line",borderColor:"#1565C0",backgroundColor:"transparent",pointRadius:4,pointBackgroundColor:"#1565C0",borderWidth:2,yAxisID:"y2",tension:0.3}]},options:{responsive:true,plugins:{legend:{position:"top",align:"start",labels:{font:{size:10},boxWidth:10,padding:8}},tooltip:{mode:"index",intersect:false}},scales:{x:{ticks:{font:{size:9},maxRotation:45},grid:{display:false},stacked:true},y:{beginAtZero:true,ticks:{stepSize:1,font:{size:10}},grid:{color:"#f0f0f0"},stacked:true},y2:{position:"right",min:0,max:100,ticks:{callback:v=>v+"%",font:{size:9}},grid:{display:false}}}}});
 }
 
-// ═══ EVOLUCIÓN POR ÁREA ═══
 function renderEvolArea(){
   const obsF=getObsFiltradas();
   const esPorSem=periodoArea==="sem";
-  // Obtener todos los períodos y áreas
-  const periodos=new Set();
-  const areas=new Set();
-  obsF.forEach(o=>{
-    const key=esPorSem?`S${String(o.sem).padStart(2,"0")}`:getMesKey(o.fecha);
-    periodos.add(key);areas.add(o.area);
-  });
-  const sortedPeriodos=[...periodos].sort();
-  const sortedAreas=[...areas].sort();
-  const labels=sortedPeriodos.map(k=>{
-    if(esPorSem)return "Sem."+Number(k.slice(1));
-    const obs=obsF.find(o=>getMesKey(o.fecha)===k);
-    return obs?getMes(obs.fecha):k;
-  });
-  // Colores para áreas
-  const areaColors=["#1E7C34","#E63329","#1565C0","#D97706","#6B21A8","#0891B2","#065F46","#7C2D12","#1E3A5F","#4A1942","#14532D","#7C3AED","#C2410C","#0F766E","#92400E","#1D4ED8"];
-  // Por área, datos de corregidas (completadas)
-  const datasets=sortedAreas.slice(0,8).map((area,i)=>({
-    label:area,
-    data:sortedPeriodos.map(p=>{
-      const obs=obsF.filter(o=>{
-        const key=esPorSem?`S${String(o.sem).padStart(2,"0")}`:getMesKey(o.fecha);
-        return o.area===area&&key===p;
-      });
-      return obs.length?Math.round(obs.filter(o=>o.status==="CORREGIDO").length/obs.length*100):null;
-    }),
-    borderColor:areaColors[i%areaColors.length],
-    backgroundColor:"transparent",
-    pointRadius:3,borderWidth:2,tension:0.3,spanGaps:true
-  }));
+  const periodos=new Set();const areas=new Set();
+  obsF.forEach(o=>{const key=esPorSem?`S${String(o.sem).padStart(2,"0")}`:getMesKey(o.fecha);periodos.add(key);areas.add(o.area);});
+  const sp=[...periodos].sort();const sa=[...areas].sort();
+  const labels=sp.map(k=>{if(esPorSem)return "Sem."+Number(k.slice(1));const obs=obsF.find(o=>getMesKey(o.fecha)===k);return obs?getMes(obs.fecha):k;});
+  const aColors=["#1E7C34","#E63329","#1565C0","#D97706","#6B21A8","#0891B2","#065F46","#7C2D12","#1E3A5F","#4A1942","#14532D","#7C3AED","#C2410C","#0F766E","#92400E","#1D4ED8"];
+  const datasets=sa.slice(0,8).map((area,i)=>({label:area,data:sp.map(p=>{const obs=obsF.filter(o=>{const key=esPorSem?`S${String(o.sem).padStart(2,"0")}`:getMesKey(o.fecha);return o.area===area&&key===p;});return obs.length?Math.round(obs.filter(o=>o.status==="CORREGIDO").length/obs.length*100):null;}),borderColor:aColors[i%aColors.length],backgroundColor:"transparent",pointRadius:3,borderWidth:2,tension:0.3,spanGaps:true}));
   destroyChart("chart-area-evol");
-  new Chart(document.getElementById("chart-area-evol"),{
-    type:"line",
-    data:{labels,datasets},
-    options:{
-      responsive:true,
-      plugins:{
-        legend:{position:"bottom",align:"start",labels:{font:{size:9},boxWidth:8,padding:6,usePointStyle:true}},
-        tooltip:{mode:"index",intersect:false,callbacks:{label:ctx=>`${ctx.dataset.label}: ${ctx.raw!==null?ctx.raw+"%":"sin datos"}`}}
-      },
-      scales:{
-        x:{ticks:{font:{size:9},maxRotation:45},grid:{display:false}},
-        y:{min:0,max:100,ticks:{callback:v=>v+"%",font:{size:9}},grid:{color:"#f0f0f0"}}
-      }
-    }
-  });
+  new Chart(document.getElementById("chart-area-evol"),{type:"line",data:{labels,datasets},options:{responsive:true,plugins:{legend:{position:"bottom",align:"start",labels:{font:{size:9},boxWidth:8,padding:6,usePointStyle:true}},tooltip:{mode:"index",intersect:false,callbacks:{label:ctx=>`${ctx.dataset.label}: ${ctx.raw!==null?ctx.raw+"%":"sin datos"}`}}},scales:{x:{ticks:{font:{size:9},maxRotation:45},grid:{display:false}},y:{min:0,max:100,ticks:{callback:v=>v+"%",font:{size:9}},grid:{color:"#f0f0f0"}}}}});
 }
 
-// ═══ TABLAS GERENCIALES ═══
-function renderTablas(){
-  const obsF = getObsFiltradas();
-  const G="#1E7C34", R="#E63329", A="#D97706";
-
-  // ── TABLA PIVOT: Sector × Estado ─────────────────────────────────
-  const sectores = {};
-  obsF.forEach(o=>{
-    const s = o.sector||"C";
-    if(!sectores[s]) sectores[s]={corr:0,no:0,pen:0,total:0};
-    sectores[s].total++;
-    if(o.status==="CORREGIDO") sectores[s].corr++;
-    else if(o.status==="NO CORREGIDO") sectores[s].no++;
-    else sectores[s].pen++;
-  });
-  const totales = {corr:0,no:0,pen:0,total:0};
-  Object.values(sectores).forEach(v=>{totales.corr+=v.corr;totales.no+=v.no;totales.pen+=v.pen;totales.total+=v.total;});
-
-  const pivotEl = document.getElementById("tabla-pivot");
-  pivotEl.innerHTML = `
-    <thead>
-      <tr>
-        <th class="left">Sector</th>
-        <th style="background:#155A25">Corregidas</th>
-        <th style="background:#B3221A">No Corregidas</th>
-        <th>Total</th>
-        <th>% Cumpl.</th>
-      </tr>
-    </thead>
-    <tbody>
-      ${Object.entries(sectores).sort().map(([k,v])=>{
-        const pct = v.total?Math.round(v.corr/v.total*100):0;
-        const col = pct>=80?G:pct>=50?A:R;
-        return `<tr>
-          <td class="left">Sector ${k}</td>
-          <td style="color:${G};font-weight:700">${v.corr}</td>
-          <td style="color:${R};font-weight:700">${v.no}</td>
-          <td style="color:${A};font-weight:700">${v.pen}</td>
-          <td><strong>${v.total}</strong></td>
-          <td style="color:${col};font-weight:800">${pct}%</td>
-        </tr>`;
-      }).join("")}
-      <tr class="total-row">
-        <td class="left">TOTAL</td>
-        <td style="color:${G};font-weight:700">${totales.corr}</td>
-        <td style="color:${R};font-weight:700">${totales.no}</td>
-        <td style="color:${A};font-weight:700">${totales.pen}</td>
-        <td><strong>${totales.total}</strong></td>
-        <td style="color:${totales.total?Math.round(totales.corr/totales.total*100)>=80?G:Math.round(totales.corr/totales.total*100)>=50?A:R:A};font-weight:800">${totales.total?Math.round(totales.corr/totales.total*100):0}%</td>
-      </tr>
-    </tbody>`;
-
-  // ── TABLA CUMPLIMIENTO POR ÁREA ───────────────────────────────────
-  const byArea = {};
-  obsF.forEach(o=>{
-    if(!byArea[o.area]) byArea[o.area]={corr:0,no:0,pen:0,total:0};
-    byArea[o.area].total++;
-    if(o.status==="CORREGIDO") byArea[o.area].corr++;
-    else if(o.status==="NO CORREGIDO") byArea[o.area].no++;
-    else byArea[o.area].pen++;
-  });
-
-  const cumplEl = document.getElementById("tabla-cumpl");
-  cumplEl.innerHTML = `
-    <thead>
-      <tr>
-        <th class="left">Área</th>
-        <th style="background:#155A25">✅ Corr.</th>
-        <th style="background:#B3221A">❌ No Corr.</th>
-        <th style="background:#B45309">⏳ Pend.</th>
-        <th>Total</th>
-        <th>% Cumpl.</th>
-      </tr>
-    </thead>
-    <tbody>
-      ${Object.entries(byArea).sort((a,b)=>b[1].total-a[1].total).map(([area,v])=>{
-        const pct = v.total?Math.round(v.corr/v.total*100):0;
-        const col = pct>=80?G:pct>=50?A:R;
-        const bar = `<div style="width:${pct}%;height:4px;background:${col};border-radius:2px;margin-top:2px"></div>`;
-        return `<tr>
-          <td class="left" style="max-width:120px;overflow:hidden;text-overflow:ellipsis">${area}</td>
-          <td style="color:${G};font-weight:700">${v.corr}</td>
-          <td style="color:${R};font-weight:700">${v.no}</td>
-          <td style="color:${A};font-weight:700">${v.pen}</td>
-          <td><strong>${v.total}</strong></td>
-          <td style="min-width:60px">
-            <span style="color:${col};font-weight:800">${pct}%</span>
-            ${bar}
-          </td>
-        </tr>`;
-      }).join("")}
-    </tbody>`;
-}
-
-// ═══ EXPORTAR PDF ═══
 async function exportarPDF(){
   const btn=document.querySelector('[onclick="exportarPDF()"]');
-  if(btn){btn.textContent="⏳...";btn.disabled=true;}
+  if(btn){btn.textContent="...";btn.disabled=true;}
   try{
     const {jsPDF}=window.jspdf;
     const doc=new jsPDF({orientation:"portrait",unit:"mm",format:"a4"});
-    const PW=210, PH=297, M=14;
-    const CW=PW-M*2;
-
+    const PW=210,M=14,CW=182;
     const obsF=getObsFiltradas();
-    const total=obsF.length;
-    const corr=obsF.filter(o=>o.status==="CORREGIDO").length;
-    const noCorr=obsF.filter(o=>o.status==="NO CORREGIDO").length;
+    const total=obsF.length,corr=obsF.filter(o=>o.status==="CORREGIDO").length,noCorr=obsF.filter(o=>o.status==="NO CORREGIDO").length;
     const pct=total?Math.round(corr/total*100):0;
     const fecha=new Date().toLocaleDateString("es-PE",{day:"2-digit",month:"long",year:"numeric"});
-    const filSector=document.getElementById("d-fil-sector")?.value||"";
-    const filArea=document.getElementById("d-fil-area")?.value||"";
-    const G=[30,124,52], R=[230,51,41], A=[217,119,6], GD=[21,90,37], W=[255,255,255];
-    const GTEXT="#1E7C34", RTEXT="#E63329", ATEXT="#D97706";
-
-    // ── HEADER VERDE ──────────────────────────────────────────────
-    doc.setFillColor(...G);
-    doc.rect(0,0,PW,32,"F");
-    // Línea decorativa inferior
-    doc.setFillColor(...A);
-    doc.rect(0,32,PW,1.5,"F");
-
-    // Título
-    doc.setTextColor(...W);
-    doc.setFont("helvetica","bold");
-    doc.setFontSize(22);
-    doc.text("REPORTE 5S",PW/2,13,{align:"center"});
-    doc.setFontSize(10);
-    doc.setFont("helvetica","normal");
-    doc.text("Industrias San Miguel",PW/2,20,{align:"center"});
-    // Info filtros y fecha
-    doc.setFontSize(8);
-    const filtroTxt=(filSector?"Sector "+filSector:"Todos los sectores")+" · "+(filArea?filArea.replace(/_/g," "):"Todas las áreas")+" · "+fecha;
-    doc.text(filtroTxt,PW/2,27,{align:"center"});
-
+    const G=[30,124,52],R=[230,51,41],A=[217,119,6],GD=[21,90,37],W=[255,255,255];
+    // Header
+    doc.setFillColor(...G);doc.rect(0,0,PW,32,"F");
+    doc.setFillColor(...A);doc.rect(0,32,PW,1.5,"F");
+    doc.setTextColor(...W);doc.setFont("helvetica","bold");doc.setFontSize(22);doc.text("REPORTE 5S",PW/2,13,{align:"center"});
+    doc.setFontSize(10);doc.setFont("helvetica","normal");doc.text("Industrias San Miguel",PW/2,20,{align:"center"});
+    doc.setFontSize(8);doc.text(fecha,PW/2,27,{align:"center"});
     let y=38;
-
-    // ── KPIs — 3 cajas + barra cumplimiento ──────────────────────
-    const kpis=[
-      {label:"TOTAL OBS.",val:String(total),col:G},
-      {label:"CORREGIDAS",val:String(corr),col:G},
-      {label:"NO CORREGIDAS",val:String(noCorr),col:R},
-    ];
+    // KPIs
     const kW=(CW-8)/3;
-    kpis.forEach((k,i)=>{
+    [{label:"TOTAL OBS.",val:String(total),col:G},{label:"CORREGIDAS",val:String(corr),col:G},{label:"NO CORREGIDAS",val:String(noCorr),col:R}].forEach((k,i)=>{
       const x=M+i*(kW+4);
-      doc.setFillColor(247,248,246);
-      doc.setDrawColor(213,218,211);
-      doc.roundedRect(x,y,kW,18,2,2,"FD");
-      doc.setFillColor(...k.col);
-      doc.rect(x,y,kW,1.8,"F");
-      doc.setTextColor(...k.col);
-      doc.setFont("helvetica","bold");
-      doc.setFontSize(20);
-      doc.text(k.val,x+kW/2,y+11,{align:"center"});
-      doc.setTextColor(100,100,100);
-      doc.setFont("helvetica","normal");
-      doc.setFontSize(7);
-      doc.text(k.label,x+kW/2,y+16,{align:"center"});
+      doc.setFillColor(247,248,246);doc.setDrawColor(213,218,211);doc.roundedRect(x,y,kW,18,2,2,"FD");
+      doc.setFillColor(...k.col);doc.rect(x,y,kW,1.8,"F");
+      doc.setTextColor(...k.col);doc.setFont("helvetica","bold");doc.setFontSize(20);doc.text(k.val,x+kW/2,y+11,{align:"center"});
+      doc.setTextColor(100,100,100);doc.setFont("helvetica","normal");doc.setFontSize(7);doc.text(k.label,x+kW/2,y+16,{align:"center"});
     });
     y+=22;
-
-    // Barra % cumplimiento
+    // Barra cumplimiento
     const pctCol=pct>=80?G:pct>=50?A:R;
-    doc.setFillColor(232,240,232);
-    doc.roundedRect(M,y,CW,10,2,2,"F");
-    doc.setFillColor(...pctCol);
-    doc.roundedRect(M,y,CW*(pct/100),10,2,2,"F");
-    doc.setTextColor(...W);
-    doc.setFont("helvetica","bold");
-    doc.setFontSize(9);
+    doc.setFillColor(232,240,232);doc.roundedRect(M,y,CW,10,2,2,"F");
+    doc.setFillColor(...pctCol);doc.roundedRect(M,y,CW*(pct/100),10,2,2,"F");
+    doc.setTextColor(...W);doc.setFont("helvetica","bold");doc.setFontSize(9);
     doc.text(`% CUMPLIMIENTO: ${pct}%  (${corr} corregidas de ${total} observaciones)`,PW/2,y+6.5,{align:"center"});
     y+=15;
-
-    // ── RESUMEN EJECUTIVO ─────────────────────────────────────────
-    // Calcular datos para resumen
-    const byArea={};
-    obsF.forEach(o=>{
-      if(!byArea[o.area])byArea[o.area]={t:0,ok:0,no:0};
-      byArea[o.area].t++;
-      if(o.status==="CORREGIDO")byArea[o.area].ok++;
-      else if(o.status==="NO CORREGIDO")byArea[o.area].no++;
-    });
+    // Analisis ejecutivo
+    const byArea={};obsF.forEach(o=>{if(!byArea[o.area])byArea[o.area]={t:0,ok:0,no:0};byArea[o.area].t++;if(o.status==="CORREGIDO")byArea[o.area].ok++;else if(o.status==="NO CORREGIDO")byArea[o.area].no++;});
     const topArea=Object.entries(byArea).sort((a,b)=>b[1].t-a[1].t)[0];
     const mejorArea=Object.entries(byArea).filter(([,v])=>v.t>=2).sort((a,b)=>(b[1].ok/b[1].t)-(a[1].ok/a[1].t))[0];
     const peorArea=Object.entries(byArea).filter(([,v])=>v.t>=2).sort((a,b)=>(a[1].ok/a[1].t)-(b[1].ok/b[1].t))[0];
-    const byS={};
-    obsF.forEach(o=>{const k=o.s||"—";byS[k]=(byS[k]||0)+1;});
+    const byS={};obsF.forEach(o=>{const k=o.s||"—";byS[k]=(byS[k]||0)+1;});
     const topS=Object.entries(byS).sort((a,b)=>b[1]-a[1])[0];
     const sems=[...new Set(obsF.map(o=>String(o.sem)).filter(Boolean))].sort((a,b)=>Number(b)-Number(a));
-    // Tendencia: comparar ultima semana vs anterior
-    let tendenciaTxt="";
+    let tendTxt="";
     if(sems.length>=2){
-      const ultima=obsF.filter(o=>String(o.sem)===sems[0]);
-      const anterior=obsF.filter(o=>String(o.sem)===sems[1]);
-      const pctUlt=ultima.length?Math.round(ultima.filter(o=>o.status==="CORREGIDO").length/ultima.length*100):0;
-      const pctAnt=anterior.length?Math.round(anterior.filter(o=>o.status==="CORREGIDO").length/anterior.length*100):0;
-      const diff=pctUlt-pctAnt;
-      tendenciaTxt=diff>0?`▲ Tendencia positiva: semana ${sems[0]} subió ${diff}% vs semana ${sems[1]}.`:
-                   diff<0?`▼ Tendencia negativa: semana ${sems[0]} bajó ${Math.abs(diff)}% vs semana ${sems[1]}.`:
-                   `→ Sin variación entre semana ${sems[0]} y ${sems[1]}.`;
+      const ult=obsF.filter(o=>String(o.sem)===sems[0]);const ant=obsF.filter(o=>String(o.sem)===sems[1]);
+      const pU=ult.length?Math.round(ult.filter(o=>o.status==="CORREGIDO").length/ult.length*100):0;
+      const pA=ant.length?Math.round(ant.filter(o=>o.status==="CORREGIDO").length/ant.length*100):0;
+      const diff=pU-pA;
+      tendTxt=diff>0?`Tendencia positiva: semana ${sems[0]} subio ${diff}% vs semana ${sems[1]}.`:diff<0?`Tendencia negativa: semana ${sems[0]} bajo ${Math.abs(diff)}% vs semana ${sems[1]}.`:`Sin variacion entre semana ${sems[0]} y ${sems[1]}.`;
     }
-
-    const resumenLineas=[
-      `Se registraron ${total} observaciones en total: ${corr} corregidas (${pct}%) y ${noCorr} no corregidas.`,
-      topArea?`El área con mayor cantidad de observaciones es ${topArea[0]} con ${topArea[1].t} casos.`:"",
-      mejorArea?`Mejor cumplimiento: ${mejorArea[0]} con ${Math.round(mejorArea[1].ok/mejorArea[1].t*100)}% de corrección.`:"",
-      peorArea&&peorArea[0]!==mejorArea?.[0]?`Área crítica: ${peorArea[0]} con solo ${Math.round(peorArea[1].ok/peorArea[1].t*100)}% corregido.`:"",
-      topS?`El tipo de falla más frecuente es ${topS[0]} con ${topS[1]} observaciones (${total?Math.round(topS[1]/total*100):0}% del total).`:"",
-      tendenciaTxt
+    const lineas=[
+      `Se registraron ${total} observaciones: ${corr} corregidas (${pct}%) y ${noCorr} no corregidas.`,
+      topArea?`Area con mas observaciones: ${topArea[0]} (${topArea[1].t} casos).`:"",
+      mejorArea?`Mejor cumplimiento: ${mejorArea[0]} con ${Math.round(mejorArea[1].ok/mejorArea[1].t*100)}% corregido.`:"",
+      peorArea&&peorArea[0]!==mejorArea?.[0]?`Area critica: ${peorArea[0]} con ${Math.round(peorArea[1].ok/peorArea[1].t*100)}% corregido.`:"",
+      topS?`Falla mas frecuente: ${topS[0]} con ${topS[1]} observaciones (${total?Math.round(topS[1]/total*100):0}%).`:"",
+      tendTxt
     ].filter(Boolean);
-
-    // Caja resumen
-    const rH=6*resumenLineas.length+10;
-    doc.setFillColor(248,252,248);
-    doc.setDrawColor(...G);
-    doc.setLineWidth(0.5);
-    doc.roundedRect(M,y,CW,rH,2,2,"FD");
-    doc.setFillColor(...G);
-    doc.rect(M,y,3,rH,"F");
-    doc.setTextColor(...GD);
-    doc.setFont("helvetica","bold");
-    doc.setFontSize(8);
-    doc.text("ANÁLISIS EJECUTIVO",M+6,y+5);
-    doc.setFont("helvetica","normal");
-    doc.setTextColor(50,63,50);
-    doc.setFontSize(7.5);
-    resumenLineas.forEach((l,i)=>{
-      const lines=doc.splitTextToSize("• "+l,CW-10);
-      doc.text(lines,M+6,y+10+i*6);
-    });
+    const rH=lineas.length*6+10;
+    doc.setFillColor(248,252,248);doc.setDrawColor(...G);doc.setLineWidth(0.5);doc.roundedRect(M,y,CW,rH,2,2,"FD");
+    doc.setFillColor(...G);doc.rect(M,y,3,rH,"F");
+    doc.setTextColor(...GD);doc.setFont("helvetica","bold");doc.setFontSize(8);doc.text("ANALISIS EJECUTIVO",M+6,y+5);
+    doc.setFont("helvetica","normal");doc.setTextColor(50,63,50);doc.setFontSize(7.5);
+    lineas.forEach((l,i)=>{const lines=doc.splitTextToSize("• "+l,CW-10);doc.text(lines,M+6,y+10+i*6);});
     y+=rH+6;
-
-    // ── TABLA PIVOT SECTOR × ESTADO ───────────────────────────────
+    // Tabla pivot sector
     const sects={};
-    obsF.forEach(o=>{
-      const s=o.sector||"C";
-      if(!sects[s])sects[s]={corr:0,no:0,total:0};
-      sects[s].total++;
-      if(o.status==="CORREGIDO")sects[s].corr++;
-      else if(o.status==="NO CORREGIDO")sects[s].no++;
-    });
-    const totR={corr:0,no:0,total:0};
-    Object.values(sects).forEach(v=>{totR.corr+=v.corr;totR.no+=v.no;totR.total+=v.total;});
-
-    const pivotBody=Object.entries(sects).sort().map(([k,v])=>[
-      "Sector "+k, v.corr, v.no, v.total,
-      (v.total?Math.round(v.corr/v.total*100):0)+"%"
-    ]);
-    pivotBody.push(["TOTAL GENERAL",totR.corr,totR.no,totR.total,
-      (totR.total?Math.round(totR.corr/totR.total*100):0)+"%"]);
-
-    doc.setFont("helvetica","bold");
-    doc.setFontSize(8);
-    doc.setTextColor(...G);
-    doc.text("RESUMEN POR SECTOR",M,y);
-    y+=3;
-    doc.autoTable({
-      startY:y,
-      head:[["Sector","Corregidas","No Corregidas","Total","% Cumpl."]],
-      body:pivotBody,
-      theme:"grid",
-      headStyles:{fillColor:G,textColor:W,fontSize:7.5,fontStyle:"bold",halign:"center",cellPadding:2},
-      bodyStyles:{fontSize:7.5,halign:"center",cellPadding:2},
-      columnStyles:{0:{halign:"left",fontStyle:"bold",cellWidth:35}},
-      didDrawCell:(d)=>{
-        if(d.section==="body"){
-          if(d.column.index===4){
-            const v=parseInt(d.cell.text[0]);
-            if(!isNaN(v))d.cell.styles.textColor=v>=80?G:v>=50?A:R;
-            d.cell.styles.fontStyle="bold";
-          }
-          if(d.row.index===pivotBody.length-1){
-            d.cell.styles.fillColor=[220,240,220];
-            d.cell.styles.fontStyle="bold";
-          }
-        }
-      },
-      margin:{left:M,right:M}
-    });
+    obsF.forEach(o=>{const s=o.sector||"C";if(!sects[s])sects[s]={corr:0,no:0,total:0};sects[s].total++;if(o.status==="CORREGIDO")sects[s].corr++;else if(o.status==="NO CORREGIDO")sects[s].no++;});
+    const totR={corr:0,no:0,total:0};Object.values(sects).forEach(v=>{totR.corr+=v.corr;totR.no+=v.no;totR.total+=v.total;});
+    const pivotBody=Object.entries(sects).sort().map(([k,v])=>["Sector "+k,v.corr,v.no,v.total,(v.total?Math.round(v.corr/v.total*100):0)+"%"]);
+    pivotBody.push(["TOTAL GENERAL",totR.corr,totR.no,totR.total,(totR.total?Math.round(totR.corr/totR.total*100):0)+"%"]);
+    doc.setFont("helvetica","bold");doc.setFontSize(8);doc.setTextColor(...G);doc.text("RESUMEN POR SECTOR",M,y);y+=3;
+    doc.autoTable({startY:y,head:[["Sector","Corregidas","No Corregidas","Total","% Cumpl."]],body:pivotBody,theme:"grid",headStyles:{fillColor:G,textColor:W,fontSize:7.5,fontStyle:"bold",halign:"center",cellPadding:2},bodyStyles:{fontSize:7.5,halign:"center",cellPadding:2},columnStyles:{0:{halign:"left",fontStyle:"bold",cellWidth:35}},didDrawCell:(d)=>{if(d.section==="body"){if(d.column.index===4){const v=parseInt(d.cell.text[0]);if(!isNaN(v))d.cell.styles.textColor=v>=80?G:v>=50?A:R;d.cell.styles.fontStyle="bold";}if(d.row.index===pivotBody.length-1){d.cell.styles.fillColor=[220,240,220];d.cell.styles.fontStyle="bold";}}},margin:{left:M,right:M}});
     y=doc.lastAutoTable.finalY+6;
-
-    // ── TABLA CUMPLIMIENTO POR ÁREA ───────────────────────────────
-    const areaBody=Object.entries(byArea)
-      .sort((a,b)=>b[1].t-a[1].t)
-      .map(([area,v])=>[
-        area.length>22?area.substring(0,20)+"…":area,
-        v.ok, v.no, v.t,
-        (v.t?Math.round(v.ok/v.t*100):0)+"%"
-      ]);
-
-    doc.setFont("helvetica","bold");
-    doc.setFontSize(8);
-    doc.setTextColor(...G);
-    doc.text("% CUMPLIMIENTO POR ÁREA",M,y);
-    y+=3;
-    doc.autoTable({
-      startY:y,
-      head:[["Área","Corregidas","No Corregidas","Total","% Cumpl."]],
-      body:areaBody,
-      theme:"striped",
-      headStyles:{fillColor:GD,textColor:W,fontSize:7.5,fontStyle:"bold",halign:"center",cellPadding:2},
-      bodyStyles:{fontSize:7,halign:"center",cellPadding:2},
-      alternateRowStyles:{fillColor:[245,250,245]},
-      columnStyles:{0:{halign:"left",cellWidth:48}},
-      didDrawCell:(d)=>{
-        if(d.section==="body"&&d.column.index===4){
-          const v=parseInt(d.cell.text[0]);
-          if(!isNaN(v))d.cell.styles.textColor=v>=80?G:v>=50?A:R;
-          d.cell.styles.fontStyle="bold";
-        }
-      },
-      margin:{left:M,right:M}
-    });
+    // Tabla area
+    const areaBody=Object.entries(byArea).sort((a,b)=>b[1].t-a[1].t).map(([area,v])=>[area.length>22?area.substring(0,20)+"...":area,v.ok,v.no,v.t,(v.t?Math.round(v.ok/v.t*100):0)+"%"]);
+    doc.setFont("helvetica","bold");doc.setFontSize(8);doc.setTextColor(...G);doc.text("% CUMPLIMIENTO POR AREA",M,y);y+=3;
+    doc.autoTable({startY:y,head:[["Area","Corregidas","No Corregidas","Total","% Cumpl."]],body:areaBody,theme:"striped",headStyles:{fillColor:GD,textColor:W,fontSize:7.5,fontStyle:"bold",halign:"center",cellPadding:2},bodyStyles:{fontSize:7,halign:"center",cellPadding:2},alternateRowStyles:{fillColor:[245,250,245]},columnStyles:{0:{halign:"left",cellWidth:48}},didDrawCell:(d)=>{if(d.section==="body"&&d.column.index===4){const v=parseInt(d.cell.text[0]);if(!isNaN(v))d.cell.styles.textColor=v>=80?G:v>=50?A:R;d.cell.styles.fontStyle="bold";}},margin:{left:M,right:M}});
     y=doc.lastAutoTable.finalY+6;
-
-    // ── TENDENCIA POR SEMANA (mini tabla) ─────────────────────────
-    if(sems.length>0){
-      const semData=sems.slice(0,6).reverse().map(s=>{
-        const obs=obsF.filter(o=>String(o.sem)===s);
-        const c=obs.filter(o=>o.status==="CORREGIDO").length;
-        const n=obs.filter(o=>o.status==="NO CORREGIDO").length;
-        const t=obs.length;
-        const p=t?Math.round(c/t*100):0;
-        return ["Sem. "+s, c, n, t, p+"%"];
-      });
-      if(y<250){
-        doc.setFont("helvetica","bold");
-        doc.setFontSize(8);
-        doc.setTextColor(...G);
-        doc.text("TENDENCIA SEMANAL",M,y);
-        y+=3;
-        doc.autoTable({
-          startY:y,
-          head:[["Semana","Corregidas","No Corregidas","Total","% Cumpl."]],
-          body:semData,
-          theme:"plain",
-          headStyles:{fillColor:[21,90,37],textColor:W,fontSize:7,fontStyle:"bold",halign:"center",cellPadding:2},
-          bodyStyles:{fontSize:7,halign:"center",cellPadding:2},
-          columnStyles:{0:{halign:"left",fontStyle:"bold",cellWidth:25}},
-          didDrawCell:(d)=>{
-            if(d.section==="body"&&d.column.index===4){
-              const v=parseInt(d.cell.text[0]);
-              if(!isNaN(v))d.cell.styles.textColor=v>=80?G:v>=50?A:R;
-              d.cell.styles.fontStyle="bold";
-            }
-          },
-          margin:{left:M,right:M}
-        });
-      }
+    // Tendencia semanal
+    if(sems.length>0&&y<250){
+      const semData=sems.slice(0,6).reverse().map(s=>{const obs=obsF.filter(o=>String(o.sem)===s);const c=obs.filter(o=>o.status==="CORREGIDO").length;const n=obs.filter(o=>o.status==="NO CORREGIDO").length;const t=obs.length;return ["Sem. "+s,c,n,t,(t?Math.round(c/t*100):0)+"%"];});
+      doc.setFont("helvetica","bold");doc.setFontSize(8);doc.setTextColor(...G);doc.text("TENDENCIA SEMANAL",M,y);y+=3;
+      doc.autoTable({startY:y,head:[["Semana","Corregidas","No Corregidas","Total","% Cumpl."]],body:semData,theme:"plain",headStyles:{fillColor:GD,textColor:W,fontSize:7,fontStyle:"bold",halign:"center",cellPadding:2},bodyStyles:{fontSize:7,halign:"center",cellPadding:2},columnStyles:{0:{halign:"left",fontStyle:"bold",cellWidth:25}},didDrawCell:(d)=>{if(d.section==="body"&&d.column.index===4){const v=parseInt(d.cell.text[0]);if(!isNaN(v))d.cell.styles.textColor=v>=80?G:v>=50?A:R;d.cell.styles.fontStyle="bold";}},margin:{left:M,right:M}});
     }
-
-    // ── FOOTER ────────────────────────────────────────────────────
-    doc.setFillColor(...G);
-    doc.rect(0,285,PW,12,"F");
-    doc.setTextColor(...W);
-    doc.setFont("helvetica","normal");
-    doc.setFontSize(7);
-    doc.text("Industrias San Miguel — Programa 5S",M,291);
-    doc.text(fecha,PW/2,291,{align:"center"});
-    doc.text("Página 1 de 1",PW-M,291,{align:"right"});
-
-    // ── GUARDAR ───────────────────────────────────────────────────
+    // Footer
+    doc.setFillColor(...G);doc.rect(0,285,PW,12,"F");
+    doc.setTextColor(...W);doc.setFont("helvetica","normal");doc.setFontSize(7);
+    doc.text("Industrias San Miguel - Programa 5S",M,291);doc.text(fecha,PW/2,291,{align:"center"});doc.text("Pagina 1 de 1",PW-M,291,{align:"right"});
     const semLabel=sems[0]?"_Sem"+sems[0]:"";
     doc.save(`Reporte5S_ISM${semLabel}_${new Date().toISOString().split("T")[0]}.pdf`);
-    showToast("✅ PDF generado correctamente");
-  }catch(e){
-    console.error(e);
-    showToast("Error PDF: "+e.message,true);
-  }
-  if(btn){btn.textContent="📄 PDF";btn.disabled=false;}
+    showToast("PDF generado");
+  }catch(e){console.error(e);showToast("Error PDF: "+e.message,true);}
+  if(btn){btn.textContent="PDF";btn.disabled=false;}
 }
 
->
+function showTab(name){
+  document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
+  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+  document.getElementById("tab-"+name).classList.add("active");
+  ["nuevo","lista","dashboard"].forEach((t,i)=>{if(t===name)document.querySelectorAll(".tab")[i].classList.add("active");});
+  if(name==="lista")filtrar();
+  if(name==="dashboard")renderDashboard();
+}
+function openModal(id){document.getElementById(id).classList.add("show");document.body.style.overflow="hidden";}
+function closeModal(id){document.getElementById(id).classList.remove("show");document.body.style.overflow="";}
+let toastT;
+function showToast(msg,isErr){
+  const t=document.getElementById("toast");
+  t.textContent=msg;t.className="show"+(isErr?" error":"");
+  clearTimeout(toastT);toastT=setTimeout(()=>t.className="",3500);
+}
+</script>
+</body>
+</html>

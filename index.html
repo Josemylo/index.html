@@ -247,11 +247,16 @@ textarea{resize:vertical;min-height:78px}
   </div>
 
   <!-- KPIs -->
-  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px">
-    <div class="kpi-box"><div class="kpi-val" id="d-total">0</div><div class="kpi-lbl">Total</div></div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px">
+    <div class="kpi-box"><div class="kpi-val" id="d-total">0</div><div class="kpi-lbl">Total obs.</div></div>
     <div class="kpi-box green"><div class="kpi-val" id="d-corregidas">0</div><div class="kpi-lbl">Corregidas</div></div>
-    <div class="kpi-box red"><div class="kpi-val" id="d-no-corr">0</div><div class="kpi-lbl">No Corr.</div></div>
-    <div class="kpi-box amber"><div class="kpi-val" id="d-pct">0%</div><div class="kpi-lbl">Cumplim.</div></div>
+    <div class="kpi-box red"><div class="kpi-val" id="d-no-corr">0</div><div class="kpi-lbl">No Corregidas</div></div>
+  </div>
+  <div style="margin-bottom:12px">
+    <div class="kpi-box amber" style="padding:10px 16px;display:flex;align-items:center;justify-content:space-between">
+      <div class="kpi-lbl" style="margin-top:0;font-size:10px">% CUMPLIMIENTO GENERAL</div>
+      <div class="kpi-val" id="d-pct" style="font-size:32px">0%</div>
+    </div>
   </div>
 
   <!-- Donuts -->
@@ -837,7 +842,6 @@ function renderDashboard(){
   const total=obsF.length;
   const corr=obsF.filter(o=>o.status==="CORREGIDO").length;
   const noCorr=obsF.filter(o=>o.status==="NO CORREGIDO").length;
-  const pend=obsF.filter(o=>o.status==="PENDIENTE").length;
   const pct=total?Math.round(corr/total*100):0;
 
   document.getElementById("d-total").textContent=total;
@@ -864,12 +868,12 @@ function renderDashboard(){
   destroyChart("chart-donut-status");
   new Chart(document.getElementById("chart-donut-status"),{
     type:"doughnut",
-    data:{labels:["Corregidas","No Corregidas","Pendientes"],
-      datasets:[{data:[corr,noCorr,pend],backgroundColor:[G,R,A],borderWidth:1,borderColor:"#fff"}]},
+    data:{labels:["Corregidas","No Corregidas"],
+      datasets:[{data:[corr,noCorr],backgroundColor:[G,R],borderWidth:2,borderColor:"#fff"}]},
     options:{responsive:true,maintainAspectRatio:true,cutout:"70%",
       plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${ctx.raw}`}}}}
   });
-  miniLeg("legend-status",[{color:G,label:"Corregidas",val:corr},{color:R,label:"No Corr.",val:noCorr},{color:A,label:"Pendientes",val:pend}]);
+  miniLeg("legend-status",[{color:G,label:"Corregidas",val:corr},{color:R,label:"No Corregidas",val:noCorr}]);
 
   // Donut S
   const byS={};
@@ -934,7 +938,6 @@ function renderDashboard(){
         <div style="display:flex;gap:10px;font-size:10px">
           <span style="color:${G}">✅ ${v.ok} corr.</span>
           <span style="color:${R}">❌ ${v.no} no corr.</span>
-          <span style="color:${A}">⏳ ${v.pen} pend.</span>
           <span style="color:var(--g400);margin-left:auto">${v.t} total</span>
         </div>
       </div>`;
@@ -981,7 +984,6 @@ function renderTablas(){
             <td class="left">Sector ${k}</td>
             <td style="color:${G};font-weight:700">${v.corr}</td>
             <td style="color:${R};font-weight:700">${v.no}</td>
-            <td style="color:${A};font-weight:700">${v.pen}</td>
             <td><strong>${v.total}</strong></td>
             <td style="color:${col};font-weight:800">${p}%</td>
           </tr>`;
@@ -1013,7 +1015,6 @@ function renderTablas(){
         <th class="left">Área</th>
         <th style="background:#155A25">Corr.</th>
         <th style="background:#B3221A">No Corr.</th>
-        <th style="background:#B45309">Pend.</th>
         <th>Total</th><th>% Cumpl.</th>
       </tr></thead>
       <tbody>
@@ -1024,7 +1025,6 @@ function renderTablas(){
             <td class="left" style="max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${area}</td>
             <td style="color:${G};font-weight:700">${v.corr}</td>
             <td style="color:${R};font-weight:700">${v.no}</td>
-            <td style="color:${A};font-weight:700">${v.pen}</td>
             <td><strong>${v.total}</strong></td>
             <td style="min-width:55px">
               <span style="color:${col};font-weight:800">${p}%</span>
@@ -1045,11 +1045,10 @@ function renderEvolucion(){
   obsF.forEach(o=>{
     const key=esPorSem?`S${String(o.sem).padStart(2,"0")}`:getMesKey(o.fecha);
     const label=esPorSem?`Sem.${o.sem}`:getMes(o.fecha);
-    if(!grupos[key])grupos[key]={label,corr:0,noCorr:0,pend:0,total:0};
+    if(!grupos[key])grupos[key]={label,corr:0,noCorr:0,total:0};
     grupos[key].total++;
     if(o.status==="CORREGIDO")grupos[key].corr++;
     else if(o.status==="NO CORREGIDO")grupos[key].noCorr++;
-    else grupos[key].pend++;
   });
   const keys=Object.keys(grupos).sort();
   const labels=keys.map(k=>grupos[k].label);
@@ -1061,7 +1060,6 @@ function renderEvolucion(){
       datasets:[
         {label:"Corregidas",data:keys.map(k=>grupos[k].corr),backgroundColor:G+"CC",borderRadius:4,stack:"s"},
         {label:"No Corregidas",data:keys.map(k=>grupos[k].noCorr),backgroundColor:R+"CC",borderRadius:4,stack:"s"},
-        {label:"Pendientes",data:keys.map(k=>grupos[k].pend),backgroundColor:A+"CC",borderRadius:4,stack:"s"},
         {label:"% Cumpl.",data:keys.map(k=>grupos[k].total?Math.round(grupos[k].corr/grupos[k].total*100):0),
           type:"line",borderColor:"#1565C0",backgroundColor:"transparent",pointRadius:4,
           pointBackgroundColor:"#1565C0",borderWidth:2,yAxisID:"y2",tension:0.3}
@@ -1157,7 +1155,6 @@ function renderTablas(){
         <th class="left">Sector</th>
         <th style="background:#155A25">Corregidas</th>
         <th style="background:#B3221A">No Corregidas</th>
-        <th style="background:#B45309">Pendientes</th>
         <th>Total</th>
         <th>% Cumpl.</th>
       </tr>
@@ -1229,271 +1226,281 @@ function renderTablas(){
 
 // ═══ EXPORTAR PDF ═══
 async function exportarPDF(){
-  const btn = document.querySelector('[onclick="exportarPDF()"]');
-  btn.textContent = "⏳ Generando...";
-  btn.disabled = true;
-
+  const btn=document.querySelector('[onclick="exportarPDF()"]');
+  if(btn){btn.textContent="⏳...";btn.disabled=true;}
   try{
-    const {jsPDF} = window.jspdf;
-    const doc = new jsPDF({orientation:"portrait", unit:"mm", format:"a4"});
-    const W = doc.internal.pageSize.getWidth();
-    const obsF = getObsFiltradas();
-    const total = obsF.length;
-    const corr = obsF.filter(o=>o.status==="CORREGIDO").length;
-    const noCorr = obsF.filter(o=>o.status==="NO CORREGIDO").length;
-    const pend = obsF.filter(o=>o.status==="PENDIENTE").length;
-    const pct = total?Math.round(corr/total*100):0;
-    const fecha = new Date().toLocaleDateString("es-PE",{day:"2-digit",month:"long",year:"numeric"});
-    const filSector = document.getElementById("d-fil-sector").value;
-    const filArea = document.getElementById("d-fil-area").value;
+    const {jsPDF}=window.jspdf;
+    const doc=new jsPDF({orientation:"portrait",unit:"mm",format:"a4"});
+    const PW=210, PH=297, M=14;
+    const CW=PW-M*2;
 
-    // ── HEADER ──────────────────────────────────────────────────────
-    // Fondo verde header
-    doc.setFillColor(30,124,52);
-    doc.rect(0,0,W,28,"F");
-    // Logo texto
-    doc.setTextColor(255,255,255);
+    const obsF=getObsFiltradas();
+    const total=obsF.length;
+    const corr=obsF.filter(o=>o.status==="CORREGIDO").length;
+    const noCorr=obsF.filter(o=>o.status==="NO CORREGIDO").length;
+    const pct=total?Math.round(corr/total*100):0;
+    const fecha=new Date().toLocaleDateString("es-PE",{day:"2-digit",month:"long",year:"numeric"});
+    const filSector=document.getElementById("d-fil-sector")?.value||"";
+    const filArea=document.getElementById("d-fil-area")?.value||"";
+    const G=[30,124,52], R=[230,51,41], A=[217,119,6], GD=[21,90,37], W=[255,255,255];
+    const GTEXT="#1E7C34", RTEXT="#E63329", ATEXT="#D97706";
+
+    // ── HEADER VERDE ──────────────────────────────────────────────
+    doc.setFillColor(...G);
+    doc.rect(0,0,PW,32,"F");
+    // Línea decorativa inferior
+    doc.setFillColor(...A);
+    doc.rect(0,32,PW,1.5,"F");
+
+    // Título
+    doc.setTextColor(...W);
     doc.setFont("helvetica","bold");
-    doc.setFontSize(18);
-    doc.text("REPORTE 5S",W/2,12,{align:"center"});
+    doc.setFontSize(22);
+    doc.text("REPORTE 5S",PW/2,13,{align:"center"});
     doc.setFontSize(10);
     doc.setFont("helvetica","normal");
-    doc.text("Industrias San Miguel",W/2,19,{align:"center"});
-    doc.setFontSize(9);
-    doc.text(`Fecha: ${fecha}`,W/2,25,{align:"center"});
-
-    // ── INFO FILTROS ────────────────────────────────────────────────
-    doc.setTextColor(60,63,55);
+    doc.text("Industrias San Miguel",PW/2,20,{align:"center"});
+    // Info filtros y fecha
     doc.setFontSize(8);
-    doc.setFont("helvetica","normal");
-    let yPos = 34;
-    const filtroTexto = [
-      filSector?`Sector: ${filSector}`:"Todos los sectores",
-      filArea?`Área: ${filArea.replace(/_/g," ")}`:"Todas las áreas"
-    ].join("  |  ");
-    doc.text(filtroTexto, 14, yPos);
+    const filtroTxt=(filSector?"Sector "+filSector:"Todos los sectores")+" · "+(filArea?filArea.replace(/_/g," "):"Todas las áreas")+" · "+fecha;
+    doc.text(filtroTxt,PW/2,27,{align:"center"});
 
-    // ── KPIs ─────────────────────────────────────────────────────────
-    yPos = 40;
-    const kpis = [
-      {label:"TOTAL OBS.",val:String(total),color:[30,124,52]},
-      {label:"CORREGIDAS",val:String(corr),color:[30,124,52]},
-      {label:"NO CORREGIDAS",val:String(noCorr),color:[230,51,41]},
-      {label:"PENDIENTES",val:String(pend),color:[217,119,6]},
-      {label:"% CUMPLIMIENTO",val:pct+"%",color:pct>=80?[30,124,52]:pct>=50?[217,119,6]:[230,51,41]}
+    let y=38;
+
+    // ── KPIs — 3 cajas + barra cumplimiento ──────────────────────
+    const kpis=[
+      {label:"TOTAL OBS.",val:String(total),col:G},
+      {label:"CORREGIDAS",val:String(corr),col:G},
+      {label:"NO CORREGIDAS",val:String(noCorr),col:R},
     ];
-    const kpiW = (W-28)/kpis.length;
+    const kW=(CW-8)/3;
     kpis.forEach((k,i)=>{
-      const x = 14 + i*kpiW;
-      // Caja
+      const x=M+i*(kW+4);
       doc.setFillColor(247,248,246);
       doc.setDrawColor(213,218,211);
-      doc.roundedRect(x,yPos,kpiW-2,16,2,2,"FD");
-      // Borde top color
-      doc.setFillColor(...k.color);
-      doc.rect(x,yPos,kpiW-2,1.5,"F");
-      // Número
-      doc.setTextColor(...k.color);
+      doc.roundedRect(x,y,kW,18,2,2,"FD");
+      doc.setFillColor(...k.col);
+      doc.rect(x,y,kW,1.8,"F");
+      doc.setTextColor(...k.col);
       doc.setFont("helvetica","bold");
-      doc.setFontSize(14);
-      doc.text(k.val, x+(kpiW-2)/2, yPos+9, {align:"center"});
-      // Label
-      doc.setTextColor(143,155,138);
-      doc.setFont("helvetica","normal");
-      doc.setFontSize(6);
-      doc.text(k.label, x+(kpiW-2)/2, yPos+13.5, {align:"center"});
-    });
-
-    // ── RESUMEN EJECUTIVO ─────────────────────────────────────────────
-    yPos = 62;
-    doc.setFillColor(232,245,233);
-    doc.setDrawColor(30,124,52);
-    doc.roundedRect(14, yPos, W-28, 28, 2, 2, "FD");
-    doc.setTextColor(21,90,37);
-    doc.setFont("helvetica","bold");
-    doc.setFontSize(9);
-    doc.text("📋 RESUMEN EJECUTIVO", 18, yPos+6);
-
-    // Generar texto dinámico
-    const semanas = [...new Set(obsF.map(o=>o.sem).filter(Boolean))].sort((a,b)=>Number(b)-Number(a));
-    const semTexto = semanas.length>0?`semana${semanas.length>1?"s":""} ${semanas.slice(0,3).join(", ")}`:"el período analizado";
-    // Área con más obs
-    const byAreaCount = {};
-    obsF.forEach(o=>{byAreaCount[o.area]=(byAreaCount[o.area]||0)+1;});
-    const topAreas = Object.entries(byAreaCount).sort((a,b)=>b[1]-a[1]).slice(0,2).map(([a])=>a);
-    // Área con mejor cumplimiento
-    const byAreaPct = {};
-    obsF.forEach(o=>{
-      if(!byAreaPct[o.area])byAreaPct[o.area]={t:0,ok:0};
-      byAreaPct[o.area].t++;
-      if(o.status==="CORREGIDO")byAreaPct[o.area].ok++;
-    });
-    const mejorArea = Object.entries(byAreaPct).filter(([,v])=>v.t>=2).sort((a,b)=>(b[1].ok/b[1].t)-(a[1].ok/a[1].t))[0];
-    // S más frecuente
-    const byS = {};
-    obsF.forEach(o=>{const k=o.s||"—";byS[k]=(byS[k]||0)+1;});
-    const topS = Object.entries(byS).sort((a,b)=>b[1]-a[1])[0];
-
-    const resumenLineas = [
-      `Durante ${semTexto} se registraron ${total} observaciones en total.`,
-      `De estas, ${corr} fueron corregidas (${pct}%) y ${noCorr+pend} permanecen pendientes.`,
-      topAreas.length>0?`Las áreas con mayor cantidad de observaciones: ${topAreas.join(", ")}.`:"",
-      mejorArea?`Mejor cumplimiento: ${mejorArea[0]} con ${Math.round(mejorArea[1].ok/mejorArea[1].t*100)}% corregido.`:"",
-      topS?`El tipo de falla más frecuente corresponde a ${topS[0]} (${topS[1]} casos).`:""
-    ].filter(Boolean);
-
-    doc.setTextColor(30,60,30);
-    doc.setFont("helvetica","normal");
-    doc.setFontSize(8);
-    let ry = yPos+11;
-    resumenLineas.forEach(linea=>{
-      const lines = doc.splitTextToSize(linea, W-36);
-      doc.text(lines, 18, ry);
-      ry += lines.length*4.5;
-    });
-
-    // ── TABLA PIVOT SECTOR × ESTADO ──────────────────────────────────
-    yPos = 96;
-    doc.setFont("helvetica","bold");
-    doc.setFontSize(9);
-    doc.setTextColor(30,124,52);
-    doc.text("RESUMEN POR SECTOR Y ESTADO", 14, yPos);
-    yPos += 4;
-
-    const sectores = {};
-    obsF.forEach(o=>{
-      const s = o.sector||"C";
-      if(!sectores[s])sectores[s]={corr:0,no:0,pen:0,total:0};
-      sectores[s].total++;
-      if(o.status==="CORREGIDO")sectores[s].corr++;
-      else if(o.status==="NO CORREGIDO")sectores[s].no++;
-      else sectores[s].pen++;
-    });
-    const totRow = {corr:0,no:0,pen:0,total:0};
-    Object.values(sectores).forEach(v=>{totRow.corr+=v.corr;totRow.no+=v.no;totRow.pen+=v.pen;totRow.total+=v.total;});
-
-    const pivotBody = Object.entries(sectores).sort().map(([k,v])=>[
-      `Sector ${k}`, v.corr, v.no, v.pen, v.total,
-      (v.total?Math.round(v.corr/v.total*100):0)+"%"
-    ]);
-    pivotBody.push(["TOTAL", totRow.corr, totRow.no, totRow.pen, totRow.total,
-      (totRow.total?Math.round(totRow.corr/totRow.total*100):0)+"%"]);
-
-    doc.autoTable({
-      startY: yPos,
-      head:[["Sector","Corregidas","No Corregidas","Pendientes","Total","% Cumpl."]],
-      body: pivotBody,
-      theme:"grid",
-      headStyles:{fillColor:[30,124,52],textColor:255,fontSize:8,fontStyle:"bold",halign:"center"},
-      bodyStyles:{fontSize:8,halign:"center"},
-      columnStyles:{0:{halign:"left",fontStyle:"bold"}},
-      didDrawCell:(data)=>{
-        if(data.section==="body"&&data.column.index===5){
-          const val=parseInt(data.cell.text[0]);
-          if(!isNaN(val)){
-            data.cell.styles.textColor=val>=80?[30,124,52]:val>=50?[217,119,6]:[230,51,41];
-            data.cell.styles.fontStyle="bold";
-          }
-        }
-        // Fila total con fondo
-        if(data.section==="body"&&data.row.index===pivotBody.length-1){
-          data.cell.styles.fillColor=[232,245,233];
-          data.cell.styles.fontStyle="bold";
-        }
-      },
-      margin:{left:14,right:14}
-    });
-
-    // ── TABLA CUMPLIMIENTO POR ÁREA ───────────────────────────────────
-    yPos = doc.lastAutoTable.finalY + 8;
-    doc.setFont("helvetica","bold");
-    doc.setFontSize(9);
-    doc.setTextColor(30,124,52);
-    doc.text("% CUMPLIMIENTO POR ÁREA", 14, yPos);
-    yPos += 4;
-
-    const byArea = {};
-    obsF.forEach(o=>{
-      if(!byArea[o.area])byArea[o.area]={corr:0,no:0,pen:0,total:0};
-      byArea[o.area].total++;
-      if(o.status==="CORREGIDO")byArea[o.area].corr++;
-      else if(o.status==="NO CORREGIDO")byArea[o.area].no++;
-      else byArea[o.area].pen++;
-    });
-
-    const areaBody = Object.entries(byArea)
-      .sort((a,b)=>b[1].total-a[1].total)
-      .map(([area,v])=>[
-        area, v.corr, v.no, v.pen, v.total,
-        (v.total?Math.round(v.corr/v.total*100):0)+"%"
-      ]);
-
-    doc.autoTable({
-      startY: yPos,
-      head:[["Área","Corregidas","No Corregidas","Pendientes","Total","% Cumpl."]],
-      body: areaBody,
-      theme:"striped",
-      headStyles:{fillColor:[21,90,37],textColor:255,fontSize:8,fontStyle:"bold",halign:"center"},
-      bodyStyles:{fontSize:8,halign:"center"},
-      columnStyles:{0:{halign:"left",fontStyle:"bold",cellWidth:45}},
-      alternateRowStyles:{fillColor:[247,248,246]},
-      didDrawCell:(data)=>{
-        if(data.section==="body"&&data.column.index===5){
-          const val=parseInt(data.cell.text[0]);
-          if(!isNaN(val)){
-            data.cell.styles.textColor=val>=80?[30,124,52]:val>=50?[217,119,6]:[230,51,41];
-            data.cell.styles.fontStyle="bold";
-          }
-        }
-      },
-      margin:{left:14,right:14}
-    });
-
-    // ── FOOTER ───────────────────────────────────────────────────────
-    const pages = doc.internal.getNumberOfPages();
-    for(let i=1;i<=pages;i++){
-      doc.setPage(i);
-      doc.setFillColor(30,124,52);
-      doc.rect(0,287,W,10,"F");
-      doc.setTextColor(255,255,255);
+      doc.setFontSize(20);
+      doc.text(k.val,x+kW/2,y+11,{align:"center"});
+      doc.setTextColor(100,100,100);
       doc.setFont("helvetica","normal");
       doc.setFontSize(7);
-      doc.text("Industrias San Miguel — Programa 5S",14,293);
-      doc.text(`Pág. ${i}/${pages}`,W-14,293,{align:"right"});
-      doc.text(fecha,W/2,293,{align:"center"});
+      doc.text(k.label,x+kW/2,y+16,{align:"center"});
+    });
+    y+=22;
+
+    // Barra % cumplimiento
+    const pctCol=pct>=80?G:pct>=50?A:R;
+    doc.setFillColor(232,240,232);
+    doc.roundedRect(M,y,CW,10,2,2,"F");
+    doc.setFillColor(...pctCol);
+    doc.roundedRect(M,y,CW*(pct/100),10,2,2,"F");
+    doc.setTextColor(...W);
+    doc.setFont("helvetica","bold");
+    doc.setFontSize(9);
+    doc.text(`% CUMPLIMIENTO: ${pct}%  (${corr} corregidas de ${total} observaciones)`,PW/2,y+6.5,{align:"center"});
+    y+=15;
+
+    // ── RESUMEN EJECUTIVO ─────────────────────────────────────────
+    // Calcular datos para resumen
+    const byArea={};
+    obsF.forEach(o=>{
+      if(!byArea[o.area])byArea[o.area]={t:0,ok:0,no:0};
+      byArea[o.area].t++;
+      if(o.status==="CORREGIDO")byArea[o.area].ok++;
+      else if(o.status==="NO CORREGIDO")byArea[o.area].no++;
+    });
+    const topArea=Object.entries(byArea).sort((a,b)=>b[1].t-a[1].t)[0];
+    const mejorArea=Object.entries(byArea).filter(([,v])=>v.t>=2).sort((a,b)=>(b[1].ok/b[1].t)-(a[1].ok/a[1].t))[0];
+    const peorArea=Object.entries(byArea).filter(([,v])=>v.t>=2).sort((a,b)=>(a[1].ok/a[1].t)-(b[1].ok/b[1].t))[0];
+    const byS={};
+    obsF.forEach(o=>{const k=o.s||"—";byS[k]=(byS[k]||0)+1;});
+    const topS=Object.entries(byS).sort((a,b)=>b[1]-a[1])[0];
+    const sems=[...new Set(obsF.map(o=>String(o.sem)).filter(Boolean))].sort((a,b)=>Number(b)-Number(a));
+    // Tendencia: comparar ultima semana vs anterior
+    let tendenciaTxt="";
+    if(sems.length>=2){
+      const ultima=obsF.filter(o=>String(o.sem)===sems[0]);
+      const anterior=obsF.filter(o=>String(o.sem)===sems[1]);
+      const pctUlt=ultima.length?Math.round(ultima.filter(o=>o.status==="CORREGIDO").length/ultima.length*100):0;
+      const pctAnt=anterior.length?Math.round(anterior.filter(o=>o.status==="CORREGIDO").length/anterior.length*100):0;
+      const diff=pctUlt-pctAnt;
+      tendenciaTxt=diff>0?`▲ Tendencia positiva: semana ${sems[0]} subió ${diff}% vs semana ${sems[1]}.`:
+                   diff<0?`▼ Tendencia negativa: semana ${sems[0]} bajó ${Math.abs(diff)}% vs semana ${sems[1]}.`:
+                   `→ Sin variación entre semana ${sems[0]} y ${sems[1]}.`;
     }
 
-    // ── GUARDAR ──────────────────────────────────────────────────────
-    const sem = [...new Set(obsF.map(o=>o.sem).filter(Boolean))].sort((a,b)=>Number(b)-Number(a))[0]||"";
-    doc.save(`Reporte5S_ISM_Sem${sem}_${new Date().toISOString().split("T")[0]}.pdf`);
-    showToast("✅ PDF generado");
+    const resumenLineas=[
+      `Se registraron ${total} observaciones en total: ${corr} corregidas (${pct}%) y ${noCorr} no corregidas.`,
+      topArea?`El área con mayor cantidad de observaciones es ${topArea[0]} con ${topArea[1].t} casos.`:"",
+      mejorArea?`Mejor cumplimiento: ${mejorArea[0]} con ${Math.round(mejorArea[1].ok/mejorArea[1].t*100)}% de corrección.`:"",
+      peorArea&&peorArea[0]!==mejorArea?.[0]?`Área crítica: ${peorArea[0]} con solo ${Math.round(peorArea[1].ok/peorArea[1].t*100)}% corregido.`:"",
+      topS?`El tipo de falla más frecuente es ${topS[0]} con ${topS[1]} observaciones (${total?Math.round(topS[1]/total*100):0}% del total).`:"",
+      tendenciaTxt
+    ].filter(Boolean);
+
+    // Caja resumen
+    const rH=6*resumenLineas.length+10;
+    doc.setFillColor(248,252,248);
+    doc.setDrawColor(...G);
+    doc.setLineWidth(0.5);
+    doc.roundedRect(M,y,CW,rH,2,2,"FD");
+    doc.setFillColor(...G);
+    doc.rect(M,y,3,rH,"F");
+    doc.setTextColor(...GD);
+    doc.setFont("helvetica","bold");
+    doc.setFontSize(8);
+    doc.text("ANÁLISIS EJECUTIVO",M+6,y+5);
+    doc.setFont("helvetica","normal");
+    doc.setTextColor(50,63,50);
+    doc.setFontSize(7.5);
+    resumenLineas.forEach((l,i)=>{
+      const lines=doc.splitTextToSize("• "+l,CW-10);
+      doc.text(lines,M+6,y+10+i*6);
+    });
+    y+=rH+6;
+
+    // ── TABLA PIVOT SECTOR × ESTADO ───────────────────────────────
+    const sects={};
+    obsF.forEach(o=>{
+      const s=o.sector||"C";
+      if(!sects[s])sects[s]={corr:0,no:0,total:0};
+      sects[s].total++;
+      if(o.status==="CORREGIDO")sects[s].corr++;
+      else if(o.status==="NO CORREGIDO")sects[s].no++;
+    });
+    const totR={corr:0,no:0,total:0};
+    Object.values(sects).forEach(v=>{totR.corr+=v.corr;totR.no+=v.no;totR.total+=v.total;});
+
+    const pivotBody=Object.entries(sects).sort().map(([k,v])=>[
+      "Sector "+k, v.corr, v.no, v.total,
+      (v.total?Math.round(v.corr/v.total*100):0)+"%"
+    ]);
+    pivotBody.push(["TOTAL GENERAL",totR.corr,totR.no,totR.total,
+      (totR.total?Math.round(totR.corr/totR.total*100):0)+"%"]);
+
+    doc.setFont("helvetica","bold");
+    doc.setFontSize(8);
+    doc.setTextColor(...G);
+    doc.text("RESUMEN POR SECTOR",M,y);
+    y+=3;
+    doc.autoTable({
+      startY:y,
+      head:[["Sector","Corregidas","No Corregidas","Total","% Cumpl."]],
+      body:pivotBody,
+      theme:"grid",
+      headStyles:{fillColor:G,textColor:W,fontSize:7.5,fontStyle:"bold",halign:"center",cellPadding:2},
+      bodyStyles:{fontSize:7.5,halign:"center",cellPadding:2},
+      columnStyles:{0:{halign:"left",fontStyle:"bold",cellWidth:35}},
+      didDrawCell:(d)=>{
+        if(d.section==="body"){
+          if(d.column.index===4){
+            const v=parseInt(d.cell.text[0]);
+            if(!isNaN(v))d.cell.styles.textColor=v>=80?G:v>=50?A:R;
+            d.cell.styles.fontStyle="bold";
+          }
+          if(d.row.index===pivotBody.length-1){
+            d.cell.styles.fillColor=[220,240,220];
+            d.cell.styles.fontStyle="bold";
+          }
+        }
+      },
+      margin:{left:M,right:M}
+    });
+    y=doc.lastAutoTable.finalY+6;
+
+    // ── TABLA CUMPLIMIENTO POR ÁREA ───────────────────────────────
+    const areaBody=Object.entries(byArea)
+      .sort((a,b)=>b[1].t-a[1].t)
+      .map(([area,v])=>[
+        area.length>22?area.substring(0,20)+"…":area,
+        v.ok, v.no, v.t,
+        (v.t?Math.round(v.ok/v.t*100):0)+"%"
+      ]);
+
+    doc.setFont("helvetica","bold");
+    doc.setFontSize(8);
+    doc.setTextColor(...G);
+    doc.text("% CUMPLIMIENTO POR ÁREA",M,y);
+    y+=3;
+    doc.autoTable({
+      startY:y,
+      head:[["Área","Corregidas","No Corregidas","Total","% Cumpl."]],
+      body:areaBody,
+      theme:"striped",
+      headStyles:{fillColor:GD,textColor:W,fontSize:7.5,fontStyle:"bold",halign:"center",cellPadding:2},
+      bodyStyles:{fontSize:7,halign:"center",cellPadding:2},
+      alternateRowStyles:{fillColor:[245,250,245]},
+      columnStyles:{0:{halign:"left",cellWidth:48}},
+      didDrawCell:(d)=>{
+        if(d.section==="body"&&d.column.index===4){
+          const v=parseInt(d.cell.text[0]);
+          if(!isNaN(v))d.cell.styles.textColor=v>=80?G:v>=50?A:R;
+          d.cell.styles.fontStyle="bold";
+        }
+      },
+      margin:{left:M,right:M}
+    });
+    y=doc.lastAutoTable.finalY+6;
+
+    // ── TENDENCIA POR SEMANA (mini tabla) ─────────────────────────
+    if(sems.length>0){
+      const semData=sems.slice(0,6).reverse().map(s=>{
+        const obs=obsF.filter(o=>String(o.sem)===s);
+        const c=obs.filter(o=>o.status==="CORREGIDO").length;
+        const n=obs.filter(o=>o.status==="NO CORREGIDO").length;
+        const t=obs.length;
+        const p=t?Math.round(c/t*100):0;
+        return ["Sem. "+s, c, n, t, p+"%"];
+      });
+      if(y<250){
+        doc.setFont("helvetica","bold");
+        doc.setFontSize(8);
+        doc.setTextColor(...G);
+        doc.text("TENDENCIA SEMANAL",M,y);
+        y+=3;
+        doc.autoTable({
+          startY:y,
+          head:[["Semana","Corregidas","No Corregidas","Total","% Cumpl."]],
+          body:semData,
+          theme:"plain",
+          headStyles:{fillColor:[21,90,37],textColor:W,fontSize:7,fontStyle:"bold",halign:"center",cellPadding:2},
+          bodyStyles:{fontSize:7,halign:"center",cellPadding:2},
+          columnStyles:{0:{halign:"left",fontStyle:"bold",cellWidth:25}},
+          didDrawCell:(d)=>{
+            if(d.section==="body"&&d.column.index===4){
+              const v=parseInt(d.cell.text[0]);
+              if(!isNaN(v))d.cell.styles.textColor=v>=80?G:v>=50?A:R;
+              d.cell.styles.fontStyle="bold";
+            }
+          },
+          margin:{left:M,right:M}
+        });
+      }
+    }
+
+    // ── FOOTER ────────────────────────────────────────────────────
+    doc.setFillColor(...G);
+    doc.rect(0,285,PW,12,"F");
+    doc.setTextColor(...W);
+    doc.setFont("helvetica","normal");
+    doc.setFontSize(7);
+    doc.text("Industrias San Miguel — Programa 5S",M,291);
+    doc.text(fecha,PW/2,291,{align:"center"});
+    doc.text("Página 1 de 1",PW-M,291,{align:"right"});
+
+    // ── GUARDAR ───────────────────────────────────────────────────
+    const semLabel=sems[0]?"_Sem"+sems[0]:"";
+    doc.save(`Reporte5S_ISM${semLabel}_${new Date().toISOString().split("T")[0]}.pdf`);
+    showToast("✅ PDF generado correctamente");
   }catch(e){
     console.error(e);
-    showToast("Error generando PDF: "+e.message,true);
+    showToast("Error PDF: "+e.message,true);
   }
-  btn.textContent="📄 PDF";
-  btn.disabled=false;
+  if(btn){btn.textContent="📄 PDF";btn.disabled=false;}
 }
 
-// ═══ UI HELPERS ═══
-function showTab(name){
-  document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
-  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
-  document.getElementById("tab-"+name).classList.add("active");
-  ["nuevo","lista","dashboard"].forEach((t,i)=>{
-    if(t===name)document.querySelectorAll(".tab")[i].classList.add("active");
-  });
-  if(name==="lista")filtrar();
-  if(name==="dashboard")renderDashboard();
-}
-function openModal(id){document.getElementById(id).classList.add("show");document.body.style.overflow="hidden";}
-function closeModal(id){document.getElementById(id).classList.remove("show");document.body.style.overflow="";}
-let toastT;
-function showToast(msg,isErr){
-  const t=document.getElementById("toast");
-  t.textContent=msg;t.className="show"+(isErr?" error":"");
-  clearTimeout(toastT);toastT=setTimeout(()=>t.className="",3500);
-}
-</script>
-</body>
-</html>
+>

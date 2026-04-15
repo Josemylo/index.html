@@ -68,7 +68,6 @@ textarea{resize:vertical;min-height:78px}
 .obs-card{background:#fff;border-radius:var(--r);box-shadow:var(--sh);margin-bottom:10px;border-left:4px solid var(--g200);overflow:hidden;cursor:pointer}
 .obs-card.corregido{border-left-color:var(--green)}
 .obs-card.no-corregido{border-left-color:var(--red)}
-.obs-card.pendiente{border-left-color:#FFC107}
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;padding:16px;overflow-y:auto}
 .modal-overlay.show{display:flex;align-items:flex-start;justify-content:center}
 .modal{background:#fff;border-radius:14px;padding:20px;width:100%;max-width:500px;box-shadow:var(--shl);margin:auto}
@@ -169,7 +168,6 @@ textarea{resize:vertical;min-height:78px}
     <select id="fil-area" class="filter-small" onchange="filtrar()"><option value="">Todas las áreas</option></select>
     <select id="fil-status" class="filter-small" onchange="filtrar()">
       <option value="">Todos los estados</option>
-      <option value="PENDIENTE">Pendiente</option>
       <option value="CORREGIDO">Corregido</option>
       <option value="NO CORREGIDO">No corregido</option>
     </select>
@@ -205,7 +203,7 @@ textarea{resize:vertical;min-height:78px}
   </div>
   <div style="margin-bottom:12px">
     <div class="kpi-box amber" style="padding:10px 16px;display:flex;align-items:center;justify-content:space-between">
-      <div class="kpi-lbl" style="margin-top:0">% CUMPLIMIENTO GENERAL</div>
+      <div class="kpi-lbl" style="margin-top:0">% Obs. Corregidas del Total</div>
       <div class="kpi-val" id="d-pct" style="font-size:28px">0%</div>
     </div>
   </div>
@@ -257,13 +255,18 @@ textarea{resize:vertical;min-height:78px}
     <div style="overflow-x:auto"><canvas id="chart-area-evol" style="min-width:280px"></canvas></div>
   </div>
   <!-- Sectores -->
-  <div class="dash-card"><div class="dash-card-title">🏭 Cumplimiento por sector</div><div id="d-sectores"></div></div>
+  <div class="dash-card"><div class="dash-card-title">🏭 Cumplimiento por sector</div><div style="font-size:10px;color:var(--g400);margin:-4px 0 8px;font-style:italic">Obs. corregidas ÷ total obs. del sector × 100</div><div id="d-sectores"></div></div>
   <!-- Responsables -->
-  <div class="dash-card"><div class="dash-card-title">👤 Cumplimiento por responsable</div><div id="d-responsables"></div></div>
+  <div class="dash-card"><div class="dash-card-title">👤 Cumplimiento por responsable</div><div style="font-size:10px;color:var(--g400);margin:-4px 0 8px;font-style:italic">Obs. corregidas ÷ total obs. asignadas al responsable × 100</div><div id="d-responsables"></div></div>
   <!-- Tabla pivot -->
-  <div class="dash-card"><div class="dash-card-title">📋 Resumen por sector y estado</div><div style="overflow-x:auto"><table id="tabla-pivot" class="dtbl"></table></div></div>
+  <div class="dash-card"><div class="dash-card-title">📋 Resumen por sector y estado</div><div style="font-size:10px;color:var(--g400);margin:-4px 0 8px;font-style:italic">Total de obs. por sector, clasificadas por estado de corrección</div><div style="overflow-x:auto"><table id="tabla-pivot" class="dtbl"></table></div></div>
   <!-- Tabla cumplimiento -->
-  <div class="dash-card"><div class="dash-card-title">📊 % Cumplimiento por área</div><div style="overflow-x:auto"><table id="tabla-cumpl" class="dtbl"></table></div></div>
+  <div class="dash-card"><div class="dash-card-title">📊 % Cumplimiento por área</div><div style="font-size:10px;color:var(--g400);margin:-4px 0 8px;font-style:italic">Obs. corregidas ÷ total obs. del área — mayor % indica mejor desempeño</div><div style="overflow-x:auto"><table id="tabla-cumpl" class="dtbl"></table></div></div>
+  <!-- Ranking zonas/equipos -->
+  <div class="dash-card">
+    <div class="dash-card-title">&#128205; Zonas/equipos con m&#225;s obs. no corregidas</div>
+    <div id="d-zonas-ranking"></div>
+  </div>
 </div>
 </main>
 
@@ -305,7 +308,7 @@ textarea{resize:vertical;min-height:78px}
     <div class="fg"><label>Descripción</label><textarea id="me-obs"></textarea></div>
     <div class="fg"><label>Responsable</label><input type="text" id="me-resp"></div>
     <div class="fg"><label>Estado</label>
-      <select id="me-status"><option value="PENDIENTE">PENDIENTE</option><option value="CORREGIDO">CORREGIDO</option><option value="NO CORREGIDO">NO CORREGIDO</option></select>
+      <select id="me-status"><option value="CORREGIDO">CORREGIDO</option><option value="NO CORREGIDO">NO CORREGIDO</option></select>
     </div>
     <div style="display:flex;gap:10px;margin-top:4px">
       <button class="btn-primary" onclick="confirmarEditar()" style="flex:1">Guardar</button>
@@ -452,7 +455,7 @@ async function guardarObservacion(){
     const {data,error}=await sb.from("observaciones").insert({
       num:observations.length+1,sem:document.getElementById("f-sem").value,fecha:window._fecha,auditor,
       area:area.replace(/_/g," "),sector:document.getElementById("f-sector").value,zona:document.getElementById("f-zona").value,
-      tipo,s:selectedS||"—",obs,responsable:document.getElementById("f-responsable").value.trim(),status:"PENDIENTE",fotos:fotosUrls
+      tipo,s:selectedS||"—",obs,responsable:document.getElementById("f-responsable").value.trim(),status:"NO CORREGIDO",fotos:fotosUrls
     }).select().single();
     if(error)throw error;
     observations.unshift(data);
@@ -581,8 +584,8 @@ function filtrar(){
   if(!list.length){el.innerHTML='<div class="empty"><div class="empty-ico">&#128203;</div><p>No hay observaciones.</p></div>';return;}
   const today=new Date();today.setHours(0,0,0,0);
   el.innerHTML=list.map(o=>{
-    const cls=o.status==="CORREGIDO"?"corregido":o.status==="NO CORREGIDO"?"no-corregido":"pendiente";
-    const bCls=o.status==="CORREGIDO"?"b-ok":o.status==="NO CORREGIDO"?"b-no":"b-pen";
+    const cls=o.status==="CORREGIDO"?"corregido":"no-corregido";
+    const bCls=o.status==="CORREGIDO"?"b-ok":"b-no";
     const sBadge="b-"+(o.s||"1s").toLowerCase();
     const fechaObs=new Date(o.fecha);fechaObs.setHours(0,0,0,0);
     const dias=Math.floor((today-fechaObs)/(1000*60*60*24));
@@ -617,6 +620,7 @@ function renderDashboard(){
   document.getElementById("d-corregidas").textContent=corr;
   document.getElementById("d-no-corr").textContent=noCorr;
   document.getElementById("d-pct").textContent=pct+"%";
+  // % Cumplimiento = Corregidas / Total (observaciones ya atendidas)
   document.getElementById("d-pct2").textContent=pct+"%";
   const G="#1E7C34",R="#E63329",A="#D97706";
 
@@ -649,6 +653,7 @@ function renderDashboard(){
   renderTablas();
   renderEvolucion();
   renderEvolArea();
+  renderZonasRanking();
 }
 
 function renderTablas(){
@@ -794,6 +799,52 @@ async function exportarPDF(){
     showToast("PDF generado");
   }catch(e){console.error(e);showToast("Error PDF: "+e.message,true);}
   if(btn){btn.textContent="PDF";btn.disabled=false;}
+}
+
+function renderZonasRanking(){
+  const obsF = getObsFiltradas();
+  const G="#1E7C34", R="#E63329", A="#D97706";
+
+  // Agrupar por zona solo obs NO CORREGIDAS
+  const byZona = {};
+  obsF.forEach(o => {
+    if(o.status === "CORREGIDO") return; // solo no corregidas
+    const zona = (o.zona && o.zona !== "— Zona —" && o.zona !== "") ? o.zona : "(Sin zona)";
+    const key = o.area + " — " + zona;
+    if(!byZona[key]) byZona[key] = {area: o.area, zona, count: 0, obs: []};
+    byZona[key].count++;
+    byZona[key].obs.push(o);
+  });
+
+  const el = document.getElementById("d-zonas-ranking");
+  if(!el) return;
+
+  const sorted = Object.entries(byZona).sort((a,b) => b[1].count - a[1].count).slice(0, 10);
+
+  if(!sorted.length){
+    el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--green);font-size:13px;font-weight:600">No hay observaciones no corregidas</div>';
+    return;
+  }
+
+  const maxCount = sorted[0][1].count;
+
+  el.innerHTML = sorted.map(([key, v], i) => {
+    const pct = Math.round(v.count / maxCount * 100);
+    const rankColor = i === 0 ? R : i <= 2 ? A : G;
+    const badgeStyle = `background:${rankColor}22;color:${rankColor};font-size:11px;font-weight:800;padding:2px 8px;border-radius:12px;flex-shrink:0`;
+    return `<div style="margin-bottom:10px;padding:10px 12px;background:var(--g50);border-radius:8px;border-left:3px solid ${rankColor}">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:5px;gap:8px">
+        <div style="flex:1;min-width:0">
+          <div style="font-size:11px;font-weight:700;color:var(--g700);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${v.zona}</div>
+          <div style="font-size:10px;color:var(--g400);margin-top:1px">${v.area}</div>
+        </div>
+        <span style="${badgeStyle}">${v.count} obs.</span>
+      </div>
+      <div style="height:5px;background:var(--g200);border-radius:20px;overflow:hidden">
+        <div style="height:100%;width:${pct}%;background:${rankColor};border-radius:20px;transition:width .6s"></div>
+      </div>
+    </div>`;
+  }).join("");
 }
 
 function showTab(name){

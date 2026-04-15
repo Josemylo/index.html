@@ -207,6 +207,20 @@ textarea{resize:vertical;min-height:78px}
       <div class="kpi-val" id="d-pct" style="font-size:28px">0%</div>
     </div>
   </div>
+  <!-- Semáforo + comparativo -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+    <!-- Top/Peor áreas -->
+    <div class="dash-card" style="margin-bottom:0">
+      <div class="dash-card-title">&#127942; Mejor / Peor área</div>
+      <div style="font-size:10px;color:var(--g400);margin:-4px 0 8px;font-style:italic">Semana actual vs anterior</div>
+      <div id="d-top-areas" style="padding:2px 0"></div>
+    </div>
+    <!-- Comparativo semana -->
+    <div class="dash-card" style="margin-bottom:0">
+      <div class="dash-card-title">&#128200; vs semana anterior</div>
+      <div id="d-comparativo" style="padding:4px 0"></div>
+    </div>
+  </div>
   <!-- Donuts -->
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
     <div class="dash-card" style="margin-bottom:0">
@@ -221,7 +235,7 @@ textarea{resize:vertical;min-height:78px}
       <div id="legend-status" style="margin-top:8px"></div>
     </div>
     <div class="dash-card" style="margin-bottom:0">
-      <div class="dash-card-title">Fallos por S</div>
+      <div class="dash-card-title">Obs. por &quot;S&quot;</div>
       <div style="position:relative;width:100px;height:100px;margin:0 auto">
         <canvas id="chart-donut-s"></canvas>
         <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none">
@@ -654,6 +668,7 @@ function renderDashboard(){
   renderEvolucion();
   renderEvolArea();
   renderZonasRanking();
+  renderSemaforoComparativo();
 }
 
 function renderTablas(){
@@ -801,47 +816,170 @@ async function exportarPDF(){
   if(btn){btn.textContent="PDF";btn.disabled=false;}
 }
 
-function renderZonasRanking(){
+function renderSemaforoComparativo(){
   const obsF = getObsFiltradas();
   const G="#1E7C34", R="#E63329", A="#D97706";
 
-  // Agrupar por zona solo obs NO CORREGIDAS
+  // Semanas disponibles
+  const sems = [...new Set(obsF.map(o=>String(o.sem)).filter(Boolean))]
+    .sort((a,b)=>Number(b)-Number(a));
+  const semActual = sems[0]||null;
+  const semAnt    = sems[1]||null;
+
+  // ── TOP / PEOR ÁREAS (semana actual) ─────────────────────
+  const topEl = document.getElementById("d-top-areas");
+  if(topEl){
+    const obsSem = semActual ? obsF.filter(o=>String(o.sem)===semActual) : obsF;
+    const byArea = {};
+    obsSem.forEach(o=>{
+      if(!byArea[o.area]) byArea[o.area]={t:0,ok:0};
+      byArea[o.area].t++;
+      if(o.status==="CORREGIDO") byArea[o.area].ok++;
+    });
+    const areas = Object.entries(byArea)
+      .filter(([,v])=>v.t>=1)
+      .map(([area,v])=>({area, pct:Math.round(v.ok/v.t*100), t:v.t, ok:v.ok}))
+      .sort((a,b)=>b.pct-a.pct);
+
+    if(areas.length === 0){
+      topEl.innerHTML = '<p style="font-size:11px;color:var(--g400);text-align:center">Sin datos de la semana actual</p>';
+    } else {
+      const top3    = areas.slice(0,3);
+      const peor3   = areas.slice(-3).reverse();
+      const semLbl  = semActual ? `Sem. ${semActual}` : "Todas";
+
+      topEl.innerHTML = `
+        <div style="font-size:9px;font-weight:700;color:var(--g400);text-transform:uppercase;margin-bottom:5px">${semLbl} — Mejor desempeño</div>
+        ${top3.map((a,i)=>{
+          const medals = ["🥇","🥈","🥉"];
+          const nombre = a.area.length>18 ? a.area.substring(0,16)+"…" : a.area;
+          return `<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+            <span style="font-size:13px;flex-shrink:0">${medals[i]||""}</span>
+            <span style="font-size:10px;color:var(--g700);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${nombre}</span>
+            <span style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;color:${G};flex-shrink:0">${a.pct}%</span>
+          </div>`;
+        }).join("")}
+        <div style="border-top:1px solid var(--g100);margin:6px 0"></div>
+        <div style="font-size:9px;font-weight:700;color:var(--g400);text-transform:uppercase;margin-bottom:5px">Requiere atención</div>
+        ${peor3.map((a,i)=>{
+          const nombre = a.area.length>18 ? a.area.substring(0,16)+"…" : a.area;
+          return `<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+            <span style="font-size:13px;flex-shrink:0">⚠️</span>
+            <span style="font-size:10px;color:var(--g700);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${nombre}</span>
+            <span style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;color:${a.pct<50?R:A};flex-shrink:0">${a.pct}%</span>
+          </div>`;
+        }).join("")}`;
+    }
+  }
+
+  // ── COMPARATIVO SEMANA ANTERIOR ────────────────────────────
+  const compEl = document.getElementById("d-comparativo");
+  if(!compEl) return;
+
+  if(sems.length < 2){
+    compEl.innerHTML = `<div style="font-size:11px;color:var(--g400);text-align:center;padding:14px 0">Sin semana anterior para comparar</div>`;
+    return;
+  }
+
+  const obsAct = obsF.filter(o=>String(o.sem)===semActual);
+  const obsAnt = obsF.filter(o=>String(o.sem)===semAnt);
+  const pctAct = obsAct.length ? Math.round(obsAct.filter(o=>o.status==="CORREGIDO").length/obsAct.length*100) : 0;
+  const pctAnt = obsAnt.length ? Math.round(obsAnt.filter(o=>o.status==="CORREGIDO").length/obsAnt.length*100) : 0;
+  const diff = pctAct - pctAnt;
+  const diffColor = diff > 0 ? G : diff < 0 ? R : A;
+  const diffIco   = diff > 0 ? "▲" : diff < 0 ? "▼" : "→";
+  const diffLabel = diff > 0 ? "Mejora" : diff < 0 ? "Retroceso" : "Sin cambio";
+
+  compEl.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <div style="text-align:center;flex:1">
+        <div style="font-size:9px;color:var(--g400);font-weight:600;text-transform:uppercase;margin-bottom:2px">Sem. ${semAnt}</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:800;color:var(--g700)">${pctAnt}%</div>
+        <div style="font-size:9px;color:var(--g400)">${obsAnt.length} obs.</div>
+      </div>
+      <div style="text-align:center;padding:0 6px">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:800;color:${diffColor}">${diffIco}</div>
+        <div style="font-size:10px;color:${diffColor};font-weight:700">${Math.abs(diff)}%</div>
+      </div>
+      <div style="text-align:center;flex:1">
+        <div style="font-size:9px;color:var(--g400);font-weight:600;text-transform:uppercase;margin-bottom:2px">Sem. ${semActual}</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:800;color:${diffColor}">${pctAct}%</div>
+        <div style="font-size:9px;color:var(--g400)">${obsAct.length} obs.</div>
+      </div>
+    </div>
+    <div style="background:${diffColor}18;border-radius:6px;padding:5px 8px;text-align:center">
+      <span style="font-size:10px;font-weight:700;color:${diffColor}">${diffLabel}: ${diff>0?"+":""}${diff}% vs semana anterior</span>
+    </div>`;
+}
+
+
+function renderZonasRanking(){
+  const obsF = getObsFiltradas();
+  const G="#1E7C34", R="#E63329", A="#D97706";
+  const today = new Date(); today.setHours(0,0,0,0);
+
+  // Solo obs NO CORREGIDAS agrupadas por zona
   const byZona = {};
   obsF.forEach(o => {
-    if(o.status === "CORREGIDO") return; // solo no corregidas
-    const zona = (o.zona && o.zona !== "— Zona —" && o.zona !== "") ? o.zona : "(Sin zona)";
-    const key = o.area + " — " + zona;
-    if(!byZona[key]) byZona[key] = {area: o.area, zona, count: 0, obs: []};
+    if(o.status === "CORREGIDO") return;
+    const zona = (o.zona && o.zona.trim() !== "" && o.zona !== "— Zona —") ? o.zona : "(Sin zona)";
+    const key = o.area + "|||" + zona;
+    if(!byZona[key]){
+      byZona[key] = {area:o.area, zona, count:0, diasMax:0, responsable:o.responsable||"—", fallos:{}};
+    }
     byZona[key].count++;
-    byZona[key].obs.push(o);
+    // Días sin corregir — el más antiguo
+    if(o.fecha){
+      const fObs = new Date(o.fecha); fObs.setHours(0,0,0,0);
+      const dias = Math.floor((today - fObs)/(1000*60*60*24));
+      if(dias > byZona[key].diasMax) byZona[key].diasMax = dias;
+    }
+    // Falla más frecuente
+    const s = o.s||"—";
+    byZona[key].fallos[s] = (byZona[key].fallos[s]||0)+1;
   });
 
   const el = document.getElementById("d-zonas-ranking");
   if(!el) return;
 
-  const sorted = Object.entries(byZona).sort((a,b) => b[1].count - a[1].count).slice(0, 10);
+  const sorted = Object.entries(byZona)
+    .sort((a,b) => b[1].count - a[1].count)
+    .slice(0, 10);
 
   if(!sorted.length){
-    el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--green);font-size:13px;font-weight:600">No hay observaciones no corregidas</div>';
+    el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--green);font-size:13px;font-weight:600">&#10003; Sin observaciones no corregidas</div>';
     return;
   }
 
   const maxCount = sorted[0][1].count;
+  const sCols={"1S":"#E65100","2S":"#1B5E20","3S":"#0D47A1","4S":"#4A148C","5S":"#880E4F","EPP":"#C2410C","—":"#888"};
 
   el.innerHTML = sorted.map(([key, v], i) => {
     const pct = Math.round(v.count / maxCount * 100);
-    const rankColor = i === 0 ? R : i <= 2 ? A : G;
-    const badgeStyle = `background:${rankColor}22;color:${rankColor};font-size:11px;font-weight:800;padding:2px 8px;border-radius:12px;flex-shrink:0`;
+    const rankColor = i === 0 ? R : i <= 2 ? A : "#555";
+    // Top falla
+    const topFalla = Object.entries(v.fallos).sort((a,b)=>b[1]-a[1])[0];
+    const topS = topFalla ? topFalla[0] : "—";
+    const sCol = sCols[topS]||"#888";
+    // Días badge color
+    const diasCol = v.diasMax > 14 ? R : v.diasMax > 7 ? A : G;
+    const nombre = v.responsable.length > 30 ? v.responsable.substring(0,28)+"…" : v.responsable;
+
     return `<div style="margin-bottom:10px;padding:10px 12px;background:var(--g50);border-radius:8px;border-left:3px solid ${rankColor}">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:5px;gap:8px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:6px">
         <div style="flex:1;min-width:0">
-          <div style="font-size:11px;font-weight:700;color:var(--g700);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${v.zona}</div>
+          <div style="font-size:12px;font-weight:700;color:var(--g900);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${v.zona}</div>
           <div style="font-size:10px;color:var(--g400);margin-top:1px">${v.area}</div>
         </div>
-        <span style="${badgeStyle}">${v.count} obs.</span>
+        <span style="background:${rankColor}22;color:${rankColor};font-size:13px;font-weight:800;padding:2px 10px;border-radius:12px;flex-shrink:0">${v.count} obs.</span>
       </div>
-      <div style="height:5px;background:var(--g200);border-radius:20px;overflow:hidden">
+      <div style="height:4px;background:var(--g200);border-radius:20px;overflow:hidden;margin-bottom:8px">
         <div style="height:100%;width:${pct}%;background:${rankColor};border-radius:20px;transition:width .6s"></div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;font-size:10px">
+        <span style="background:${diasCol}18;color:${diasCol};padding:2px 7px;border-radius:8px;font-weight:600">&#9201; ${v.diasMax === 0 ? "Hoy" : v.diasMax + "d sin corregir"}</span>
+        <span style="background:${sCol}18;color:${sCol};padding:2px 7px;border-radius:8px;font-weight:600">${topS}</span>
+        <span style="background:var(--g100);color:var(--g700);padding:2px 7px;border-radius:8px">&#128100; ${nombre}</span>
       </div>
     </div>`;
   }).join("");

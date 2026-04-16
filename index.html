@@ -128,13 +128,13 @@ textarea{resize:vertical;min-height:78px}
   <div class="card">
     <div class="card-title">📋 Nueva observación</div>
     <div class="fg"><label>Semana</label><input type="text" id="f-sem" readonly style="background:var(--g50);font-weight:700;color:var(--green)"></div>
-    <div class="fg"><label>Responsable de Registro</label><input type="text" id="f-auditor" placeholder="Tu nombre completo"></div>
+    <div class="fg"><label>Responsable de Registro <span style="color:var(--red);margin-left:2px">*</span></label><input type="text" id="f-auditor" placeholder="Tu nombre completo" oninput="this.style.borderColor=this.value?'var(--green)':''"></div>
     <div class="fg"><label>Área</label><select id="f-area" onchange="updateZonas()"><option value="">— Selecciona área —</option></select></div>
     <div class="row2">
       <div class="fg"><label>Sector</label><select id="f-sector" disabled><option value="">—</option></select></div>
-      <div class="fg"><label>Zona / Equipo</label><select id="f-zona" disabled onchange="onZonaChange()"><option value="">—</option></select></div>
+      <div class="fg"><label>Zona / Equipo <span style="color:var(--red);margin-left:2px">*</span></label><select id="f-zona" disabled onchange="onZonaChange()"><option value="">—</option></select></div>
     </div>
-    <div class="fg"><label>Tipo de observación</label><select id="f-tipo" onchange="autoS()"><option value="">— Selecciona tipo —</option></select></div>
+    <div class="fg"><label>Tipo de observación <span style="color:var(--red);margin-left:2px">*</span></label><select id="f-tipo" onchange="autoS()"><option value="">— Selecciona tipo —</option></select></div>
     <div class="fg">
       <label>"S" observada</label>
       <div class="s-sel">
@@ -146,14 +146,15 @@ textarea{resize:vertical;min-height:78px}
         <button class="s-btn" type="button">EPP<span>Seguridad</span></button>
       </div>
     </div>
-    <div class="fg"><label>Descripción</label><textarea id="f-obs" placeholder="Describe la situación encontrada..."></textarea></div>
+    <div class="fg"><label>Descripción <span style="color:var(--red);margin-left:2px">*</span></label><textarea id="f-obs" placeholder="Describe la situación encontrada..." oninput="this.style.borderColor=this.value?'var(--green)':''" style="min-height:90px"></textarea></div>
     <div class="fg"><label>Responsable del área</label><input type="text" id="f-responsable" readonly style="background:var(--g50);color:var(--g700)" placeholder="Se asigna automáticamente"></div>
     <div class="fg">
-      <label>Foto de evidencia (antes)</label>
-      <div class="photo-drop">
+      <label>Foto de evidencia (antes) <span style="color:var(--red);margin-left:2px">*</span></label>
+      <div class="photo-drop" id="drop-nuevo" style="border-color:var(--red)">
         <input type="file" accept="image/*" capture="environment" multiple onchange="handlePhotos(this)">
         <div style="font-size:28px;margin-bottom:5px">📷</div>
         <p style="font-size:13px;color:var(--g400)">Toca para tomar foto o seleccionar</p>
+        <p style="font-size:11px;color:var(--red);font-weight:600;margin-top:4px">Obligatoria</p>
       </div>
       <div class="upload-progress" id="prog-nuevo"><div class="upload-progress-fill" id="prog-nuevo-fill"></div></div>
       <div class="photo-prev" id="prev-nuevo"></div>
@@ -293,13 +294,14 @@ textarea{resize:vertical;min-height:78px}
     <div id="mo-fotos-antes" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px"></div>
     <div id="mo-cierre-section">
       <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.4px;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--g100)">✅ Cerrar observación</div>
-      <div class="fg"><label>Comentario de corrección</label><textarea id="mo-comentario" placeholder="¿Cómo se corrigió?"></textarea></div>
+      <div class="fg"><label>Comentario de corrección <span style="font-size:10px;color:var(--g400);font-weight:400">(opcional)</span></label><textarea id="mo-comentario" placeholder="¿Cómo se corrigió? (opcional)"></textarea></div>
       <div class="fg">
-        <label>Foto del "después" (opcional)</label>
-        <div class="photo-drop">
+        <label>Foto del "después" <span style="color:var(--red);margin-left:2px">*</span></label>
+        <div class="photo-drop" id="drop-cierre" style="border-color:var(--red)">
           <input type="file" accept="image/*" capture="environment" onchange="handleFotoCierre(this)">
           <div style="font-size:24px;margin-bottom:4px">📷</div>
           <p style="font-size:12px;color:var(--g400)">Evidencia del cierre</p>
+          <p style="font-size:11px;color:var(--red);font-weight:600;margin-top:4px">Obligatoria</p>
         </div>
         <div class="upload-progress" id="prog-cierre"><div class="upload-progress-fill" id="prog-cierre-fill"></div></div>
         <div class="photo-prev" id="prev-cierre"></div>
@@ -309,7 +311,7 @@ textarea{resize:vertical;min-height:78px}
     <div id="mo-foto-despues" style="display:none;margin-bottom:14px"></div>
     <div style="display:flex;gap:8px;flex-wrap:wrap">
       <button class="btn-ghost" onclick="abrirEditar()" style="flex:1;justify-content:center">✏️ Editar</button>
-      <button class="btn-red" onclick="abrirEliminar()">🗑️</button>
+      <!-- Eliminar deshabilitado por política -->
       <button class="btn-ghost" onclick="closeModal('modal-obs')" style="border-color:var(--g200);color:var(--g400);flex:1;justify-content:center">Cerrar</button>
     </div>
   </div>
@@ -330,18 +332,7 @@ textarea{resize:vertical;min-height:78px}
     </div>
   </div>
 </div>
-<!-- MODAL ELIMINAR -->
-<div class="modal-overlay" id="modal-eliminar">
-  <div class="modal">
-    <div class="modal-title">🗑️ Eliminar</div>
-    <input type="hidden" id="mdel-id">
-    <p style="font-size:14px;color:var(--g700);margin-bottom:16px;line-height:1.6">¿Estás seguro? Esta acción no se puede deshacer.</p>
-    <div style="display:flex;gap:10px">
-      <button class="btn-primary" onclick="confirmarEliminar()" style="flex:1;background:var(--red)">Sí, eliminar</button>
-      <button class="btn-ghost" onclick="closeModal('modal-eliminar')">Cancelar</button>
-    </div>
-  </div>
-</div>
+<!-- Modal eliminar deshabilitado por política de integridad de datos -->
 <div id="toast"></div>
 
 <script>
@@ -437,6 +428,7 @@ function selectS(v){
 
 function handlePhotos(input){
   const prev=document.getElementById("prev-nuevo");
+  const drop=document.getElementById("drop-nuevo");
   Array.from(input.files).forEach(file=>{
     if(photosNuevo.length>=5){showToast("Máximo 5 fotos",true);return;}
     photosNuevo.push(file);
@@ -444,11 +436,17 @@ function handlePhotos(input){
     r.onload=e=>{const img=document.createElement("img");img.src=e.target.result;prev.appendChild(img);};
     r.readAsDataURL(file);
   });
+  if(drop&&photosNuevo.length>0){
+    drop.style.borderColor="var(--green)";
+    drop.querySelector("p:last-child").textContent="";
+  }
 }
 function handleFotoCierre(input){
   photoCierre=null;document.getElementById("prev-cierre").innerHTML="";
+  const dropC=document.getElementById("drop-cierre");
   const file=input.files[0];if(!file)return;
   photoCierre=file;
+  if(dropC){dropC.style.borderColor="var(--green)";}
   const r=new FileReader();
   r.onload=e=>{document.getElementById("prev-cierre").innerHTML=`<img src="${e.target.result}" style="width:68px;height:68px;object-fit:cover;border-radius:6px;border:2px solid var(--g200)">`;};
   r.readAsDataURL(file);
@@ -459,7 +457,13 @@ async function guardarObservacion(){
   const tipo=document.getElementById("f-tipo").value;
   const obs=document.getElementById("f-obs").value.trim();
   const auditor=document.getElementById("f-auditor").value.trim();
-  if(!area||!tipo||!obs||!auditor){showToast("Completa: nombre, área, tipo y descripción",true);return;}
+  const zona=document.getElementById("f-zona").value;
+  if(!auditor){showToast("Escribe el nombre del responsable de registro",true);document.getElementById("f-auditor").style.borderColor="var(--red)";return;}
+  if(!area){showToast("Selecciona el área",true);return;}
+  if(!zona||zona.includes("—")){showToast("Selecciona la zona / equipo",true);return;}
+  if(!tipo){showToast("Selecciona el tipo de observación",true);return;}
+  if(!obs){showToast("Escribe la descripción de la observación",true);document.getElementById("f-obs").style.borderColor="var(--red)";return;}
+  if(photosNuevo.length===0){showToast("La foto de evidencia (antes) es obligatoria",true);document.getElementById("drop-nuevo").style.borderColor="var(--red)";return;}
   const btn=document.getElementById("btn-guardar");
   btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Guardando...';
   try{
@@ -481,6 +485,8 @@ async function guardarObservacion(){
     document.getElementById("prev-nuevo").innerHTML="";
     document.querySelectorAll(".s-btn").forEach(b=>b.classList.remove("active"));
     selectedS="";photosNuevo=[];
+    const dropN=document.getElementById("drop-nuevo");
+    if(dropN){dropN.style.borderColor="var(--red)";}
     showToast("Observacion guardada");
     filtrar();renderDashboard();
   }catch(e){console.error(e);showToast("Error: "+(e.message||JSON.stringify(e)),true);}
@@ -512,14 +518,14 @@ function abrirDetalle(id){
   }else{fdEl.style.display="none";}
   const sc=document.getElementById("mo-cierre-section");
   if(corregida){sc.style.display="none";}
-  else{sc.style.display="block";document.getElementById("mo-comentario").value="";document.getElementById("prev-cierre").innerHTML="";photoCierre=null;}
+  else{sc.style.display="block";document.getElementById("mo-comentario").value="";document.getElementById("prev-cierre").innerHTML="";const dc=document.getElementById("drop-cierre");if(dc)dc.style.borderColor="var(--red)";photoCierre=null;}
   openModal("modal-obs");
 }
 
 async function cerrarObservacion(){
   const id=parseInt(document.getElementById("mo-id").value);
   const comentario=document.getElementById("mo-comentario").value.trim();
-  if(!comentario){showToast("Agrega un comentario de corrección",true);return;}
+  if(!photoCierre){showToast("La foto del después es obligatoria para cerrar",true);document.getElementById("drop-cierre").style.borderColor="var(--red)";return;}
   const btn=document.getElementById("btn-cerrar-obs");
   btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Guardando...';
   try{

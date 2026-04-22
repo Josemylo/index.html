@@ -561,6 +561,8 @@ function abrirDetalle(id){
   document.getElementById("modal-obs-title").textContent=`OBS-${String(obs.num).padStart(3,"0")} - ${obs.area}`;
   document.getElementById("mo-detalle").innerHTML=`
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 14px;font-size:12px">
+      <div><span style="color:var(--g400)">N° Obs.:</span> <strong>OBS-${String(obs.num).padStart(3,"0")}</strong></div>
+      <div><span style="color:var(--g400)">Fecha:</span> <strong>${obs.fecha||"—"}</strong></div>
       <div><span style="color:var(--g400)">Semana:</span> <strong>${obs.sem}</strong></div>
       <div><span style="color:var(--g400)">Sector:</span> <strong>${obs.sector||"—"}</strong></div>
       <div style="grid-column:1/-1"><span style="color:var(--g400)">Area:</span> <strong>${obs.area}</strong></div>

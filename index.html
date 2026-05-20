@@ -1167,6 +1167,7 @@ function iniciarRecorrido(){
 
 function iniciarAuditoria(){
   document.getElementById("pantalla-bienvenida").style.display="none";
+  cargarAuditorias();
   document.getElementById("app-recorrido").style.display="none";
   document.getElementById("app-auditoria").style.display="block";
   document.getElementById("a-fecha").value=new Date().toLocaleDateString("es-PE",{day:"2-digit",month:"2-digit",year:"numeric"});
@@ -1531,6 +1532,331 @@ async function exportarPDFAuditoria(){
   }catch(e){console.error(e);showToast("Error PDF: "+e.message,true);}
 }
 
+
+// ═══ AUDITORÍA — TABS Y DATOS ═══
+let auditorias = []; // historial de auditorías desde Supabase
+
+async function cargarAuditorias(){
+  try{
+    const {data,error}=await sb.from("auditorias_5s_ism").select("*").order("created_at",{ascending:false});
+    if(error)throw error;
+    auditorias=data||[];
+    // Llenar filtros
+    const areas=[...new Set(auditorias.map(a=>a.area).filter(Boolean))].sort();
+    const sects=[...new Set(auditorias.map(a=>a.sector).filter(Boolean))].sort();
+    ["hfil-area","dfil-area"].forEach(id=>{
+      const el=document.getElementById(id);if(!el)return;
+      const cur=el.value;
+      el.innerHTML='<option value="">Todas las áreas</option>';
+      areas.forEach(a=>el.innerHTML+=`<option value="${a}" ${a===cur?"selected":""}>${a}</option>`);
+    });
+    ["dfil-sector"].forEach(id=>{
+      const el=document.getElementById(id);if(!el)return;
+      el.innerHTML='<option value="">Todos los sectores</option>';
+      sects.forEach(s=>el.innerHTML+=`<option value="${s}">${s}</option>`);
+    });
+    renderHistorial();
+    renderAuditDashboard();
+  }catch(e){console.error(e);showToast("Error cargando auditorías: "+e.message,true);}
+}
+
+function showAuditTab(name){
+  ["nueva","historial","dashboard"].forEach(t=>{
+    const sec=document.getElementById("asec-"+t);
+    const tab=document.getElementById("atab-"+t);
+    if(sec)sec.style.display=t===name?"block":"none";
+    if(tab){
+      tab.style.color=t===name?"#fff":"rgba(255,255,255,.6)";
+      tab.style.borderBottomColor=t===name?"var(--amber)":"transparent";
+    }
+  });
+  if(name==="historial")renderHistorial();
+  if(name==="dashboard"){cargarAuditorias();renderAuditDashboard();}
+}
+
+// ═══ HISTORIAL ═══
+function renderHistorial(){
+  const filArea=document.getElementById("hfil-area")?.value||"";
+  const filNivel=document.getElementById("hfil-nivel")?.value||"";
+  const el=document.getElementById("historial-list");if(!el)return;
+  let list=auditorias.filter(a=>{
+    if(filArea&&a.area!==filArea)return false;
+    if(filNivel&&a.nivel!==filNivel)return false;
+    return true;
+  });
+  if(!list.length){el.innerHTML='<div class="empty"><div class="empty-ico">&#128202;</div><p>No hay auditorías registradas.</p></div>';return;}
+  const G="#1E7C34",R="#E63329",A="#D97706";
+  el.innerHTML=list.map(a=>{
+    const col=a.nivel==="Excelente"?G:a.nivel==="Bueno"?"#2E7D32":a.nivel==="Regular"?A:R;
+    const incumpl=JSON.parse(a.incumplimientos||"[]");
+    const detalles=JSON.parse(a.detalles||"[]");
+    return `<div class="dash-card" style="margin-bottom:12px;border-left:4px solid ${col}">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+        <div>
+          <div style="font-size:13px;font-weight:700;color:var(--g900)">${a.area}</div>
+          <div style="font-size:11px;color:var(--g400);margin-top:2px">${a.sector} · ${a.fecha} · &#128100; ${a.auditor}</div>
+          <div style="font-size:11px;color:var(--g400)">Responsable: <strong>${a.responsable||"—"}</strong></div>
+        </div>
+        <div style="text-align:center;flex-shrink:0;margin-left:12px">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:800;color:${col}">${a.puntaje_total}</div>
+          <div style="font-size:9px;color:${col};font-weight:700;text-transform:uppercase">${a.nivel}</div>
+          <div style="font-size:10px;color:var(--g400)">${a.pct_cumplimiento}%</div>
+        </div>
+      </div>
+      <!-- Barra puntaje -->
+      <div style="height:6px;background:var(--g100);border-radius:20px;overflow:hidden;margin-bottom:10px">
+        <div style="height:100%;width:${a.pct_cumplimiento}%;background:${col};border-radius:20px;transition:width .6s"></div>
+      </div>
+      <!-- Mini KPIs por pilar -->
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:${incumpl.length>0?10:0}px">
+        ${detalles.length>0?["1S","2S","3S","4S","5S"].map((s,i)=>{
+          const nums=[[1,2,3,4],[5,6,7,8],[9,10,11,12],[13,14,15,16],[17,18,19,20]][i];
+          const pts=nums.reduce((sum,n)=>{const d=detalles.find(x=>x.num===n);return sum+(d?.puntaje||0);},0);
+          const pct=Math.round(pts/(nums.length*5)*100);
+          const sCols={"1S":"#E65100","2S":"#1B5E20","3S":"#0D47A1","4S":"#4A148C","5S":"#880E4F"};
+          const sc=sCols[s];
+          return `<div style="background:${sc}15;border-radius:6px;padding:5px 3px;text-align:center;border-top:2px solid ${sc}">
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;color:${sc}">${pts}</div>
+            <div style="font-size:8px;color:${sc};font-weight:700">${s}</div>
+            <div style="font-size:8px;color:var(--g400)">${pct}%</div>
+          </div>`;
+        }).join(""):""}
+      </div>
+      ${incumpl.length>0?`
+      <div style="background:#FFF8E1;border-radius:8px;padding:8px 10px;border-left:3px solid ${A}">
+        <div style="font-size:10px;font-weight:700;color:${A};margin-bottom:6px">&#9888; ${incumpl.length} observacion${incumpl.length>1?"es":""} de incumplimiento</div>
+        ${incumpl.map(obs=>`
+          <div style="font-size:11px;color:var(--g700);padding:4px 0;border-bottom:1px solid #FFF3CD;display:flex;gap:6px;align-items:flex-start">
+            <span style="font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:800;color:${obs.puntaje===1?R:A};flex-shrink:0">${obs.puntaje}</span>
+            <span style="flex:1">${obs.criterio}</span>
+          </div>
+          ${obs.obs?`<div style="font-size:10px;color:var(--g400);padding:2px 0 4px 18px;font-style:italic">"${obs.obs}"</div>`:""}
+        `).join("")}
+      </div>`:""}
+    </div>`;
+  }).join("");
+}
+
+// ═══ DASHBOARD AUDITORÍA ═══
+function destroyChartAudit(id){const e=Chart.getChart(id);if(e)e.destroy();}
+
+function getAuditFiltradas(){
+  const fs=document.getElementById("dfil-sector")?.value||"";
+  const fa=document.getElementById("dfil-area")?.value||"";
+  return auditorias.filter(a=>{
+    if(fs&&a.sector!==fs)return false;
+    if(fa&&a.area!==fa)return false;
+    return true;
+  });
+}
+
+function renderAuditDashboard(){
+  const data=getAuditFiltradas();
+  if(!data.length){
+    ["dk-total","dk-prom","dk-obs","dk-pct"].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent="0";});
+    return;
+  }
+  const G="#1E7C34",R="#E63329",A="#D97706",B="#1565C0",P="#6B21A8";
+  const GD="#155A25";
+
+  // KPIs
+  const totalAudit=data.length;
+  const promPuntaje=Math.round(data.reduce((s,a)=>s+(a.puntaje_total||0),0)/totalAudit);
+  const promPct=Math.round(data.reduce((s,a)=>s+(a.pct_cumplimiento||0),0)/totalAudit);
+  const totalObs=data.reduce((s,a)=>s+JSON.parse(a.incumplimientos||"[]").length,0);
+  document.getElementById("dk-total").textContent=totalAudit;
+  document.getElementById("dk-prom").textContent=promPuntaje;
+  document.getElementById("dk-obs").textContent=totalObs;
+  document.getElementById("dk-pct").textContent=promPct+"%";
+
+  // Estado general planta
+  const nivCol=promPct>=90?G:promPct>=70?"#2E7D32":promPct>=50?A:R;
+  const nivLbl=promPct>=90?"Excelente":promPct>=70?"Bueno":promPct>=50?"Regular":"Deficiente";
+  const badge=document.getElementById("dk-nivel-badge");
+  if(badge)badge.innerHTML=`<div style="font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:800;color:${nivCol}">${nivLbl}</div><div style="font-size:28px;font-weight:800;font-family:'Barlow Condensed',sans-serif;color:${nivCol}">${promPuntaje}<span style="font-size:14px;color:var(--g400)">/100</span></div>`;
+  const barra=document.getElementById("dk-barra-prom");
+  if(barra){barra.style.width=promPct+"%";barra.style.background=nivCol;}
+
+  // Donut niveles
+  const porNivel={Excelente:0,Bueno:0,Regular:0,Deficiente:0};
+  data.forEach(a=>{if(porNivel[a.nivel]!==undefined)porNivel[a.nivel]++;});
+  destroyChartAudit("chart-audit-nivel");
+  new Chart(document.getElementById("chart-audit-nivel"),{
+    type:"doughnut",
+    data:{labels:["Excelente","Bueno","Regular","Deficiente"],
+      datasets:[{data:[porNivel.Excelente,porNivel.Bueno,porNivel.Regular,porNivel.Deficiente],
+        backgroundColor:["#1B5E20",G,A,R],borderWidth:2,borderColor:"#fff"}]},
+    options:{responsive:true,maintainAspectRatio:true,cutout:"65%",
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${ctx.raw}`}}}}
+  });
+  const tot=Object.values(porNivel).reduce((s,v)=>s+v,0)||1;
+  const legEl=document.getElementById("legend-audit-nivel");
+  if(legEl)legEl.innerHTML=[["#1B5E20","Excelente"],["#1E7C34","Bueno"],[A,"Regular"],[R,"Deficiente"]].map(([col,lbl])=>`
+    <div class="dash-legend-row">
+      <div class="dash-legend-dot" style="background:${col}"></div>
+      <span class="dash-legend-label">${lbl}</span>
+      <span class="dash-legend-val">${porNivel[lbl]}</span>
+      <span class="dash-legend-pct">${Math.round(porNivel[lbl]/tot*100)}%</span>
+    </div>`).join("");
+
+  // Barras por área
+  const byArea={};
+  data.forEach(a=>{
+    if(!byArea[a.area])byArea[a.area]={sum:0,count:0};
+    byArea[a.area].sum+=a.puntaje_total||0;
+    byArea[a.area].count++;
+  });
+  const areasSorted=Object.entries(byArea).map(([area,v])=>({area,prom:Math.round(v.sum/v.count)})).sort((a,b)=>b.prom-a.prom);
+  const areaLabels=areasSorted.map(a=>a.area.length>15?a.area.substring(0,13)+"...":a.area);
+  const areaProms=areasSorted.map(a=>a.prom);
+  const areaColors=areaProms.map(p=>p>=90?"#1B5E20":p>=70?G:p>=50?A:R);
+  destroyChartAudit("chart-audit-areas");
+  new Chart(document.getElementById("chart-audit-areas"),{
+    type:"bar",
+    data:{labels:areaLabels,datasets:[{label:"Puntaje promedio",data:areaProms,backgroundColor:areaColors,borderRadius:4}]},
+    options:{responsive:true,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`Puntaje: ${ctx.raw}/100`}}},
+      scales:{x:{ticks:{font:{size:9},maxRotation:45},grid:{display:false}},
+        y:{min:0,max:100,ticks:{font:{size:9}},grid:{color:"#f0f0f0"},
+          afterDataLimits:scale=>{scale.max=100;}}}}
+  });
+
+  // Evolución temporal (línea)
+  const evolData=[...data].reverse().map((a,i)=>({x:i+1,y:a.puntaje_total,label:`${a.area} (${a.fecha})`,color:a.puntaje_total>=90?"#1B5E20":a.puntaje_total>=70?G:a.puntaje_total>=50?A:R}));
+  destroyChartAudit("chart-audit-evol");
+  new Chart(document.getElementById("chart-audit-evol"),{
+    type:"line",
+    data:{labels:evolData.map(d=>d.label.length>20?d.label.substring(0,18)+"...":d.label),
+      datasets:[
+        {label:"Puntaje",data:evolData.map(d=>d.y),borderColor:G,backgroundColor:G+"22",fill:true,tension:0.4,pointRadius:5,pointBackgroundColor:evolData.map(d=>d.color),borderWidth:2},
+        {label:"Meta (70)",data:evolData.map(()=>70),borderColor:A,borderDash:[5,5],borderWidth:1.5,pointRadius:0,backgroundColor:"transparent"}
+      ]},
+    options:{responsive:true,
+      plugins:{legend:{position:"top",align:"start",labels:{font:{size:10},boxWidth:10,padding:8}},tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label}: ${ctx.raw}/100`}}},
+      scales:{x:{ticks:{font:{size:8},maxRotation:45},grid:{display:false}},
+        y:{min:0,max:100,ticks:{font:{size:9}},grid:{color:"#f0f0f0"}}}}
+  });
+
+  // Radar por pilar
+  const pilarProms={};
+  const pilarNames=["1S — Seleccionar","2S — Ordenar","3S — Limpiar","4S — Estandarizar","5S — Disciplinar"];
+  const pilarNums=[[1,2,3,4],[5,6,7,8],[9,10,11,12],[13,14,15,16],[17,18,19,20]];
+  pilarNames.forEach((p,i)=>{
+    let sum=0,cnt=0;
+    data.forEach(a=>{
+      const det=JSON.parse(a.detalles||"[]");
+      pilarNums[i].forEach(n=>{const d=det.find(x=>x.num===n);if(d&&d.puntaje>0){sum+=d.puntaje;cnt++;}});
+    });
+    pilarProms[p]=cnt?Math.round((sum/cnt)/5*100):0;
+  });
+  destroyChartAudit("chart-audit-radar");
+  new Chart(document.getElementById("chart-audit-radar"),{
+    type:"radar",
+    data:{labels:["1S","2S","3S","4S","5S"],
+      datasets:[{label:"% Cumplimiento",data:pilarNames.map(p=>pilarProms[p]),backgroundColor:G+"33",borderColor:G,borderWidth:2,pointBackgroundColor:G,pointRadius:4}]},
+    options:{responsive:true,
+      plugins:{legend:{display:false}},
+      scales:{r:{min:0,max:100,ticks:{stepSize:25,font:{size:8},callback:v=>v+"%"},grid:{color:"#EEF0EC"},pointLabels:{font:{size:11,weight:"bold"}}}}}
+  });
+
+  // Criterios más críticos
+  const critCount={};
+  CRITERIOS.forEach(c=>{critCount[c.num]={txt:c.txt,pilar:c.pilar,count:0};});
+  data.forEach(a=>{
+    const incumpl=JSON.parse(a.incumplimientos||"[]");
+    incumpl.forEach(obs=>{if(critCount[obs.num])critCount[obs.num].count++;});
+  });
+  const critSorted=Object.entries(critCount).filter(([,v])=>v.count>0).sort((a,b)=>b[1].count-a[1].count).slice(0,8);
+  const maxCrit=critSorted[0]?.[1].count||1;
+  const critel=document.getElementById("dk-criterios-criticos");
+  if(critel)critel.innerHTML=critSorted.length?critSorted.map(([num,v])=>{
+    const pct=Math.round(v.count/maxCrit*100);
+    const sCols={"1S":"#E65100","2S":"#1B5E20","3S":"#0D47A1","4S":"#4A148C","5S":"#880E4F"};
+    const sKey=v.pilar.substring(0,2);
+    const col=sCols[sKey]||R;
+    return `<div style="margin-bottom:8px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:3px;gap:8px">
+        <div style="flex:1">
+          <span style="background:${col}18;color:${col};font-size:9px;font-weight:700;padding:1px 6px;border-radius:8px;margin-right:4px">${v.pilar.substring(0,2)}</span>
+          <span style="font-size:11px;color:var(--g700)">${v.txt.length>60?v.txt.substring(0,58)+"...":v.txt}</span>
+        </div>
+        <span style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;color:${R};flex-shrink:0">${v.count}x</span>
+      </div>
+      <div style="height:5px;background:var(--g100);border-radius:20px;overflow:hidden">
+        <div style="height:100%;width:${pct}%;background:${col};border-radius:20px;transition:width .6s"></div>
+      </div>
+    </div>`;
+  }).join(""):'<p style="font-size:12px;color:var(--g400)">Sin incumplimientos registrados.</p>';
+
+  // Comparativo última vs penúltima por área
+  const byAreaHist={};
+  data.forEach(a=>{
+    if(!byAreaHist[a.area])byAreaHist[a.area]=[];
+    byAreaHist[a.area].push({puntaje:a.puntaje_total,fecha:a.fecha});
+  });
+  const compEl=document.getElementById("dk-comparativo-areas");
+  if(compEl){
+    const comp=Object.entries(byAreaHist).filter(([,v])=>v.length>=1).map(([area,audits])=>{
+      const sorted=audits.sort((a,b)=>b.fecha>a.fecha?1:-1);
+      const ultima=sorted[0];const penultima=sorted[1];
+      const diff=penultima?ultima.puntaje-penultima.puntaje:null;
+      return{area,ultima:ultima.puntaje,penultima:penultima?.puntaje||null,diff};
+    }).sort((a,b)=>(b.diff||0)-(a.diff||0));
+    compEl.innerHTML=comp.map(c=>{
+      const col=c.diff===null?"var(--g400)":c.diff>0?G:c.diff<0?R:"var(--g400)";
+      const ico=c.diff===null?"—":c.diff>0?"▲":c.diff<0?"▼":"→";
+      const nombre=c.area.length>22?c.area.substring(0,20)+"...":c.area;
+      return `<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--g100)">
+        <div style="flex:1;min-width:0">
+          <div style="font-size:11px;font-weight:700;color:var(--g700);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${nombre}</div>
+          ${c.penultima!==null?`<div style="font-size:9px;color:var(--g400)">${c.penultima} → ${c.ultima} pts</div>`:`<div style="font-size:9px;color:var(--g400)">Solo 1 auditoría</div>`}
+        </div>
+        <div style="text-align:center;min-width:50px">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:${col}">${ico} ${c.diff!==null?Math.abs(c.diff):""}</div>
+        </div>
+        <div style="text-align:right;min-width:40px">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;color:${c.ultima>=70?G:c.ultima>=50?A:R}">${c.ultima}</div>
+        </div>
+      </div>`;
+    }).join("")||'<p style="font-size:12px;color:var(--g400)">Sin datos.</p>';
+  }
+
+  // Áreas críticas
+  const criticas=areasSorted.slice(-5).reverse();
+  const critAreaEl=document.getElementById("dk-areas-criticas");
+  if(critAreaEl)critAreaEl.innerHTML=criticas.map((a,i)=>{
+    const col=a.prom>=70?G:a.prom>=50?A:R;
+    return `<div style="margin-bottom:10px;padding:10px 12px;background:var(--g50);border-radius:8px;border-left:3px solid ${col}">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
+        <span style="font-size:11px;font-weight:700;color:var(--g700)">${a.area}</span>
+        <span style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;color:${col}">${a.prom}/100</span>
+      </div>
+      <div style="height:5px;background:var(--g200);border-radius:20px;overflow:hidden">
+        <div style="height:100%;width:${a.prom}%;background:${col};border-radius:20px;transition:width .6s"></div>
+      </div>
+    </div>`;
+  }).join("")||'<p style="font-size:12px;color:var(--g400)">Sin datos.</p>';
+
+  // Obs por área (barras horizontales)
+  const obsByArea={};
+  data.forEach(a=>{
+    const incumpl=JSON.parse(a.incumplimientos||"[]");
+    if(!obsByArea[a.area])obsByArea[a.area]=0;
+    obsByArea[a.area]+=incumpl.length;
+  });
+  const obsSorted=Object.entries(obsByArea).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  destroyChartAudit("chart-audit-obs-area");
+  new Chart(document.getElementById("chart-audit-obs-area"),{
+    type:"bar",
+    data:{labels:obsSorted.map(([a])=>a.length>15?a.substring(0,13)+"...":a),
+      datasets:[{label:"Obs. incumplimiento",data:obsSorted.map(([,v])=>v),backgroundColor:R+"CC",borderRadius:4}]},
+    options:{indexAxis:"y",responsive:true,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.raw} observaciones`}}},
+      scales:{x:{beginAtZero:true,ticks:{stepSize:1,font:{size:9}},grid:{color:"#f0f0f0"}},
+        y:{ticks:{font:{size:9}},grid:{display:false}}}}
+  });
+}
+
 function showToast(msg,isErr){
   const t=document.getElementById("toast");
   t.textContent=msg;t.className="show"+(isErr?" error":"");
@@ -1548,7 +1874,16 @@ function showToast(msg,isErr){
   </div>
 </header>
 
+<nav style="background:#004D2E;display:flex;overflow-x:auto;scrollbar-width:none">
+  <div class="tab active" id="atab-nueva" onclick="showAuditTab('nueva')" style="color:rgba(255,255,255,.6);font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;cursor:pointer;border-bottom:3px solid transparent;padding:11px 20px;white-space:nowrap;flex-shrink:0;user-select:none;transition:all .18s">+ Nueva</div>
+  <div class="tab" id="atab-historial" onclick="showAuditTab('historial')" style="color:rgba(255,255,255,.6);font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;cursor:pointer;border-bottom:3px solid transparent;padding:11px 20px;white-space:nowrap;flex-shrink:0;user-select:none;transition:all .18s">Historial</div>
+  <div class="tab" id="atab-dashboard" onclick="showAuditTab('dashboard')" style="color:rgba(255,255,255,.6);font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;cursor:pointer;border-bottom:3px solid transparent;padding:11px 20px;white-space:nowrap;flex-shrink:0;user-select:none;transition:all .18s">Dashboard</div>
+</nav>
+
 <main style="max-width:720px;margin:0 auto;padding:18px 14px 100px">
+
+<!-- SECCIÓN NUEVA AUDITORÍA -->
+<div id="asec-nueva">
 
 <!-- PASO 1: DATOS GENERALES -->
 <div id="audit-paso1">
@@ -1680,6 +2015,109 @@ function showToast(msg,isErr){
     <div style="font-size:11px;color:var(--g400);margin:-8px 0 12px;font-style:italic">Criterios con puntaje 1 o 2 — requieren acción correctiva</div>
     <div id="obs-incumplimiento"></div>
   </div>
+</div>
+
+</main>
+</div><!-- /asec-nueva -->
+
+<!-- SECCIÓN HISTORIAL -->
+<div id="asec-historial" style="display:none">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+    <select id="hfil-area" class="filter-small" onchange="renderHistorial()"><option value="">Todas las áreas</option></select>
+    <select id="hfil-nivel" class="filter-small" onchange="renderHistorial()">
+      <option value="">Todos los niveles</option>
+      <option value="Excelente">Excelente</option>
+      <option value="Bueno">Bueno</option>
+      <option value="Regular">Regular</option>
+      <option value="Deficiente">Deficiente</option>
+    </select>
+  </div>
+  <div id="historial-list"><div class="loading"><div class="spinner-g"></div><p style="margin-top:12px;font-size:13px">Cargando...</p></div></div>
+</div>
+
+<!-- SECCIÓN DASHBOARD AUDITORÍA -->
+<div id="asec-dashboard" style="display:none">
+  <!-- Filtros -->
+  <div style="display:flex;gap:8px;margin-bottom:12px">
+    <select id="dfil-sector" class="filter-small" onchange="renderAuditDashboard()"><option value="">Todos los sectores</option></select>
+    <select id="dfil-area" class="filter-small" onchange="renderAuditDashboard()"><option value="">Todas las áreas</option></select>
+  </div>
+
+  <!-- KPIs generales -->
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px">
+    <div class="kpi-box"><div class="kpi-val" id="dk-total">0</div><div class="kpi-lbl">Auditorías</div></div>
+    <div class="kpi-box green"><div class="kpi-val" id="dk-prom">0</div><div class="kpi-lbl">Puntaje prom.</div></div>
+    <div class="kpi-box red"><div class="kpi-val" id="dk-obs">0</div><div class="kpi-lbl">Obs. incumpl.</div></div>
+    <div class="kpi-box amber"><div class="kpi-val" id="dk-pct">0%</div><div class="kpi-lbl">Cumplimiento</div></div>
+  </div>
+
+  <!-- Puntaje promedio planta + donut nivel -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+    <div class="dash-card" style="margin-bottom:0;text-align:center">
+      <div class="dash-card-title" style="text-align:left">&#127981; Estado general planta</div>
+      <div id="dk-nivel-badge" style="margin:8px 0"></div>
+      <div style="height:8px;background:var(--g100);border-radius:20px;overflow:hidden;margin:8px 0">
+        <div id="dk-barra-prom" style="height:100%;width:0%;border-radius:20px;transition:width .8s;background:var(--green)"></div>
+      </div>
+      <div style="font-size:10px;color:var(--g400)">Promedio general de todas las auditorías</div>
+    </div>
+    <div class="dash-card" style="margin-bottom:0">
+      <div class="dash-card-title">&#127942; Distribución por nivel</div>
+      <div style="position:relative;width:90px;height:90px;margin:0 auto">
+        <canvas id="chart-audit-nivel"></canvas>
+      </div>
+      <div id="legend-audit-nivel" style="margin-top:6px"></div>
+    </div>
+  </div>
+
+  <!-- Barras comparativo por área -->
+  <div class="dash-card">
+    <div class="dash-card-title">&#128202; Puntaje promedio por área</div>
+    <div style="font-size:10px;color:var(--g400);margin:-4px 0 8px;font-style:italic">Comparativo entre todas las áreas auditadas</div>
+    <div style="overflow-x:auto"><canvas id="chart-audit-areas" style="min-width:300px"></canvas></div>
+  </div>
+
+  <!-- Evolución temporal -->
+  <div class="dash-card">
+    <div class="dash-card-title">&#128200; Evolución del puntaje en el tiempo</div>
+    <div style="font-size:10px;color:var(--g400);margin:-4px 0 8px;font-style:italic">Tendencia por auditoría realizada</div>
+    <div style="overflow-x:auto"><canvas id="chart-audit-evol" style="min-width:300px"></canvas></div>
+  </div>
+
+  <!-- Radar por pilar -->
+  <div class="dash-card">
+    <div class="dash-card-title">&#127919; Desempeño por pilar 5S</div>
+    <div style="font-size:10px;color:var(--g400);margin:-4px 0 8px;font-style:italic">Promedio de puntaje en cada S</div>
+    <canvas id="chart-audit-radar" style="max-width:300px;margin:0 auto;display:block"></canvas>
+  </div>
+
+  <!-- Top criterios con más incumplimientos -->
+  <div class="dash-card">
+    <div class="dash-card-title">&#9888;&#65039; Criterios con más incumplimientos</div>
+    <div style="font-size:10px;color:var(--g400);margin:-4px 0 8px;font-style:italic">Los criterios que más frecuentemente obtienen puntaje 1 o 2</div>
+    <div id="dk-criterios-criticos"></div>
+  </div>
+
+  <!-- Comparativo subió/bajó por área -->
+  <div class="dash-card">
+    <div class="dash-card-title">&#128201; Comparativo última vs penúltima auditoría por área</div>
+    <div style="font-size:10px;color:var(--g400);margin:-4px 0 8px;font-style:italic">Verde = mejoró · Rojo = empeoró · Gris = sin cambio</div>
+    <div id="dk-comparativo-areas"></div>
+  </div>
+
+  <!-- Ranking áreas críticas -->
+  <div class="dash-card">
+    <div class="dash-card-title">&#128680; Áreas con menor cumplimiento</div>
+    <div style="font-size:10px;color:var(--g400);margin:-4px 0 8px;font-style:italic">Requieren atención prioritaria</div>
+    <div id="dk-areas-criticas"></div>
+  </div>
+
+  <!-- Observaciones por área (barras horizontales) -->
+  <div class="dash-card">
+    <div class="dash-card-title">&#128203; Observaciones de incumplimiento por área</div>
+    <div style="overflow-x:auto"><canvas id="chart-audit-obs-area" style="min-width:280px"></canvas></div>
+  </div>
+
 </div>
 
 </main>

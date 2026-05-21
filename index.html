@@ -107,6 +107,12 @@ textarea{resize:vertical;min-height:78px}
 #toast.show{opacity:1}#toast.error{background:var(--red)}
 @keyframes spin{to{transform:rotate(360deg)}}
 @media(max-width:480px){.row2{grid-template-columns:1fr}.kpi-val{font-size:20px}}
+/* CHARTS FIJOS */
+#chart-audit-areas,#chart-audit-evol,#chart-audit-obs-area{max-width:100%!important;height:220px!important}
+#chart-audit-radar{max-width:260px!important;height:260px!important;display:block;margin:0 auto}
+#chart-audit-nivel{width:90px!important;height:90px!important}
+.dash-card{overflow:hidden}
+canvas{max-width:100%!important}
 /* AUDITORÍA */
 #app-auditoria{display:none}
 .puntaje-sel{display:flex;gap:6px}
@@ -1614,9 +1620,10 @@ async function guardarAuditoriaDB(puntaje, pct, nivel, incumplimientos){
       })))
     });
     if(errAudit)throw errAudit;
-    showToast("Auditoría guardada en base de datos");
-    // Actualizar dashboard automáticamente
+    showToast("Auditoría guardada — ve al Dashboard para ver resultados");
+    // Cargar datos en memoria (sin renderizar gráficos ocultos)
     await cargarAuditorias();
+    window._auditDashboardDirty = true;
   }catch(e){
     console.error("Error guardando auditoría:",e);
   }
@@ -1814,7 +1821,11 @@ function showAuditTab(name){
     }
   });
   if(name==="historial")renderHistorial();
-  if(name==="dashboard"){cargarAuditorias();renderAuditDashboard();}
+  if(name==="dashboard"){
+    // Siempre recargar al entrar al dashboard
+    cargarAuditorias().then(()=>renderAuditDashboard());
+    window._auditDashboardDirty=false;
+  }
 }
 
 // ═══ HISTORIAL ═══
@@ -1896,6 +1907,9 @@ function getAuditFiltradas(){
 }
 
 function renderAuditDashboard(){
+  // Asegurar que el contenedor es visible antes de dibujar charts
+  const dashSec=document.getElementById("asec-dashboard");
+  if(dashSec&&dashSec.style.display==="none")return;
   const data=getAuditFiltradas();
   if(!data.length){
     ["dk-total","dk-prom","dk-obs","dk-pct"].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent="0";});
@@ -1959,11 +1973,10 @@ function renderAuditDashboard(){
   new Chart(document.getElementById("chart-audit-areas"),{
     type:"bar",
     data:{labels:areaLabels,datasets:[{label:"Puntaje promedio",data:areaProms,backgroundColor:areaColors,borderRadius:4}]},
-    options:{responsive:true,
+    options:{responsive:true,maintainAspectRatio:false,
       plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`Puntaje: ${ctx.raw}/100`}}},
       scales:{x:{ticks:{font:{size:9},maxRotation:45},grid:{display:false}},
-        y:{min:0,max:100,ticks:{font:{size:9}},grid:{color:"#f0f0f0"},
-          afterDataLimits:scale=>{scale.max=100;}}}}
+        y:{min:0,max:100,ticks:{font:{size:9}},grid:{color:"#f0f0f0"}}}}
   });
 
   // Evolución temporal (línea)
@@ -1976,7 +1989,7 @@ function renderAuditDashboard(){
         {label:"Puntaje",data:evolData.map(d=>d.y),borderColor:G,backgroundColor:G+"22",fill:true,tension:0.4,pointRadius:5,pointBackgroundColor:evolData.map(d=>d.color),borderWidth:2},
         {label:"Meta (70)",data:evolData.map(()=>70),borderColor:A,borderDash:[5,5],borderWidth:1.5,pointRadius:0,backgroundColor:"transparent"}
       ]},
-    options:{responsive:true,
+    options:{responsive:true,maintainAspectRatio:false,
       plugins:{legend:{position:"top",align:"start",labels:{font:{size:10},boxWidth:10,padding:8}},tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label}: ${ctx.raw}/100`}}},
       scales:{x:{ticks:{font:{size:8},maxRotation:45},grid:{display:false}},
         y:{min:0,max:100,ticks:{font:{size:9}},grid:{color:"#f0f0f0"}}}}
@@ -1999,9 +2012,9 @@ function renderAuditDashboard(){
     type:"radar",
     data:{labels:["1S","2S","3S","4S","5S"],
       datasets:[{label:"% Cumplimiento",data:pilarNames.map(p=>pilarProms[p]),backgroundColor:G+"33",borderColor:G,borderWidth:2,pointBackgroundColor:G,pointRadius:4}]},
-    options:{responsive:true,
+    options:{responsive:true,maintainAspectRatio:false,
       plugins:{legend:{display:false}},
-      scales:{r:{min:0,max:100,ticks:{stepSize:25,font:{size:8},callback:v=>v+"%"},grid:{color:"#EEF0EC"},pointLabels:{font:{size:11,weight:"bold"}}}}}
+      scales:{r:{min:0,max:100,ticks:{stepSize:25,font:{size:8},callback:v=>v+"%"},grid:{color:"#EEF0EC"},pointLabels:{font:{size:10,weight:"bold"}}}}}
   });
 
   // Criterios más críticos
@@ -2117,7 +2130,7 @@ function renderAuditDashboard(){
     type:"bar",
     data:{labels:obsSorted.map(([a])=>a.length>15?a.substring(0,13)+"...":a),
       datasets:[{label:"Obs. incumplimiento",data:obsSorted.map(([,v])=>v),backgroundColor:R+"CC",borderRadius:4}]},
-    options:{indexAxis:"y",responsive:true,
+    options:{indexAxis:"y",responsive:true,maintainAspectRatio:false,
       plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.raw} observaciones`}}},
       scales:{x:{beginAtZero:true,ticks:{stepSize:1,font:{size:9}},grid:{color:"#f0f0f0"}},
         y:{ticks:{font:{size:9}},grid:{display:false}}}}
@@ -2361,21 +2374,21 @@ function showToast(msg,isErr){
   <div class="dash-card">
     <div class="dash-card-title">&#128202; Puntaje promedio por área</div>
     <div style="font-size:10px;color:var(--g400);margin:-4px 0 8px;font-style:italic">Comparativo entre todas las áreas auditadas</div>
-    <div style="overflow-x:auto"><canvas id="chart-audit-areas" style="min-width:300px"></canvas></div>
+    <div style="position:relative;height:220px;width:100%"><canvas id="chart-audit-areas"></canvas></div>
   </div>
 
   <!-- Evolución temporal -->
   <div class="dash-card">
     <div class="dash-card-title">&#128200; Evolución del puntaje en el tiempo</div>
     <div style="font-size:10px;color:var(--g400);margin:-4px 0 8px;font-style:italic">Tendencia por auditoría realizada</div>
-    <div style="overflow-x:auto"><canvas id="chart-audit-evol" style="min-width:300px"></canvas></div>
+    <div style="position:relative;height:220px;width:100%"><canvas id="chart-audit-evol"></canvas></div>
   </div>
 
   <!-- Radar por pilar -->
   <div class="dash-card">
     <div class="dash-card-title">&#127919; Desempeño por pilar 5S</div>
     <div style="font-size:10px;color:var(--g400);margin:-4px 0 8px;font-style:italic">Promedio de puntaje en cada S</div>
-    <canvas id="chart-audit-radar" style="max-width:300px;margin:0 auto;display:block"></canvas>
+    <div style="position:relative;height:260px;width:100%;max-width:300px;margin:0 auto"><canvas id="chart-audit-radar"></canvas></div>
   </div>
 
   <!-- Top criterios con más incumplimientos -->
@@ -2402,7 +2415,7 @@ function showToast(msg,isErr){
   <!-- Observaciones por área (barras horizontales) -->
   <div class="dash-card">
     <div class="dash-card-title">&#128203; Observaciones de incumplimiento por área</div>
-    <div style="overflow-x:auto"><canvas id="chart-audit-obs-area" style="min-width:280px"></canvas></div>
+    <div style="position:relative;height:220px;width:100%"><canvas id="chart-audit-obs-area"></canvas></div>
   </div>
 
 </div>

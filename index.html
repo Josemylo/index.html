@@ -150,9 +150,7 @@ canvas{max-width:100%!important}
       <div style="text-align:left"><div>Auditoría 5S</div><div style="font-size:12px;font-weight:400;color:rgba(255,255,255,.8);font-family:Barlow,sans-serif">Evaluación trimestral</div></div>
     </button>
   </div>
-  <!-- Resumen pendientes -->
-  <div id="bienvenida-pendientes" style="width:100%;max-width:320px;margin-top:20px"></div>
-  <p style="font-size:11px;color:rgba(255,255,255,.5);margin-top:20px">SGI-5S-001 · v01 · 12/01/2026</p>
+  <p style="font-size:11px;color:rgba(255,255,255,.5);margin-top:40px">SGI-5S-001 · v01 · 12/01/2026</p>
 </div>
 
 <!-- APP RECORRIDO -->
@@ -1809,7 +1807,7 @@ async function cargarAuditorias(){
     });
     renderHistorial();
     renderAuditDashboard();
-    renderBienvenidaPendientes();
+    renderNuevaPendientes();
   }catch(e){console.error(e);showToast("Error cargando auditorías: "+e.message,true);}
 }
 
@@ -1823,6 +1821,7 @@ function showAuditTab(name){
       tab.style.borderBottomColor=t===name?"var(--amber)":"transparent";
     }
   });
+  if(name==="nueva")renderNuevaPendientes();
   if(name==="historial")renderHistorial();
   if(name==="dashboard"){
     // Siempre recargar al entrar al dashboard
@@ -2206,8 +2205,9 @@ function renderPendientes(){
   }).join("");
 }
 
-function renderBienvenidaPendientes(){
-  const el = document.getElementById("bienvenida-pendientes");
+function renderBienvenidaPendientes(){return;} // deprecated
+function renderNuevaPendientes(){
+  const el = document.getElementById("nueva-pendientes");
   if(!el || !auditorias) return;
   const G="#1E7C34", R="#E63329", A="#D97706";
 
@@ -2286,6 +2286,8 @@ function showToast(msg,isErr){
 
 <!-- PASO 1: DATOS GENERALES -->
 <div id="audit-paso1">
+  <!-- Resumen pendientes en pestaña Nueva -->
+  <div id="nueva-pendientes" style="margin-bottom:14px"></div>
   <div class="card">
     <div class="card-title">&#128203; Datos de la Auditoría</div>
     <div class="fg">

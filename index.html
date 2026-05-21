@@ -1252,7 +1252,6 @@ function iniciarRecorrido(){
 function iniciarAuditoria(){
   document.getElementById("pantalla-bienvenida").style.display="none";
   cargarAuditorias();
-  cargarRondaActiva();
   document.getElementById("app-recorrido").style.display="none";
   document.getElementById("app-auditoria").style.display="block";
   document.getElementById("a-fecha").value=new Date().toLocaleDateString("es-PE",{day:"2-digit",month:"2-digit",year:"numeric"});
@@ -1271,16 +1270,43 @@ function onAuditorChange(){
   const sEl=document.getElementById("a-sector");
   document.getElementById("a-area").value="";
   document.getElementById("a-responsable").value="";
-  sEl.innerHTML='<option value="">— Selecciona sector —</option>';
-  if(!auditor){sEl.disabled=true;return;}
+  const nroEl=document.getElementById("a-nro");if(nroEl)nroEl.value="";
+  sEl.innerHTML='<option value="">— Elige N&#176; de auditor&#237;a primero —</option>';
+  sEl.disabled=true;
+  if(!auditor)return;
   // Los "sectores" del auditor son sus áreas asignadas (LÍNEA 1, ALM. DE INSUMOS, etc.)
   const sectoresAuditor=AUDITORES_SECTORES[auditor]||[];
   sectoresAuditor.forEach(s=>{
-    const bloqueado=isSectorBloqueado(s);
-    sEl.innerHTML+=`<option value="${s}" ${bloqueado?"disabled":""}>${s}${bloqueado?" ✅ (ya auditado)":""}</option>`;
+    const bloqueado=sectoresAuditados.has(s);
+    sEl.innerHTML+=`<option value="${s}" ${bloqueado?"disabled style='color:#aaa'":""}>${s}${bloqueado?" ✅":""}  </option>`;
   });
+  // Mensaje si todos los sectores del auditor ya fueron auditados
+  const todosAuditados=sectoresAuditor.every(s=>sectoresAuditados.has(s));
+  if(todosAuditados){
+    sEl.innerHTML+='<option disabled>— Todos los sectores ya auditados —</option>';
+    showToast("Este auditor ya completó todos sus sectores",true);
+  }
   sEl.disabled=false;
   if(sectoresAuditor.length===1){sEl.value=sectoresAuditor[0];updateAreasAudit();}
+}
+
+function onNroAuditoriaChange(){
+  const nro=document.getElementById("a-nro").value;
+  const auditor=document.getElementById("a-auditor").value;
+  const sEl=document.getElementById("a-sector");
+  document.getElementById("a-area").value="";
+  document.getElementById("a-responsable").value="";
+  sEl.innerHTML='<option value="">— Selecciona sector —</option>';
+  if(!nro||!auditor){sEl.disabled=true;return;}
+  const sectoresAuditor=AUDITORES_SECTORES[auditor]||[];
+  sectoresAuditor.forEach(s=>{
+    // Bloquear solo si ya fue auditado EN ESTE NÚMERO de auditoría
+    const bloqueado=sectoresAuditadosNro.has(nro+"_"+s);
+    sEl.innerHTML+=`<option value="${s}" ${bloqueado?"disabled":""} style="${bloqueado?"color:#aaa":""}">${s}${bloqueado?" ✅":""}</option>`;
+  });
+  sEl.disabled=false;
+  const todosAuditados=sectoresAuditor.every(s=>sectoresAuditadosNro.has(nro+"_"+s));
+  if(todosAuditados) showToast("Este auditor ya completó todos sus sectores en esta auditoría",true);
 }
 
 function updateAreasAudit(){
@@ -1320,18 +1346,18 @@ function irPaso1(){
 
 function irPaso2(){
   const auditor=document.getElementById("a-auditor").value;
+  const nro=document.getElementById("a-nro")?.value||"";
   const sector=document.getElementById("a-sector").value;
-  const area=document.getElementById("a-area").value;
+  const area=document.getElementById("a-area").value.trim();
   const resp=document.getElementById("a-responsable").value.trim();
   if(!auditor){showToast("Selecciona el auditor",true);return;}
+  if(!nro){showToast("Selecciona el N° de auditoría",true);return;}
   if(!sector){showToast("Selecciona el sector",true);return;}
-  if(!area){showToast("Selecciona el sector para asignar el área",true);return;}
+  if(!area){showToast("El área se asigna automáticamente al elegir sector",true);return;}
   if(!resp){showToast("No se encontró responsable para esta área",true);return;}
   auditMeta={
-    auditor,
-    sector:document.getElementById("a-sector").value,  // LÍNEA 1, ALM. DE INSUMOS, etc.
-    area,    // LOGISTICA, PRODUCCIÓN, etc. — automático
-    responsable:resp,
+    auditor,nro_auditoria:nro,
+    sector,area,responsable:resp,
     fecha:document.getElementById("a-fecha").value
   };
   document.getElementById("audit-area-lbl").textContent=area;
@@ -1570,8 +1596,9 @@ async function guardarAuditoriaDB(puntaje, pct, nivel, incumplimientos){
       fortaleza:auditData[c.num]?.fortaleza||"",
       fotos:auditData[c.num]?.fotos||[]
     }));
-    const {data:auditGuardada,error:errAudit}=await sb.from("auditorias_5s_ism").insert({
+    const {error:errAudit}=await sb.from("auditorias_5s_ism").insert({
       auditor:auditMeta.auditor,
+      nro_auditoria:parseInt(auditMeta.nro_auditoria)||1,
       fecha:new Date().toISOString().split("T")[0],
       sector:auditMeta.sector,
       area:auditMeta.area,
@@ -1579,17 +1606,14 @@ async function guardarAuditoriaDB(puntaje, pct, nivel, incumplimientos){
       puntaje_total:puntaje,
       pct_cumplimiento:pct,
       nivel,
-      ronda_id:rondaActiva?.id||null,
       detalles:JSON.stringify(detalles),
       incumplimientos:JSON.stringify(incumplimientos.map(c=>({
         num:c.num,pilar:c.pilar,criterio:c.txt,
         puntaje:auditData[c.num]?.puntaje||0,
         obs:auditData[c.num]?.obs||""
       })))
-    }).select().single();
+    });
     if(errAudit)throw errAudit;
-    // Marcar sector como auditado en la ronda activa
-    if(auditGuardada)await marcarSectorAuditado(auditMeta.sector, auditGuardada.id);
     showToast("Auditoría guardada en base de datos");
     // Actualizar dashboard automáticamente
     await cargarAuditorias();
@@ -1745,13 +1769,21 @@ async function exportarPDFAuditoria(){
 
 
 // ═══ AUDITORÍA — TABS Y DATOS ═══
-let auditorias = []; // historial de auditorías desde Supabase
+let auditorias = [];
+let sectoresAuditados = new Set();
+let sectoresAuditadosNro = new Set(); // clave: "nro_sector" // historial de auditorías desde Supabase
 
 async function cargarAuditorias(){
   try{
     const {data,error}=await sb.from("auditorias_5s_ism").select("*").order("created_at",{ascending:false});
     if(error)throw error;
     auditorias=data||[];
+    // Sectores ya auditados globalmente
+    sectoresAuditados=new Set((auditorias||[]).map(a=>a.sector).filter(Boolean));
+    // Sectores auditados por número de auditoría
+    sectoresAuditadosNro=new Set((auditorias||[])
+      .filter(a=>a.nro_auditoria&&a.sector)
+      .map(a=>a.nro_auditoria+"_"+a.sector));
     // Llenar filtros
     const areas=[...new Set(auditorias.map(a=>a.area).filter(Boolean))].sort();
     const sects=[...new Set(auditorias.map(a=>a.sector).filter(Boolean))].sort();
@@ -1787,10 +1819,12 @@ function showAuditTab(name){
 
 // ═══ HISTORIAL ═══
 function renderHistorial(){
+  const filNro=document.getElementById("hfil-nro")?.value||"";
   const filArea=document.getElementById("hfil-area")?.value||"";
   const filNivel=document.getElementById("hfil-nivel")?.value||"";
   const el=document.getElementById("historial-list");if(!el)return;
   let list=auditorias.filter(a=>{
+    if(filNro&&String(a.nro_auditoria)!==filNro)return false;
     if(filArea&&a.area!==filArea)return false;
     if(filNivel&&a.nivel!==filNivel)return false;
     return true;
@@ -1805,7 +1839,7 @@ function renderHistorial(){
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
         <div>
           <div style="font-size:13px;font-weight:700;color:var(--g900)">${a.area}</div>
-          <div style="font-size:11px;color:var(--g400);margin-top:2px">${a.sector} · ${a.fecha} · &#128100; ${a.auditor}</div>
+          <div style="font-size:11px;color:var(--g400);margin-top:2px">Auditoría N°${a.nro_auditoria||"—"} · ${a.sector} · ${a.fecha} · &#128100; ${a.auditor}</div>
           <div style="font-size:11px;color:var(--g400)">Responsable: <strong>${a.responsable||"—"}</strong></div>
         </div>
         <div style="text-align:center;flex-shrink:0;margin-left:12px">
@@ -1862,7 +1896,6 @@ function getAuditFiltradas(){
 }
 
 function renderAuditDashboard(){
-  renderBannerRonda();
   const data=getAuditFiltradas();
   if(!data.length){
     ["dk-total","dk-prom","dk-obs","dk-pct"].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent="0";});
@@ -2057,6 +2090,28 @@ function renderAuditDashboard(){
     obsByArea[a.area]+=incumpl.length;
   });
   const obsSorted=Object.entries(obsByArea).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  // Progreso de sectores
+  const progrEl=document.getElementById("progreso-sectores");
+  if(progrEl){
+    const totalSects=[...new Set(Object.values(AUDITORES_SECTORES).flat())].length;
+    const auditados=sectoresAuditados.size;
+    const pctProgr=totalSects?Math.round(auditados/totalSects*100):0;
+    const colP=pctProgr>=80?G:pctProgr>=50?A:R;
+    progrEl.innerHTML=`
+      <div style="background:#fff;border-radius:10px;padding:12px 14px;box-shadow:var(--sh);border-left:4px solid ${colP}">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <div>
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:800;color:var(--green)">Progreso de auditorías</div>
+            <div style="font-size:11px;color:var(--g400)">${auditados} de ${totalSects} sectores auditados en total</div>
+          </div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:800;color:${colP}">${pctProgr}%</div>
+        </div>
+        <div style="height:6px;background:var(--g100);border-radius:20px;overflow:hidden">
+          <div style="height:100%;width:${pctProgr}%;background:${colP};border-radius:20px;transition:width .6s"></div>
+        </div>
+        ${pctProgr===100?`<div style="margin-top:8px;font-size:11px;color:var(--green);font-weight:700;text-align:center">✅ Todos los sectores auditados — Para iniciar nueva ronda, elimina los registros en Supabase</div>`:""}
+      </div>`;
+  }
   destroyChartAudit("chart-audit-obs-area");
   new Chart(document.getElementById("chart-audit-obs-area"),{
     type:"bar",
@@ -2070,153 +2125,6 @@ function renderAuditDashboard(){
 }
 
 
-// ═══ SISTEMA DE RONDAS ═══
-let rondaActiva = null; // {id, numero, fecha_inicio, fecha_fin, año}
-let sectoresAuditadosRonda = []; // sectores ya auditados en la ronda activa
-
-const DURACION_RONDA_DIAS = 30;
-const TOTAL_SECTORES = Object.keys(AUDITORES_SECTORES).reduce((all, aud) => {
-  (AUDITORES_SECTORES[aud] || []).forEach(s => all.add(s));
-  return all;
-}, new Set()).size;
-
-async function cargarRondaActiva() {
-  try {
-    // Obtener la ronda más reciente
-    const {data: rondas, error} = await sb.from("rondas_auditoria")
-      .select("*").order("numero", {ascending: false}).limit(1);
-    if (error) throw error;
-
-    const hoy = new Date(); hoy.setHours(0,0,0,0);
-
-    if (!rondas || rondas.length === 0) {
-      // No hay rondas — mostrar botón para crear la primera
-      rondaActiva = null;
-      renderBannerRonda();
-      return;
-    }
-
-    const ronda = rondas[0];
-    const fechaFin = new Date(ronda.fecha_fin + "T00:00:00");
-    const diasRestantes = Math.ceil((fechaFin - hoy) / (1000*60*60*24));
-
-    if (diasRestantes <= 0 && !ronda.cerrada) {
-      // Ronda expiró — crear nueva automáticamente
-      await crearNuevaRonda(ronda.numero + 1);
-      return;
-    }
-
-    rondaActiva = {...ronda, diasRestantes: Math.max(0, diasRestantes)};
-
-    // Obtener sectores ya auditados en esta ronda
-    const {data: audsRonda} = await sb.from("auditorias_5s_ism")
-      .select("sector").eq("ronda_id", ronda.id);
-    sectoresAuditadosRonda = (audsRonda || []).map(a => a.sector);
-
-    renderBannerRonda();
-  } catch(e) {
-    console.error("Error cargando ronda:", e);
-  }
-}
-
-async function crearNuevaRonda(numero) {
-  try {
-    const hoy = new Date();
-    const fechaInicio = hoy.toISOString().split("T")[0];
-    const fechaFin = new Date(hoy.getTime() + DURACION_RONDA_DIAS * 24*60*60*1000)
-      .toISOString().split("T")[0];
-    const año = hoy.getFullYear();
-
-    const {data, error} = await sb.from("rondas_auditoria").insert({
-      numero,
-      año,
-      fecha_inicio: fechaInicio,
-      fecha_fin: fechaFin,
-      cerrada: false
-    }).select().single();
-    if (error) throw error;
-
-    rondaActiva = {...data, diasRestantes: DURACION_RONDA_DIAS};
-    sectoresAuditadosRonda = [];
-    showToast(`✅ Ronda ${numero} iniciada — ${DURACION_RONDA_DIAS} días`);
-    renderBannerRonda();
-  } catch(e) {
-    console.error("Error creando ronda:", e);
-    showToast("Error creando ronda: " + e.message, true);
-  }
-}
-
-function renderBannerRonda() {
-  const el = document.getElementById("banner-ronda");
-  if (!el) return;
-  const G = "#1E7C34", R = "#E63329", A = "#D97706";
-
-  if (!rondaActiva) {
-    el.innerHTML = `
-      <div style="background:#E3F2FD;border-radius:10px;padding:14px;border-left:4px solid #1565C0;display:flex;justify-content:space-between;align-items:center">
-        <div>
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:800;color:#1565C0">Sin ronda activa</div>
-          <div style="font-size:11px;color:#1565C0;margin-top:2px">Inicia la primera ronda de auditorías del año</div>
-        </div>
-        <button onclick="crearNuevaRonda(1)" style="background:#1565C0;color:#fff;border:none;border-radius:8px;padding:8px 14px;font-family:Barlow,sans-serif;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">
-          ▶ Iniciar Ronda 1
-        </button>
-      </div>`;
-    return;
-  }
-
-  const auditados = sectoresAuditadosRonda.length;
-  const totalSects = Object.values(AUDITORES_SECTORES).reduce((all, sects) => {
-    sects.forEach(s => all.add(s)); return all;
-  }, new Set()).size;
-  const pct = totalSects ? Math.round(auditados / totalSects * 100) : 0;
-  const col = rondaActiva.diasRestantes <= 5 ? R : rondaActiva.diasRestantes <= 10 ? A : G;
-
-  el.innerHTML = `
-    <div style="background:#fff;border-radius:10px;padding:12px 14px;box-shadow:var(--sh);border-left:4px solid ${col}">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
-        <div>
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;color:var(--green)">
-            Ronda ${rondaActiva.numero} — ${rondaActiva.año}
-          </div>
-          <div style="font-size:11px;color:var(--g400);margin-top:1px">
-            ${rondaActiva.fecha_inicio} → ${rondaActiva.fecha_fin}
-          </div>
-        </div>
-        <div style="text-align:right">
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:${col}">
-            ${rondaActiva.diasRestantes}d
-          </div>
-          <div style="font-size:9px;color:${col};font-weight:700">RESTANTES</div>
-        </div>
-      </div>
-      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--g400);margin-bottom:4px">
-        <span>Progreso: ${auditados} de ${totalSects} sectores auditados</span>
-        <span style="color:${col};font-weight:700">${pct}%</span>
-      </div>
-      <div style="height:6px;background:var(--g100);border-radius:20px;overflow:hidden">
-        <div style="height:100%;width:${pct}%;background:${col};border-radius:20px;transition:width .6s"></div>
-      </div>
-      ${rondaActiva.diasRestantes <= 0 ? `
-        <button onclick="crearNuevaRonda(${rondaActiva.numero + 1})" style="margin-top:8px;background:${G};color:#fff;border:none;border-radius:8px;padding:7px 14px;font-family:Barlow,sans-serif;font-size:12px;font-weight:700;cursor:pointer;width:100%">
-          ▶ Iniciar Ronda ${rondaActiva.numero + 1}
-        </button>` : ""}
-    </div>`;
-}
-
-function isSectorBloqueado(sector) {
-  return rondaActiva && sectoresAuditadosRonda.includes(sector);
-}
-
-async function marcarSectorAuditado(sector, auditoriaId) {
-  if (!rondaActiva) return;
-  // Actualizar la auditoría con el ronda_id
-  await sb.from("auditorias_5s_ism").update({ronda_id: rondaActiva.id}).eq("id", auditoriaId);
-  if (!sectoresAuditadosRonda.includes(sector)) {
-    sectoresAuditadosRonda.push(sector);
-  }
-  renderBannerRonda();
-}
 
 function showToast(msg,isErr){
   const t=document.getElementById("toast");
@@ -2282,9 +2190,19 @@ function showToast(msg,isErr){
       <input type="text" id="a-fecha" readonly style="background:var(--g50);font-weight:700;color:var(--green)">
     </div>
     <div class="fg">
+      <label>N&#176; de Auditor&#237;a <span class="req">*</span></label>
+      <select id="a-nro" onchange="onNroAuditoriaChange()">
+        <option value="">&#8212; Selecciona auditor&#237;a &#8212;</option>
+        <option value="1">Auditor&#237;a N&#176; 1</option>
+        <option value="2">Auditor&#237;a N&#176; 2</option>
+        <option value="3">Auditor&#237;a N&#176; 3</option>
+        <option value="4">Auditor&#237;a N&#176; 4</option>
+      </select>
+    </div>
+    <div class="fg">
       <label>Sector <span class="req">*</span></label>
-      <select id="a-sector" onchange="updateAreasAudit()">
-        <option value="">— Selecciona sector —</option>
+      <select id="a-sector" onchange="updateAreasAudit()" disabled>
+        <option value="">&#8212; Elige N&#176; de auditor&#237;a primero &#8212;</option>
         <option value="ALMACEN">ALMACEN</option>
 <option value="LOGISTICA">LOGISTICA</option>
 <option value="PRODUCCIÓN">PRODUCCIÓN</option>
@@ -2382,6 +2300,13 @@ function showToast(msg,isErr){
 <!-- SECCIÓN HISTORIAL -->
 <div id="asec-historial" style="display:none">
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+    <select id="hfil-nro" class="filter-small" onchange="renderHistorial()">
+      <option value="">Todas las auditorías</option>
+      <option value="1">Auditoría N° 1</option>
+      <option value="2">Auditoría N° 2</option>
+      <option value="3">Auditoría N° 3</option>
+      <option value="4">Auditoría N° 4</option>
+    </select>
     <select id="hfil-area" class="filter-small" onchange="renderHistorial()"><option value="">Todas las áreas</option></select>
     <select id="hfil-nivel" class="filter-small" onchange="renderHistorial()">
       <option value="">Todos los niveles</option>
@@ -2396,14 +2321,14 @@ function showToast(msg,isErr){
 
 <!-- SECCIÓN DASHBOARD AUDITORÍA -->
 <div id="asec-dashboard" style="display:none">
-  <!-- Banner ronda activa -->
-  <div id="banner-ronda" style="margin-bottom:12px"></div>
-
   <!-- Filtros -->
   <div style="display:flex;gap:8px;margin-bottom:12px">
     <select id="dfil-sector" class="filter-small" onchange="renderAuditDashboard()"><option value="">Todos los sectores</option></select>
     <select id="dfil-area" class="filter-small" onchange="renderAuditDashboard()"><option value="">Todas las áreas</option></select>
   </div>
+
+  <!-- Progreso de sectores auditados -->
+  <div id="progreso-sectores" style="margin-bottom:12px"></div>
 
   <!-- KPIs generales -->
   <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px">

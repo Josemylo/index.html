@@ -1272,38 +1272,31 @@ function onAuditorChange(){
   document.getElementById("a-responsable").value="";
   sEl.innerHTML='<option value="">— Selecciona sector —</option>';
   if(!auditor){sEl.disabled=true;return;}
-  // Sectores del auditor = sectores únicos de sus áreas asignadas
-  const areasAuditor=AUDITORES_SECTORES[auditor]||[];
-  const sectoresAuditor=[...new Set(areasAuditor.map(a=>{
-    for(const [sect,data] of Object.entries(SECTORES_AUDIT)){
-      if(data.areas.includes(a))return sect;
-    }
-    return null;
-  }).filter(Boolean))].sort();
+  // Los "sectores" del auditor son sus áreas asignadas (LÍNEA 1, ALM. DE INSUMOS, etc.)
+  const sectoresAuditor=AUDITORES_SECTORES[auditor]||[];
   sectoresAuditor.forEach(s=>{sEl.innerHTML+=`<option value="${s}">${s}</option>`;});
   sEl.disabled=false;
-  // Si solo tiene 1 sector, autoseleccionar
   if(sectoresAuditor.length===1){sEl.value=sectoresAuditor[0];updateAreasAudit();}
 }
 
 function updateAreasAudit(){
-  const auditor=document.getElementById("a-auditor").value;
-  const sector=document.getElementById("a-sector").value;
+  const sector=document.getElementById("a-sector").value; // ej: "LÍNEA 1"
   document.getElementById("a-area").value="";
   document.getElementById("a-responsable").value="";
-  if(!sector||!auditor)return;
-  // El auditor tiene 1 sola área por sector — encontrarla
-  const areasAuditor=AUDITORES_SECTORES[auditor]||[];
-  const areasSector=SECTORES_AUDIT[sector]?.areas||[];
-  const areaDelAuditor=areasSector.find(a=>areasAuditor.includes(a));
-  if(areaDelAuditor){
-    document.getElementById("a-area").value=areaDelAuditor;
-    // Asignar responsable automáticamente
-    const resp=AREA_RESPONSABLE[areaDelAuditor]||SECTORES_AUDIT[sector]?.responsable||"";
-    document.getElementById("a-responsable").value=resp;
+  if(!sector)return;
+  // Buscar a qué área auditada (LOGISTICA, PRODUCCIÓN, etc.) pertenece este sector
+  let areaAuditada="";
+  let responsable="";
+  for(const [area,data] of Object.entries(SECTORES_AUDIT)){
+    if(data.areas.includes(sector)){
+      areaAuditada=area;
+      responsable=data.responsable;
+      break;
+    }
   }
+  document.getElementById("a-area").value=areaAuditada;
+  document.getElementById("a-responsable").value=AREA_RESPONSABLE[sector]||responsable;
 }
-
 
 function onAreaAuditChange(){
   const area=document.getElementById("a-area").value.trim();
@@ -1330,7 +1323,13 @@ function irPaso2(){
   if(!sector){showToast("Selecciona el sector",true);return;}
   if(!area){showToast("Selecciona el sector para asignar el área",true);return;}
   if(!resp){showToast("No se encontró responsable para esta área",true);return;}
-  auditMeta={auditor,sector,area,responsable:resp,fecha:document.getElementById("a-fecha").value};
+  auditMeta={
+    auditor,
+    sector:document.getElementById("a-sector").value,  // LÍNEA 1, ALM. DE INSUMOS, etc.
+    area,    // LOGISTICA, PRODUCCIÓN, etc. — automático
+    responsable:resp,
+    fecha:document.getElementById("a-fecha").value
+  };
   document.getElementById("audit-area-lbl").textContent=area;
   renderCriterios();
   document.getElementById("audit-paso1").style.display="none";
@@ -2119,7 +2118,7 @@ function showToast(msg,isErr){
       <input type="text" id="a-fecha" readonly style="background:var(--g50);font-weight:700;color:var(--green)">
     </div>
     <div class="fg">
-      <label>Sector <span class="req">*</span></label>
+      <label>Área auditada <span class="req">*</span></label>
       <select id="a-sector" onchange="updateAreasAudit()">
         <option value="">— Selecciona sector —</option>
         <option value="ALMACEN">ALMACEN</option>
@@ -2140,8 +2139,8 @@ function showToast(msg,isErr){
       </select>
     </div>
     <div class="fg">
-      <label>Área auditada</label>
-      <input type="text" id="a-area" readonly style="background:var(--g50);color:var(--green);font-weight:700" placeholder="Se asigna al elegir sector">
+      <label>Sector auditado</label>
+      <input type="text" id="a-area" readonly style="background:var(--g50);color:var(--green);font-weight:700" placeholder="Se asigna al elegir área auditada">
     </div>
     <div class="fg">
       <label>Responsable del área</label>

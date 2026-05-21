@@ -2262,23 +2262,11 @@ function renderNuevaPendientes(){
       :""}
     </div>`;
 }
->
 
-function showTab(name){
-  document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
-  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
-  document.getElementById("tab-"+name).classList.add("active");
-  ["nuevo","lista","dashboard"].forEach((t,i)=>{if(t===name)document.querySelectorAll(".tab")[i].classList.add("active");});
-  if(name==="lista")filtrar();
-  if(name==="dashboard")renderDashboard();
-}
-function openModal(id){document.getElementById(id).classList.add("show");document.body.style.overflow="hidden";}
-function closeModal(id){document.getElementById(id).classList.remove("show");document.body.style.overflow="";}
-let toastT;
 function showToast(msg,isErr){
   const t=document.getElementById("toast");
   t.textContent=msg;t.className="show"+(isErr?" error":"");
-  clearTimeout(toastT);toastT=setTimeout(()=>t.className="",3500);
+  clearTimeout(window._toastT);window._toastT=setTimeout(()=>t.className="",3500);
 }
 </script>
 </body>

@@ -2442,58 +2442,49 @@ function renderNuevaPendientes(){
   const sectoresHechos=sectoresAuditados.size;
   const pct=Math.round(sectoresHechos/totalSectores*100);
   const col=pct>=80?G:pct>=50?A:R;
-
-  if(pct===100){
-    el.innerHTML=`<div style="background:#E8F5E9;border-radius:10px;padding:14px;text-align:center;border:1.5px solid ${G};margin-bottom:4px">
-      <div style="font-size:28px;margin-bottom:4px">&#127881;</div>
-      <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;color:${G}">Auditoria completa!</div>
-      <div style="font-size:12px;color:${G};margin-top:4px">Todos los sectores fueron auditados</div>
-    </div>`;
-    return;
-  }
+  const faltanTotal=pendientes.reduce((s,p)=>s+p.faltantes.length,0);
 
   el.innerHTML=`
-    <div style="background:#fff;border-radius:10px;box-shadow:var(--sh);padding:14px;border-left:4px solid ${col}">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-        <div>
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;color:var(--g900)">Progreso de auditorias</div>
-          <div style="font-size:11px;color:var(--g400);margin-top:1px">${sectoresHechos} de ${totalSectores} sectores auditados</div>
+    <div style="background:#fff;border-radius:10px;box-shadow:var(--sh);overflow:hidden;margin-bottom:4px">
+      <!-- Barra compacta clickeable -->
+      <div onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none';this.querySelector('.chevron').textContent=this.nextElementSibling.style.display==='block'?'▲':'▼'"
+        style="padding:10px 14px;cursor:pointer;display:flex;align-items:center;gap:10px">
+        <div style="flex:1">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
+            <span style="font-size:12px;font-weight:700;color:var(--g700)">Progreso auditorias</span>
+            <span style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;color:${col}">${pct}% <span style="font-size:10px;font-weight:400;color:var(--g400)">${sectoresHechos}/${totalSectores}</span></span>
+          </div>
+          <div style="height:6px;background:var(--g100);border-radius:20px;overflow:hidden">
+            <div style="height:100%;width:${pct}%;background:${col};border-radius:20px;transition:width .6s"></div>
+          </div>
+          ${faltanTotal>0?`<div style="font-size:10px;color:${R};margin-top:4px">&#9888; ${faltanTotal} sector${faltanTotal>1?"es":""} pendiente${faltanTotal>1?"s":""}</div>`:`<div style="font-size:10px;color:${G};margin-top:4px">&#10003; Todos completados</div>`}
         </div>
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:800;color:${col}">${pct}%</div>
+        <span class="chevron" style="font-size:11px;color:var(--g400)">&#9660;</span>
       </div>
-      <div style="height:6px;background:var(--g100);border-radius:20px;overflow:hidden;margin-bottom:12px">
-        <div style="height:100%;width:${pct}%;background:${col};border-radius:20px;transition:width .6s"></div>
-      </div>
-      ${pendientes.length>0?`
-        <div style="font-size:11px;font-weight:700;color:var(--g700);text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px">
-          &#9888; Auditores con sectores pendientes
-        </div>
-        ${pendientes.map(({auditor,faltantes,total,completados})=>{
+      <!-- Detalle desplegable -->
+      <div style="display:none;border-top:1px solid var(--g100);padding:10px 14px">
+        ${pendientes.length===0?`<p style="font-size:12px;color:${G};text-align:center;padding:6px">&#10003; Todos los auditores completaron sus sectores</p>`
+        :pendientes.map(({auditor,faltantes,total,completados})=>{
           const p=Math.round(completados/total*100);
           const c=p===100?G:p>=50?A:R;
           const nombre=auditor.split(" ").slice(0,3).join(" ");
-          return `<div style="margin-bottom:8px;padding:8px 10px;background:var(--g50);border-radius:8px;border-left:3px solid ${c}">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-              <span style="font-size:12px;font-weight:700;color:var(--g900)">${nombre}</span>
-              <span style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;color:${c}">${completados}/${total}</span>
+          return `<div style="margin-bottom:8px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">
+              <span style="font-size:11px;font-weight:700;color:var(--g700)">${nombre}</span>
+              <span style="font-size:11px;color:${c};font-weight:700">${completados}/${total}</span>
             </div>
-            <div style="height:4px;background:var(--g200);border-radius:20px;overflow:hidden;margin-bottom:6px">
+            <div style="height:4px;background:var(--g200);border-radius:20px;overflow:hidden;margin-bottom:5px">
               <div style="height:100%;width:${p}%;background:${c};border-radius:20px"></div>
             </div>
-            <div style="display:flex;flex-wrap:wrap;gap:4px">
-              ${faltantes.map(s=>`<span style="background:#FFEBEE;color:${R};font-size:10px;padding:2px 7px;border-radius:10px;font-weight:600">${s.length>20?s.substring(0,18)+"...":s}</span>`).join("")}
+            <div style="display:flex;flex-wrap:wrap;gap:3px">
+              ${faltantes.map(s=>`<span style="background:#FFEBEE;color:${R};font-size:9px;padding:1px 6px;border-radius:8px">${s.length>18?s.substring(0,16)+"...":s}</span>`).join("")}
             </div>
           </div>`;
-        }).join("")}`
-      :""}
+        }).join("")}
+      </div>
     </div>`;
 }
-
-function showToast(msg,isErr){
-  const t=document.getElementById("toast");
-  t.textContent=msg;t.className="show"+(isErr?" error":"");
-  clearTimeout(window._toastT);window._toastT=setTimeout(()=>t.className="",3500);
-}
+>
 </script>
 </body>
 </html>

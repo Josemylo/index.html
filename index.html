@@ -150,7 +150,9 @@ canvas{max-width:100%!important}
       <div style="text-align:left"><div>Auditoría 5S</div><div style="font-size:12px;font-weight:400;color:rgba(255,255,255,.8);font-family:Barlow,sans-serif">Evaluación trimestral</div></div>
     </button>
   </div>
-  <p style="font-size:11px;color:rgba(255,255,255,.5);margin-top:40px">SGI-5S-001 · v01 · 12/01/2026</p>
+  <!-- Resumen pendientes -->
+  <div id="bienvenida-pendientes" style="width:100%;max-width:320px;margin-top:20px"></div>
+  <p style="font-size:11px;color:rgba(255,255,255,.5);margin-top:20px">SGI-5S-001 · v01 · 12/01/2026</p>
 </div>
 
 <!-- APP RECORRIDO -->
@@ -1807,6 +1809,7 @@ async function cargarAuditorias(){
     });
     renderHistorial();
     renderAuditDashboard();
+    renderBienvenidaPendientes();
   }catch(e){console.error(e);showToast("Error cargando auditorías: "+e.message,true);}
 }
 
@@ -2103,6 +2106,7 @@ function renderAuditDashboard(){
     obsByArea[a.area]+=incumpl.length;
   });
   const obsSorted=Object.entries(obsByArea).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  renderPendientes();
   // Progreso de sectores
   const progrEl=document.getElementById("progreso-sectores");
   if(progrEl){
@@ -2138,6 +2142,119 @@ function renderAuditDashboard(){
 }
 
 
+
+
+// ═══ PENDIENTES POR AUDITOR ═══
+function calcularPendientes(nroFiltro){
+  // Para cada auditor, ver qué sectores le faltan en el nro dado
+  const resultado = [];
+  Object.entries(AUDITORES_SECTORES).forEach(([auditor, sectores])=>{
+    const faltantes = sectores.filter(s=>{
+      if(nroFiltro){
+        // Falta si no hay auditoría de este auditor en este nro y sector
+        return !auditorias.some(a=>
+          a.auditor===auditor &&
+          String(a.nro_auditoria)===String(nroFiltro) &&
+          a.sector===s
+        );
+      } else {
+        // Sin filtro: falta si no tiene ninguna auditoría en este sector
+        return !sectoresAuditados.has(s);
+      }
+    });
+    if(faltantes.length > 0){
+      resultado.push({auditor, faltantes, total: sectores.length, completados: sectores.length - faltantes.length});
+    }
+  });
+  return resultado.sort((a,b) => b.faltantes.length - a.faltantes.length);
+}
+
+function renderPendientes(){
+  const nroFiltro = document.getElementById("dfil-nro-pend")?.value||"";
+  const el = document.getElementById("dk-pendientes");
+  if(!el) return;
+  const G="#1E7C34", R="#E63329", A="#D97706";
+  const pendientes = calcularPendientes(nroFiltro);
+
+  if(!pendientes.length){
+    el.innerHTML=`<div style="text-align:center;padding:20px;color:var(--green)">
+      <div style="font-size:32px;margin-bottom:8px">&#10003;</div>
+      <div style="font-size:13px;font-weight:700">¡Todos los auditores completaron sus sectores!</div>
+    </div>`;
+    return;
+  }
+
+  el.innerHTML = pendientes.map(({auditor, faltantes, total, completados})=>{
+    const pct = Math.round(completados/total*100);
+    const col = pct===100?G:pct>=50?A:R;
+    const nombreCorto = auditor.split(" ").slice(0,3).join(" ");
+    return `<div style="margin-bottom:12px;padding:10px 12px;background:var(--g50);border-radius:8px;border-left:3px solid ${col}">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
+        <span style="font-size:12px;font-weight:700;color:var(--g700)">${nombreCorto}</span>
+        <span style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;color:${col}">${completados}/${total}</span>
+      </div>
+      <div style="height:4px;background:var(--g200);border-radius:20px;overflow:hidden;margin-bottom:7px">
+        <div style="height:100%;width:${pct}%;background:${col};border-radius:20px;transition:width .6s"></div>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:4px">
+        ${faltantes.map(s=>`
+          <span style="background:#FFEBEE;color:${R};font-size:10px;padding:2px 7px;border-radius:10px;font-weight:600">
+            &#9888; ${s.length>20?s.substring(0,18)+"...":s}
+          </span>`).join("")}
+      </div>
+    </div>`;
+  }).join("");
+}
+
+function renderBienvenidaPendientes(){
+  const el = document.getElementById("bienvenida-pendientes");
+  if(!el || !auditorias) return;
+  const G="#1E7C34", R="#E63329", A="#D97706";
+
+  // Contar pendientes sin filtro de nro
+  const pendientes = calcularPendientes("");
+  const totalAuditores = Object.keys(AUDITORES_SECTORES).length;
+  const auditoresCompletos = totalAuditores - pendientes.length;
+  const totalSectores = [...new Set(Object.values(AUDITORES_SECTORES).flat())].length;
+  const sectoresHechos = sectoresAuditados.size;
+  const pct = Math.round(sectoresHechos/totalSectores*100);
+  const col = pct>=80?G:pct>=50?A:R;
+
+  if(pct===100){
+    el.innerHTML=`<div style="background:rgba(255,255,255,.15);border-radius:12px;padding:14px;text-align:center">
+      <div style="font-size:28px;margin-bottom:4px">&#127881;</div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;color:#fff">¡Auditoría completa!</div>
+      <div style="font-size:12px;color:rgba(255,255,255,.8);margin-top:4px">Todos los sectores fueron auditados</div>
+    </div>`;
+    return;
+  }
+
+  el.innerHTML=`<div style="background:rgba(255,255,255,.12);border-radius:12px;padding:14px;width:100%">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:800;color:#fff">Progreso auditorías</div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;color:#fff">${pct}%</div>
+    </div>
+    <div style="height:6px;background:rgba(255,255,255,.2);border-radius:20px;overflow:hidden;margin-bottom:8px">
+      <div style="height:100%;width:${pct}%;background:#fff;border-radius:20px;transition:width .8s"></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:11px;color:rgba(255,255,255,.8)">
+      <span>&#10003; ${sectoresHechos} sectores auditados</span>
+      <span>&#9888; ${totalSectores-sectoresHechos} pendientes</span>
+    </div>
+    ${pendientes.length>0?`
+    <div style="margin-top:10px;border-top:1px solid rgba(255,255,255,.2);padding-top:8px">
+      <div style="font-size:11px;color:rgba(255,255,255,.7);margin-bottom:6px;font-weight:600">AUDITORES CON PENDIENTES:</div>
+      ${pendientes.slice(0,4).map(({auditor,faltantes})=>{
+        const nombre=auditor.split(" ").slice(0,2).join(" ");
+        return `<div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.1)">
+          <span style="font-size:11px;color:#fff;font-weight:600">${nombre}</span>
+          <span style="font-size:10px;background:rgba(255,255,255,.15);color:#fff;padding:2px 8px;border-radius:10px">${faltantes.length} pendiente${faltantes.length>1?"s":""}</span>
+        </div>`;
+      }).join("")}
+      ${pendientes.length>4?`<div style="font-size:10px;color:rgba(255,255,255,.6);text-align:center;margin-top:4px">+${pendientes.length-4} más — ver Dashboard</div>`:""}
+    </div>`:""}
+  </div>`;
+}
 
 function showToast(msg,isErr){
   const t=document.getElementById("toast");
@@ -2403,6 +2520,22 @@ function showToast(msg,isErr){
     <div class="dash-card-title">&#128201; Comparativo última vs penúltima auditoría por área</div>
     <div style="font-size:10px;color:var(--g400);margin:-4px 0 8px;font-style:italic">Verde = mejoró · Rojo = empeoró · Gris = sin cambio</div>
     <div id="dk-comparativo-areas"></div>
+  </div>
+
+  <!-- Pendientes por auditor -->
+  <div class="dash-card">
+    <div class="dash-card-title">&#9203; Pendientes por auditor</div>
+    <div style="font-size:10px;color:var(--g400);margin:-4px 0 8px;font-style:italic">Sectores que aún faltan auditar por número de auditoría</div>
+    <div style="display:flex;gap:8px;margin-bottom:10px">
+      <select id="dfil-nro-pend" class="filter-small" onchange="renderPendientes()" style="max-width:180px">
+        <option value="">Todas las auditorías</option>
+        <option value="1">Auditoría N° 1</option>
+        <option value="2">Auditoría N° 2</option>
+        <option value="3">Auditoría N° 3</option>
+        <option value="4">Auditoría N° 4</option>
+      </select>
+    </div>
+    <div id="dk-pendientes"></div>
   </div>
 
   <!-- Ranking áreas críticas -->

@@ -2088,7 +2088,7 @@ let sectoresAuditadosNro = new Set(); // clave: "nro_sector" // historial de aud
 
 async function cargarAuditorias(){
   try{
-    const {data,error}=await sb.from("auditorias_5s_ism").select("*,cierre_criterios").order("created_at",{ascending:false});
+    const {data,error}=await sb.from("auditorias_5s_ism").select("*").order("created_at",{ascending:false});
     if(error)throw error;
     auditorias=data||[];
     // Sectores ya auditados globalmente
@@ -2725,8 +2725,7 @@ function renderObsPendientes(){
   window._obsCache = window._obsCache||[];
   const filNro  = document.getElementById("ofil-nro")?.value||"";
   const filArea = document.getElementById("ofil-area")?.value||"";
-  const filSt   = document.getElementById("ofil-status")?.value;
-  if(filSt===undefined) return;
+  const filSt = document.getElementById("ofil-status")?.value ?? "pendiente";
   const filResp = document.getElementById("ofil-resp")?.value||"";
   const el      = document.getElementById("obs-audit-list");
   if(!el) return;
@@ -2816,7 +2815,7 @@ function renderObsPendientes(){
 
 
 // ═══ PDF GERENCIAL PLANTA ═══
-async function exportarPDFGerencial(){
+async async function exportarPDFGerencial(){
   const btn=document.querySelector('[onclick="exportarPDFGerencial()"]');
   if(btn){btn.textContent="...";btn.disabled=true;}
   try{

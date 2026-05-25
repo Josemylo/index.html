@@ -21,8 +21,11 @@
 body{font-family:"Barlow",sans-serif;background:var(--g50);color:var(--g900);min-height:100vh;overflow-x:hidden}
 header{background:var(--green);position:sticky;top:0;z-index:100;box-shadow:0 3px 16px rgba(0,0,0,.22)}
 .hdr{display:flex;align-items:center;gap:12px;padding:8px 16px;max-width:720px;margin:0 auto}
-.logo-box{background:#fff;border-radius:8px;padding:4px 8px;flex-shrink:0}
-.logo-box img{height:40px;display:block;object-fit:contain}
+.logo-box{background:#fff;border-radius:6px;padding:3px 6px;flex-shrink:0}
+.logo-box img{height:32px;display:block;object-fit:contain}
+.hdr-brand h1,.hdr-brand span{color:#fff!important}
+.hdr-brand h1{font-family:"Barlow Condensed",sans-serif;font-size:19px;font-weight:800;line-height:1.1}
+.hdr-brand span{font-size:11px;opacity:.8}
 .hdr-txt{flex:1}
 .hdr-txt h1{font-family:"Barlow Condensed",sans-serif;font-size:20px;font-weight:800;color:#fff;letter-spacing:.5px;line-height:1.1}
 .hdr-txt span{font-size:11px;color:rgba(255,255,255,.82)}
@@ -408,7 +411,7 @@ canvas{max-width:100%!important}
 <div id="app-auditoria" style="display:none">
 <header>
   <div class="hdr">
-    <div class="logo-box"><img id="ism-logo-recorrido" src="" alt="ISM"></div>
+    <div class="logo-box"><img id="ism-logo-auditoria" src="" alt="ISM"></div>
     <div class="hdr-brand"><h1>Auditoria 5S</h1><span>Industrias San Miguel</span></div>
     <button class="hdr-sync" onclick="volverBienvenida()">&#8592; Salir</button>
   </div>
@@ -563,7 +566,7 @@ canvas{max-width:100%!important}
       <option value="3">Auditoria N&#176; 3</option>
       <option value="4">Auditoria N&#176; 4</option>
     </select>
-    <button onclick="exportarPDFGerencial(this)" style="flex-shrink:0;background:#1565C0;color:#fff;border:none;border-radius:8px;padding:8px 14px;font-family:Barlow,sans-serif;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">&#128196; PDF Gerencial</button>
+    <button onclick="const b=this;b.innerHTML='<span class=&quot;spinner&quot;></span> Generando...';b.disabled=true;setTimeout(()=>exportarPDFGerencial(b),50)" style="flex-shrink:0;background:#1565C0;color:#fff;border:none;border-radius:8px;padding:8px 14px;font-family:Barlow,sans-serif;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">&#128196; PDF Gerencial</button>
   </div>
   <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px">
     <div class="kpi-box"><div class="kpi-val" id="dk-total">0</div><div class="kpi-lbl">Auditorias</div></div>
@@ -2826,12 +2829,13 @@ function renderObsPendientes(){
 
 // ═══ PDF GERENCIAL PLANTA ═══
 async function exportarPDFGerencial(btn){
-  if(btn){btn.innerHTML='<span class="spinner"></span> Generando...';btn.disabled=true;}
   try{
     if(!auditorias||auditorias.length===0){showToast("Cargando datos...");await cargarAuditorias();}
     const nroFiltro=document.getElementById("d-fil-nro-pdf")?.value||"";
     const data=nroFiltro?auditorias.filter(a=>String(a.nro_auditoria)===nroFiltro):auditorias;
     if(!data.length){showToast("No hay auditorias registradas",true);if(btn){btn.innerHTML="&#128196; PDF Gerencial";btn.disabled=false;}return;}
+
+    showToast("Generando PDF...");
 
     const {jsPDF}=window.jspdf;
     const doc=new jsPDF({orientation:"portrait",unit:"mm",format:"a4"});
@@ -3122,13 +3126,13 @@ async function exportarPDFGerencial(btn){
       }
     }
 
-    // ── PÁGINA 4: FORTALEZAS ──────────────────────────────────
+    // ── PÁGINA 4: FORTALEZAS POR PILAR → ÁREA ─────────────
     var fortalezas=[];
     data.forEach(function(a){
       var det=safeJson(a.detalles,"[]");
       det.forEach(function(d){
-        if(d.puntaje>=4&&(d.fortaleza||(d.fotos&&d.fotos.length>0))){
-          fortalezas.push({area:a.area,sector:a.sector||"",nro:a.nro_auditoria,num:d.num,pilar:d.pilar||"",criterio:d.criterio||"",puntaje:d.puntaje,fortaleza:d.fortaleza||"",fotos:d.fotos||[]});
+        if(d.puntaje>=4&&d.fortaleza){
+          fortalezas.push({area:a.area,nro:a.nro_auditoria,num:d.num,pilar:d.pilar||"",criterio:d.criterio||"",puntaje:d.puntaje,fortaleza:d.fortaleza});
         }
       });
     });
@@ -3136,83 +3140,87 @@ async function exportarPDFGerencial(btn){
     if(fortalezas.length>0){
       doc.addPage(); var yF=20;
       doc.setFillColor(...G);doc.rect(0,0,PW,16,"F");
-      doc.setTextColor(...W);doc.setFont("helvetica","bold");doc.setFontSize(13);
+      doc.setTextColor(...W);doc.setFont("helvetica","bold");doc.setFontSize(14);
       doc.text("FORTALEZAS IDENTIFICADAS",PW/2,9,{align:"center"});
-      doc.setFont("helvetica","normal");doc.setFontSize(7.5);
-      doc.text("Buenas practicas documentadas — Premio Nacional 5S",PW/2,14,{align:"center"});
-      yF=24;
+      doc.setFont("helvetica","normal");doc.setFontSize(8);
+      doc.text("Buenas prácticas por pilar y área — Premio Nacional 5S",PW/2,14,{align:"center"});
+      yF=22;
 
-      var byAreaF={};
-      fortalezas.forEach(function(f){if(!byAreaF[f.area])byAreaF[f.area]=[];byAreaF[f.area].push(f);});
+      var pilarOrder=["1S","2S","3S","4S","5S"];
+      var pilarFullName={"1S":"1S — Seleccionar","2S":"2S — Ordenar","3S":"3S — Limpiar","4S":"4S — Estandarizar","5S":"5S — Disciplinar"};
+      var pilarRgb={"1S":[230,91,0],"2S":[27,94,32],"3S":[13,71,161],"4S":[74,20,140],"5S":[136,14,79]};
 
-      for(var area in byAreaF){
-        if(yF>265){doc.addPage();yF=20;}
-        // Cabecera de área
-        doc.setFillColor(235,248,240);doc.setDrawColor(...G);doc.setLineWidth(0.4);
-        doc.roundedRect(M,yF,CW,8,1,1,"FD");
-        doc.setFillColor(...G);doc.rect(M,yF,4,8,"F");
-        doc.setTextColor(...GD);doc.setFont("helvetica","bold");doc.setFontSize(9);
-        doc.text(area.toUpperCase(),M+8,yF+5.5);
+      // Resumen conteo por pilar
+      var activePilares=pilarOrder.filter(function(k){return fortalezas.some(function(f){return f.pilar&&f.pilar.startsWith(k);});});
+      var sumW=activePilares.length>0?CW/activePilares.length-2:CW;
+      activePilares.forEach(function(k,i){
+        var col=pilarRgb[k]||G;
+        var cnt=fortalezas.filter(function(f){return f.pilar&&f.pilar.startsWith(k);}).length;
+        var x=M+i*(sumW+2);
+        doc.setFillColor(245,245,245);doc.roundedRect(x,yF,sumW,14,1,1,"F");
+        doc.setFillColor(...col);doc.rect(x,yF,sumW,2,"F");
+        doc.setTextColor(...col);doc.setFont("helvetica","bold");doc.setFontSize(16);
+        doc.text(String(cnt),x+sumW/2,yF+10,{align:"center"});
+        doc.setFontSize(6.5);doc.text(k,x+sumW/2,yF+13,{align:"center"});
+      });
+      yF+=20;
+
+      // Por pilar
+      pilarOrder.forEach(function(k){
+        var col=pilarRgb[k]||G;
+        var fsPilar=fortalezas.filter(function(f){return f.pilar&&f.pilar.startsWith(k);});
+        if(!fsPilar.length)return;
+        if(yF>250){doc.addPage();yF=20;}
+        // Header pilar
+        doc.setFillColor(...col);doc.rect(M,yF,CW,9,"F");
+        doc.setTextColor(...W);doc.setFont("helvetica","bold");doc.setFontSize(10);
+        doc.text(pilarFullName[k]||k,M+5,yF+6);
+        doc.setFontSize(8);doc.text(fsPilar.length+" fortaleza"+(fsPilar.length>1?"s":""),PW-M-5,yF+6,{align:"right"});
         yF+=12;
-
-        byAreaF[area].forEach(function(f){
-          if(yF>255){doc.addPage();yF=20;}
-          var lbl=f.puntaje===5?"Excelente":"Bueno";
-          var col=f.puntaje===5?G:[46,125,50];
-
-          // Criterio
-          doc.setFillColor(248,252,249);doc.setDrawColor(180,210,190);doc.roundedRect(M,yF,CW,12,1,1,"FD");
-          doc.setFillColor(...col);doc.rect(M,yF,3,12,"F");
-          doc.setTextColor(60,60,60);doc.setFont("helvetica","bold");doc.setFontSize(7);
-          doc.text(f.pilar+" \u2014 Criterio "+f.num,M+6,yF+4.5);
-          doc.setFont("helvetica","normal");doc.setFontSize(6.5);
-          var cLines=doc.splitTextToSize(f.criterio,CW-30);
-          doc.text(cLines,M+6,yF+8.5);
-          // Badge puntaje
-          doc.setFillColor(...col);doc.roundedRect(PW-M-16,yF+1,14,10,1,1,"F");
-          doc.setTextColor(...W);doc.setFont("helvetica","bold");doc.setFontSize(12);
-          doc.text(String(f.puntaje),PW-M-9,yF+8,{align:"center"});
-          yF+=14;
-
-          // Fortaleza
-          if(f.fortaleza){
+        // Por área dentro del pilar
+        var byAreaP={};
+        fsPilar.forEach(function(f){if(!byAreaP[f.area])byAreaP[f.area]=[];byAreaP[f.area].push(f);});
+        Object.keys(byAreaP).sort().forEach(function(area){
+          if(yF>258){doc.addPage();yF=20;}
+          // Sub-cabecera área
+          doc.setFillColor(240,247,241);doc.setDrawColor(...col);doc.setLineWidth(0.3);
+          doc.roundedRect(M,yF,CW,7,1,1,"FD");
+          doc.setFillColor(...col);doc.rect(M,yF,3,7,"F");
+          doc.setTextColor(30,70,30);doc.setFont("helvetica","bold");doc.setFontSize(8);
+          doc.text(area,M+6,yF+5);
+          yF+=10;
+          // Fortalezas del área
+          byAreaP[area].forEach(function(f){
             if(yF>260){doc.addPage();yF=20;}
-            var fLines=doc.splitTextToSize(f.fortaleza,CW-10);
-            var fH=fLines.length*4+8;
-            doc.setFillColor(230,248,235);doc.setDrawColor(150,200,160);doc.roundedRect(M,yF,CW,fH,1,1,"FD");
-            doc.setTextColor(0,100,40);doc.setFont("helvetica","bolditalic");doc.setFontSize(7);
-            doc.text("\u2728 Fortaleza:",M+4,yF+5);
-            doc.setFont("helvetica","italic");doc.setTextColor(30,70,40);
-            doc.text(fLines,M+4,yF+9);
-            yF+=fH+4;
-          }
-
-          // Fotos (máx 3, en fila)
-          if(f.fotos&&f.fotos.length>0){
-            if(yF>250){doc.addPage();yF=20;}
+            // Criterio
             doc.setTextColor(100,100,100);doc.setFont("helvetica","normal");doc.setFontSize(6.5);
-            doc.text("Evidencia fotogr\u00e1fica:",M,yF+3);
+            var cText="Criterio "+f.num+": "+(f.criterio||"").substring(0,85)+(f.criterio&&f.criterio.length>85?"...":"");
+            doc.text(cText,M+4,yF);
+            // Badge puntaje
+            doc.setFillColor(...col);doc.roundedRect(PW-M-22,yF-4.5,22,6,1,1,"F");
+            doc.setTextColor(...W);doc.setFont("helvetica","bold");doc.setFontSize(6);
+            doc.text(f.puntaje+" — "+(f.puntaje===5?"Excelente":"Bueno"),PW-M-11,yF,{align:"center"});
             yF+=5;
-            var fotoW=50,fotoH=37,gap=5;
-            f.fotos.slice(0,3).forEach(function(url,fi){
-              try{
-                if(yF+fotoH>275){doc.addPage();yF=20;}
-                doc.addImage(url,"JPEG",M+fi*(fotoW+gap),yF,fotoW,fotoH,"","MEDIUM");
-              }catch(e){console.warn("Foto no disponible:",e);}
-            });
-            yF+=fotoH+5;
-          }
-
-          // Separador
-          doc.setDrawColor(200,225,205);doc.setLineWidth(0.2);
-          doc.line(M,yF,M+CW,yF);
-          yF+=5;
+            // Texto fortaleza
+            var fLines=doc.splitTextToSize(f.fortaleza,CW-12);
+            var fH=fLines.length*4.5+7;
+            doc.setFillColor(232,248,235);doc.setDrawColor(160,210,165);doc.setLineWidth(0.2);
+            doc.roundedRect(M+2,yF,CW-4,fH,1,1,"FD");
+            doc.setTextColor(0,90,30);doc.setFont("helvetica","italic");doc.setFontSize(7.5);
+            doc.text(fLines,M+5,yF+5);
+            yF+=fH+4;
+            // Separador
+            doc.setDrawColor(200,228,202);doc.setLineWidth(0.15);
+            doc.line(M+4,yF,M+CW-4,yF);
+            yF+=3;
+          });
+          yF+=2;
         });
-        yF+=3;
-      }
+        yF+=6;
+      });
     }
 
-    // ── FOOTER EN TODAS LAS PÁGINAS ───────────────────────────
+        // ── FOOTER EN TODAS LAS PÁGINAS ───────────────────────────
     var pageCount=doc.getNumberOfPages();
     for(var pg=1;pg<=pageCount;pg++){
       doc.setPage(pg);

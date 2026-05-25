@@ -2090,31 +2090,38 @@ async function cargarAuditorias(){
   try{
     const {data,error}=await sb.from("auditorias_5s_ism").select("*").order("created_at",{ascending:false});
     if(error)throw error;
-    auditorias=data||[];
-    // Sectores ya auditados globalmente
-    sectoresAuditados=new Set((auditorias||[]).map(a=>a.sector).filter(Boolean));
-    // Sectores auditados por número de auditoría
-    sectoresAuditadosNro=new Set((auditorias||[])
+    // Normalizar datos — asegurar que campos JSON sean seguros
+    auditorias=(data||[]).map(a=>({
+      ...a,
+      detalles: safeJson(a.detalles,"[]"),
+      incumplimientos: safeJson(a.incumplimientos,"[]"),
+      cierre_criterios: safeJson(a.cierre_criterios,"{}")
+    }));
+    sectoresAuditados=new Set(auditorias.map(a=>a.sector).filter(Boolean));
+    sectoresAuditadosNro=new Set(auditorias
       .filter(a=>a.nro_auditoria&&a.sector)
       .map(a=>a.nro_auditoria+"_"+a.sector));
-    // Llenar filtros
+    // Llenar filtros area
     const areas=[...new Set(auditorias.map(a=>a.area).filter(Boolean))].sort();
     const sects=[...new Set(auditorias.map(a=>a.sector).filter(Boolean))].sort();
-    ["hfil-area","dfil-area"].forEach(id=>{
+    ["hfil-area","d-fil-area-a"].forEach(id=>{
       const el=document.getElementById(id);if(!el)return;
       const cur=el.value;
-      el.innerHTML='<option value="">Todas las áreas</option>';
-      areas.forEach(a=>el.innerHTML+=`<option value="${a}" ${a===cur?"selected":""}>${a}</option>`);
+      el.innerHTML='<option value="">Todas las areas</option>';
+      areas.forEach(a=>el.innerHTML+=`<option value="${a}"${a===cur?' selected':''}>${a}</option>`);
     });
-    ["dfil-sector"].forEach(id=>{
-      const el=document.getElementById(id);if(!el)return;
-      el.innerHTML='<option value="">Todos los sectores</option>';
-      sects.forEach(s=>el.innerHTML+=`<option value="${s}">${s}</option>`);
-    });
-    renderHistorial();
-    renderAuditDashboard();
-    renderNuevaPendientes();
-  }catch(e){console.error(e);showToast("Error cargando auditorías: "+e.message,true);}
+    const dsEl=document.getElementById("d-fil-sector-a");
+    if(dsEl){dsEl.innerHTML='<option value="">Todos los sectores</option>';sects.forEach(s=>dsEl.innerHTML+=`<option value="${s}">${s}</option>`);}
+  }catch(e){
+    console.error("cargarAuditorias error:",e);
+    showToast("Error cargando auditorias: "+e.message,true);
+  }
+}
+
+function safeJson(val, def){
+  if(!val) return JSON.parse(def);
+  if(typeof val === 'object') return val;
+  try{ return JSON.parse(val); }catch(e){ return JSON.parse(def); }
 }
 
 function showAuditTab(name){
@@ -2155,8 +2162,8 @@ function renderHistorial(){
 
   el.innerHTML = list.map(a=>{
     const col = a.nivel==="Excelente"?"#1B5E20":a.nivel==="Bueno"?G:a.nivel==="Regular"?A:R;
-    const detalles = JSON.parse(a.detalles||"[]");
-    const cierres  = JSON.parse(a.cierre_criterios||"{}");
+    const detalles = Array.isArray(a.detalles)?a.detalles:safeJson(a.detalles,"[]");
+    const cierres  = (typeof a.cierre_criterios==='object'&&a.cierre_criterios)?a.cierre_criterios:safeJson(a.cierre_criterios,"{}");
     const uid = "h"+a.id;
     const incumpl = detalles.filter(d=>d.puntaje<=3&&d.puntaje>0);
 
@@ -2209,7 +2216,7 @@ function renderAuditDashboard(){
   const totalAudit=data.length;
   const promPuntaje=Math.round(data.reduce((s,a)=>s+(a.puntaje_total||0),0)/totalAudit);
   const promPct=Math.round(data.reduce((s,a)=>s+(a.pct_cumplimiento||0),0)/totalAudit);
-  const totalObs=data.reduce((s,a)=>s+JSON.parse(a.incumplimientos||"[]").length,0);
+  const totalObs=data.reduce((s,a)=>s+safeJson(a.incumplimientos,"[]").length,0);
   document.getElementById("dk-total").textContent=totalAudit;
   document.getElementById("dk-prom").textContent=promPuntaje;
   document.getElementById("dk-obs").textContent=totalObs;
@@ -2289,7 +2296,7 @@ function renderAuditDashboard(){
   pilarNames.forEach((p,i)=>{
     let sum=0,cnt=0;
     data.forEach(a=>{
-      const det=JSON.parse(a.detalles||"[]");
+      const det=safeJson(a.detalles,"[]");
       pilarNums[i].forEach(n=>{const d=det.find(x=>x.num===n);if(d&&d.puntaje>0){sum+=d.puntaje;cnt++;}});
     });
     pilarProms[p]=cnt?Math.round((sum/cnt)/5*100):0;
@@ -2308,7 +2315,7 @@ function renderAuditDashboard(){
   const critCount={};
   CRITERIOS.forEach(c=>{critCount[c.num]={txt:c.txt,pilar:c.pilar,count:0};});
   data.forEach(a=>{
-    const incumpl=JSON.parse(a.incumplimientos||"[]");
+    const incumpl=safeJson(a.incumplimientos,"[]");
     incumpl.forEach(obs=>{if(critCount[obs.num])critCount[obs.num].count++;});
   });
   const critSorted=Object.entries(critCount).filter(([,v])=>v.count>0).sort((a,b)=>b[1].count-a[1].count).slice(0,8);
@@ -2385,7 +2392,7 @@ function renderAuditDashboard(){
   // Obs por área (barras horizontales)
   const obsByArea={};
   data.forEach(a=>{
-    const incumpl=JSON.parse(a.incumplimientos||"[]");
+    const incumpl=safeJson(a.incumplimientos,"[]");
     if(!obsByArea[a.area])obsByArea[a.area]=0;
     obsByArea[a.area]+=incumpl.length;
   });
@@ -2491,7 +2498,6 @@ function renderPendientes(){
   }).join("");
 }
 
-function renderBienvenidaPendientes(){return;} // deprecated
 function renderNuevaPendientes(){
   const el=document.getElementById("nueva-pendientes");
   if(!el)return;
@@ -2580,7 +2586,7 @@ function handleFotoCierreAudit(input){
   r.readAsDataURL(file);
 }
 
-async function confirmarCierreAudit(){
+async async function confirmarCierreAudit(){
   if(!fotoCierreAudit){
     showToast("La foto de evidencia es obligatoria",true);
     document.getElementById("drop-cierre-audit").style.borderColor="var(--red)";
@@ -2598,8 +2604,7 @@ async function confirmarCierreAudit(){
     const auditoria = auditorias.find(a => a.id === auditId);
     if(!auditoria) throw new Error("Auditoria no encontrada");
     // Actualizar cierre_criterios
-    let cierres = {};
-    try{ cierres = JSON.parse(auditoria.cierre_criterios || "{}"); }catch(e){}
+    let cierres = (typeof auditoria.cierre_criterios==='object'&&auditoria.cierre_criterios)?auditoria.cierre_criterios:safeJson(auditoria.cierre_criterios,"{}");
     cierres[numCriterio] = {
       cerrado: true,
       foto_cierre: fotoUrl,
@@ -2610,8 +2615,8 @@ async function confirmarCierreAudit(){
       .update({cierre_criterios: JSON.stringify(cierres)})
       .eq("id", auditId);
     if(error) throw error;
-    // Actualizar local
-    auditoria.cierre_criterios = JSON.stringify(cierres);
+    // Actualizar local como objeto (igual que cargarAuditorias)
+    auditoria.cierre_criterios = cierres;
     closeModal("modal-cierre-audit");
     showToast("Observacion levantada correctamente");
     renderHistorial();
@@ -2633,8 +2638,8 @@ function renderPendientesCierre(){
   // Por cada auditoría, por cada criterio ≤3 sin cierre → acumular por responsable
   const byResp={};
   data.forEach(a=>{
-    const detalles=JSON.parse(a.detalles||"[]");
-    const cierres=JSON.parse(a.cierre_criterios||"{}");
+    const detalles=Array.isArray(a.detalles)?a.detalles:safeJson(a.detalles,"[]");
+    const cierres=(typeof a.cierre_criterios==='object'&&a.cierre_criterios)?a.cierre_criterios:safeJson(a.cierre_criterios,"{}");
     const resp=a.responsable||"Sin responsable";
     detalles.forEach(d=>{
       if(d.puntaje<=3&&d.puntaje>0){
@@ -2734,8 +2739,8 @@ function renderObsPendientes(){
   // Recolectar todas las obs de incumplimiento
   let todasObs = [];
   auditorias.forEach(a=>{
-    const detalles = JSON.parse(a.detalles||"[]");
-    const cierres  = JSON.parse(a.cierre_criterios||"{}");
+    const detalles = Array.isArray(a.detalles)?a.detalles:safeJson(a.detalles,"[]");
+    const cierres  = (typeof a.cierre_criterios==='object'&&a.cierre_criterios)?a.cierre_criterios:safeJson(a.cierre_criterios,"{}");
     detalles.forEach(d=>{
       if(d.puntaje<=3 && d.puntaje>0){
         todasObs.push({
@@ -2860,9 +2865,9 @@ async async function exportarPDFGerencial(){
 
     // ── KPIs ─────────────────────────────────────────────────
     const areas=[...new Set(data.map(a=>a.area))];
-    const totalObs=data.reduce((s,a)=>s+JSON.parse(a.incumplimientos||"[]").length,0);
+    const totalObs=data.reduce((s,a)=>s+safeJson(a.incumplimientos,"[]").length,0);
     const totalCierres=data.reduce((s,a)=>{
-      const c=JSON.parse(a.cierre_criterios||"{}");
+      const c=safeJson(a.cierre_criterios,"{}");
       return s+Object.values(c).filter(v=>v.cerrado).length;
     },0);
     const pctLevantado=totalObs?Math.round(totalCierres/totalObs*100):100;
@@ -2901,7 +2906,7 @@ async async function exportarPDFGerencial(){
     const pilarProms=pilarNames.map((_,i)=>{
       let sum=0,cnt=0;
       data.forEach(a=>{
-        const det=JSON.parse(a.detalles||"[]");
+        const det=safeJson(a.detalles,"[]");
         pilarNums[i].forEach(n=>{const d=det.find(x=>x.num===n);if(d&&d.puntaje>0){sum+=d.puntaje;cnt++;}});
       });
       return cnt?Math.round((sum/cnt)/5*100):0;
@@ -2912,7 +2917,7 @@ async async function exportarPDFGerencial(){
 
     const critCount={};
     data.forEach(a=>{
-      JSON.parse(a.incumplimientos||"[]").forEach(o=>{critCount[o.num]=(critCount[o.num]||0)+1;});
+      safeJson(a.incumplimientos,"[]").forEach(o=>{critCount[o.num]=(critCount[o.num]||0)+1;});
     });
     const critTop=Object.entries(critCount).sort((a,b)=>b[1]-a[1]).slice(0,3);
 
@@ -3004,7 +3009,7 @@ async async function exportarPDFGerencial(){
       const critRows=critTop.map(function(e){
         const num=e[0];const count=e[1];
         var crit=null;
-        data.forEach(function(a){if(crit)return;const det=JSON.parse(a.detalles||"[]");const d=det.find(function(x){return x.num===parseInt(num);});if(d)crit=d;});
+        data.forEach(function(a){if(crit)return;const det=safeJson(a.detalles,"[]");const d=det.find(function(x){return x.num===parseInt(num);});if(d)crit=d;});
         return[String(num),crit?crit.pilar||"":"",crit?(crit.criterio||"").substring(0,65)+(crit.criterio&&crit.criterio.length>65?"...":""):"",count+" audits"];
       });
       doc.autoTable({
@@ -3054,8 +3059,8 @@ async async function exportarPDFGerencial(){
         const audsArea=data.filter(function(a){return a.area===area;});
         var total=0,levantadas=0;
         audsArea.forEach(function(a){
-          const inc=JSON.parse(a.incumplimientos||"[]");
-          const cie=JSON.parse(a.cierre_criterios||"{}");
+          const inc=safeJson(a.incumplimientos,"[]");
+          const cie=safeJson(a.cierre_criterios,"{}");
           total+=inc.length;
           levantadas+=Object.values(cie).filter(function(v){return v.cerrado;}).length;
         });

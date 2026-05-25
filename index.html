@@ -2587,7 +2587,7 @@ function handleFotoCierreAudit(input){
   r.readAsDataURL(file);
 }
 
-async async function confirmarCierreAudit(){
+async function confirmarCierreAudit(){
   if(!fotoCierreAudit){
     showToast("La foto de evidencia es obligatoria",true);
     document.getElementById("drop-cierre-audit").style.borderColor="var(--red)";
@@ -2821,7 +2821,7 @@ function renderObsPendientes(){
 
 
 // ═══ PDF GERENCIAL PLANTA ═══
-async async function exportarPDFGerencial(){
+async function exportarPDFGerencial(){
   const btn=document.querySelector('[onclick="exportarPDFGerencial()"]');
   if(btn){btn.textContent="...";btn.disabled=true;}
   try{

@@ -3086,6 +3086,110 @@ async function exportarPDFGerencial(){
       }
     }
 
+    // ── FORTALEZAS IDENTIFICADAS ────────────────────────────
+    // Recolectar criterios con puntaje >= 4 que tienen fortaleza o foto
+    const fortalezas=[];
+    data.forEach(function(a){
+      const det=safeJson(a.detalles,"[]");
+      det.forEach(function(d){
+        if(d.puntaje>=4 && (d.fortaleza||(d.fotos&&d.fotos.length>0))){
+          fortalezas.push({
+            area:a.area, sector:a.sector||"", nro:a.nro_auditoria,
+            num:d.num, pilar:d.pilar||"", criterio:d.criterio||"",
+            puntaje:d.puntaje, fortaleza:d.fortaleza||"",
+            fotos:d.fotos||[]
+          });
+        }
+      });
+    });
+
+    if(fortalezas.length>0){
+      doc.addPage(); var yF=20;
+      // Header sección
+      doc.setFillColor(...G);doc.rect(0,0,PW,14,"F");
+      doc.setTextColor(...W);doc.setFont("helvetica","bold");doc.setFontSize(13);
+      doc.text("FORTALEZAS IDENTIFICADAS",PW/2,9,{align:"center"});
+      doc.setFontSize(8);doc.setFont("helvetica","normal");
+      doc.text("Criterios con puntaje 4-5 — Buenas practicas para el Premio Nacional 5S",PW/2,13,{align:"center"});
+      yF=20;
+
+      // Agrupar por área
+      const byAreaF={};
+      fortalezas.forEach(function(f){
+        if(!byAreaF[f.area])byAreaF[f.area]=[];
+        byAreaF[f.area].push(f);
+      });
+
+      for(var area in byAreaF){
+        if(yF>260){doc.addPage();yF=15;}
+        // Título área
+        doc.setFillColor(240,250,245);doc.setDrawColor(...G);doc.setLineWidth(0.3);
+        doc.roundedRect(M,yF,CW,7,1,1,"FD");
+        doc.setTextColor(...GD);doc.setFont("helvetica","bold");doc.setFontSize(8.5);
+        doc.text(area,M+4,yF+4.5);
+        yF+=9;
+
+        byAreaF[area].forEach(function(f){
+          if(yF>255){doc.addPage();yF=15;}
+          var lbl=f.puntaje===5?"Excelente":"Bueno";
+          var col=f.puntaje===5?G:[46,125,50];
+
+          // Fila criterio
+          doc.setFillColor(...col);doc.rect(M,yF,2,14,"F");
+          doc.setTextColor(...col);doc.setFont("helvetica","bold");doc.setFontSize(7.5);
+          doc.text(f.pilar,M+4,yF+4);
+          doc.setTextColor(50,70,50);doc.setFont("helvetica","normal");doc.setFontSize(7);
+          var criterioLines=doc.splitTextToSize(f.criterio,f.fotos.length>0?100:130);
+          doc.text(criterioLines,M+4,yF+8);
+
+          // Puntaje badge
+          doc.setFillColor(...col);doc.roundedRect(PW-M-18,yF+1,18,12,2,2,"F");
+          doc.setTextColor(...W);doc.setFont("helvetica","bold");doc.setFontSize(14);
+          doc.text(String(f.puntaje),PW-M-9,yF+9,{align:"center"});
+          doc.setFontSize(6);doc.text(lbl,PW-M-9,yF+13,{align:"center"});
+
+          yF+=16;
+
+          // Fortaleza texto
+          if(f.fortaleza){
+            if(yF>260){doc.addPage();yF=15;}
+            doc.setFillColor(235,250,240);doc.setDrawColor(200,230,210);
+            var fortLines=doc.splitTextToSize(f.fortaleza,CW-10);
+            var fortH=fortLines.length*4+6;
+            doc.roundedRect(M,yF,CW,fortH,1,1,"FD");
+            doc.setTextColor(0,80,30);doc.setFont("helvetica","bolditalic");doc.setFontSize(7);
+            doc.text("Fortaleza:",M+3,yF+4);
+            doc.setFont("helvetica","italic");
+            doc.text(fortLines,M+22,yF+4);
+            yF+=fortH+3;
+          }
+
+          // Fotos - máximo 3 por fila
+          if(f.fotos&&f.fotos.length>0){
+            if(yF>250){doc.addPage();yF=15;}
+            var fotoW=40, fotoH=30, gap=4;
+            var fotosToShow=f.fotos.slice(0,3);
+            doc.setTextColor(100,100,100);doc.setFont("helvetica","normal");doc.setFontSize(6.5);
+            doc.text("Evidencia fotográfica:",M,yF+3);
+            yF+=5;
+            fotosToShow.forEach(function(fotoUrl,fi){
+              try{
+                if(yF+fotoH>275){doc.addPage();yF=15;}
+                doc.addImage(fotoUrl,"JPEG",M+fi*(fotoW+gap),yF,fotoW,fotoH);
+              }catch(e){console.warn("No se pudo agregar foto:",e);}
+            });
+            yF+=fotoH+5;
+          }
+
+          // Separador
+          doc.setDrawColor(200,220,200);doc.setLineWidth(0.2);
+          doc.line(M,yF,PW-M,yF);
+          yF+=4;
+        });
+        yF+=4;
+      }
+    }
+
     // ── FOOTER ───────────────────────────────────────────────
     const pageCount=doc.getNumberOfPages();
     for(var i=1;i<=pageCount;i++){

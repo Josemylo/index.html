@@ -1,4 +1,4 @@
-  <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -417,6 +417,7 @@ canvas{max-width:100%!important}
   <div id="atab-nueva" onclick="showAuditTab('nueva')" style="flex-shrink:0;padding:11px 20px;color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;cursor:pointer;border-bottom:3px solid var(--amber);user-select:none;white-space:nowrap">+ Nueva</div>
   <div id="atab-historial" onclick="showAuditTab('historial')" style="flex-shrink:0;padding:11px 20px;color:rgba(255,255,255,.6);font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;cursor:pointer;border-bottom:3px solid transparent;user-select:none;white-space:nowrap">Historial</div>
   <div id="atab-dashboard" onclick="showAuditTab('dashboard')" style="flex-shrink:0;padding:11px 20px;color:rgba(255,255,255,.6);font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;cursor:pointer;border-bottom:3px solid transparent;user-select:none;white-space:nowrap">Dashboard</div>
+  <div id="atab-observaciones" onclick="showAuditTab('observaciones')" style="flex-shrink:0;padding:11px 20px;color:rgba(255,255,255,.6);font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;cursor:pointer;border-bottom:3px solid transparent;user-select:none;white-space:nowrap">&#9888; Obs. Pendientes</div>
 </nav>
 <main style="max-width:720px;margin:0 auto;padding:18px 14px 100px">
 
@@ -623,6 +624,37 @@ canvas{max-width:100%!important}
     <div class="dash-card-title">&#128203; Observaciones de incumplimiento por area</div>
     <div style="position:relative;height:220px;width:100%"><canvas id="chart-audit-obs-area"></canvas></div>
   </div>
+</div>
+
+<!-- SECCION OBSERVACIONES PENDIENTES -->
+<div id="asec-observaciones" style="display:none">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+    <select id="ofil-nro" class="filter-small" onchange="renderObsPendientes()">
+      <option value="">Todas las auditorias</option>
+      <option value="1">Auditoria N&#176; 1</option>
+      <option value="2">Auditoria N&#176; 2</option>
+      <option value="3">Auditoria N&#176; 3</option>
+      <option value="4">Auditoria N&#176; 4</option>
+    </select>
+    <select id="ofil-area" class="filter-small" onchange="renderObsPendientes()">
+      <option value="">Todas las areas</option>
+    </select>
+    <select id="ofil-status" class="filter-small" onchange="renderObsPendientes()">
+      <option value="pendiente">Solo pendientes</option>
+      <option value="levantada">Solo levantadas</option>
+      <option value="">Todas</option>
+    </select>
+    <select id="ofil-resp" class="filter-small" onchange="renderObsPendientes()">
+      <option value="">Todos los responsables</option>
+    </select>
+  </div>
+  <!-- KPIs rápidos -->
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px">
+    <div class="kpi-box red"><div class="kpi-val" id="ok-pendientes">0</div><div class="kpi-lbl">Pendientes</div></div>
+    <div class="kpi-box green"><div class="kpi-val" id="ok-levantadas">0</div><div class="kpi-lbl">Levantadas</div></div>
+    <div class="kpi-box amber"><div class="kpi-val" id="ok-pct">0%</div><div class="kpi-lbl">% Levantado</div></div>
+  </div>
+  <div id="obs-audit-list"><div class="loading"><div class="spinner-g"></div><p style="margin-top:12px;font-size:13px">Cargando...</p></div></div>
 </div>
 
 </main>
@@ -2078,7 +2110,7 @@ async function cargarAuditorias(){
 }
 
 function showAuditTab(name){
-  ["nueva","historial","dashboard"].forEach(t=>{
+  ["nueva","historial","dashboard","observaciones"].forEach(t=>{
     const sec=document.getElementById("asec-"+t);
     const tab=document.getElementById("atab-"+t);
     if(sec)sec.style.display=t===name?"block":"none";
@@ -2087,13 +2119,10 @@ function showAuditTab(name){
       tab.style.borderBottomColor=t===name?"var(--amber)":"transparent";
     }
   });
-  if(name==="nueva")renderNuevaPendientes();
-  if(name==="historial")renderHistorial();
-  if(name==="dashboard"){
-    // Siempre recargar al entrar al dashboard
-    cargarAuditorias().then(()=>renderAuditDashboard());
-    window._auditDashboardDirty=false;
-  }
+  if(name==="nueva") renderNuevaPendientes();
+  if(name==="historial") cargarAuditorias().then(()=>renderHistorial());
+  if(name==="dashboard") cargarAuditorias().then(()=>renderAuditDashboard());
+  if(name==="observaciones") cargarAuditorias().then(()=>renderObsPendientes());
 }
 
 // ═══ HISTORIAL ═══
@@ -2197,9 +2226,7 @@ function renderHistorial(){
 
 
 function renderAuditDashboard(){
-  // Asegurar que el contenedor es visible antes de dibujar charts
-  const dashSec=document.getElementById("asec-dashboard");
-  if(dashSec&&dashSec.style.display==="none")return;
+
   const data=getAuditFiltradas();
   if(!data.length){
     ["dk-total","dk-prom","dk-obs","dk-pct"].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent="0";});
@@ -2616,6 +2643,8 @@ async function confirmarCierreAudit(){
     closeModal("modal-cierre-audit");
     showToast("Observacion levantada correctamente");
     renderHistorial();
+    renderObsPendientes();
+    renderPendientesCierre();
   }catch(e){
     showToast("Error: " + e.message, true);
   }
@@ -2699,6 +2728,154 @@ function renderPendientesCierre(){
             </div>`).join("")}
         </div>`
       :`<div style="font-size:11px;color:${G};font-weight:600">&#10003; Todas levantadas</div>`}
+    </div>`;
+  }).join("");
+}
+
+
+function destroyChartAudit(id){
+  const e=Chart.getChart(id);if(e)e.destroy();
+}
+
+function getAuditFiltradas(){
+  const fs=document.getElementById("d-fil-sector-a")?.value||"";
+  const fa=document.getElementById("d-fil-area-a")?.value||"";
+  return auditorias.filter(a=>{
+    if(fs&&a.sector!==fs)return false;
+    if(fa&&a.area!==fa)return false;
+    return true;
+  });
+}
+
+
+// ═══ OBSERVACIONES PENDIENTES DE AUDITORÍA ═══
+function renderObsPendientes(){
+  const filNro  = document.getElementById("ofil-nro")?.value||"";
+  const filArea = document.getElementById("ofil-area")?.value||"";
+  const filSt   = document.getElementById("ofil-status")?.value||"pendiente";
+  const filResp = document.getElementById("ofil-resp")?.value||"";
+  const el      = document.getElementById("obs-audit-list");
+  if(!el) return;
+
+  const G="#1E7C34", R="#E63329", A="#D97706";
+
+  // Recolectar todas las obs de incumplimiento de todas las auditorías
+  let todasObs = [];
+  auditorias.forEach(a=>{
+    const detalles = JSON.parse(a.detalles||"[]");
+    const cierres  = JSON.parse(a.cierre_criterios||"{}");
+    detalles.forEach(d=>{
+      if(d.puntaje<=3 && d.puntaje>0){
+        const cerrado = cierres[d.num]?.cerrado||false;
+        todasObs.push({
+          auditId:   a.id,
+          nro:       a.nro_auditoria,
+          area:      a.area,
+          sector:    a.sector,
+          fecha:     a.fecha,
+          auditor:   a.auditor,
+          responsable: a.responsable||"Sin responsable",
+          numCriterio: d.num,
+          pilar:     d.pilar||"",
+          criterio:  d.criterio||"",
+          obs:       d.obs||"",
+          puntaje:   d.puntaje,
+          fotos:     d.fotos||[],
+          cerrado,
+          fotoCierre: cierres[d.num]?.foto_cierre||null,
+          comentarioCierre: cierres[d.num]?.comentario||"",
+          fechaCierre: cierres[d.num]?.fecha_cierre||""
+        });
+      }
+    });
+  });
+
+  // Filtrar
+  let lista = todasObs.filter(o=>{
+    if(filNro  && String(o.nro)!==filNro)  return false;
+    if(filArea && o.area!==filArea)         return false;
+    if(filResp && o.responsable!==filResp) return false;
+    if(filSt==="pendiente" && o.cerrado)   return false;
+    if(filSt==="levantada" && !o.cerrado)  return false;
+    return true;
+  });
+
+  // Llenar filtros dinámicos
+  const areas = [...new Set(todasObs.map(o=>o.area))].sort();
+  const resps = [...new Set(todasObs.map(o=>o.responsable))].sort();
+  const aEl = document.getElementById("ofil-area");
+  const rEl = document.getElementById("ofil-resp");
+  if(aEl){ const cur=aEl.value; aEl.innerHTML='<option value="">Todas las areas</option>'; areas.forEach(a=>aEl.innerHTML+=`<option value="${a}" ${a===cur?"selected":""}>${a}</option>`); }
+  if(rEl){ const cur=rEl.value; rEl.innerHTML='<option value="">Todos los responsables</option>'; resps.forEach(r=>rEl.innerHTML+=`<option value="${r}" ${r===cur?"selected":""}>${r}</option>`); }
+
+  // KPIs
+  const pend = todasObs.filter(o=>!o.cerrado).length;
+  const levt = todasObs.filter(o=>o.cerrado).length;
+  const pct  = todasObs.length ? Math.round(levt/todasObs.length*100) : 0;
+  const kEl  = (id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+  kEl("ok-pendientes", pend);
+  kEl("ok-levantadas", levt);
+  kEl("ok-pct", pct+"%");
+
+  if(!lista.length){
+    const msg = filSt==="pendiente"
+      ? '<div style="text-align:center;padding:30px;color:var(--green)"><div style="font-size:40px;margin-bottom:8px">&#10003;</div><div style="font-size:14px;font-weight:700">No hay observaciones pendientes</div></div>'
+      : '<div class="empty"><div class="empty-ico">&#128202;</div><p>No hay observaciones con los filtros seleccionados</p></div>';
+    el.innerHTML = msg;
+    return;
+  }
+
+  const puntajeCols = {1:"#B71C1C",2:R,3:A};
+  const puntajeLbls = {1:"Muy deficiente",2:"Deficiente",3:"Regular"};
+
+  el.innerHTML = lista.map(o=>{
+    const col   = puntajeCols[o.puntaje]||A;
+    const lbl   = puntajeLbls[o.puntaje]||"";
+    const fotosHtml = o.fotos.length ? `<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px">
+      ${o.fotos.map(f=>`<img src="${f}" onclick="window.open('${f}','_blank')" style="width:56px;height:56px;object-fit:cover;border-radius:6px;border:2px solid var(--g200);cursor:pointer">`).join("")}
+    </div>` : "";
+
+    if(o.cerrado){
+      return `<div style="background:#fff;border-radius:10px;box-shadow:var(--sh);margin-bottom:10px;border-left:4px solid ${G};overflow:hidden">
+        <div style="padding:12px 14px">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:6px">
+            <div style="flex:1">
+              <div style="font-size:10px;color:var(--g400)">Aud. N°${o.nro||"—"} · ${o.area} · ${o.sector} · ${o.fecha||""}</div>
+              <div style="font-size:12px;font-weight:700;color:var(--g700);margin-top:2px">${o.criterio}</div>
+              ${o.obs?`<div style="font-size:11px;color:${col};margin-top:3px;padding:3px 6px;background:#FFF8E1;border-radius:4px">${o.obs}</div>`:""}
+              ${fotosHtml}
+            </div>
+            <span style="background:#E8F5E9;color:${G};font-size:10px;font-weight:700;padding:3px 8px;border-radius:10px;flex-shrink:0;white-space:nowrap">&#10003; Levantada</span>
+          </div>
+          <div style="background:#E8F5E9;border-radius:8px;padding:8px 10px;font-size:11px">
+            <div style="color:${G};font-weight:700;margin-bottom:4px">Cierre: ${o.fechaCierre||""} · &#128100; ${o.responsable}</div>
+            ${o.comentarioCierre?`<div style="color:var(--g700)">${o.comentarioCierre}</div>`:""}
+            ${o.fotoCierre?`<img src="${o.fotoCierre}" onclick="window.open('${o.fotoCierre}','_blank')" style="width:56px;height:56px;object-fit:cover;border-radius:6px;border:2px solid ${G};margin-top:6px;cursor:pointer">`:""}
+          </div>
+        </div>
+      </div>`;
+    }
+
+    return `<div style="background:#fff;border-radius:10px;box-shadow:var(--sh);margin-bottom:10px;border-left:4px solid ${col};overflow:hidden">
+      <div style="padding:12px 14px">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:6px">
+          <div style="flex:1">
+            <div style="font-size:10px;color:var(--g400)">Aud. N°${o.nro||"—"} · ${o.area} · ${o.sector} · ${o.fecha||""}</div>
+            <div style="font-size:11px;color:var(--g400)">&#128100; Resp: <strong>${o.responsable}</strong> · Auditor: ${o.auditor||""}</div>
+            <div style="display:flex;align-items:center;gap:6px;margin-top:4px">
+              <span style="background:${col}18;color:${col};font-size:10px;font-weight:700;padding:2px 7px;border-radius:8px">${o.pilar}</span>
+              <span style="font-size:11px;font-weight:700;color:${col}">${o.puntaje} — ${lbl}</span>
+            </div>
+            <div style="font-size:12px;font-weight:700;color:var(--g700);margin-top:4px">${o.criterio}</div>
+            ${o.obs?`<div style="font-size:11px;color:var(--g700);margin-top:3px;padding:4px 6px;background:#FFF8E1;border-radius:4px;border-left:2px solid ${col}">${o.obs}</div>`:""}
+            ${fotosHtml}
+          </div>
+        </div>
+        <button onclick="abrirCierreAudit(${o.auditId},${o.numCriterio},'${o.criterio.replace(/'/g,"\'")}','${o.obs.replace(/'/g,"\'")}');event.stopPropagation()"
+          style="width:100%;background:var(--green);color:#fff;border:none;border-radius:8px;padding:9px;font-family:Barlow,sans-serif;font-size:13px;font-weight:700;cursor:pointer;margin-top:4px">
+          &#128274; Levantar observacion
+        </button>
+      </div>
     </div>`;
   }).join("");
 }

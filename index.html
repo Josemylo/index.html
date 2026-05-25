@@ -2823,393 +2823,416 @@ function renderObsPendientes(){
 // ═══ PDF GERENCIAL PLANTA ═══
 async function exportarPDFGerencial(){
   const btn=document.querySelector('[onclick="exportarPDFGerencial()"]');
-  if(btn){btn.textContent="...";btn.disabled=true;}
+  if(btn){btn.innerHTML='<span class="spinner"></span> Generando...';btn.disabled=true;}
   try{
-    // Cargar auditorias si no hay datos
-    if(!auditorias||auditorias.length===0){
-      showToast("Cargando datos...");
-      await cargarAuditorias();
-    }
+    if(!auditorias||auditorias.length===0){showToast("Cargando datos...");await cargarAuditorias();}
     const nroFiltro=document.getElementById("d-fil-nro-pdf")?.value||"";
     const data=nroFiltro?auditorias.filter(a=>String(a.nro_auditoria)===nroFiltro):auditorias;
     if(!data.length){showToast("No hay auditorias registradas",true);if(btn){btn.innerHTML="&#128196; PDF Gerencial";btn.disabled=false;}return;}
 
     const {jsPDF}=window.jspdf;
     const doc=new jsPDF({orientation:"portrait",unit:"mm",format:"a4"});
-    const PW=210,M=14,CW=182;
+    const PW=210, PH=297, M=20, CW=170; // márgenes 20mm
     const G=[0,105,62],GD=[0,77,46],R=[230,51,41],A=[217,119,6],W=[255,255,255],GR=[245,248,246];
     const fecha=new Date().toLocaleDateString("es-PE",{day:"2-digit",month:"long",year:"numeric"});
     const nroLbl=nroFiltro?"Auditoria N\u00b0"+nroFiltro:"Consolidado General";
+    const hStyles={fillColor:GD,textColor:W,fontSize:8,fontStyle:"bold",halign:"center",cellPadding:{top:3,bottom:3,left:2,right:2}};
+    const bStyles={fontSize:7.5,halign:"center",cellPadding:{top:2,bottom:2,left:2,right:2}};
+    const altStyles={fillColor:[242,250,246]};
 
-    // ── PORTADA ──────────────────────────────────────────────
-    doc.setFillColor(...G);doc.rect(0,0,PW,60,"F");
-    doc.setFillColor(...A);doc.rect(0,60,PW,2,"F");
-    doc.addImage(ISM_LOGO,"JPEG",M,8,30,30);
+    // ── PÁGINA 1: PORTADA ─────────────────────────────────────
+    // Fondo superior verde
+    doc.setFillColor(...G);doc.rect(0,0,PW,80,"F");
+    doc.setFillColor(...A);doc.rect(0,80,PW,2,"F");
+    // Logo centrado
+    doc.addImage(ISM_LOGO,"JPEG",PW/2-20,12,40,40);
+    // Títulos centrados
     doc.setTextColor(...W);
-    doc.setFont("helvetica","bold");doc.setFontSize(22);
-    doc.text("REPORTE GERENCIAL 5S",PW/2+10,20,{align:"center"});
-    doc.setFontSize(13);doc.text("INDUSTRIAS SAN MIGUEL — HUAURA",PW/2+10,30,{align:"center"});
-    doc.setFont("helvetica","normal");doc.setFontSize(10);
-    doc.text(nroLbl,PW/2+10,40,{align:"center"});
-    doc.setFontSize(8.5);doc.text(fecha,PW/2+10,49,{align:"center"});
-    doc.text("Premio Nacional 5S",PW/2+10,56,{align:"center"});
+    doc.setFont("helvetica","bold");doc.setFontSize(20);
+    doc.text("REPORTE GERENCIAL 5S",PW/2,62,{align:"center"});
+    doc.setFontSize(11);
+    doc.text("INDUSTRIAS SAN MIGUEL \u2014 PLANTA HUAURA",PW/2,70,{align:"center"});
+    doc.setFont("helvetica","normal");doc.setFontSize(9);
+    doc.text(nroLbl+" \u00b7 "+fecha,PW/2,77,{align:"center"});
 
-    let y=68;
-
-    // ── SCORE GENERAL ────────────────────────────────────────
+    // Calcular KPIs
     const totalAuds=data.length;
     const promPuntaje=Math.round(data.reduce((s,a)=>s+(a.puntaje_total||0),0)/totalAuds);
     const promPct=Math.round(data.reduce((s,a)=>s+(a.pct_cumplimiento||0),0)/totalAuds);
     const nivel=promPct>=90?"EXCELENTE":promPct>=70?"BUENO":promPct>=50?"REGULAR":"DEFICIENTE";
     const nivelCol=promPct>=90?G:promPct>=70?[46,125,50]:promPct>=50?A:R;
-
-    doc.setFillColor(...nivelCol);doc.roundedRect(M,y,CW,26,3,3,"F");
-    doc.setTextColor(...W);doc.setFont("helvetica","bold");doc.setFontSize(28);
-    doc.text(promPuntaje+"/100",PW/2,y+14,{align:"center"});
-    doc.setFontSize(10);doc.text(nivel+" — "+promPct+"% DE CUMPLIMIENTO GENERAL",PW/2,y+22,{align:"center"});
-    y+=30;
-
-    // ── KPIs ─────────────────────────────────────────────────
-    const areas=[...new Set(data.map(a=>a.area))];
+    const areas=[...new Set(data.map(a=>a.area))].sort();
     const totalObs=data.reduce((s,a)=>s+safeJson(a.incumplimientos,"[]").length,0);
     const totalCierres=data.reduce((s,a)=>{
       const c=safeJson(a.cierre_criterios,"{}");
-      return s+Object.values(c).filter(v=>v.cerrado).length;
+      return s+Object.values(c).filter(v=>v&&v.cerrado).length;
     },0);
-    const pctLevantado=totalObs?Math.round(totalCierres/totalObs*100):100;
+    const pctLev=totalObs?Math.round(totalCierres/totalObs*100):100;
 
+    // Score grande centrado
+    var y=92;
+    doc.setFillColor(...nivelCol);doc.roundedRect(M,y,CW,22,3,3,"F");
+    doc.setTextColor(...W);doc.setFont("helvetica","bold");doc.setFontSize(22);
+    doc.text(promPuntaje+"/100",PW/2,y+12,{align:"center"});
+    doc.setFontSize(9);
+    doc.text(nivel+" \u2014 "+promPct+"% DE CUMPLIMIENTO GENERAL",PW/2,y+19,{align:"center"});
+    y+=28;
+
+    // KPIs en fila (5 cajas iguales)
     const kpis=[
-      {label:"AUDITORIAS",val:String(totalAuds),col:G},
-      {label:"AREAS EVALUADAS",val:String(areas.length),col:G},
-      {label:"PUNTAJE PROMEDIO",val:String(promPuntaje),col:nivelCol},
-      {label:"OBS. INCUMPLIMIENTO",val:String(totalObs),col:R},
-      {label:"% OBS. LEVANTADAS",val:pctLevantado+"%",col:G},
+      {l:"AUDITORIAS",v:String(totalAuds),c:G},
+      {l:"AREAS EVALUADAS",v:String(areas.length),c:G},
+      {l:"PUNTAJE PROMEDIO",v:String(promPuntaje),c:nivelCol},
+      {l:"OBS. INCUMPLIMIENTO",v:String(totalObs),c:R},
+      {l:"% OBS. LEVANTADAS",v:pctLev+"%",c:G},
     ];
-    const kW=(CW-16)/5;
-    kpis.forEach((k,i)=>{
-      const x=M+i*(kW+4);
-      doc.setFillColor(245,248,246);doc.setDrawColor(200,216,204);doc.roundedRect(x,y,kW,18,1.5,1.5,"FD");
-      doc.setFillColor(...k.col);doc.rect(x,y,kW,1.8,"F");
-      doc.setTextColor(...k.col);doc.setFont("helvetica","bold");doc.setFontSize(16);
-      doc.text(k.val,x+kW/2,y+10,{align:"center"});
-      doc.setTextColor(100,100,100);doc.setFont("helvetica","normal");doc.setFontSize(6);
-      doc.text(k.label,x+kW/2,y+16,{align:"center"});
+    var kW=CW/5-2;
+    kpis.forEach(function(k,i){
+      var x=M+i*(kW+2.5);
+      doc.setFillColor(248,252,249);doc.setDrawColor(180,210,190);doc.roundedRect(x,y,kW,20,2,2,"FD");
+      doc.setFillColor(...k.c);doc.roundedRect(x,y,kW,2,1,1,"F");
+      doc.setTextColor(...k.c);doc.setFont("helvetica","bold");doc.setFontSize(15);
+      doc.text(k.v,x+kW/2,y+12,{align:"center"});
+      doc.setTextColor(80,80,80);doc.setFont("helvetica","normal");doc.setFontSize(5.5);
+      doc.text(k.l,x+kW/2,y+18,{align:"center"});
     });
-    y+=24;
+    y+=26;
 
-    // ── ANÁLISIS EJECUTIVO ───────────────────────────────────
+    // Análisis ejecutivo
     const byArea={};
-    data.forEach(a=>{
+    data.forEach(function(a){
       if(!byArea[a.area])byArea[a.area]={sum:0,count:0};
       byArea[a.area].sum+=a.puntaje_total||0;byArea[a.area].count++;
     });
-    const areasSorted=Object.entries(byArea).map(([area,v])=>({area,prom:Math.round(v.sum/v.count)})).sort((a,b)=>b.prom-a.prom);
+    const areasSorted=Object.entries(byArea).map(function(e){return{area:e[0],prom:Math.round(e[1].sum/e[1].count)};}).sort(function(a,b){return b.prom-a.prom;});
     const mejorArea=areasSorted[0];
     const peorArea=areasSorted[areasSorted.length-1];
-
     const pilarNums=[[1,2,3,4],[5,6,7,8],[9,10,11,12],[13,14,15,16],[17,18,19,20]];
     const pilarNames=["1S Seleccionar","2S Ordenar","3S Limpiar","4S Estandarizar","5S Disciplinar"];
-    const pilarProms=pilarNames.map((_,i)=>{
-      let sum=0,cnt=0;
-      data.forEach(a=>{
-        const det=safeJson(a.detalles,"[]");
-        pilarNums[i].forEach(n=>{const d=det.find(x=>x.num===n);if(d&&d.puntaje>0){sum+=d.puntaje;cnt++;}});
+    const pilarProms=pilarNames.map(function(_,i){
+      var sum=0,cnt=0;
+      data.forEach(function(a){
+        var det=safeJson(a.detalles,"[]");
+        pilarNums[i].forEach(function(n){var d=det.find(function(x){return x.num===n;});if(d&&d.puntaje>0){sum+=d.puntaje;cnt++;}});
       });
       return cnt?Math.round((sum/cnt)/5*100):0;
     });
-    const minPilarPct=Math.min(...pilarProms);
-    const pilarDebilIdx=pilarProms.indexOf(minPilarPct);
-    const pilarMasDebil=pilarNames[pilarDebilIdx];
-
+    const minPct=Math.min(...pilarProms);
+    const pilarDebil=pilarNames[pilarProms.indexOf(minPct)];
     const critCount={};
-    data.forEach(a=>{
-      safeJson(a.incumplimientos,"[]").forEach(o=>{critCount[o.num]=(critCount[o.num]||0)+1;});
-    });
-    const critTop=Object.entries(critCount).sort((a,b)=>b[1]-a[1]).slice(0,3);
+    data.forEach(function(a){safeJson(a.incumplimientos,"[]").forEach(function(o){critCount[o.num]=(critCount[o.num]||0)+1;});});
+    const critTop=Object.entries(critCount).sort(function(a,b){return b[1]-a[1];}).slice(0,3);
 
-    const lineas=[
-      "Se evaluaron "+totalAuds+" auditorias en "+areas.length+" areas con puntaje promedio "+promPuntaje+"/100 ("+promPct+"%) — Nivel: "+nivel+".",
-      mejorArea?"Mejor desempeno: "+mejorArea.area+" con "+mejorArea.prom+"/100 pts.":"",
-      (peorArea&&peorArea.area!==mejorArea?.area)?"Requiere atencion: "+peorArea.area+" con "+peorArea.prom+"/100 pts.":"",
-      "Pilar con menor cumplimiento: "+pilarMasDebil+" ("+minPilarPct+"%).",
-      totalObs>0?"Se registraron "+totalObs+" observaciones. "+totalCierres+" levantadas ("+pctLevantado+"%).":"Sin observaciones de incumplimiento.",
-      critTop.length?"Criterios mas frecuentes: "+critTop.map(function(e){return"C"+e[0]+"("+e[1]+"x)"}).join(", ")+"."  :"",
+    var lineas=[
+      "Se evaluaron "+totalAuds+" auditorias en "+areas.length+" areas con puntaje promedio de "+promPuntaje+"/100 ("+promPct+"% cumplimiento). Nivel: "+nivel+".",
+      mejorArea?"Mejor desempeno: "+mejorArea.area+" con "+mejorArea.prom+" puntos.":"",
+      (peorArea&&peorArea.area!==mejorArea.area)?"Area critica: "+peorArea.area+" con "+peorArea.prom+" puntos. Requiere plan de accion.":"",
+      "Pilar con menor cumplimiento: "+pilarDebil+" ("+minPct+"%). Se recomienda reforzar este aspecto.",
+      totalObs>0?"Se registraron "+totalObs+" observaciones de incumplimiento. "+totalCierres+" han sido levantadas ("+pctLev+"%).":"Sin observaciones de incumplimiento registradas.",
+      critTop.length?"Criterios mas frecuentes: "+critTop.map(function(e){return"C"+e[0]+" ("+e[1]+"x)";}).join(", ")+"."  :"",
     ].filter(Boolean);
 
-    const rH=lineas.length*6+12;
-    doc.setFillColor(240,250,245);doc.setDrawColor(...G);doc.setLineWidth(0.4);doc.roundedRect(M,y,CW,rH,2,2,"FD");
+    var rH=lineas.length*5.5+14;
+    doc.setFillColor(240,250,244);doc.setDrawColor(...G);doc.setLineWidth(0.3);
+    doc.roundedRect(M,y,CW,rH,2,2,"FD");
     doc.setFillColor(...G);doc.rect(M,y,3,rH,"F");
-    doc.setTextColor(...GD);doc.setFont("helvetica","bold");doc.setFontSize(8.5);doc.text("ANALISIS EJECUTIVO",M+6,y+5.5);
+    doc.setTextColor(...GD);doc.setFont("helvetica","bold");doc.setFontSize(8);
+    doc.text("ANALISIS EJECUTIVO",M+6,y+6);
+    doc.setDrawColor(...G);doc.setLineWidth(0.2);
+    doc.line(M+6,y+7.5,M+CW-6,y+7.5);
     doc.setFont("helvetica","normal");doc.setTextColor(30,60,40);doc.setFontSize(7.5);
-    lineas.forEach(function(l,i){const lines=doc.splitTextToSize("* "+l,CW-12);doc.text(lines,M+6,y+11+i*6);});
-    y+=rH+6;
+    lineas.forEach(function(l,i){
+      var lines=doc.splitTextToSize("\u2022  "+l,CW-12);
+      doc.text(lines,M+6,y+12+i*5.5);
+    });
+    y+=rH+8;
 
-    // ── TABLA POR ÁREA ───────────────────────────────────────
-    if(y>260){doc.addPage();y=20;}
-    doc.setFont("helvetica","bold");doc.setFontSize(9);doc.setTextColor(...G);
-    doc.text("COMPARATIVO DE DESEMPENO POR AREA",M,y);y+=4;
+    // ── PÁGINA 2: TABLAS ──────────────────────────────────────
+    doc.addPage(); y=20;
+
+    // Tabla comparativo por área
+    doc.setFont("helvetica","bold");doc.setFontSize(10);doc.setTextColor(...G);
+    doc.text("COMPARATIVO DE DESEMPE\u00d1O POR \u00c1REA",PW/2,y,{align:"center"});
+    doc.setFont("helvetica","normal");doc.setFontSize(7);doc.setTextColor(100,100,100);
+    doc.text("Puntaje promedio y nivel de cumplimiento por cada area auditada",PW/2,y+5,{align:"center"});
+    y+=9;
+
     doc.autoTable({
-      startY:y,
-      head:[["Area Auditada","N Auditorias","Puntaje Prom.","% Cumpl.","Nivel"]],
+      startY:y, margin:{left:M,right:M},
+      head:[["Area Auditada","N\u00b0 Auditorias","Puntaje Prom.","% Cumplimiento","Nivel"]],
       body:areasSorted.map(function(a){
-        const nv=a.prom>=90?"Excelente":a.prom>=70?"Bueno":a.prom>=50?"Regular":"Deficiente";
+        var nv=a.prom>=90?"Excelente":a.prom>=70?"Bueno":a.prom>=50?"Regular":"Deficiente";
         return[a.area,String(byArea[a.area].count),String(a.prom),a.prom+"%",nv];
       }),
-      theme:"striped",
-      headStyles:{fillColor:G,textColor:W,fontSize:7.5,fontStyle:"bold",halign:"center",cellPadding:2},
-      bodyStyles:{fontSize:7,halign:"center",cellPadding:2},
-      alternateRowStyles:{fillColor:[242,250,246]},
-      columnStyles:{0:{halign:"left",cellWidth:55},4:{cellWidth:22}},
-      didDrawCell:function(d){
-        if(d.section==="body"&&d.column.index===3){const v=parseInt(d.cell.text[0]);if(!isNaN(v))d.cell.styles.textColor=v>=80?G:v>=50?A:R;d.cell.styles.fontStyle="bold";}
-        if(d.section==="body"&&d.column.index===4){const v=d.cell.text[0];d.cell.styles.textColor=v==="Excelente"?[0,100,30]:v==="Bueno"?G:v==="Regular"?A:R;d.cell.styles.fontStyle="bold";}
-      },
-      margin:{left:M,right:M}
-    });
-    y=doc.lastAutoTable.finalY+6;
-
-    // ── PILARES 5S ───────────────────────────────────────────
-    if(y>260){doc.addPage();y=20;}
-    doc.setFont("helvetica","bold");doc.setFontSize(9);doc.setTextColor(...G);
-    doc.text("DESEMPENO POR PILAR 5S — PROMEDIO PLANTA",M,y);y+=4;
-    const pilarCols=[[230,91,0],[27,94,32],[13,71,161],[74,20,140],[136,14,79]];
-    const pW=(CW-16)/5;
-    pilarNames.forEach(function(_,i){
-      const x=M+i*(pW+4);
-      const pct=pilarProms[i];
-      const col=pilarCols[i];
-      doc.setFillColor(245,248,246);doc.roundedRect(x,y,pW,26,1.5,1.5,"F");
-      doc.setFillColor(...col);
-      const barH=Math.max(2,26*(pct/100));
-      doc.roundedRect(x,y+(26-barH),pW,barH,1,1,"F");
-      doc.setTextColor(...W);doc.setFont("helvetica","bold");doc.setFontSize(16);
-      doc.text(pct+"%",x+pW/2,y+14,{align:"center"});
-      doc.setFontSize(7.5);doc.text(pilarNames[i].substring(0,2),x+pW/2,y+21,{align:"center"});
-    });
-    y+=30;
-
-    // Tabla pilares detallada
-    doc.autoTable({
-      startY:y,
-      head:[["Pilar","% Cumplimiento","Nivel"]],
-      body:pilarNames.map(function(n,i){
-        const pct=pilarProms[i];
-        return[n,pct+"%",pct>=90?"Excelente":pct>=70?"Bueno":pct>=50?"Regular":"Deficiente"];
-      }),
       theme:"grid",
-      headStyles:{fillColor:GD,textColor:W,fontSize:7.5,fontStyle:"bold",halign:"center",cellPadding:2},
-      bodyStyles:{fontSize:7.5,halign:"center",cellPadding:2},
-      columnStyles:{0:{halign:"left",cellWidth:50},1:{cellWidth:35},2:{cellWidth:30}},
-      didDrawCell:function(d){
-        if(d.section==="body"&&d.column.index===1){const v=parseInt(d.cell.text[0]);if(!isNaN(v))d.cell.styles.textColor=v>=80?G:v>=50?A:R;d.cell.styles.fontStyle="bold";}
+      headStyles:hStyles,
+      bodyStyles:bStyles,
+      alternateRowStyles:altStyles,
+      columnStyles:{
+        0:{halign:"left",cellWidth:65},
+        1:{cellWidth:25},
+        2:{cellWidth:28},
+        3:{cellWidth:30},
+        4:{cellWidth:22}
       },
-      margin:{left:M,right:M}
+      didDrawCell:function(d){
+        if(d.section!=="body")return;
+        if(d.column.index===3){var v=parseInt(d.cell.text[0]);if(!isNaN(v)){d.cell.styles.textColor=v>=80?G:v>=50?A:R;d.cell.styles.fontStyle="bold";}}
+        if(d.column.index===4){var v=d.cell.text[0];d.cell.styles.textColor=v==="Excelente"?[0,100,30]:v==="Bueno"?G:v==="Regular"?A:R;d.cell.styles.fontStyle="bold";}
+      }
     });
-    y=doc.lastAutoTable.finalY+6;
+    y=doc.lastAutoTable.finalY+10;
 
-    // ── CRITERIOS CRÍTICOS ───────────────────────────────────
+    // Tabla pilares
+    doc.setFont("helvetica","bold");doc.setFontSize(10);doc.setTextColor(...G);
+    doc.text("DESEMPE\u00d1O POR PILAR 5S",PW/2,y,{align:"center"});
+    doc.setFont("helvetica","normal");doc.setFontSize(7);doc.setTextColor(100,100,100);
+    doc.text("Promedio de cumplimiento en cada pilar — planta completa",PW/2,y+5,{align:"center"});
+    y+=9;
+
+    // Barras visuales por pilar
+    var pilarCols=[[230,91,0],[27,94,32],[13,71,161],[74,20,140],[136,14,79]];
+    var pW2=(CW-8)/5;
+    pilarNames.forEach(function(_,i){
+      var x=M+i*(pW2+2);var pct=pilarProms[i];var col=pilarCols[i];
+      doc.setFillColor(240,240,240);doc.roundedRect(x,y,pW2,20,1,1,"F");
+      doc.setFillColor(...col);
+      var barH=Math.max(3,20*(pct/100));
+      doc.roundedRect(x,y+(20-barH),pW2,barH,1,1,"F");
+      doc.setTextColor(...W);doc.setFont("helvetica","bold");doc.setFontSize(13);
+      doc.text(pct+"%",x+pW2/2,y+13,{align:"center"});
+      doc.setTextColor(60,60,60);doc.setFontSize(6.5);
+      doc.text(pilarNames[i].substring(0,2),x+pW2/2,y+23,{align:"center"});
+    });
+    y+=28;
+
+    doc.autoTable({
+      startY:y, margin:{left:M,right:M},
+      head:[["Pilar","% Cumplimiento","Nivel","Criterios evaluados"]],
+      body:pilarNames.map(function(n,i){
+        var pct=pilarProms[i];
+        var nv=pct>=90?"Excelente":pct>=70?"Bueno":pct>=50?"Regular":"Deficiente";
+        return[n,pct+"%",nv,pilarNums[i].length+" criterios"];
+      }),
+      theme:"grid",headStyles:hStyles,bodyStyles:bStyles,alternateRowStyles:altStyles,
+      columnStyles:{0:{halign:"left",cellWidth:60},1:{cellWidth:35},2:{cellWidth:35},3:{cellWidth:40}},
+      didDrawCell:function(d){
+        if(d.section!=="body")return;
+        if(d.column.index===1){var v=parseInt(d.cell.text[0]);if(!isNaN(v)){d.cell.styles.textColor=v>=80?G:v>=50?A:R;d.cell.styles.fontStyle="bold";}}
+        if(d.column.index===2){var v=d.cell.text[0];d.cell.styles.textColor=v==="Excelente"?[0,100,30]:v==="Bueno"?G:v==="Regular"?A:R;d.cell.styles.fontStyle="bold";}
+      }
+    });
+    y=doc.lastAutoTable.finalY+10;
+
+    // ── PÁGINA 3: CRITERIOS Y OBS ─────────────────────────────
+    doc.addPage(); y=20;
+
+    // Criterios críticos
     if(critTop.length>0){
-      if(y>260){doc.addPage();y=20;}
-      doc.setFont("helvetica","bold");doc.setFontSize(9);doc.setTextColor(...R);
-      doc.text("CRITERIOS CON MAS INCUMPLIMIENTOS",M,y);y+=4;
-      const critRows=critTop.map(function(e){
-        const num=e[0];const count=e[1];
+      doc.setFont("helvetica","bold");doc.setFontSize(10);doc.setTextColor(...R);
+      doc.text("CRITERIOS CON M\u00c1S INCUMPLIMIENTOS",PW/2,y,{align:"center"});
+      doc.setFont("helvetica","normal");doc.setFontSize(7);doc.setTextColor(100,100,100);
+      doc.text("Aspectos que requieren mayor atencion en la planta",PW/2,y+5,{align:"center"});
+      y+=9;
+      var critRows=critTop.map(function(e){
         var crit=null;
-        data.forEach(function(a){if(crit)return;const det=safeJson(a.detalles,"[]");const d=det.find(function(x){return x.num===parseInt(num);});if(d)crit=d;});
-        return[String(num),crit?crit.pilar||"":"",crit?(crit.criterio||"").substring(0,65)+(crit.criterio&&crit.criterio.length>65?"...":""):"",count+" audits"];
+        data.forEach(function(a){if(crit)return;var det=safeJson(a.detalles,"[]");var d=det.find(function(x){return x.num===parseInt(e[0]);});if(d)crit=d;});
+        return[String(e[0]),crit?crit.pilar||"":"",crit?(crit.criterio||"").substring(0,70)+(crit.criterio&&crit.criterio.length>70?"...":""):"",e[1]+" auditorias"];
       });
       doc.autoTable({
-        startY:y,head:[["N","Pilar","Criterio","Frecuencia"]],body:critRows,theme:"grid",
-        headStyles:{fillColor:R,textColor:W,fontSize:7,fontStyle:"bold",halign:"center",cellPadding:2},
-        bodyStyles:{fontSize:7,cellPadding:2},
-        columnStyles:{0:{cellWidth:8,halign:"center"},1:{cellWidth:24},2:{cellWidth:118},3:{cellWidth:22,halign:"center"}},
-        margin:{left:M,right:M}
+        startY:y, margin:{left:M,right:M},
+        head:[["N\u00b0","Pilar","Criterio","Frecuencia"]],
+        body:critRows, theme:"grid",
+        headStyles:{fillColor:R,textColor:W,fontSize:8,fontStyle:"bold",halign:"center",cellPadding:{top:3,bottom:3,left:2,right:2}},
+        bodyStyles:bStyles,
+        columnStyles:{0:{cellWidth:10,halign:"center"},1:{cellWidth:28},2:{cellWidth:105},3:{cellWidth:27,halign:"center"}}
       });
-      y=doc.lastAutoTable.finalY+6;
+      y=doc.lastAutoTable.finalY+10;
     }
 
-    // ── EVOLUCIÓN POR RONDA ──────────────────────────────────
-    const byNro={};
+    // Evolución por ronda
+    var byNro={};
     auditorias.forEach(function(a){
-      const n="N\u00b0"+a.nro_auditoria;
+      var n="N\u00b0"+a.nro_auditoria;
       if(!byNro[n])byNro[n]={sum:0,count:0};
       byNro[n].sum+=a.puntaje_total||0;byNro[n].count++;
     });
-    const evRows=Object.keys(byNro).sort().map(function(n){
-      const v=byNro[n];const p=Math.round(v.sum/v.count);
-      const nv=p>=90?"Excelente":p>=70?"Bueno":p>=50?"Regular":"Deficiente";
-      return[n,String(v.count),String(p),p+"%",nv];
+    var evRows=Object.keys(byNro).sort().map(function(n){
+      var v=byNro[n];var p=Math.round(v.sum/v.count);
+      return[n,String(v.count),String(p),p+"%",p>=90?"Excelente":p>=70?"Bueno":p>=50?"Regular":"Deficiente"];
     });
-    if(evRows.length>1){
-      if(y>260){doc.addPage();y=20;}
-      doc.setFont("helvetica","bold");doc.setFontSize(9);doc.setTextColor(...G);
-      doc.text("EVOLUCION POR RONDA DE AUDITORIA",M,y);y+=4;
+    if(evRows.length>=1){
+      if(y>240){doc.addPage();y=20;}
+      doc.setFont("helvetica","bold");doc.setFontSize(10);doc.setTextColor(...G);
+      doc.text("EVOLUCI\u00d3N POR RONDA DE AUDITOR\u00cdA",PW/2,y,{align:"center"});
+      doc.setFont("helvetica","normal");doc.setFontSize(7);doc.setTextColor(100,100,100);
+      doc.text("Comparativo de resultados entre rondas",PW/2,y+5,{align:"center"});
+      y+=9;
       doc.autoTable({
-        startY:y,head:[["Ronda","Auditorias","Puntaje Prom.","% Cumpl.","Nivel"]],body:evRows,
-        theme:"plain",
-        headStyles:{fillColor:GD,textColor:W,fontSize:7,fontStyle:"bold",halign:"center",cellPadding:2},
-        bodyStyles:{fontSize:7,halign:"center",cellPadding:2},
-        columnStyles:{0:{halign:"left",fontStyle:"bold",cellWidth:20}},
-        didDrawCell:function(d){if(d.section==="body"&&d.column.index===3){const v=parseInt(d.cell.text[0]);if(!isNaN(v))d.cell.styles.textColor=v>=80?G:v>=50?A:R;d.cell.styles.fontStyle="bold";}},
-        margin:{left:M,right:M}
+        startY:y, margin:{left:M,right:M},
+        head:[["Ronda","N\u00b0 Auditorias","Puntaje Prom.","% Cumplimiento","Nivel"]],
+        body:evRows, theme:"grid", headStyles:hStyles, bodyStyles:bStyles, alternateRowStyles:altStyles,
+        columnStyles:{0:{halign:"left",cellWidth:30},1:{cellWidth:35},2:{cellWidth:35},3:{cellWidth:35},4:{cellWidth:35}},
+        didDrawCell:function(d){
+          if(d.section!=="body")return;
+          if(d.column.index===3){var v=parseInt(d.cell.text[0]);if(!isNaN(v)){d.cell.styles.textColor=v>=80?G:v>=50?A:R;d.cell.styles.fontStyle="bold";}}
+          if(d.column.index===4){var v=d.cell.text[0];d.cell.styles.textColor=v==="Excelente"?[0,100,30]:v==="Bueno"?G:v==="Regular"?A:R;d.cell.styles.fontStyle="bold";}
+        }
       });
-      y=doc.lastAutoTable.finalY+6;
+      y=doc.lastAutoTable.finalY+10;
     }
 
-    // ── OBS LEVANTADAS VS PENDIENTES ─────────────────────────
+    // Obs levantadas vs pendientes
     if(totalObs>0){
-      if(y>260){doc.addPage();y=20;}
-      doc.setFont("helvetica","bold");doc.setFontSize(9);doc.setTextColor(...A);
-      doc.text("ESTADO DE OBSERVACIONES DE INCUMPLIMIENTO",M,y);y+=4;
-      const obsRows=areas.map(function(area){
-        const audsArea=data.filter(function(a){return a.area===area;});
+      if(y>240){doc.addPage();y=20;}
+      doc.setFont("helvetica","bold");doc.setFontSize(10);doc.setTextColor(...A);
+      doc.text("ESTADO DE OBSERVACIONES DE INCUMPLIMIENTO",PW/2,y,{align:"center"});
+      doc.setFont("helvetica","normal");doc.setFontSize(7);doc.setTextColor(100,100,100);
+      doc.text("Seguimiento de levantamiento por area",PW/2,y+5,{align:"center"});
+      y+=9;
+      var obsRows=areas.map(function(area){
+        var audsArea=data.filter(function(a){return a.area===area;});
         var total=0,levantadas=0;
         audsArea.forEach(function(a){
-          const inc=safeJson(a.incumplimientos,"[]");
-          const cie=safeJson(a.cierre_criterios,"{}");
-          total+=inc.length;
-          levantadas+=Object.values(cie).filter(function(v){return v.cerrado;}).length;
+          total+=safeJson(a.incumplimientos,"[]").length;
+          levantadas+=Object.values(safeJson(a.cierre_criterios,"{}")).filter(function(v){return v&&v.cerrado;}).length;
         });
-        const pend=total-levantadas;
-        const pct=total?Math.round(levantadas/total*100):100;
+        var pend=total-levantadas;
+        var pct=total?Math.round(levantadas/total*100):100;
         return[area,String(total),String(levantadas),String(pend),pct+"%"];
       }).filter(function(r){return parseInt(r[1])>0;});
       if(obsRows.length>0){
         doc.autoTable({
-          startY:y,head:[["Area","Total Obs.","Levantadas","Pendientes","% Levantado"]],body:obsRows,
-          theme:"striped",
-          headStyles:{fillColor:A,textColor:W,fontSize:7.5,fontStyle:"bold",halign:"center",cellPadding:2},
-          bodyStyles:{fontSize:7,halign:"center",cellPadding:2},
-          alternateRowStyles:{fillColor:[255,252,240]},
-          columnStyles:{0:{halign:"left",cellWidth:55}},
+          startY:y, margin:{left:M,right:M},
+          head:[["Area","Total Obs.","Levantadas","Pendientes","% Levantado"]],
+          body:obsRows, theme:"grid",
+          headStyles:{fillColor:A,textColor:W,fontSize:8,fontStyle:"bold",halign:"center",cellPadding:{top:3,bottom:3,left:2,right:2}},
+          bodyStyles:bStyles, alternateRowStyles:{fillColor:[255,252,240]},
+          columnStyles:{0:{halign:"left",cellWidth:65},1:{cellWidth:26},2:{cellWidth:26},3:{cellWidth:26},4:{cellWidth:27}},
           didDrawCell:function(d){
-            if(d.section==="body"&&d.column.index===4){const v=parseInt(d.cell.text[0]);if(!isNaN(v))d.cell.styles.textColor=v>=80?G:v>=50?A:R;d.cell.styles.fontStyle="bold";}
-            if(d.section==="body"&&d.column.index===3){const v=parseInt(d.cell.text[0]);if(!isNaN(v)&&v>0)d.cell.styles.textColor=R;}
-          },
-          margin:{left:M,right:M}
+            if(d.section!=="body")return;
+            if(d.column.index===4){var v=parseInt(d.cell.text[0]);if(!isNaN(v)){d.cell.styles.textColor=v>=80?G:v>=50?A:R;d.cell.styles.fontStyle="bold";}}
+            if(d.column.index===3){var v=parseInt(d.cell.text[0]);if(!isNaN(v)&&v>0){d.cell.styles.textColor=R;d.cell.styles.fontStyle="bold";}}
+          }
         });
+        y=doc.lastAutoTable.finalY+10;
       }
     }
 
-    // ── FORTALEZAS IDENTIFICADAS ────────────────────────────
-    // Recolectar criterios con puntaje >= 4 que tienen fortaleza o foto
-    const fortalezas=[];
+    // ── PÁGINA 4: FORTALEZAS ──────────────────────────────────
+    var fortalezas=[];
     data.forEach(function(a){
-      const det=safeJson(a.detalles,"[]");
+      var det=safeJson(a.detalles,"[]");
       det.forEach(function(d){
-        if(d.puntaje>=4 && (d.fortaleza||(d.fotos&&d.fotos.length>0))){
-          fortalezas.push({
-            area:a.area, sector:a.sector||"", nro:a.nro_auditoria,
-            num:d.num, pilar:d.pilar||"", criterio:d.criterio||"",
-            puntaje:d.puntaje, fortaleza:d.fortaleza||"",
-            fotos:d.fotos||[]
-          });
+        if(d.puntaje>=4&&(d.fortaleza||(d.fotos&&d.fotos.length>0))){
+          fortalezas.push({area:a.area,sector:a.sector||"",nro:a.nro_auditoria,num:d.num,pilar:d.pilar||"",criterio:d.criterio||"",puntaje:d.puntaje,fortaleza:d.fortaleza||"",fotos:d.fotos||[]});
         }
       });
     });
 
     if(fortalezas.length>0){
       doc.addPage(); var yF=20;
-      // Header sección
-      doc.setFillColor(...G);doc.rect(0,0,PW,14,"F");
+      doc.setFillColor(...G);doc.rect(0,0,PW,16,"F");
       doc.setTextColor(...W);doc.setFont("helvetica","bold");doc.setFontSize(13);
       doc.text("FORTALEZAS IDENTIFICADAS",PW/2,9,{align:"center"});
-      doc.setFontSize(8);doc.setFont("helvetica","normal");
-      doc.text("Criterios con puntaje 4-5 — Buenas practicas para el Premio Nacional 5S",PW/2,13,{align:"center"});
-      yF=20;
+      doc.setFont("helvetica","normal");doc.setFontSize(7.5);
+      doc.text("Buenas practicas documentadas — Premio Nacional 5S",PW/2,14,{align:"center"});
+      yF=24;
 
-      // Agrupar por área
-      const byAreaF={};
-      fortalezas.forEach(function(f){
-        if(!byAreaF[f.area])byAreaF[f.area]=[];
-        byAreaF[f.area].push(f);
-      });
+      var byAreaF={};
+      fortalezas.forEach(function(f){if(!byAreaF[f.area])byAreaF[f.area]=[];byAreaF[f.area].push(f);});
 
       for(var area in byAreaF){
-        if(yF>260){doc.addPage();yF=15;}
-        // Título área
-        doc.setFillColor(240,250,245);doc.setDrawColor(...G);doc.setLineWidth(0.3);
-        doc.roundedRect(M,yF,CW,7,1,1,"FD");
-        doc.setTextColor(...GD);doc.setFont("helvetica","bold");doc.setFontSize(8.5);
-        doc.text(area,M+4,yF+4.5);
-        yF+=9;
+        if(yF>265){doc.addPage();yF=20;}
+        // Cabecera de área
+        doc.setFillColor(235,248,240);doc.setDrawColor(...G);doc.setLineWidth(0.4);
+        doc.roundedRect(M,yF,CW,8,1,1,"FD");
+        doc.setFillColor(...G);doc.rect(M,yF,4,8,"F");
+        doc.setTextColor(...GD);doc.setFont("helvetica","bold");doc.setFontSize(9);
+        doc.text(area.toUpperCase(),M+8,yF+5.5);
+        yF+=12;
 
         byAreaF[area].forEach(function(f){
-          if(yF>255){doc.addPage();yF=15;}
+          if(yF>255){doc.addPage();yF=20;}
           var lbl=f.puntaje===5?"Excelente":"Bueno";
           var col=f.puntaje===5?G:[46,125,50];
 
-          // Fila criterio
-          doc.setFillColor(...col);doc.rect(M,yF,2,14,"F");
-          doc.setTextColor(...col);doc.setFont("helvetica","bold");doc.setFontSize(7.5);
-          doc.text(f.pilar,M+4,yF+4);
-          doc.setTextColor(50,70,50);doc.setFont("helvetica","normal");doc.setFontSize(7);
-          var criterioLines=doc.splitTextToSize(f.criterio,f.fotos.length>0?100:130);
-          doc.text(criterioLines,M+4,yF+8);
+          // Criterio
+          doc.setFillColor(248,252,249);doc.setDrawColor(180,210,190);doc.roundedRect(M,yF,CW,12,1,1,"FD");
+          doc.setFillColor(...col);doc.rect(M,yF,3,12,"F");
+          doc.setTextColor(60,60,60);doc.setFont("helvetica","bold");doc.setFontSize(7);
+          doc.text(f.pilar+" \u2014 Criterio "+f.num,M+6,yF+4.5);
+          doc.setFont("helvetica","normal");doc.setFontSize(6.5);
+          var cLines=doc.splitTextToSize(f.criterio,CW-30);
+          doc.text(cLines,M+6,yF+8.5);
+          // Badge puntaje
+          doc.setFillColor(...col);doc.roundedRect(PW-M-16,yF+1,14,10,1,1,"F");
+          doc.setTextColor(...W);doc.setFont("helvetica","bold");doc.setFontSize(12);
+          doc.text(String(f.puntaje),PW-M-9,yF+8,{align:"center"});
+          yF+=14;
 
-          // Puntaje badge
-          doc.setFillColor(...col);doc.roundedRect(PW-M-18,yF+1,18,12,2,2,"F");
-          doc.setTextColor(...W);doc.setFont("helvetica","bold");doc.setFontSize(14);
-          doc.text(String(f.puntaje),PW-M-9,yF+9,{align:"center"});
-          doc.setFontSize(6);doc.text(lbl,PW-M-9,yF+13,{align:"center"});
-
-          yF+=16;
-
-          // Fortaleza texto
+          // Fortaleza
           if(f.fortaleza){
-            if(yF>260){doc.addPage();yF=15;}
-            doc.setFillColor(235,250,240);doc.setDrawColor(200,230,210);
-            var fortLines=doc.splitTextToSize(f.fortaleza,CW-10);
-            var fortH=fortLines.length*4+6;
-            doc.roundedRect(M,yF,CW,fortH,1,1,"FD");
-            doc.setTextColor(0,80,30);doc.setFont("helvetica","bolditalic");doc.setFontSize(7);
-            doc.text("Fortaleza:",M+3,yF+4);
-            doc.setFont("helvetica","italic");
-            doc.text(fortLines,M+22,yF+4);
-            yF+=fortH+3;
+            if(yF>260){doc.addPage();yF=20;}
+            var fLines=doc.splitTextToSize(f.fortaleza,CW-10);
+            var fH=fLines.length*4+8;
+            doc.setFillColor(230,248,235);doc.setDrawColor(150,200,160);doc.roundedRect(M,yF,CW,fH,1,1,"FD");
+            doc.setTextColor(0,100,40);doc.setFont("helvetica","bolditalic");doc.setFontSize(7);
+            doc.text("\u2728 Fortaleza:",M+4,yF+5);
+            doc.setFont("helvetica","italic");doc.setTextColor(30,70,40);
+            doc.text(fLines,M+4,yF+9);
+            yF+=fH+4;
           }
 
-          // Fotos - máximo 3 por fila
+          // Fotos (máx 3, en fila)
           if(f.fotos&&f.fotos.length>0){
-            if(yF>250){doc.addPage();yF=15;}
-            var fotoW=40, fotoH=30, gap=4;
-            var fotosToShow=f.fotos.slice(0,3);
+            if(yF>250){doc.addPage();yF=20;}
             doc.setTextColor(100,100,100);doc.setFont("helvetica","normal");doc.setFontSize(6.5);
-            doc.text("Evidencia fotográfica:",M,yF+3);
+            doc.text("Evidencia fotogr\u00e1fica:",M,yF+3);
             yF+=5;
-            fotosToShow.forEach(function(fotoUrl,fi){
+            var fotoW=50,fotoH=37,gap=5;
+            f.fotos.slice(0,3).forEach(function(url,fi){
               try{
-                if(yF+fotoH>275){doc.addPage();yF=15;}
-                doc.addImage(fotoUrl,"JPEG",M+fi*(fotoW+gap),yF,fotoW,fotoH);
-              }catch(e){console.warn("No se pudo agregar foto:",e);}
+                if(yF+fotoH>275){doc.addPage();yF=20;}
+                doc.addImage(url,"JPEG",M+fi*(fotoW+gap),yF,fotoW,fotoH,"","MEDIUM");
+              }catch(e){console.warn("Foto no disponible:",e);}
             });
             yF+=fotoH+5;
           }
 
           // Separador
-          doc.setDrawColor(200,220,200);doc.setLineWidth(0.2);
-          doc.line(M,yF,PW-M,yF);
-          yF+=4;
+          doc.setDrawColor(200,225,205);doc.setLineWidth(0.2);
+          doc.line(M,yF,M+CW,yF);
+          yF+=5;
         });
-        yF+=4;
+        yF+=3;
       }
     }
 
-    // ── FOOTER ───────────────────────────────────────────────
-    const pageCount=doc.getNumberOfPages();
-    for(var i=1;i<=pageCount;i++){
-      doc.setPage(i);
-      doc.setFillColor(...G);doc.rect(0,285,PW,12,"F");
-      doc.setTextColor(...W);doc.setFont("helvetica","normal");doc.setFontSize(7);
-      doc.text("Industrias San Miguel — "+nroLbl,M,291);
-      doc.text(fecha,PW/2,291,{align:"center"});
-      doc.text("Pagina "+i+" de "+pageCount,PW-M,291,{align:"right"});
+    // ── FOOTER EN TODAS LAS PÁGINAS ───────────────────────────
+    var pageCount=doc.getNumberOfPages();
+    for(var pg=1;pg<=pageCount;pg++){
+      doc.setPage(pg);
+      // Línea separadora
+      doc.setDrawColor(...G);doc.setLineWidth(0.3);doc.line(M,282,PW-M,282);
+      // Footer
+      doc.setFillColor(248,252,249);doc.rect(0,283,PW,14,"F");
+      doc.setTextColor(...GD);doc.setFont("helvetica","bold");doc.setFontSize(7);
+      doc.text("Industrias San Miguel \u2014 "+nroLbl,M,289);
+      doc.setFont("helvetica","normal");doc.setTextColor(100,100,100);
+      doc.text(fecha,PW/2,289,{align:"center"});
+      doc.text("P\u00e1gina "+pg+" de "+pageCount,PW-M,289,{align:"right"});
+      doc.setFontSize(6);
+      doc.text("Programa de Mejora Continua 5S \u2014 Premio Nacional 5S",PW/2,294,{align:"center"});
     }
 
-    const nroFile=nroFiltro?"_N"+nroFiltro:"_Consolidado";
+    var nroFile=nroFiltro?"_N"+nroFiltro:"_Consolidado";
     doc.save("ReporteGerencial5S"+nroFile+"_"+new Date().toISOString().split("T")[0]+".pdf");
-    showToast("PDF Gerencial generado");
-  }catch(e){console.error(e);showToast("Error PDF: "+e.message,true);}
+    showToast("PDF Gerencial generado correctamente");
+  }catch(e){
+    console.error("PDF Error:",e);
+    showToast("Error generando PDF: "+e.message,true);
+  }
   if(btn){btn.innerHTML="&#128196; PDF Gerencial";btn.disabled=false;}
 }
 

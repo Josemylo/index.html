@@ -2825,9 +2825,14 @@ async function exportarPDFGerencial(){
   const btn=document.querySelector('[onclick="exportarPDFGerencial()"]');
   if(btn){btn.textContent="...";btn.disabled=true;}
   try{
+    // Cargar auditorias si no hay datos
+    if(!auditorias||auditorias.length===0){
+      showToast("Cargando datos...");
+      await cargarAuditorias();
+    }
     const nroFiltro=document.getElementById("d-fil-nro-pdf")?.value||"";
     const data=nroFiltro?auditorias.filter(a=>String(a.nro_auditoria)===nroFiltro):auditorias;
-    if(!data.length){showToast("No hay auditorias para exportar",true);if(btn){btn.textContent="PDF Gerencial";btn.disabled=false;}return;}
+    if(!data.length){showToast("No hay auditorias registradas",true);if(btn){btn.innerHTML="&#128196; PDF Gerencial";btn.disabled=false;}return;}
 
     const {jsPDF}=window.jspdf;
     const doc=new jsPDF({orientation:"portrait",unit:"mm",format:"a4"});

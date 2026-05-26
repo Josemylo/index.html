@@ -2343,20 +2343,44 @@ function renderAuditDashboard(){
 
 
 
-  // Evolución temporal (línea)
-  const evolData=[...data].reverse().map((a,i)=>({x:i+1,y:a.puntaje_total,label:`${a.area} (${a.fecha})`,color:a.puntaje_total>=90?"#1B5E20":a.puntaje_total>=70?G:a.puntaje_total>=50?A:R}));
+  // Evolución — eje X = sector, tooltip puntaje y %
+  const evolData=[...data].sort((a,b)=>(a.sector||"").localeCompare(b.sector||"")).map(a=>({
+    sector: a.sector||"—",
+    puntaje: a.puntaje_total||0,
+    pct: a.pct_cumplimiento||0,
+    area: a.area,
+    fecha: a.fecha||"",
+    color: a.puntaje_total>=90?"#1B5E20":a.puntaje_total>=70?G:a.puntaje_total>=50?A:R
+  }));
   destroyChartAudit("chart-audit-evol");
   new Chart(document.getElementById("chart-audit-evol"),{
     type:"line",
-    data:{labels:evolData.map(d=>d.label.length>20?d.label.substring(0,18)+"...":d.label),
+    data:{
+      labels:evolData.map(d=>d.sector.length>18?d.sector.substring(0,16)+"...":d.sector),
       datasets:[
-        {label:"Puntaje",data:evolData.map(d=>d.y),borderColor:G,backgroundColor:G+"22",fill:true,tension:0.4,pointRadius:5,pointBackgroundColor:evolData.map(d=>d.color),borderWidth:2},
-        {label:"Meta (70)",data:evolData.map(()=>70),borderColor:A,borderDash:[5,5],borderWidth:1.5,pointRadius:0,backgroundColor:"transparent"}
+        {label:"Puntaje",data:evolData.map(d=>d.puntaje),borderColor:G,backgroundColor:G+"22",
+          fill:true,tension:0.3,pointRadius:6,pointHoverRadius:8,
+          pointBackgroundColor:evolData.map(d=>d.color),borderWidth:2},
+        {label:"Meta (70)",data:evolData.map(()=>70),borderColor:A,borderDash:[5,5],
+          borderWidth:1.5,pointRadius:0,backgroundColor:"transparent"}
       ]},
     options:{responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{position:"top",align:"start",labels:{font:{size:10},boxWidth:10,padding:8}},tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label}: ${ctx.raw}/100`}}},
-      scales:{x:{ticks:{font:{size:8},maxRotation:45},grid:{display:false}},
-        y:{min:0,max:100,ticks:{font:{size:9}},grid:{color:"#f0f0f0"}}}}
+      plugins:{
+        legend:{position:"top",align:"start",labels:{font:{size:10},boxWidth:10,padding:8}},
+        tooltip:{callbacks:{
+          title:ctx=>evolData[ctx[0].dataIndex]?.sector||"",
+          label:ctx=>{
+            if(ctx.dataset.label==="Meta (70)")return "Meta: 70/100";
+            const d=evolData[ctx.dataIndex];
+            return [`Puntaje: ${d.puntaje}/100`,`% Cumpl.: ${d.pct}%`,`Area: ${d.area}`,`Fecha: ${d.fecha}`];
+          }
+        }}
+      },
+      scales:{
+        x:{ticks:{font:{size:8},maxRotation:50},grid:{display:false}},
+        y:{min:0,max:100,ticks:{font:{size:9}},grid:{color:"#f0f0f0"}}
+      }
+    }
   });
 
   // Radar por pilar

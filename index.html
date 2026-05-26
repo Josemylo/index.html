@@ -2419,11 +2419,17 @@ function renderAuditDashboard(){
   const compEl=document.getElementById("dk-comparativo-areas");
   if(compEl){
     const G="#1E7C34",R="#E63329",A="#D97706";
-    // Tabla simple: N° Auditoría - Área - Puntaje
-    const filas=data.slice().sort((a,b)=>{
-      if(a.nro_auditoria!==b.nro_auditoria) return (a.nro_auditoria||0)-(b.nro_auditoria||0);
-      return (b.puntaje_total||0)-(a.puntaje_total||0);
+    // Agrupar por área — una fila por área con promedio
+    const byAreaT={};
+    data.forEach(a=>{
+      if(!byAreaT[a.area])byAreaT[a.area]={sum:0,count:0,nro:a.nro_auditoria};
+      byAreaT[a.area].sum+=a.puntaje_total||0;
+      byAreaT[a.area].count++;
     });
+    const filas=Object.entries(byAreaT).map(([area,v])=>({
+      area, n:v.count, prom:Math.round(v.sum/v.count), pct:Math.round(v.sum/v.count)
+    })).sort((a,b)=>b.prom-a.prom);
+
     if(!filas.length){
       compEl.innerHTML='<p style="font-size:12px;color:var(--g400);text-align:center">Sin datos</p>';
     } else {
@@ -2432,25 +2438,26 @@ function renderAuditDashboard(){
       compEl.innerHTML=`<table style="width:100%;border-collapse:collapse;font-size:12px">
         <thead>
           <tr style="background:#004D2E;color:#fff">
-            <th style="padding:7px 10px;text-align:center;font-weight:700;font-size:11px">N° Auditoria</th>
-            <th style="padding:7px 10px;text-align:left;font-weight:700;font-size:11px">Area</th>
-            <th style="padding:7px 10px;text-align:center;font-weight:700;font-size:11px">Puntaje</th>
+            <th style="padding:7px 10px;text-align:left;font-weight:700;font-size:11px">Area Auditada</th>
+            <th style="padding:7px 10px;text-align:center;font-weight:700;font-size:11px">N° Aud.</th>
+            <th style="padding:7px 10px;text-align:center;font-weight:700;font-size:11px">Puntaje Prom.</th>
+            <th style="padding:7px 10px;text-align:center;font-weight:700;font-size:11px">% Cumpl.</th>
             <th style="padding:7px 10px;text-align:center;font-weight:700;font-size:11px">Nivel</th>
           </tr>
         </thead>
         <tbody>
           ${filas.map((a,i)=>`
             <tr style="background:${i%2===0?"#fff":"#f5faf6"};border-bottom:1px solid #eee">
-              <td style="padding:6px 10px;text-align:center;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;color:#004D2E">N°${a.nro_auditoria||"—"}</td>
-              <td style="padding:6px 10px;color:#333;font-weight:600">${a.area||"—"}</td>
-              <td style="padding:6px 10px;text-align:center;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;color:${col(a.puntaje_total||0)}">${a.puntaje_total||0}</td>
-              <td style="padding:6px 10px;text-align:center;font-size:10px;font-weight:700;color:${col(a.puntaje_total||0)}">${nv(a.puntaje_total||0)}</td>
+              <td style="padding:6px 10px;color:#333;font-weight:600">${a.area}</td>
+              <td style="padding:6px 10px;text-align:center;color:#666">${a.n}</td>
+              <td style="padding:6px 10px;text-align:center;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;color:${col(a.prom)}">${a.prom}</td>
+              <td style="padding:6px 10px;text-align:center;font-weight:700;color:${col(a.prom)}">${a.pct}%</td>
+              <td style="padding:6px 10px;text-align:center;font-size:10px;font-weight:700;color:${col(a.prom)}">${nv(a.prom)}</td>
             </tr>`).join("")}
         </tbody>
       </table>`;
     }
   } // cierre else
-  }
 
   // Áreas críticas
   const criticas=areasSorted.slice(-5).reverse();
@@ -2510,6 +2517,8 @@ function renderAuditDashboard(){
       scales:{x:{beginAtZero:true,ticks:{stepSize:1,font:{size:9}},grid:{color:"#f0f0f0"}},
         y:{ticks:{font:{size:9}},grid:{display:false}}}}
   });
+}
+
 
 
 // ═══ PENDIENTES POR AUDITOR ═══
@@ -2646,6 +2655,8 @@ function abrirCierreAudit(cacheIdx){
     ${item.obs ? `<div style="font-size:12px;color:var(--red);padding:6px 8px;background:#FFEBEE;border-radius:6px"><strong>Obs:</strong> ${item.obs}</div>` : ""}`;
   openModal("modal-cierre-audit");
 }
+
+
 
 function handleFotoCierreAudit(input){
   fotoCierreAudit = null;
@@ -3092,7 +3103,7 @@ async function exportarPDFGerencial(btn){
       doc.text("EVOLUCI\u00d3N POR N° DE AUDITORIA",M,y);y+=4;
       doc.autoTable({
         startY:y,margin:{left:M,right:M},
-        head:[["N° de Auditoria","Auditorias","Puntaje","% Cumpl.","Nivel"]],
+        head:[["N° de Adutoria","Auditorias","Puntaje","% Cumpl.","Nivel"]],
         body:evRows,theme:"grid",headStyles:hS,bodyStyles:bS,
         columnStyles:{0:{halign:"left",cellWidth:25},1:{cellWidth:30},2:{cellWidth:30},3:{cellWidth:35},4:{cellWidth:34}},
         didDrawCell(d){if(d.section==="body"&&d.column.index===3){const v=parseInt(d.cell.text[0]);if(!isNaN(v)){d.cell.styles.textColor=v>=80?G:v>=50?A:R;d.cell.styles.fontStyle="bold";}}}

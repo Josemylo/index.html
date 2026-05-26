@@ -1459,7 +1459,7 @@ let toastT;
 // ═══ AUDITORÍA ═══
 const SECTORES_AUDIT={
   "LOGISTICA":{"responsable":"Claudio Escobedo Chávez","areas":["ALM. TEMPORAL MP","ALM. DE INSUMOS","ALM. DE REPUESTOS","ALM. DE INSUMOS GENERALES","ALM. DE INSUMOS QUÍMICOS","ALM. DE PT 1","ALM. TEMPORAL PT","ALM. PT HANGAR 8","ALM. PT HANGAR 10","ALM. DE ENVASES Y EMBALAJES","OFIC. DE LOGÍSTICA","OFIC. DE APT","OFIC. ALM. DE REPUESTOS"]},
-  "PRODUCCIÓN":{"responsable":"Henry Treviños Torres","areas":["OFIC. DE JEF. DE PRODUCCIÓN","OFIC. DE PLANEAMIENTO","OFIC. DE MEJORA CONTINUA","SALA DE REUNIONES MC","OFIC. DE JEFATURA DE PLANTA","LÍNEA 1","LÍNEA 2","LÍNEA 3","LÍNEA 4","LÍNEA 5","LINEA 6","LÍNEA 7","LÍNEA 8","LÍNEA 9","SALA DE JARABE","TRATAMIENTO DE AGUAS","OFICINA DE PRODUCCIÓN","SALA DE CALDERO","SALA DE MANEJOS","MANTENIMIENTO","LINEA 10","LABORATORIO DE SOPLADO"]},
+  "PRODUCCIÓN":{"responsable":"Henry Treviños Torres","areas":["OFIC. DE JEF. DE PRODUCCIÓN","OFIC. DE PLANEAMIENTO","OFIC. DE MEJORA CONTINUA","SALA DE REUNIONES MC","OFIC. DE JEFATURA DE PLANTA","LÍNEA 1","LÍNEA 2","LÍNEA 3","LÍNEA 4","LÍNEA 5","LINEA 6","LÍNEA 7","LÍNEA 8","LÍNEA 9","SALA DE JARABE","TRATAMIENTO DE AGUAS","OFICINA DE PRODUCCIÓN","SALA DE CALDERO","SALA DE MANEJOS","LINEA 10","LABORATORIO DE SOPLADO"]},
   "GESTION HUMANA":{"responsable":"Álvaro Sotomayor Checa","areas":["OFIC. DE GESTION HUMANA","AUDITORIO DE PLANTA","COMEDOR","SSHH Y VESTUARIOS"]},
   "SEGURIDAD CIVIL":{"responsable":"Fabio Caldas Antúnez","areas":["OFIC. DE SEGURIDAD CIVIL / GARITA"]},
   "SEGURIDAD":{"responsable":"Ubaldo Llacho Alhuirca","areas":["OFIC. DE SEG. INDUSTRIAL","TÓPICO"]},
@@ -1470,7 +1470,7 @@ const SECTORES_AUDIT={
   "COMUNICACIONES":{"responsable":"Fabio Caldas Antúnez","areas":["OFIC. DE COMUNICACIONES"]},
   "COSTOS":{"responsable":"Fabio Caldas Antúnez","areas":["OFIC. DE COSTOS"]},
   "PROYECTOS":{"responsable":"Fabio Caldas Antúnez","areas":["OFIC. DE PROYECTOS"]},
-  "MANTENIMIENTO":{"responsable":"Roberto Cárdenas Arias","areas":["TALLER DE MANT. MECÁNICO","TALLER DE MANT. ELÉCTRICO","SUB-ESTACIÓN","OFICINA DE MANTENIMIENTO"]},
+  "MANTENIMIENTO":{"responsable":"Roberto Cárdenas Arias","areas":["TALLER DE MANT. MECÁNICO","TALLER DE MANT. ELÉCTRICO","SUB-ESTACIÓN","OFICINA DE MANTENIMIENTO","MANTENIMIENTO"]},
   "CALIDAD":{"responsable":"Martin Castillo Guerra","areas":["OFIC. SOSTENIBILIDAD Y SGI","SALA DE MUESTRAS","LAB. FISICOQUÍMICO","LAB. MICROBIOLÓGICO","OFIC. SUPERVISORES SOS"]},
   "GERENCIA":{"responsable":"Fabio Caldas Antúnez","areas":["SECRETARIA GENERAL"]}
 };
@@ -1520,7 +1520,7 @@ const AREA_RESPONSABLE={
   "OFICINA DE PRODUCCIÓN":"Henry Treviños Torres",
   "SALA DE CALDERO":"Henry Treviños Torres",
   "SALA DE MANEJOS":"Henry Treviños Torres",
-  "MANTENIMIENTO":"Henry Treviños Torres",
+  "MANTENIMIENTO":"Roberto Cárdenas Arias",
   "TALLER DE MANT. MECÁNICO":"Roberto Cárdenas Arias",
   "TALLER DE MANT. ELÉCTRICO":"Roberto Cárdenas Arias",
   "SUB-ESTACIÓN":"Roberto Cárdenas Arias",
@@ -2439,7 +2439,7 @@ function renderAuditDashboard(){
         <thead>
           <tr style="background:#004D2E;color:#fff">
             <th style="padding:7px 10px;text-align:left;font-weight:700;font-size:11px">Area Auditada</th>
-            <th style="padding:7px 10px;text-align:center;font-weight:700;font-size:11px">N° Sectores.</th>
+            <th style="padding:7px 10px;text-align:center;font-weight:700;font-size:11px">N° Aud.</th>
             <th style="padding:7px 10px;text-align:center;font-weight:700;font-size:11px">Puntaje Prom.</th>
             <th style="padding:7px 10px;text-align:center;font-weight:700;font-size:11px">% Cumpl.</th>
             <th style="padding:7px 10px;text-align:center;font-weight:700;font-size:11px">Nivel</th>
@@ -2503,7 +2503,7 @@ function renderAuditDashboard(){
         <div style="height:6px;background:var(--g100);border-radius:20px;overflow:hidden">
           <div style="height:100%;width:${pctProgr}%;background:${colP};border-radius:20px;transition:width .6s"></div>
         </div>
-        ${pctProgr===100?`<div style="margin-top:8px;font-size:11px;color:var(--green);font-weight:700;text-align:center">✅ Todos los sectores auditados — Para iniciar nueva ronda, elimina los registros en Supabase</div>`:""}
+        ${pctProgr===100?`<div style="margin-top:8px;font-size:11px;color:var(--green);font-weight:700;text-align:center">✅ Todos los sectores auditados — Para iniciar la siguiente ronda selecciona N° de Auditoria 2 en el formulario</div>`:""}
       </div>`;
   }
   renderPendientesCierre();
@@ -2963,7 +2963,7 @@ async function exportarPDFGerencial(btn){
     doc.setFontSize(9);doc.text("INDUSTRIAS SAN MIGUEL \u2014 PLANTA HUAURA",PW/2+10,21,{align:"center"});
     doc.setFont("helvetica","normal");doc.setFontSize(8);
     doc.text(nroLbl+" \u00b7 "+fecha,PW/2+10,28,{align:"center"});
-    doc.text("5S",PW/2+10,34,{align:"center"});
+    doc.text("Premio Nacional 5S",PW/2+10,34,{align:"center"});
     let y=42;
 
     // Score bar
@@ -3100,10 +3100,10 @@ async function exportarPDFGerencial(btn){
     if(evRows.length>0){
       if(y>240){doc.addPage();y=15;}
       doc.setFont("helvetica","bold");doc.setFontSize(9);doc.setTextColor(...G);
-      doc.text("EVOLUCI\u00d3N POR N° DE AUDITORIA",M,y);y+=4;
+      doc.text("EVOLUCI\u00d3N POR RONDA",M,y);y+=4;
       doc.autoTable({
         startY:y,margin:{left:M,right:M},
-        head:[["N° de Adutoria","Auditorias","Puntaje","% Cumpl.","Nivel"]],
+        head:[["Ronda","Auditorias","Puntaje","% Cumpl.","Nivel"]],
         body:evRows,theme:"grid",headStyles:hS,bodyStyles:bS,
         columnStyles:{0:{halign:"left",cellWidth:25},1:{cellWidth:30},2:{cellWidth:30},3:{cellWidth:35},4:{cellWidth:34}},
         didDrawCell(d){if(d.section==="body"&&d.column.index===3){const v=parseInt(d.cell.text[0]);if(!isNaN(v)){d.cell.styles.textColor=v>=80?G:v>=50?A:R;d.cell.styles.fontStyle="bold";}}}
@@ -3157,7 +3157,7 @@ async function exportarPDFGerencial(btn){
       doc.setTextColor(...W);doc.setFont("helvetica","bold");doc.setFontSize(12);
       doc.text("FORTALEZAS IDENTIFICADAS",PW/2,8,{align:"center"});
       doc.setFont("helvetica","normal");doc.setFontSize(7);
-      doc.text("Por pilar y area \u2014 5S",PW/2,12,{align:"center"});
+      doc.text("Por pilar y area \u2014 Premio Nacional 5S",PW/2,12,{align:"center"});
       yF=18;
       const pilarRgb={"1S":[230,91,0],"2S":[27,94,32],"3S":[13,71,161],"4S":[74,20,140],"5S":[136,14,79]};
       const pilarFullName={"1S":"1S \u2014 Seleccionar","2S":"2S \u2014 Ordenar","3S":"3S \u2014 Limpiar","4S":"4S \u2014 Estandarizar","5S":"5S \u2014 Disciplinar"};

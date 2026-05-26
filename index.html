@@ -3075,10 +3075,10 @@ async function exportarPDFGerencial(btn){
     if(evRows.length>0){
       if(y>240){doc.addPage();y=15;}
       doc.setFont("helvetica","bold");doc.setFontSize(9);doc.setTextColor(...G);
-      doc.text("EVOLUCI\u00d3N POR RONDA",M,y);y+=4;
+      doc.text("EVOLUCI\u00d3N POR N° de Auditoria",M,y);y+=4;
       doc.autoTable({
         startY:y,margin:{left:M,right:M},
-        head:[["Ronda","Auditorias","Puntaje","% Cumpl.","Nivel"]],
+        head:[["N° de Auditoria","Auditorias","Puntaje","% Cumpl.","Nivel"]],
         body:evRows,theme:"grid",headStyles:hS,bodyStyles:bS,
         columnStyles:{0:{halign:"left",cellWidth:25},1:{cellWidth:30},2:{cellWidth:30},3:{cellWidth:35},4:{cellWidth:34}},
         didDrawCell(d){if(d.section==="body"&&d.column.index===3){const v=parseInt(d.cell.text[0]);if(!isNaN(v)){d.cell.styles.textColor=v>=80?G:v>=50?A:R;d.cell.styles.fontStyle="bold";}}}

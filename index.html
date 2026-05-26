@@ -596,6 +596,11 @@ canvas{max-width:100%!important}
     <div style="position:relative;height:220px;width:100%"><canvas id="chart-audit-areas"></canvas></div>
   </div>
   <div class="dash-card">
+    <div class="dash-card-title">&#128202; Desempeno por pilar por area</div>
+    <div style="font-size:10px;color:var(--g400);margin:-4px 0 8px;font-style:italic">Puntaje promedio de cada S por area auditada</div>
+    <div style="position:relative;height:260px;width:100%"><canvas id="chart-pilar-area"></canvas></div>
+  </div>
+  <div class="dash-card">
     <div class="dash-card-title">&#128200; Evolucion del puntaje</div>
     <div style="position:relative;height:220px;width:100%"><canvas id="chart-audit-evol"></canvas></div>
   </div>
@@ -737,7 +742,7 @@ const RESP_ZONA={
   "OFICINA DE CALIDAD":"ITALO BUEN DIA",
   "OFICINA DE PLANIFICACION Y PRODUCCION":"CARLOS LUYO",
   "OFICINA DE JEFATURA DE PRODUCCION":"HENRY TREVIÑOS",
-  "OFICINA DE JEFATURA DE PLANTA":"FABIO CALDAS",
+  "OFICINA DE JEFATURA DE PLANTA":"FABIO CALDAS ANTUNEZ",
   "OFICINA ALMACEN DE INSUMOS":"HECTOR ARTEAGA",
   "OFICINA ALMACEN DE REPUESTOS Y SUMINISTROS":"HECTOR ARTEAGA",
   "OFICINA DE APT":"HECTOR ARTEAGA",
@@ -1451,7 +1456,7 @@ let toastT;
 // ═══ AUDITORÍA ═══
 const SECTORES_AUDIT={
   "LOGISTICA":{"responsable":"Claudio Escobedo Chávez","areas":["ALM. TEMPORAL MP","ALM. DE INSUMOS","ALM. DE REPUESTOS","ALM. DE INSUMOS GENERALES","ALM. DE INSUMOS QUÍMICOS","ALM. DE PT 1","ALM. TEMPORAL PT","ALM. PT HANGAR 8","ALM. PT HANGAR 10","ALM. DE ENVASES Y EMBALAJES","OFIC. DE LOGÍSTICA","OFIC. DE APT","OFIC. ALM. DE REPUESTOS"]},
-  "PRODUCCIÓN":{"responsable":"Henry Treviños Torres","areas":["OFIC. DE JEF. DE PRODUCCIÓN","OFIC. DE PLANEAMIENTO","OFIC. DE MEJORA CONTINUA","SALA DE REUNIONES MC","OFIC. DE JEFATURA DE PLANTA","LÍNEA 1","LÍNEA 2","LÍNEA 3","LÍNEA 4","LÍNEA 5","LINEA 6","LÍNEA 7","LÍNEA 8","LÍNEA 9","SALA DE JARABE","TRATAMIENTO DE AGUAS","OFICINA DE PRODUCCIÓN","SALA DE CALDERO","SALA DE MANEJOS","SALA DE FUERZAS","LINEA 10","LABORATORIO DE SOPLADO"]},
+  "PRODUCCIÓN":{"responsable":"Henry Treviños Torres","areas":["OFIC. DE JEF. DE PRODUCCIÓN","OFIC. DE PLANEAMIENTO","OFIC. DE MEJORA CONTINUA","SALA DE REUNIONES MC","OFIC. DE JEFATURA DE PLANTA","LÍNEA 1","LÍNEA 2","LÍNEA 3","LÍNEA 4","LÍNEA 5","LINEA 6","LÍNEA 7","LÍNEA 8","LÍNEA 9","SALA DE JARABE","TRATAMIENTO DE AGUAS","OFICINA DE PRODUCCIÓN","SALA DE CALDERO","SALA DE MANEJOS","MANTENIMIENTO","LINEA 10","LABORATORIO DE SOPLADO"]},
   "GESTION HUMANA":{"responsable":"Álvaro Sotomayor Checa","areas":["OFIC. DE GESTION HUMANA","AUDITORIO DE PLANTA","COMEDOR","SSHH Y VESTUARIOS"]},
   "SEGURIDAD CIVIL":{"responsable":"Fabio Caldas Antúnez","areas":["OFIC. DE SEGURIDAD CIVIL / GARITA"]},
   "SEGURIDAD":{"responsable":"Ubaldo Llacho Alhuirca","areas":["OFIC. DE SEG. INDUSTRIAL","TÓPICO"]},
@@ -1481,7 +1486,7 @@ const AREA_RESPONSABLE={
   "OFIC. DE PLANEAMIENTO":"Henry Treviños Torres",
   "OFIC. DE MEJORA CONTINUA":"Henry Treviños Torres",
   "SALA DE REUNIONES MC":"Henry Treviños Torres",
-  "OFIC. DE JEFATURA DE PLANTA":"Henry Treviños Torres",
+  "OFIC. DE JEFATURA DE PLANTA":"Fabio Caldas Antúnez",
   "OFIC. DE GESTION HUMANA":"Álvaro Sotomayor Checa",
   "OFIC. DE SEGURIDAD CIVIL / GARITA":"Fabio Caldas Antúnez",
   "OFIC. DE SEG. INDUSTRIAL":"Ubaldo Llacho Alhuirca",
@@ -1512,7 +1517,7 @@ const AREA_RESPONSABLE={
   "OFICINA DE PRODUCCIÓN":"Henry Treviños Torres",
   "SALA DE CALDERO":"Henry Treviños Torres",
   "SALA DE MANEJOS":"Henry Treviños Torres",
-  "SALA DE FUERZAS":"Henry Treviños Torres",
+  "MANTENIMIENTO":"Henry Treviños Torres",
   "TALLER DE MANT. MECÁNICO":"Roberto Cárdenas Arias",
   "TALLER DE MANT. ELÉCTRICO":"Roberto Cárdenas Arias",
   "SUB-ESTACIÓN":"Roberto Cárdenas Arias",
@@ -1532,7 +1537,7 @@ const AUDITORES_SECTORES={
   "Ítalo Buendia Poma":["ALM. DE ENVASES Y EMBALAJES","OFICINA DE PRODUCCIÓN","OFIC. DE LOGÍSTICA"],
   "Héctor Arteaga Espinoza":["SUB-ESTACIÓN","OFIC. DE COMUNICACIONES","LÍNEA 4"],
   "Carlos Joél Luyo Diaz":["TÓPICO","ALM. DE PT 1","OFIC. DE FINANZAS"],
-  "Enrique Fabricio Polo Manrique":["ALM. PT HANGAR 8","SECRETARIA GENERAL","SALA DE FUERZAS"],
+  "Enrique Fabricio Polo Manrique":["ALM. PT HANGAR 8","SECRETARIA GENERAL","MANTENIMIENTO"],
   "Ayrton Raphael Cotrina Esteves":["LÍNEA 9","OFIC. DE CONTROL INTERNO","OFIC. DE SEG. INDUSTRIAL"],
   "William Jesus Joel Rivera Ramirez":["LABORATORIO DE SOPLADO","LÍNEA 7","OFIC. DE SEGURIDAD CIVIL / GARITA"],
   "Nuria del Pilar Diaz Ramirez":["OFIC. DE JEFATURA DE PLANTA","COMEDOR","OFICINA DE MANTENIMIENTO"],
@@ -2226,7 +2231,8 @@ function renderAuditDashboard(){
   const totalAudit=data.length;
   const promPuntaje=Math.round(data.reduce((s,a)=>s+(a.puntaje_total||0),0)/totalAudit);
   const promPct=Math.round(data.reduce((s,a)=>s+(a.pct_cumplimiento||0),0)/totalAudit);
-  const totalObs=data.reduce((s,a)=>s+safeJson(a.incumplimientos,"[]").length,0);
+  let totalObs=0;
+  data.forEach(a=>{safeJson(a.detalles,"[]").forEach(d=>{if(d.puntaje<=3&&d.puntaje>0)totalObs++;});});
   document.getElementById("dk-total").textContent=totalAudit;
   document.getElementById("dk-prom").textContent=promPuntaje;
   document.getElementById("dk-obs").textContent=totalObs;
@@ -2274,6 +2280,7 @@ function renderAuditDashboard(){
   const areaProms=areasSorted.map(a=>a.prom);
   const areaColors=areaProms.map(p=>p>=90?"#1B5E20":p>=70?G:p>=50?A:R);
   destroyChartAudit("chart-audit-areas");
+  destroyChartAudit("chart-pilar-area");
   new Chart(document.getElementById("chart-audit-areas"),{
     type:"bar",
     data:{labels:areaLabels,datasets:[{label:"Puntaje promedio",data:areaProms,backgroundColor:areaColors,borderRadius:4}]},
@@ -2282,6 +2289,46 @@ function renderAuditDashboard(){
       scales:{x:{ticks:{font:{size:9},maxRotation:45},grid:{display:false}},
         y:{min:0,max:100,ticks:{font:{size:9}},grid:{color:"#f0f0f0"}}}}
   });
+  // ── Gráfico pilar por área (línea) ──────────────────────────
+  (function(){
+    const el2=document.getElementById("chart-pilar-area");if(!el2)return;
+    const pilarNums=[[1,2,3,4],[5,6,7,8],[9,10,11,12],[13,14,15,16],[17,18,19,20]];
+    const pilarLabels=["1S","2S","3S","4S","5S"];
+    const pilarColors=["#E65100","#1B5E20","#0D47A1","#4A148C","#880E4F"];
+    const areasU=[...new Set(data.map(a=>a.area))].sort();
+    const datasets=pilarLabels.map((p,pi)=>({
+      label:p,
+      data:areasU.map(area=>{
+        let sum=0,cnt=0;
+        data.filter(a=>a.area===area).forEach(a=>{
+          safeJson(a.detalles,"[]").forEach(d=>{
+            if(pilarNums[pi].includes(d.num)&&d.puntaje>0){sum+=d.puntaje;cnt++;}
+          });
+        });
+        return cnt?Math.round(sum/cnt*10)/10:0;
+      }),
+      borderColor:pilarColors[pi],backgroundColor:pilarColors[pi]+"33",
+      borderWidth:2.5,pointRadius:4,pointHoverRadius:6,tension:0.3,fill:false
+    }));
+    new Chart(el2,{
+      type:"line",
+      data:{labels:areasU.map(a=>a.length>12?a.substring(0,10)+"...":a),datasets},
+      options:{
+        responsive:true,maintainAspectRatio:false,
+        plugins:{
+          legend:{position:"top",labels:{font:{size:10},boxWidth:12,padding:8}},
+          tooltip:{callbacks:{label:ctx=>ctx.dataset.label+": "+ctx.parsed.y+"/5"}}
+        },
+        scales:{
+          y:{min:0,max:5,ticks:{stepSize:1,font:{size:9}},grid:{color:"#f0f0f0"},
+             title:{display:true,text:"Puntaje (0-5)",font:{size:9}}},
+          x:{ticks:{font:{size:8},maxRotation:45},grid:{display:false}}
+        }
+      }
+    });
+  })();
+
+
 
   // Evolución temporal (línea)
   const evolData=[...data].reverse().map((a,i)=>({x:i+1,y:a.puntaje_total,label:`${a.area} (${a.fecha})`,color:a.puntaje_total>=90?"#1B5E20":a.puntaje_total>=70?G:a.puntaje_total>=50?A:R}));
@@ -2855,14 +2902,9 @@ async function exportarPDFGerencial(btn){
     const nivelCol=promPct>=90?G:promPct>=70?[46,125,50]:promPct>=50?A:R;
     const areas=[...new Set(data.map(a=>a.area))].sort();
 
-    // OBS INCUMPLIMIENTO = criterios únicos con puntaje ≤3 en data
-    const obsSet=new Set();
-    data.forEach(a=>{
-      safeJson(a.detalles,"[]").forEach(d=>{
-        if(d.puntaje<=3&&d.puntaje>0) obsSet.add(a.area+"_"+d.num);
-      });
-    });
-    const totalObs=obsSet.size;
+    // OBS INCUMPLIMIENTO = todos los criterios ≤3 de todas las auditorías
+    let totalObs=0;
+    data.forEach(a=>{safeJson(a.detalles,"[]").forEach(d=>{if(d.puntaje<=3&&d.puntaje>0)totalObs++;});});
 
     // Levantadas = cierres confirmados en data
     let totalCierres=0;
@@ -3039,12 +3081,12 @@ async function exportarPDFGerencial(btn){
       doc.text("ESTADO DE OBSERVACIONES DE INCUMPLIMIENTO",M,y);y+=4;
       const obsRows=areas.map(area=>{
         const audsArea=data.filter(a=>a.area===area);
-        let tot=new Set(),lev=0;
+        let tot=0,lev=0;
         audsArea.forEach(a=>{
-          safeJson(a.detalles,"[]").forEach(d=>{if(d.puntaje<=3&&d.puntaje>0)tot.add(d.num);});
+          safeJson(a.detalles,"[]").forEach(d=>{if(d.puntaje<=3&&d.puntaje>0)tot++;});
           lev+=Object.values(safeJson(a.cierre_criterios,"{}")).filter(v=>v&&v.cerrado).length;
         });
-        const t=tot.size,p=t?Math.round(lev/t*100):100;
+        const t=tot,p=t?Math.round(lev/t*100):100;
         return t>0?[area,String(t),String(lev),String(t-lev),p+"%"]:null;
       }).filter(Boolean);
       if(obsRows.length){

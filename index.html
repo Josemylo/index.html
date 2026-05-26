@@ -2486,7 +2486,7 @@ function renderAuditDashboard(){
         <div style="height:6px;background:var(--g100);border-radius:20px;overflow:hidden">
           <div style="height:100%;width:${pctProgr}%;background:${colP};border-radius:20px;transition:width .6s"></div>
         </div>
-        ${pctProgr===100?`<div style="margin-top:8px;font-size:11px;color:var(--green);font-weight:700;text-align:center">✅ Todos los sectores auditados — Para iniciar nueva ronda, elimina los registros en Supabase</div>`:""}
+        ${pctProgr===100?`<div style="margin-top:8px;font-size:11px;color:var(--green);font-weight:700;text-align:center">✅ Todos los sectores auditados</div>`:""}
       </div>`;
   }
   renderPendientesCierre();
@@ -2938,7 +2938,7 @@ async function exportarPDFGerencial(btn){
     doc.setFontSize(9);doc.text("INDUSTRIAS SAN MIGUEL \u2014 PLANTA HUAURA",PW/2+10,21,{align:"center"});
     doc.setFont("helvetica","normal");doc.setFontSize(8);
     doc.text(nroLbl+" \u00b7 "+fecha,PW/2+10,28,{align:"center"});
-    doc.text("Premio Nacional 5S",PW/2+10,34,{align:"center"});
+    doc.text("5S",PW/2+10,34,{align:"center"});
     let y=42;
 
     // Score bar
@@ -3132,7 +3132,7 @@ async function exportarPDFGerencial(btn){
       doc.setTextColor(...W);doc.setFont("helvetica","bold");doc.setFontSize(12);
       doc.text("FORTALEZAS IDENTIFICADAS",PW/2,8,{align:"center"});
       doc.setFont("helvetica","normal");doc.setFontSize(7);
-      doc.text("Por pilar y area \u2014 Premio Nacional 5S",PW/2,12,{align:"center"});
+      doc.text("Por pilar y area \u2014 5S",PW/2,12,{align:"center"});
       yF=18;
       const pilarRgb={"1S":[230,91,0],"2S":[27,94,32],"3S":[13,71,161],"4S":[74,20,140],"5S":[136,14,79]};
       const pilarFullName={"1S":"1S \u2014 Seleccionar","2S":"2S \u2014 Ordenar","3S":"3S \u2014 Limpiar","4S":"4S \u2014 Estandarizar","5S":"5S \u2014 Disciplinar"};

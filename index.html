@@ -615,8 +615,9 @@ canvas{max-width:100%!important}
     <div id="dk-criterios-criticos"></div>
   </div>
   <div class="dash-card">
-    <div class="dash-card-title">&#128201; Comparativo ultima vs penultima auditoria</div>
-    <div id="dk-comparativo-areas"></div>
+    <div class="dash-card-title">&#128203; Resumen de auditorias</div>
+    <div style="font-size:10px;color:var(--g400);margin:-4px 0 8px;font-style:italic">N° de auditoria, area y puntaje obtenido</div>
+    <div style="overflow-x:auto"><div id="dk-comparativo-areas"></div></div>
   </div>
   <div class="dash-card">
     <div class="dash-card-title">&#9203; Pendientes por auditor</div>
@@ -2417,29 +2418,38 @@ function renderAuditDashboard(){
   });
   const compEl=document.getElementById("dk-comparativo-areas");
   if(compEl){
-    const comp=Object.entries(byAreaHist).filter(([,v])=>v.length>=1).map(([area,audits])=>{
-      const sorted=audits.sort((a,b)=>b.fecha>a.fecha?1:-1);
-      const ultima=sorted[0];const penultima=sorted[1];
-      const diff=penultima?ultima.puntaje-penultima.puntaje:null;
-      return{area,ultima:ultima.puntaje,penultima:penultima?.puntaje||null,diff};
-    }).sort((a,b)=>(b.diff||0)-(a.diff||0));
-    compEl.innerHTML=comp.map(c=>{
-      const col=c.diff===null?"var(--g400)":c.diff>0?G:c.diff<0?R:"var(--g400)";
-      const ico=c.diff===null?"—":c.diff>0?"▲":c.diff<0?"▼":"→";
-      const nombre=c.area.length>22?c.area.substring(0,20)+"...":c.area;
-      return `<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--g100)">
-        <div style="flex:1;min-width:0">
-          <div style="font-size:11px;font-weight:700;color:var(--g700);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${nombre}</div>
-          ${c.penultima!==null?`<div style="font-size:9px;color:var(--g400)">${c.penultima} → ${c.ultima} pts</div>`:`<div style="font-size:9px;color:var(--g400)">Solo 1 auditoría</div>`}
-        </div>
-        <div style="text-align:center;min-width:50px">
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:${col}">${ico} ${c.diff!==null?Math.abs(c.diff):""}</div>
-        </div>
-        <div style="text-align:right;min-width:40px">
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;color:${c.ultima>=70?G:c.ultima>=50?A:R}">${c.ultima}</div>
-        </div>
-      </div>`;
-    }).join("")||'<p style="font-size:12px;color:var(--g400)">Sin datos.</p>';
+    const G="#1E7C34",R="#E63329",A="#D97706";
+    // Tabla simple: N° Auditoría - Área - Puntaje
+    const filas=data.slice().sort((a,b)=>{
+      if(a.nro_auditoria!==b.nro_auditoria) return (a.nro_auditoria||0)-(b.nro_auditoria||0);
+      return (b.puntaje_total||0)-(a.puntaje_total||0);
+    });
+    if(!filas.length){
+      compEl.innerHTML='<p style="font-size:12px;color:var(--g400);text-align:center">Sin datos</p>';
+    } else {
+      const col=p=>p>=90?"#1B5E20":p>=70?G:p>=50?A:R;
+      const nv=p=>p>=90?"Excelente":p>=70?"Bueno":p>=50?"Regular":"Deficiente";
+      compEl.innerHTML=`<table style="width:100%;border-collapse:collapse;font-size:12px">
+        <thead>
+          <tr style="background:#004D2E;color:#fff">
+            <th style="padding:7px 10px;text-align:center;font-weight:700;font-size:11px">N° Auditoria</th>
+            <th style="padding:7px 10px;text-align:left;font-weight:700;font-size:11px">Area</th>
+            <th style="padding:7px 10px;text-align:center;font-weight:700;font-size:11px">Puntaje</th>
+            <th style="padding:7px 10px;text-align:center;font-weight:700;font-size:11px">Nivel</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${filas.map((a,i)=>`
+            <tr style="background:${i%2===0?"#fff":"#f5faf6"};border-bottom:1px solid #eee">
+              <td style="padding:6px 10px;text-align:center;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;color:#004D2E">N°${a.nro_auditoria||"—"}</td>
+              <td style="padding:6px 10px;color:#333;font-weight:600">${a.area||"—"}</td>
+              <td style="padding:6px 10px;text-align:center;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;color:${col(a.puntaje_total||0)}">${a.puntaje_total||0}</td>
+              <td style="padding:6px 10px;text-align:center;font-size:10px;font-weight:700;color:${col(a.puntaje_total||0)}">${nv(a.puntaje_total||0)}</td>
+            </tr>`).join("")}
+        </tbody>
+      </table>`;
+    }
+  } // cierre else
   }
 
   // Áreas críticas
@@ -2486,7 +2496,7 @@ function renderAuditDashboard(){
         <div style="height:6px;background:var(--g100);border-radius:20px;overflow:hidden">
           <div style="height:100%;width:${pctProgr}%;background:${colP};border-radius:20px;transition:width .6s"></div>
         </div>
-        ${pctProgr===100?`<div style="margin-top:8px;font-size:11px;color:var(--green);font-weight:700;text-align:center">✅ Todos los sectores auditados</div>`:""}
+        ${pctProgr===100?`<div style="margin-top:8px;font-size:11px;color:var(--green);font-weight:700;text-align:center">✅ Todos los sectores auditados — Para iniciar nueva ronda, elimina los registros en Supabase</div>`:""}
       </div>`;
   }
   renderPendientesCierre();
@@ -2500,9 +2510,6 @@ function renderAuditDashboard(){
       scales:{x:{beginAtZero:true,ticks:{stepSize:1,font:{size:9}},grid:{color:"#f0f0f0"}},
         y:{ticks:{font:{size:9}},grid:{display:false}}}}
   });
-}
-
-
 
 
 // ═══ PENDIENTES POR AUDITOR ═══
@@ -2837,24 +2844,31 @@ function renderObsPendientes(){
   if(rEl){const cur=rEl.value;rEl.innerHTML='<option value="">Todos los responsables</option>';resps.forEach(r=>rEl.innerHTML+=`<option value="${r}"${r===cur?" selected":""}>${r}</option>`);}
 
   // KPIs
-  const pend=todasObs.filter(o=>!o.cerrado).length;
-  const levt=todasObs.filter(o=>o.cerrado).length;
-  const pct=todasObs.length?Math.round(levt/todasObs.length*100):0;
-  const kEl=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
-  kEl("ok-pendientes",pend); kEl("ok-levantadas",levt); kEl("ok-pct",pct+"%");
-
   // Filtrar lista
   const lista = todasObs.filter(o=>{
     if(filNro && String(o.nro)!==filNro) return false;
     if(filArea && o.area!==filArea) return false;
     if(filResp && o.responsable!==filResp) return false;
-    const st = filSt||"pendiente";
+    return true;
+  });
+
+  // KPIs basados en lista filtrada (sin filtro de estado para mostrar total real)
+  const pend=lista.filter(o=>!o.cerrado).length;
+  const levt=lista.filter(o=>o.cerrado).length;
+  const total=lista.length;
+  const pct=total?Math.round(levt/total*100):0;
+  const kEl=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+  kEl("ok-pendientes",pend); kEl("ok-levantadas",levt); kEl("ok-pct",pct+"%");
+
+  // Filtrar por estado para mostrar en lista
+  const listaFinal = lista.filter(o=>{
+    const st=filSt||"pendiente";
     if(st==="pendiente" && o.cerrado) return false;
     if(st==="levantada" && !o.cerrado) return false;
     return true;
   });
 
-  if(!lista.length){
+  if(!listaFinal.length){
     const st = filSt||"pendiente";
     el.innerHTML = st==="pendiente"
       ? '<div style="text-align:center;padding:30px;color:var(--green)"><div style="font-size:40px;margin-bottom:8px">&#10003;</div><div style="font-size:14px;font-weight:700">No hay observaciones pendientes</div></div>'
@@ -2866,7 +2880,7 @@ function renderObsPendientes(){
   const puntajeLbls={1:"Muy deficiente",2:"Deficiente",3:"Regular"};
 
   // Generar HTML con cache para botones de cierre
-  const htmlItems = lista.map(o=>{
+  const htmlItems = listaFinal.map(o=>{
     const col  = puntajeCols[o.puntaje]||A;
     const lbl  = puntajeLbls[o.puntaje]||"";
     const fotosHtml = o.fotos.length
@@ -3075,7 +3089,7 @@ async function exportarPDFGerencial(btn){
     if(evRows.length>0){
       if(y>240){doc.addPage();y=15;}
       doc.setFont("helvetica","bold");doc.setFontSize(9);doc.setTextColor(...G);
-      doc.text("EVOLUCI\u00d3N POR N° de Auditoria",M,y);y+=4;
+      doc.text("EVOLUCI\u00d3N POR N° DE AUDITORIA",M,y);y+=4;
       doc.autoTable({
         startY:y,margin:{left:M,right:M},
         head:[["N° de Auditoria","Auditorias","Puntaje","% Cumpl.","Nivel"]],

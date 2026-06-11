@@ -184,12 +184,12 @@ canvas{max-width:100%!important}
     <div class="fg"><label>Responsable de Registro <span class="req">*</span></label>
       <input type="text" id="f-auditor" placeholder="Tu nombre completo" oninput="this.style.borderColor=this.value?'var(--green)':''">
     </div>
-    <div class="fg"><label>Area <span class="req">*</span></label>
-      <select id="f-area" onchange="updateZonas()"><option value="">- Selecciona area -</option></select>
+    <div class="fg"><label>Sector <span class="req">*</span></label>
+      <select id="f-area" onchange="updateZonas()"><option value="">- Selecciona sector -</option></select>
     </div>
     <div class="row2">
-      <div class="fg"><label>Sector</label>
-        <input type="text" id="f-sector" readonly style="background:var(--g50);color:var(--g700)">
+      <div class="fg"><label>Area</label>
+        <input type="text" id="f-sector" readonly style="background:var(--g50);color:var(--green);font-weight:700" placeholder="Se asigna automaticamente">
       </div>
       <div class="fg"><label>Zona / Equipo <span class="req">*</span></label>
         <select id="f-zona"><option value="">- Selecciona zona -</option></select>
@@ -764,6 +764,16 @@ const RESP_ZONA={
   "OFICINA DE SISTEMAS":"FABIO CALDAS"
 };
 const TIPOS=[{tipo:"Presencia de Innecesarios",s:"1S"},{tipo:"Desorden",s:"2S"},{tipo:"Falta de limpieza",s:"3S"},{tipo:"Falta de rotulación y/o demarcación",s:"4S"},{tipo:"Incumplimiento del Estándar",s:"5S"},{tipo:"Falta de EPP",s:"EPP"}];
+const AREA_PADRE={
+  "LINEA1":"PRODUCCIÓN","LINEA2":"PRODUCCIÓN","LINEA3":"PRODUCCIÓN",
+  "LINEA4":"PRODUCCIÓN","LINEA5":"PRODUCCIÓN","LINEA6":"PRODUCCIÓN",
+  "LINEA7":"PRODUCCIÓN","LINEA8":"PRODUCCIÓN","LINEA9":"PRODUCCIÓN",
+  "LINEA_10":"PRODUCCIÓN","SALA_DE_MANEJOS":"PRODUCCIÓN",
+  "SALA_DE_FUERZA":"PRODUCCIÓN","SALA_DE_CALDEROS":"PRODUCCIÓN",
+  "TRATAMIENTO_DE_AGUA":"PRODUCCIÓN","SALA_DE_JARABE":"PRODUCCIÓN",
+  "ALMACEN":"LOGISTICA","OFICINAS":"GERENCIA"
+};
+
 const DATOS={
   LINEA1:{sector:"A",zonas:["SOPLADO","FAJA TRANSPORTADORA","LLENADO","AREAS COMUNES"]},
   LINEA2:{sector:"A",zonas:["SOPLADO","ETIQUETADO","AEROTRANSPORTADOR","INGRESO A LLENADO","LLENADO","PANTALLA","FAJA TRANSPORTADORA","EMPACADO","PALETIZADO MANUAL","AREAS COMUNES"]},
@@ -879,15 +889,18 @@ async function subirCloudinary(file,pb,pf){
 }
 
 function updateZonas(){
-  const area=document.getElementById("f-area").value;
-  const sEl=document.getElementById("f-sector"),zEl=document.getElementById("f-zona");
-  sEl.innerHTML="<option>— Sector —</option>";zEl.innerHTML="<option>— Zona —</option>";
-  if(!area){sEl.disabled=true;zEl.disabled=true;document.getElementById("f-responsable").value="";return;}
-  sEl.innerHTML=`<option value="${DATOS[area].sector}">Sector ${DATOS[area].sector}</option>`;
-  sEl.disabled=false;
-  DATOS[area].zonas.forEach(z=>{zEl.innerHTML+=`<option value="${z}">${z}</option>`;});
+  const sector=document.getElementById("f-area").value;
+  const areaEl=document.getElementById("f-sector");
+  const zEl=document.getElementById("f-zona");
+  areaEl.value=""; zEl.innerHTML="<option value=''>- Selecciona zona -</option>";
+  if(!sector){zEl.disabled=true;document.getElementById("f-responsable").value="";return;}
+  // Mostrar área padre automáticamente
+  const areaPadre=AREA_PADRE[sector]||sector.replace(/_/g," ");
+  areaEl.value=areaPadre;
+  // Cargar zonas del sector
+  DATOS[sector].zonas.forEach(z=>{zEl.innerHTML+=`<option value="${z}">${z}</option>`;});
   zEl.disabled=false;
-  document.getElementById("f-responsable").value=RESP_AREA[area]||"";
+  document.getElementById("f-responsable").value=RESP_AREA[sector]||"";
 }
 function onZonaChange(){
   const zona=document.getElementById("f-zona").value;
@@ -954,7 +967,7 @@ async function guardarObservacion(){
     const nextNum = maxData&&maxData.length>0?(maxData[0].num||0)+1:1;
     const {data,error}=await sb.from("observaciones").insert({
       num:nextNum,sem:document.getElementById("f-sem").value,fecha:window._fecha,auditor,
-      area:area.replace(/_/g," "),sector:document.getElementById("f-sector").value,zona:document.getElementById("f-zona").value,
+      area:AREA_PADRE[area]||area.replace(/_/g," "),sector:area.replace(/_/g," "),zona:document.getElementById("f-zona").value,
       tipo,s:selectedS||"—",obs,responsable:document.getElementById("f-responsable").value.trim(),status:"NO CORREGIDO",fotos:fotosUrls
     }).select().single();
     if(error)throw error;

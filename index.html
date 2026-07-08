@@ -355,38 +355,39 @@ canvas{max-width:100%!important}
 </div>
 
 <!-- APP AUDITORIA NUEVA -->
-<div id="app-auditoria-nueva" style="display:none;min-height:100vh;background:var(--g50);padding-bottom:80px">
+<div id="app-auditoria-nueva" style="display:none;min-height:100vh;background:#F4F6F4;padding-bottom:80px">
 
-  <!-- Header -->
-  <div style="background:var(--amber);padding:16px 20px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.2)">
-    <button onclick="salirAuditoriaNew()" style="background:rgba(0,0,0,.15);border:none;color:#fff;border-radius:8px;padding:6px 12px;cursor:pointer;font-size:13px;font-weight:600">← Inicio</button>
+  <!-- Header ISM -->
+  <div style="background:#1E7C34;padding:14px 16px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.2)">
+    <button onclick="salirAuditoriaNew()" style="background:rgba(0,0,0,.2);border:none;color:#fff;border-radius:8px;padding:6px 12px;cursor:pointer;font-size:13px;font-weight:600">← Inicio</button>
     <div style="flex:1">
-      <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:900;color:#fff;letter-spacing:.3px">Auditoría 5S</div>
-      <div style="font-size:11px;color:rgba(255,255,255,.8)">Industrias San Miguel · Planta Huaura</div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:900;color:#fff">Auditoría 5S</div>
+      <div style="font-size:11px;color:rgba(255,255,255,.75)">Industrias San Miguel · Planta Huaura</div>
     </div>
-    <div id="audn-badge-ronda" style="background:rgba(0,0,0,.2);border-radius:8px;padding:4px 12px;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;color:#fff;display:none"></div>
+    <div id="audn-badge-ronda" style="display:none;background:#D97706;border-radius:8px;padding:4px 12px;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;color:#fff"></div>
   </div>
 
   <!-- Tabs -->
-  <div style="display:flex;background:#fff;border-bottom:2px solid var(--g100);overflow-x:auto;position:sticky;top:57px;z-index:99;box-shadow:0 1px 4px rgba(0,0,0,.06)">
-    <button id="audn-tab-nueva" onclick="auditNuevaTab('nueva')" style="flex:1;padding:11px 6px;border:none;background:none;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;color:var(--amber);border-bottom:3px solid var(--amber);cursor:pointer;white-space:nowrap">+ Nueva</button>
-    <button id="audn-tab-historial" onclick="auditNuevaTab('historial')" style="flex:1;padding:11px 6px;border:none;background:none;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;color:var(--g400);border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap">Seguimiento</button>
-    <button id="audn-tab-dashboard" onclick="auditNuevaTab('dashboard')" style="flex:1;padding:11px 6px;border:none;background:none;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;color:var(--g400);border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap">Dashboard</button>
-    <button id="audn-tab-acciones" onclick="auditNuevaTab('acciones')" style="flex:1;padding:11px 6px;border:none;background:none;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;color:var(--g400);border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap">Acciones</button>
+  <div style="display:flex;background:#fff;border-bottom:2px solid #E5E7E5;position:sticky;top:57px;z-index:99">
+    <button id="audn-tab-nueva" onclick="auditNuevaTab('nueva')" style="flex:1;padding:12px 4px;border:none;background:none;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;color:#1E7C34;border-bottom:3px solid #1E7C34;cursor:pointer">+ Nueva</button>
+    <button id="audn-tab-historial" onclick="auditNuevaTab('historial')" style="flex:1;padding:12px 4px;border:none;background:none;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;color:#9CA3AF;border-bottom:3px solid transparent;cursor:pointer">Incumplimientos</button>
+    <button id="audn-tab-acciones" onclick="auditNuevaTab('acciones')" style="flex:1;padding:12px 4px;border:none;background:none;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;color:#9CA3AF;border-bottom:3px solid transparent;cursor:pointer">Acciones</button>
+    <button id="audn-tab-dashboard" onclick="auditNuevaTab('dashboard')" style="flex:1;padding:12px 4px;border:none;background:none;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;color:#9CA3AF;border-bottom:3px solid transparent;cursor:pointer">Dashboard</button>
   </div>
 
   <!-- ── TAB NUEVA ── -->
-  <div id="audn-content-nueva" style="padding:16px">
-    <!-- Datos de la auditoría -->
-    <div id="audn-form-datos" style="background:#fff;border-radius:14px;padding:18px;margin-bottom:14px;box-shadow:var(--sh)">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
-        <div style="width:4px;height:22px;background:var(--amber);border-radius:2px"></div>
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;color:var(--g700)">Datos de la Auditoría</div>
+  <div id="audn-content-nueva" style="padding:14px">
+
+    <!-- Formulario datos -->
+    <div id="audn-form-datos" style="background:#fff;border-radius:12px;padding:16px;margin-bottom:14px;box-shadow:0 1px 4px rgba(0,0,0,.08)">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:800;color:#155A25;margin-bottom:12px;display:flex;align-items:center;gap:6px">
+        <div style="width:4px;height:18px;background:#1E7C34;border-radius:2px"></div>
+        Datos de la Auditoría
       </div>
       <div class="row2">
         <div class="fg">
-          <label>N° Check List <span class="req">*</span></label>
-          <select id="audn-num">
+          <label>N° Auditoría <span class="req">*</span></label>
+          <select id="audn-num" onchange="audn_checkReady()">
             <option value="">- Selecciona -</option>
             <option value="1">A1 — 1ra Ronda</option>
             <option value="2">A2 — 2da Ronda</option>
@@ -396,144 +397,140 @@ canvas{max-width:100%!important}
         </div>
         <div class="fg">
           <label>Fecha <span class="req">*</span></label>
-          <input type="date" id="audn-fecha">
+          <input type="date" id="audn-fecha" onchange="audn_checkReady()">
         </div>
       </div>
       <div class="fg">
         <label>Sector auditado <span class="req">*</span></label>
-        <select id="audn-sector"><option value="">- Selecciona sector -</option></select>
+        <select id="audn-sector" onchange="audn_onSectorChange()"><option value="">- Selecciona sector -</option></select>
       </div>
       <div class="fg">
         <label>Área</label>
-        <input type="text" id="audn-area-auto" readonly style="background:var(--g50);color:var(--green);font-weight:700" placeholder="Se asigna automáticamente">
+        <input type="text" id="audn-area-auto" readonly style="background:#F4F6F4;color:#1E7C34;font-weight:700" placeholder="Se asigna automáticamente">
       </div>
       <div class="row2">
         <div class="fg">
           <label>Auditor <span class="req">*</span></label>
-          <input type="text" id="audn-auditor" placeholder="Nombre del auditor">
+          <input type="text" id="audn-auditor" placeholder="Nombre del auditor" oninput="audn_checkReady()">
         </div>
         <div class="fg">
           <label>Responsable</label>
-          <input type="text" id="audn-lider" placeholder="Responsable del sector">
+          <input type="text" id="audn-lider" placeholder="Se asigna automáticamente" readonly style="background:#F4F6F4">
         </div>
       </div>
-      <button id="audn-btn-iniciar" onclick="audn_iniciarEvaluacion()" style="display:none;width:100%;margin-top:8px;background:var(--amber);color:#fff;border:none;border-radius:10px;padding:14px;font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:700;cursor:pointer">
+      <button id="audn-btn-iniciar" onclick="audn_iniciarEvaluacion()" style="display:none;width:100%;margin-top:8px;background:#1E7C34;color:#fff;border:none;border-radius:10px;padding:14px;font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:700;cursor:pointer">
         Iniciar Evaluación →
       </button>
     </div>
 
-    <!-- Evaluación de criterios -->
+    <!-- Evaluación -->
     <div id="audn-eval-container" style="display:none">
       <!-- Score en tiempo real -->
-      <div style="background:linear-gradient(135deg,var(--amber) 0%,#B45309 100%);border-radius:14px;padding:16px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between">
+      <div style="background:#1E7C34;border-radius:12px;padding:14px 16px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between">
         <div>
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;color:rgba(255,255,255,.8);letter-spacing:.5px">PUNTAJE ACTUAL</div>
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:42px;font-weight:900;color:#fff;line-height:1" id="audn-score-display">1000</div>
-          <div style="font-size:11px;color:rgba(255,255,255,.7)">de 1000 puntos</div>
+          <div style="font-size:11px;color:rgba(255,255,255,.7);font-weight:600;letter-spacing:.5px">PUNTAJE ACTUAL</div>
+          <div id="audn-score-display" style="font-family:'Barlow Condensed',sans-serif;font-size:44px;font-weight:900;color:#fff;line-height:1">1000</div>
+          <div style="font-size:11px;color:rgba(255,255,255,.6)">de 1000 puntos</div>
         </div>
         <div style="text-align:right">
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:900;color:#fff" id="audn-pct-display">100%</div>
-          <div style="font-size:11px;color:rgba(255,255,255,.7)">Cumplimiento</div>
-          <div id="audn-nivel-display" style="margin-top:6px;background:rgba(255,255,255,.2);border-radius:6px;padding:3px 10px;font-size:12px;font-weight:700;color:#fff">EXCELENTE</div>
+          <div id="audn-pct-display" style="font-family:'Barlow Condensed',sans-serif;font-size:32px;font-weight:900;color:#fff">100%</div>
+          <div id="audn-nivel-display" style="margin-top:4px;background:rgba(255,255,255,.2);border-radius:6px;padding:3px 10px;font-size:12px;font-weight:700;color:#fff">EXCELENTE</div>
         </div>
       </div>
 
-      <!-- Criterios por categoría -->
+      <!-- Criterios -->
       <div id="audn-criterios-body"></div>
 
-      <!-- Botón guardar -->
-      <button id="audn-btn-guardar" onclick="audn_guardar()" style="width:100%;margin-top:14px;background:var(--green);color:#fff;border:none;border-radius:12px;padding:16px;font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;cursor:pointer">
+      <!-- Guardar -->
+      <button id="audn-btn-guardar" onclick="audn_guardar()" style="width:100%;margin-top:14px;background:#D97706;color:#fff;border:none;border-radius:12px;padding:16px;font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;cursor:pointer">
         ✓ Guardar Auditoría
       </button>
     </div>
   </div>
 
-  <!-- ── TAB HISTORIAL ── -->
-  <div id="audn-content-historial" style="padding:16px;display:none">
+  <!-- ── TAB INCUMPLIMIENTOS ── -->
+  <div id="audn-content-historial" style="padding:14px;display:none">
     <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
-      <select id="audn-fil-ronda" onchange="audn_cargarHistorial()" style="flex:1;min-width:110px;padding:8px;border-radius:8px;border:1px solid var(--g200);font-size:13px">
-        <option value="">Todos los check lists</option>
+      <select id="audn-fil-ronda" onchange="audn_cargarIncumplimientos()" style="flex:1;min-width:90px;padding:8px;border-radius:8px;border:1px solid #D1D5D1;font-size:13px;background:#fff">
+        <option value="">Todas las rondas</option>
         <option value="1">A1</option><option value="2">A2</option>
         <option value="3">A3</option><option value="4">A4</option>
       </select>
-      <select id="audn-fil-area" onchange="audn_cargarHistorial()" style="flex:1;min-width:110px;padding:8px;border-radius:8px;border:1px solid var(--g200);font-size:13px">
-        <option value="">Todas las áreas</option>
+      <select id="audn-fil-sector" onchange="audn_cargarIncumplimientos()" style="flex:1;min-width:90px;padding:8px;border-radius:8px;border:1px solid #D1D5D1;font-size:13px;background:#fff">
+        <option value="">Todos los sectores</option>
       </select>
-    </div>
-    <div id="audn-historial-body"></div>
-  </div>
-
-  <!-- ── TAB DASHBOARD ── -->
-  <div id="audn-content-dashboard" style="padding:16px;display:none">
-    <div style="display:flex;gap:8px;margin-bottom:12px">
-      <select id="audn-dash-ronda" onchange="audn_renderDashboard()" style="flex:1;padding:8px;border-radius:8px;border:1px solid var(--g200);font-size:13px">
-        <option value="">Todos los check lists</option>
-        <option value="1">A1</option><option value="2">A2</option>
-        <option value="3">A3</option><option value="4">A4</option>
-      </select>
-    </div>
-    <!-- KPIs -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px" id="audn-dash-kpis"></div>
-    <!-- Gráfico % cumplimiento por ronda -->
-    <div style="background:#fff;border-radius:12px;padding:16px;margin-bottom:12px;box-shadow:var(--sh)">
-      <div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;color:var(--g700);margin-bottom:12px">% Cumplimiento por Ronda</div>
-      <canvas id="audn-chart-rondas" height="180"></canvas>
-    </div>
-    <!-- Gráfico por área -->
-    <div style="background:#fff;border-radius:12px;padding:16px;margin-bottom:12px;box-shadow:var(--sh)">
-      <div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;color:var(--g700);margin-bottom:12px">Puntaje Promedio por Área</div>
-      <canvas id="audn-chart-areas" height="220"></canvas>
-    </div>
-    <!-- Tabla observaciones levantadas -->
-    <div style="background:#fff;border-radius:12px;padding:16px;box-shadow:var(--sh)">
-      <div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;color:var(--g700);margin-bottom:12px">Estado de Observaciones</div>
-      <div id="audn-dash-obs-table"></div>
-    </div>
-  </div>
-
-  <!-- ── TAB ACCIONES ── -->
-  <div id="audn-content-acciones" style="padding:16px;display:none">
-    <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
-      <select id="audn-fil-accion-area" onchange="audn_cargarAcciones()" style="flex:1;min-width:110px;padding:8px;border-radius:8px;border:1px solid var(--g200);font-size:13px">
-        <option value="">Todas las áreas</option>
-      </select>
-      <select id="audn-fil-accion-estado" onchange="audn_cargarAcciones()" style="flex:1;min-width:110px;padding:8px;border-radius:8px;border:1px solid var(--g200);font-size:13px">
+      <select id="audn-fil-estado" onchange="audn_cargarIncumplimientos()" style="flex:1;min-width:90px;padding:8px;border-radius:8px;border:1px solid #D1D5D1;font-size:13px;background:#fff">
         <option value="">Todos los estados</option>
         <option value="Pendiente">Pendiente</option>
         <option value="En Proceso">En Proceso</option>
         <option value="Completado">Completado</option>
       </select>
     </div>
-    <!-- KPI acciones -->
-    <div id="audn-acciones-kpis" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px"></div>
+    <!-- KPIs -->
+    <div id="audn-inc-kpis" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px"></div>
+    <!-- Lista -->
+    <div id="audn-historial-body"></div>
+  </div>
+
+  <!-- ── TAB ACCIONES ── -->
+  <div id="audn-content-acciones" style="padding:14px;display:none">
+    <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+      <select id="audn-fil-accion-sector" onchange="audn_cargarAcciones()" style="flex:1;padding:8px;border-radius:8px;border:1px solid #D1D5D1;font-size:13px;background:#fff">
+        <option value="">Todos los sectores</option>
+      </select>
+      <select id="audn-fil-accion-estado" onchange="audn_cargarAcciones()" style="flex:1;padding:8px;border-radius:8px;border:1px solid #D1D5D1;font-size:13px;background:#fff">
+        <option value="">Todos los estados</option>
+        <option value="Pendiente">Pendiente</option>
+        <option value="En Proceso">En Proceso</option>
+        <option value="Completado">Completado</option>
+      </select>
+    </div>
+    <div id="audn-acciones-kpis" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px"></div>
     <div id="audn-acciones-body"></div>
+  </div>
+
+  <!-- ── TAB DASHBOARD ── -->
+  <div id="audn-content-dashboard" style="padding:14px;display:none">
+    <div style="display:flex;gap:8px;margin-bottom:12px">
+      <select id="audn-dash-ronda" onchange="audn_renderDashboard()" style="flex:1;padding:8px;border-radius:8px;border:1px solid #D1D5D1;font-size:13px;background:#fff">
+        <option value="">Todas las rondas</option>
+        <option value="1">A1</option><option value="2">A2</option>
+        <option value="3">A3</option><option value="4">A4</option>
+      </select>
+    </div>
+    <div id="audn-dash-kpis" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px"></div>
+    <div style="background:#fff;border-radius:12px;padding:14px;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,.08)">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;color:#155A25;margin-bottom:10px">% Cumplimiento por Ronda</div>
+      <canvas id="audn-chart-rondas" height="180"></canvas>
+    </div>
+    <div style="background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 4px rgba(0,0,0,.08)">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;color:#155A25;margin-bottom:10px">Puntaje por Área</div>
+      <canvas id="audn-chart-areas" height="220"></canvas>
+    </div>
   </div>
 </div>
 
 <!-- MODAL CRITERIO AUDITORÍA -->
-<div id="modal-audn-criterio" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1000;align-items:flex-end;justify-content:center;padding:0">
-  <div style="background:#fff;border-radius:20px 20px 0 0;padding:20px;width:100%;max-width:480px;max-height:92vh;overflow-y:auto">
-    <div style="display:flex;align-items:start;justify-content:space-between;margin-bottom:14px">
+<div id="modal-audn-criterio" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1000;align-items:flex-end;justify-content:center">
+  <div style="background:#fff;border-radius:20px 20px 0 0;padding:20px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto">
+    <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:14px">
       <div style="flex:1">
-        <div id="modal-audn-cat" style="font-size:11px;font-weight:700;color:var(--amber);letter-spacing:.5px;text-transform:uppercase"></div>
-        <div id="modal-audn-crit" style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:var(--g700);line-height:1.2;margin-top:2px"></div>
+        <div id="modal-audn-cat" style="font-size:11px;font-weight:700;color:#D97706;letter-spacing:.5px;text-transform:uppercase"></div>
+        <div id="modal-audn-crit" style="font-family:'Barlow Condensed',sans-serif;font-size:19px;font-weight:800;color:#1A1D18;line-height:1.2;margin-top:2px"></div>
       </div>
-      <button onclick="audn_cerrarModal()" style="background:var(--g100);border:none;border-radius:8px;width:32px;height:32px;cursor:pointer;font-size:16px;flex-shrink:0;margin-left:8px">✕</button>
+      <button onclick="audn_cerrarModal()" style="background:#F4F6F4;border:none;border-radius:8px;width:32px;height:32px;cursor:pointer;font-size:16px;flex-shrink:0;margin-left:8px">✕</button>
     </div>
-
-    <div class="fg">
-      <label>Puntaje <span class="req">*</span></label>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px" id="audn-puntaje-btns">
-        <button onclick="audn_selPuntaje(-20)" class="audn-pts-btn" data-pts="-20" style="padding:10px;border-radius:10px;border:2px solid #E0D0F0;background:#F9F5FF;color:#7B1FA2;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;cursor:pointer">-20 SSOMA</button>
-        <button onclick="audn_selPuntaje(-15)" class="audn-pts-btn" data-pts="-15" style="padding:10px;border-radius:10px;border:2px solid #FECACA;background:#FEF2F2;color:#C62828;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;cursor:pointer">-15 Calidad</button>
-        <button onclick="audn_selPuntaje(-10)" class="audn-pts-btn" data-pts="-10" style="padding:10px;border-radius:10px;border:2px solid #FED7AA;background:#FFF7ED;color:#C2410C;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;cursor:pointer">-10 Operac.</button>
-        <button onclick="audn_selPuntaje(-5)" class="audn-pts-btn" data-pts="-5" style="padding:10px;border-radius:10px;border:2px solid #FDE68A;background:#FFFBEB;color:#B45309;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;cursor:pointer">-5 No Oper.</button>
-        <button onclick="audn_selPuntaje(5)" class="audn-pts-btn" data-pts="5" style="padding:10px;border-radius:10px;border:2px solid #BBF7D0;background:#F0FDF4;color:#15803D;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;cursor:pointer;grid-column:1/-1">+5 Destacable ✓</button>
-      </div>
+    <!-- Botones puntaje -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">
+      <button onclick="audn_selPuntaje(-20)" class="audn-pts-btn" data-pts="-20" style="padding:12px;border-radius:10px;border:2px solid #E9D5FF;background:#FAF5FF;color:#7B1FA2;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;cursor:pointer">-20 SSOMA</button>
+      <button onclick="audn_selPuntaje(-15)" class="audn-pts-btn" data-pts="-15" style="padding:12px;border-radius:10px;border:2px solid #FECACA;background:#FEF2F2;color:#C62828;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;cursor:pointer">-15 Calidad</button>
+      <button onclick="audn_selPuntaje(-10)" class="audn-pts-btn" data-pts="-10" style="padding:12px;border-radius:10px;border:2px solid #FED7AA;background:#FFF7ED;color:#C2410C;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;cursor:pointer">-10 Operac.</button>
+      <button onclick="audn_selPuntaje(-5)" class="audn-pts-btn" data-pts="-5" style="padding:12px;border-radius:10px;border:2px solid #FDE68A;background:#FFFBEB;color:#B45309;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;cursor:pointer">-5 No Oper.</button>
+      <button onclick="audn_selPuntaje(5)" class="audn-pts-btn" data-pts="5" style="padding:12px;border-radius:10px;border:2px solid #BBF7D0;background:#F0FDF4;color:#15803D;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;cursor:pointer;grid-column:1/-1">+5 Destacable ✓</button>
     </div>
-
+    <!-- Campos incumplimiento -->
     <div id="audn-modal-incump" style="display:none">
-      <div class="fg" style="margin-top:12px">
+      <div class="fg">
         <label>S afectada <span class="req">*</span></label>
         <select id="audn-modal-s">
           <option value="">- Selecciona -</option>
@@ -549,10 +546,10 @@ canvas{max-width:100%!important}
         <textarea id="audn-modal-obs" rows="3" placeholder="Describe el incumplimiento..." style="resize:vertical"></textarea>
       </div>
       <div class="fg">
-        <label>Foto de evidencia (antes) <span class="req">*</span></label>
-        <div onclick="document.getElementById('audn-input-foto-antes').click()" style="border:2px dashed var(--g200);border-radius:10px;padding:16px;text-align:center;cursor:pointer;background:var(--g50)" id="audn-drop-antes">
+        <label>Foto antes <span class="req">*</span></label>
+        <div onclick="document.getElementById('audn-input-foto-antes').click()" id="audn-drop-antes" style="border:2px dashed #D1D5D1;border-radius:10px;padding:16px;text-align:center;cursor:pointer;background:#F9FAFB">
           <div style="font-size:28px">📷</div>
-          <div style="font-size:12px;color:var(--g400)">Toca para agregar foto antes</div>
+          <div style="font-size:12px;color:#6B7280">Toca para agregar foto</div>
         </div>
         <input type="file" id="audn-input-foto-antes" accept="image/*" capture="environment" style="display:none" onchange="audn_fotoAntes(this)">
         <img id="audn-preview-antes" style="display:none;width:100%;border-radius:8px;margin-top:8px;max-height:180px;object-fit:cover">
@@ -563,47 +560,46 @@ canvas{max-width:100%!important}
       </div>
       <div class="row2">
         <div class="fg">
-          <label>Fecha inicio planificada</label>
+          <label>F. inicio planificada</label>
           <input type="date" id="audn-modal-fi">
         </div>
         <div class="fg">
-          <label>Fecha fin planificada</label>
+          <label>F. fin planificada</label>
           <input type="date" id="audn-modal-ff">
         </div>
       </div>
     </div>
-
-    <div id="audn-modal-destacable" style="display:none;margin-top:12px">
+    <!-- Campo destacable -->
+    <div id="audn-modal-destacable" style="display:none">
       <div class="fg">
-        <label>Comentario de fortaleza</label>
+        <label>Comentario (opcional)</label>
         <textarea id="audn-modal-coment" rows="2" placeholder="¿Qué se destacó?" style="resize:vertical"></textarea>
       </div>
     </div>
-
     <div style="display:flex;gap:10px;margin-top:16px">
-      <button onclick="audn_cerrarModal()" style="flex:1;padding:13px;border:1.5px solid var(--g200);border-radius:10px;background:#fff;cursor:pointer;font-size:14px;font-weight:600">Cancelar</button>
-      <button onclick="audn_guardarCriterio()" class="btn-guardar-crit" style="flex:2;padding:13px;background:var(--amber);color:#fff;border:none;border-radius:10px;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:700">Guardar</button>
+      <button onclick="audn_cerrarModal()" style="flex:1;padding:13px;border:1.5px solid #D1D5D1;border-radius:10px;background:#fff;cursor:pointer;font-size:14px">Cancelar</button>
+      <button onclick="audn_guardarCriterio()" class="btn-guardar-crit" style="flex:2;padding:13px;background:#1E7C34;color:#fff;border:none;border-radius:10px;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:700">Guardar</button>
     </div>
   </div>
 </div>
 
-<!-- MODAL DETALLE AUDITORÍA -->
-<div id="modal-audn-detalle" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1000;overflow-y:auto;padding:16px">
+<!-- MODAL DETALLE INCUMPLIMIENTO -->
+<div id="modal-audn-detalle" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1000;overflow-y:auto;padding:16px">
   <div style="background:#fff;border-radius:16px;max-width:480px;margin:0 auto">
     <div id="modal-audn-detalle-body"></div>
-    <div style="padding:16px">
-      <button onclick="document.getElementById('modal-audn-detalle').style.display='none'" style="width:100%;padding:12px;background:var(--g100);border:none;border-radius:10px;cursor:pointer;font-size:14px;font-weight:600">Cerrar</button>
+    <div style="padding:0 16px 16px">
+      <button onclick="document.getElementById('modal-audn-detalle').style.display='none'" style="width:100%;padding:12px;background:#F4F6F4;border:none;border-radius:10px;cursor:pointer;font-size:14px;font-weight:600">Cerrar</button>
     </div>
   </div>
 </div>
 
-<!-- MODAL ACCIÓN AUDITORÍA -->
-<div id="modal-audn-accion" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1000;align-items:flex-end;justify-content:center;padding:0">
+<!-- MODAL ACCIÓN -->
+<div id="modal-audn-accion" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1000;align-items:flex-end;justify-content:center">
   <div style="background:#fff;border-radius:20px 20px 0 0;padding:20px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto">
-    <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:var(--amber);margin-bottom:16px">Plan de Acción</div>
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:#1E7C34;margin-bottom:16px">Plan de Acción</div>
     <input type="hidden" id="audn-accion-id">
     <input type="hidden" id="audn-accion-auditoria-id">
-    <input type="hidden" id="audn-accion-obs-num">
+    <input type="hidden" id="audn-accion-sector">
     <div class="fg"><label>Responsable <span class="req">*</span></label>
       <input type="text" id="audn-accion-responsable" placeholder="Nombre del responsable">
     </div>
@@ -619,8 +615,8 @@ canvas{max-width:100%!important}
       <div class="fg"><label>% Avance real</label>
         <input type="number" id="audn-accion-avance" min="0" max="100" placeholder="0">
       </div>
-      <div class="fg"><label>% Avance planificado</label>
-        <input type="number" id="audn-accion-avance-plan" min="0" max="100" placeholder="0">
+      <div class="fg"><label>% Avance plan.</label>
+        <input type="number" id="audn-accion-avance-plan" min="0" max="100" placeholder="100">
       </div>
     </div>
     <div class="fg"><label>Estado</label>
@@ -630,568 +626,20 @@ canvas{max-width:100%!important}
         <option value="Completado">Completado</option>
       </select>
     </div>
-    <div class="fg"><label>Foto de cierre (después)</label>
-      <div onclick="document.getElementById('audn-input-foto-despues').click()" style="border:2px dashed var(--g200);border-radius:10px;padding:14px;text-align:center;cursor:pointer;background:var(--g50)">
+    <div class="fg"><label>Foto después (cierre)</label>
+      <div onclick="document.getElementById('audn-input-foto-despues').click()" style="border:2px dashed #D1D5D1;border-radius:10px;padding:14px;text-align:center;cursor:pointer;background:#F9FAFB">
         <div style="font-size:24px">📸</div>
-        <div style="font-size:12px;color:var(--g400)">Foto del estado corregido</div>
+        <div style="font-size:12px;color:#6B7280">Foto del estado corregido</div>
       </div>
       <input type="file" id="audn-input-foto-despues" accept="image/*" capture="environment" style="display:none" onchange="audn_fotoDespues(this)">
       <img id="audn-preview-despues" style="display:none;width:100%;border-radius:8px;margin-top:8px;max-height:160px;object-fit:cover">
     </div>
     <div style="display:flex;gap:8px;margin-top:16px">
-      <button onclick="document.getElementById('modal-audn-accion').style.display='none'" style="flex:1;padding:12px;border:1.5px solid var(--g200);border-radius:10px;background:#fff;cursor:pointer;font-size:14px">Cancelar</button>
-      <button onclick="audn_guardarAccion()" style="flex:2;padding:12px;background:var(--amber);color:#fff;border:none;border-radius:10px;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700">Guardar</button>
+      <button onclick="document.getElementById('modal-audn-accion').style.display='none'" style="flex:1;padding:12px;border:1.5px solid #D1D5D1;border-radius:10px;background:#fff;cursor:pointer;font-size:14px">Cancelar</button>
+      <button onclick="audn_guardarAccion()" style="flex:2;padding:12px;background:#1E7C34;color:#fff;border:none;border-radius:10px;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700">Guardar</button>
     </div>
   </div>
 </div>
-
-
-<!-- APP RECORRIDO -->
-<div id="app-recorrido" style="display:none">
-<header>
-  <div class="hdr">
-    <div class="logo-box"><img id="ism-logo-recorrido" src="" alt="ISM"></div>
-    <div class="hdr-brand"><h1>Recorrido 5S</h1><span>Industrias San Miguel</span></div>
-    <button class="hdr-sync" onclick="cargarTodo()">&#8635;</button>
-    <button class="hdr-sync" onclick="volverBienvenida()" style="background:rgba(255,255,255,.12)">&#8592; Inicio</button>
-  </div>
-</header>
-<nav>
-  <div class="tab active" onclick="showTab('nuevo')">+ Nueva</div>
-  <div class="tab" onclick="showTab('lista')">Observaciones</div>
-  <div class="tab" onclick="showTab('dashboard')">Dashboard</div>
-</nav>
-<main>
-
-<!-- TAB NUEVO -->
-<div id="tab-nuevo" class="section active">
-  <div class="card">
-    <div class="card-title">&#128203; Nueva observacion</div>
-    <div class="fg"><label>Semana</label>
-      <input type="text" id="f-sem" readonly style="background:var(--g50);font-weight:700;color:var(--green)">
-    </div>
-    <div class="fg"><label>Responsable de Registro <span class="req">*</span></label>
-      <input type="text" id="f-auditor" placeholder="Tu nombre completo" oninput="this.style.borderColor=this.value?'var(--green)':''">
-    </div>
-    <div class="fg"><label>Sector <span class="req">*</span></label>
-      <select id="f-area" onchange="updateZonas()"><option value="">- Selecciona sector -</option></select>
-    </div>
-    <div class="row2">
-      <div class="fg"><label>Area</label>
-        <input type="text" id="f-sector" readonly style="background:var(--g50);color:var(--green);font-weight:700" placeholder="Se asigna automaticamente">
-      </div>
-      <div class="fg"><label>Zona / Equipo <span class="req">*</span></label>
-        <select id="f-zona"><option value="">- Selecciona zona -</option></select>
-      </div>
-    </div>
-    <div class="fg"><label>Tipo de observacion <span class="req">*</span></label>
-      <select id="f-tipo" onchange="autoS()"><option value="">- Selecciona tipo -</option></select>
-    </div>
-    <div class="fg"><label>"S" observada</label>
-      <div class="s-sel">
-        <button class="s-btn" type="button">1S<span>Clasificar</span></button>
-        <button class="s-btn" type="button">2S<span>Ordenar</span></button>
-        <button class="s-btn" type="button">3S<span>Limpiar</span></button>
-        <button class="s-btn" type="button">4S<span>Estandarizar</span></button>
-        <button class="s-btn" type="button">5S<span>Disciplina</span></button>
-        <button class="s-btn" type="button">EPP<span>Seguridad</span></button>
-      </div>
-    </div>
-    <div class="fg"><label>Descripcion <span class="req">*</span></label>
-      <textarea id="f-obs" placeholder="Describe la situacion encontrada..." oninput="this.style.borderColor=this.value?'var(--green)':''" style="min-height:90px"></textarea>
-    </div>
-    <div class="fg"><label>Responsable del area</label>
-      <input type="text" id="f-responsable" readonly style="background:var(--g50);color:var(--g700)" placeholder="Se asigna automaticamente">
-    </div>
-    <div class="fg">
-      <label>Foto de evidencia (antes) <span class="req">*</span></label>
-      <div class="photo-drop" id="drop-nuevo" style="border-color:var(--red)">
-        <input type="file" accept="image/*" multiple onchange="handlePhotos(this)">
-        <div style="font-size:28px;margin-bottom:5px">&#128247;</div>
-        <p style="font-size:13px;color:var(--g400)">Toca para tomar foto o seleccionar</p>
-        <p style="font-size:11px;color:var(--red);font-weight:600;margin-top:4px">Obligatoria</p>
-      </div>
-      <div class="upload-progress" id="prog-nuevo"><div class="upload-progress-fill" id="prog-nuevo-fill"></div></div>
-      <div class="photo-prev" id="prev-nuevo"></div>
-    </div>
-    <button class="btn-primary" id="btn-guardar" onclick="guardarObservacion()">Guardar observacion</button>
-  </div>
-</div>
-
-<!-- TAB LISTA -->
-<div id="tab-lista" class="section">
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
-    <select id="fil-area" class="filter-small" onchange="filtrar()"><option value="">Todas las areas</option></select>
-    <select id="fil-status" class="filter-small" onchange="filtrar()">
-      <option value="">Todos los estados</option>
-      <option value="CORREGIDO">Corregido</option>
-      <option value="NO CORREGIDO">No corregido</option>
-    </select>
-    <select id="fil-sector" class="filter-small" onchange="filtrar()"><option value="">Todos los sectores</option></select>
-    <select id="fil-sem" class="filter-small" onchange="filtrar()"><option value="">Todas las semanas</option></select>
-    <select id="fil-orden" class="filter-small" onchange="filtrar()">
-      <option value="reciente">Mas reciente primero</option>
-      <option value="antiguo">Mas antiguo primero</option>
-      <option value="status">Por estado</option>
-      <option value="area">Por area</option>
-    </select>
-  </div>
-  <div id="obs-list"><div class="loading"><div class="spinner-g"></div><p style="margin-top:12px;font-size:13px">Cargando...</p></div></div>
-</div>
-
-<!-- TAB DASHBOARD -->
-<div id="tab-dashboard" class="section">
-  <div style="display:flex;gap:8px;margin-bottom:12px;align-items:center">
-    <select id="d-fil-sector" onchange="renderDashboard()" class="filter-small"><option value="">Todos los sectores</option></select>
-    <select id="d-fil-area" onchange="renderDashboard()" class="filter-small"><option value="">Todas las areas</option></select>
-    <button onclick="exportarPDF()" style="flex-shrink:0;background:var(--red);color:#fff;border:none;border-radius:8px;padding:8px 12px;font-family:Barlow,sans-serif;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">&#128196; PDF</button>
-  </div>
-  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:8px">
-    <div class="kpi-box"><div class="kpi-val" id="d-total">0</div><div class="kpi-lbl">Total obs.</div></div>
-    <div class="kpi-box green"><div class="kpi-val" id="d-corregidas">0</div><div class="kpi-lbl">Corregidas</div></div>
-    <div class="kpi-box red"><div class="kpi-val" id="d-no-corr">0</div><div class="kpi-lbl">No Corregidas</div></div>
-  </div>
-  <div style="margin-bottom:12px">
-    <div class="kpi-box amber" style="padding:10px 16px;display:flex;align-items:center;justify-content:space-between">
-      <div class="kpi-lbl" style="margin-top:0">% Obs. Corregidas del Total</div>
-      <div class="kpi-val" id="d-pct" style="font-size:28px">0%</div>
-    </div>
-  </div>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
-    <div class="dash-card" style="margin-bottom:0">
-      <div class="dash-card-title">&#127942; Mejor / Peor area</div>
-      <div style="font-size:10px;color:var(--g400);margin:-4px 0 8px;font-style:italic">Semana actual</div>
-      <div id="d-top-areas"></div>
-    </div>
-    <div class="dash-card" style="margin-bottom:0">
-      <div class="dash-card-title">&#128200; vs Semana anterior</div>
-      <div id="d-comparativo"></div>
-    </div>
-  </div>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
-    <div class="dash-card" style="margin-bottom:0">
-      <div class="dash-card-title">Estado obs.</div>
-      <div style="position:relative;width:100px;height:100px;margin:0 auto">
-        <canvas id="chart-donut-status"></canvas>
-        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none">
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;color:var(--green)" id="d-pct2">0%</div>
-          <div style="font-size:8px;color:var(--g400);font-weight:600;text-transform:uppercase">Cumpl.</div>
-        </div>
-      </div>
-      <div id="legend-status" style="margin-top:8px"></div>
-    </div>
-    <div class="dash-card" style="margin-bottom:0">
-      <div class="dash-card-title">Obs. por "S"</div>
-      <div style="position:relative;width:100px;height:100px;margin:0 auto">
-        <canvas id="chart-donut-s"></canvas>
-        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none">
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;color:var(--red)" id="d-top-s">-</div>
-          <div style="font-size:8px;color:var(--g400);font-weight:600;text-transform:uppercase">Top</div>
-        </div>
-      </div>
-      <div id="legend-s" style="margin-top:8px"></div>
-    </div>
-  </div>
-  <div class="dash-card">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-      <div class="dash-card-title" style="margin-bottom:0">&#128200; Evolucion de observaciones</div>
-      <div class="period-sel" style="width:130px">
-        <button class="period-btn active" id="btn-sem" onclick="setPeriod('sem')">Semanal</button>
-        <button class="period-btn" id="btn-mes" onclick="setPeriod('mes')">Mensual</button>
-      </div>
-    </div>
-    <div style="position:relative;height:220px;width:100%"><canvas id="chart-evolucion"></canvas></div>
-  </div>
-  <div class="dash-card">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-      <div class="dash-card-title" style="margin-bottom:0">&#128202; Evolucion por area</div>
-      <div class="period-sel" style="width:130px">
-        <button class="period-btn active" id="btn-area-sem" onclick="setPeriodArea('sem')">Semanal</button>
-        <button class="period-btn" id="btn-area-mes" onclick="setPeriodArea('mes')">Mensual</button>
-      </div>
-    </div>
-    <div style="position:relative;height:220px;width:100%"><canvas id="chart-area-evol"></canvas></div>
-  </div>
-  <div class="dash-card">
-    <div class="dash-card-title">&#127981; Cumplimiento por sector</div>
-    <div style="font-size:10px;color:var(--g400);margin:-4px 0 8px;font-style:italic">Obs. corregidas / total obs. del sector</div>
-    <div id="d-sectores"></div>
-  </div>
-  <div class="dash-card">
-    <div class="dash-card-title">&#128100; Cumplimiento por responsable</div>
-    <div style="font-size:10px;color:var(--g400);margin:-4px 0 8px;font-style:italic">Obs. corregidas / total obs. asignadas</div>
-    <div id="d-responsables"></div>
-  </div>
-  <div class="dash-card">
-    <div class="dash-card-title">&#128203; Resumen por sector y estado</div>
-    <div style="overflow-x:auto"><table id="tabla-pivot" class="dtbl"></table></div>
-  </div>
-  <div class="dash-card">
-    <div class="dash-card-title">&#128202; % Cumplimiento por area</div>
-    <div style="font-size:10px;color:var(--g400);margin:-4px 0 8px;font-style:italic">Obs. corregidas / total obs. por area</div>
-    <div style="overflow-x:auto"><table id="tabla-cumpl" class="dtbl"></table></div>
-  </div>
-  <div class="dash-card">
-    <div class="dash-card-title">&#128205; Zonas/equipos con mas obs. no corregidas</div>
-    <div id="d-zonas-ranking"></div>
-  </div>
-</div>
-
-</main>
-
-<!-- MODAL DETALLE/CIERRE -->
-<div class="modal-overlay" id="modal-obs">
-  <div class="modal">
-    <div class="modal-title" id="modal-obs-title">Observacion</div>
-    <input type="hidden" id="mo-id">
-    <div id="mo-detalle" style="margin-bottom:14px;background:var(--g50);border-radius:8px;padding:12px;font-size:13px;line-height:1.8;color:var(--g700)"></div>
-    <div id="mo-fotos-antes" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px"></div>
-    <div id="mo-cierre-section">
-      <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.4px;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--g100)">Cerrar observacion</div>
-      <div class="fg"><label>Comentario <span style="font-size:10px;color:var(--g400);font-weight:400">(opcional)</span></label>
-        <textarea id="mo-comentario" placeholder="Como se corrigio? (opcional)"></textarea>
-      </div>
-      <div class="fg">
-        <label>Foto del despues <span class="req">*</span></label>
-        <div class="photo-drop" id="drop-cierre" style="border-color:var(--red)">
-          <input type="file" accept="image/*" onchange="handleFotoCierre(this)">
-          <div style="font-size:24px;margin-bottom:4px">&#128247;</div>
-          <p style="font-size:12px;color:var(--g400)">Evidencia del cierre</p>
-          <p style="font-size:11px;color:var(--red);font-weight:600;margin-top:4px">Obligatoria</p>
-        </div>
-        <div class="upload-progress" id="prog-cierre"><div class="upload-progress-fill" id="prog-cierre-fill"></div></div>
-        <div class="photo-prev" id="prev-cierre"></div>
-      </div>
-      <button class="btn-primary" id="btn-cerrar-obs" onclick="cerrarObservacion()" style="margin-bottom:10px">Marcar como CORREGIDO</button>
-    </div>
-    <div id="mo-foto-despues" style="display:none;margin-bottom:14px"></div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <button class="btn-ghost" onclick="abrirEditar()" style="flex:1;justify-content:center">Editar</button>
-      <button class="btn-ghost" onclick="closeModal('modal-obs')" style="border-color:var(--g200);color:var(--g400);flex:1;justify-content:center">Cerrar</button>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL EDITAR -->
-<div class="modal-overlay" id="modal-editar">
-  <div class="modal">
-    <div class="modal-title">Editar observacion</div>
-    <input type="hidden" id="me-id">
-    <div class="fg"><label>Descripcion</label><textarea id="me-obs"></textarea></div>
-    <div class="fg"><label>Responsable</label><input type="text" id="me-resp"></div>
-    <div class="fg"><label>Estado</label>
-      <select id="me-status">
-        <option value="CORREGIDO">CORREGIDO</option>
-        <option value="NO CORREGIDO">NO CORREGIDO</option>
-      </select>
-    </div>
-    <div style="display:flex;gap:10px;margin-top:4px">
-      <button class="btn-primary" onclick="confirmarEditar()" style="flex:1">Guardar</button>
-      <button class="btn-ghost" onclick="closeModal('modal-editar')">Cancelar</button>
-    </div>
-  </div>
-</div>
-
-<div id="toast"></div>
-</div><!-- /app-recorrido -->
-
-
-
-
-<!-- APP AUDITORIA -->
-<div id="app-checklist" style="display:none">
-<header>
-  <div class="hdr">
-    <div class="logo-box" style="display:none"></div>
-    <div class="hdr-brand"><h1>Check List 5S</h1><span>Industrias San Miguel</span></div>
-    <button class="hdr-sync" onclick="volverBienvenida()">&#8592; Salir</button>
-  </div>
-</header>
-<nav style="background:#1565C0;display:flex;overflow-x:auto;scrollbar-width:none">
-  <div id="atab-nueva" onclick="showAuditTab('nueva')" style="flex-shrink:0;padding:11px 20px;color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;cursor:pointer;border-bottom:3px solid var(--amber);user-select:none;white-space:nowrap">+ Nueva</div>
-  <div id="atab-historial" onclick="showAuditTab('historial')" style="flex-shrink:0;padding:11px 20px;color:rgba(255,255,255,.6);font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;cursor:pointer;border-bottom:3px solid transparent;user-select:none;white-space:nowrap">Historial</div>
-  <div id="atab-dashboard" onclick="showAuditTab('dashboard')" style="flex-shrink:0;padding:11px 20px;color:rgba(255,255,255,.6);font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;cursor:pointer;border-bottom:3px solid transparent;user-select:none;white-space:nowrap">Dashboard</div>
-  <div id="atab-observaciones" onclick="showAuditTab('observaciones')" style="flex-shrink:0;padding:11px 20px;color:rgba(255,255,255,.6);font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;cursor:pointer;border-bottom:3px solid transparent;user-select:none;white-space:nowrap">&#9888; Obs. Pendientes</div>
-</nav>
-<main style="max-width:720px;margin:0 auto;padding:18px 14px 100px">
-
-<!-- SECCION NUEVA -->
-<div id="asec-nueva">
-<div id="nueva-pendientes" style="margin-bottom:14px"></div>
-
-<!-- PASO 1 -->
-<div id="audit-paso1">
-  <div class="card">
-    <div class="card-title">&#9989; Datos del Check List</div>
-    <div class="fg"><label>Auditor <span class="req">*</span></label>
-      <select id="a-auditor" onchange="onAuditorChange()">
-        <option value="">&#8212; Selecciona auditor &#8212;</option>
-        <option value="Fabio Caldas Antúnez">Fabio Caldas Antúnez</option>
-        <option value="Ítalo Buendia Poma">Ítalo Buendia Poma</option>
-        <option value="Héctor Arteaga Espinoza">Héctor Arteaga Espinoza</option>
-        <option value="Carlos Joél Luyo Diaz">Carlos Joél Luyo Diaz</option>
-        <option value="Enrique Fabricio Polo Manrique">Enrique Fabricio Polo Manrique</option>
-        <option value="Ayrton Raphael Cotrina Esteves">Ayrton Raphael Cotrina Esteves</option>
-        <option value="William Jesus Joel Rivera Ramirez">William Jesus Joel Rivera Ramirez</option>
-        <option value="Nuria del Pilar Diaz Ramirez">Nuria del Pilar Diaz Ramirez</option>
-        <option value="Alejandro Salvador Grados">Alejandro Salvador Grados</option>
-        <option value="Adiel Abednego Aguayo Flores">Adiel Abednego Aguayo Flores</option>
-        <option value="Roberto Carlos Medina La Rosa">Roberto Carlos Medina La Rosa</option>
-        <option value="Ulises Eliseo Anselmo Carranza">Ulises Eliseo Anselmo Carranza</option>
-        <option value="Dylan Yaret Pintado Fernandez">Dylan Yaret Pintado Fernandez</option>
-        <option value="Mariluz Reynaldina Montes Laurente">Mariluz Reynaldina Montes Laurente</option>
-        <option value="Paula Valeria Cecilia La Rosa La Rosa">Paula Valeria Cecilia La Rosa La Rosa</option>
-        <option value="Cristopher William Reyes Islado">Cristopher William Reyes Islado</option>
-        <option value="Rosa Emilia Mejia Jaimes">Rosa Emilia Mejia Jaimes</option>
-        <option value="Julio Arroyo Puse">Julio Arroyo Puse</option>
-      </select>
-    </div>
-    <div class="fg"><label>Mes <span class="req">*</span></label>
-      <input type="month" id="a-nro" onchange="onNroAuditoriaChange()">
-    </div>
-    <div class="fg"><label>Fecha</label>
-      <input type="text" id="a-fecha" readonly style="background:var(--g50);font-weight:700;color:var(--green)">
-    </div>
-    <div class="fg"><label>Sector auditado <span class="req">*</span></label>
-      <select id="a-sector" onchange="updateAreasAudit()" disabled>
-        <option value="">&#8212; Elige el mes primero &#8212;</option>
-      </select>
-    </div>
-    <div class="fg"><label>Area</label>
-      <input type="text" id="a-area" readonly style="background:var(--g50);color:var(--green);font-weight:700" placeholder="Se asigna automaticamente">
-    </div>
-    <div class="fg"><label>Responsable</label>
-      <input type="text" id="a-responsable" readonly style="background:var(--g50);color:var(--g700)" placeholder="Se asigna automaticamente">
-    </div>
-    <button class="btn-primary" onclick="irPaso2()">Iniciar Evaluacion &#8594;</button>
-  </div>
-</div>
-
-<!-- PASO 2 -->
-<div id="audit-paso2" style="display:none">
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-    <button class="btn-ghost" onclick="irPaso1()" style="font-size:12px;padding:6px 10px">&#8592; Atras</button>
-    <div style="text-align:center">
-      <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;color:var(--g700)" id="audit-area-lbl">Area</div>
-      <div style="font-size:11px;color:var(--g400)" id="audit-progreso">0 / 20 criterios</div>
-    </div>
-    <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;color:var(--green)" id="audit-puntaje-live">0/100</div>
-  </div>
-  <div style="height:5px;background:var(--g100);border-radius:20px;overflow:hidden;margin-bottom:16px">
-    <div id="audit-prog-bar" style="height:100%;width:0%;background:var(--green);border-radius:20px;transition:width .4s"></div>
-  </div>
-  <div id="criterios-container"></div>
-  <button class="btn-primary" onclick="finalizarAuditoria()" style="margin-top:8px">&#10003; Finalizar Check List</button>
-</div>
-
-<!-- PASO 3 -->
-<div id="audit-paso3" style="display:none">
-  <div class="card" style="text-align:center">
-    <div class="card-title" style="text-align:left">&#127942; Resultado del Check List</div>
-    <div class="score-ring" style="margin-bottom:16px">
-      <svg width="120" height="120" viewBox="0 0 120 120">
-        <circle cx="60" cy="60" r="50" fill="none" stroke="#EEF0EC" stroke-width="12"/>
-        <circle id="score-circle" cx="60" cy="60" r="50" fill="none" stroke="#1E7C34" stroke-width="12"
-          stroke-dasharray="314" stroke-dashoffset="314" stroke-linecap="round"
-          style="transition:stroke-dashoffset 1s ease"/>
-      </svg>
-      <div class="score-txt">
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:32px;font-weight:800;color:var(--green)" id="result-puntaje">0</div>
-        <div style="font-size:10px;color:var(--g400);font-weight:600">de 100</div>
-      </div>
-    </div>
-    <div style="font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:800;margin-bottom:4px" id="result-nivel">&#8212;</div>
-    <div style="font-size:12px;color:var(--g400);margin-bottom:16px" id="result-info"></div>
-    <div id="result-pilares" style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:16px"></div>
-    <button class="btn-primary" onclick="exportarPDFAuditoria()" style="margin-bottom:10px">&#128196; Descargar PDF</button>
-    <button class="btn-ghost" onclick="nuevaAuditoria()" style="width:100%;justify-content:center">+ Nuevo Check List</button>
-  </div>
-  <div class="card" id="card-obs-audit" style="display:none">
-    <div class="card-title">&#9888;&#65039; Observaciones de incumplimiento</div>
-    <div style="font-size:11px;color:var(--g400);margin:-8px 0 12px;font-style:italic">Criterios con puntaje 1, 2 o 3</div>
-    <div id="obs-incumplimiento"></div>
-  </div>
-</div>
-</div><!-- /asec-nueva -->
-
-<!-- SECCION HISTORIAL -->
-<div id="asec-historial" style="display:none">
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
-    <select id="hfil-nro" class="filter-small" onchange="renderHistorial()">
-      <option value="">Todas las auditorias</option>
-      <option value="1">Check List N° 1</option>
-      <option value="2">Check List N° 2</option>
-      <option value="3">Check List N° 3</option>
-      <option value="4">Check List N° 4</option>
-    </select>
-    <select id="hfil-area" class="filter-small" onchange="renderHistorial()"><option value="">Todas las areas</option></select>
-    <select id="hfil-nivel" class="filter-small" onchange="renderHistorial()">
-      <option value="">Todos los niveles</option>
-      <option value="Excelente">Excelente</option>
-      <option value="Bueno">Bueno</option>
-      <option value="Regular">Regular</option>
-      <option value="Deficiente">Deficiente</option>
-    </select>
-  </div>
-  <div id="historial-list"><div class="loading"><div class="spinner-g"></div><p style="margin-top:12px;font-size:13px">Cargando...</p></div></div>
-</div>
-
-<!-- SECCION DASHBOARD CHECK LIST -->
-<div id="asec-dashboard" style="display:none">
-  <div style="display:flex;gap:8px;margin-bottom:12px;align-items:center;flex-wrap:wrap">
-    <select id="d-fil-sector-a" onchange="renderAuditDashboard()" class="filter-small"><option value="">Todos los sectores</option></select>
-    <select id="d-fil-area-a" onchange="renderAuditDashboard()" class="filter-small"><option value="">Todas las areas</option></select>
-    <select id="d-fil-nro-pdf" class="filter-small" style="max-width:160px">
-      <option value="">Todos los check lists</option>
-      <option value="1">Check List N° 1</option>
-      <option value="2">Check List N° 2</option>
-      <option value="3">Check List N° 3</option>
-      <option value="4">Check List N° 4</option>
-    </select>
-    <button onclick="const b=this;b.innerHTML='<span class=&quot;spinner&quot;></span> Generando...';b.disabled=true;setTimeout(()=>exportarPDFGerencial(b),50)" style="flex-shrink:0;background:#1565C0;color:#fff;border:none;border-radius:8px;padding:8px 14px;font-family:Barlow,sans-serif;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">&#128196; PDF Gerencial</button>
-  </div>
-  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px">
-    <div class="kpi-box"><div class="kpi-val" id="dk-total">0</div><div class="kpi-lbl">Check Lists</div></div>
-    <div class="kpi-box green"><div class="kpi-val" id="dk-prom">0</div><div class="kpi-lbl">Puntaje prom.</div></div>
-    <div class="kpi-box red"><div class="kpi-val" id="dk-obs">0</div><div class="kpi-lbl">Obs. incumpl.</div></div>
-    <div class="kpi-box amber"><div class="kpi-val" id="dk-pct">0%</div><div class="kpi-lbl">Cumplimiento</div></div>
-  </div>
-  <div id="progreso-sectores" style="margin-bottom:12px"></div>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
-    <div class="dash-card" style="margin-bottom:0">
-      <div class="dash-card-title">Estado general planta</div>
-      <div id="dk-nivel-badge" style="margin:8px 0"></div>
-      <div style="height:8px;background:var(--g100);border-radius:20px;overflow:hidden;margin:8px 0">
-        <div id="dk-barra-prom" style="height:100%;width:0%;border-radius:20px;transition:width .8s;background:var(--green)"></div>
-      </div>
-    </div>
-    <div class="dash-card" style="margin-bottom:0">
-      <div class="dash-card-title">Distribucion por nivel</div>
-      <div style="position:relative;width:90px;height:90px;margin:0 auto"><canvas id="chart-audit-nivel"></canvas></div>
-      <div id="legend-audit-nivel" style="margin-top:6px"></div>
-    </div>
-  </div>
-  <div class="dash-card">
-    <div class="dash-card-title">&#128202; Puntaje promedio por area</div>
-    <div style="position:relative;height:220px;width:100%"><canvas id="chart-audit-areas"></canvas></div>
-  </div>
-  <div class="dash-card">
-    <div class="dash-card-title">&#128202; Desempeno por pilar por area</div>
-    <div style="font-size:10px;color:var(--g400);margin:-4px 0 8px;font-style:italic">% y puntaje de cada S por area auditada</div>
-    <div id="chart-pilar-area-wrap" style="position:relative;width:100%;overflow-x:auto">
-      <canvas id="chart-pilar-area"></canvas>
-    </div>
-  </div>
-  <div class="dash-card">
-    <div class="dash-card-title">&#128200; Evolucion del puntaje</div>
-    <div style="position:relative;height:220px;width:100%"><canvas id="chart-audit-evol"></canvas></div>
-  </div>
-  <div class="dash-card">
-    <div class="dash-card-title">&#127919; Desempeno por pilar 5S</div>
-    <div style="position:relative;height:260px;width:100%;max-width:300px;margin:0 auto"><canvas id="chart-audit-radar"></canvas></div>
-  </div>
-  <div class="dash-card">
-    <div class="dash-card-title">&#9888;&#65039; Criterios con mas incumplimientos</div>
-    <div id="dk-criterios-criticos"></div>
-  </div>
-  <div class="dash-card">
-    <div class="dash-card-title">&#128203; Resumen de Check Lists</div>
-    <div style="font-size:10px;color:var(--g400);margin:-4px 0 8px;font-style:italic">N° de check list, area y % de cumplimiento</div>
-    <div style="overflow-x:auto"><div id="dk-comparativo-areas"></div></div>
-  </div>
-  <div class="dash-card">
-    <div class="dash-card-title">&#9203; Pendientes por auditor</div>
-    <div style="display:flex;gap:8px;margin-bottom:10px">
-      <select id="dfil-nro-pend" class="filter-small" onchange="renderPendientes()" style="max-width:180px">
-        <option value="">Todas las auditorias</option>
-        <option value="1">Check List N° 1</option>
-        <option value="2">Check List N° 2</option>
-        <option value="3">Check List N° 3</option>
-        <option value="4">Check List N° 4</option>
-      </select>
-    </div>
-    <div id="dk-pendientes"></div>
-  </div>
-  <div class="dash-card">
-    <div class="dash-card-title">&#128680; Areas con menor cumplimiento</div>
-    <div id="dk-areas-criticas"></div>
-  </div>
-  <div class="dash-card">
-    <div class="dash-card-title">&#128203; Observaciones pendientes de levantamiento</div>
-    <div style="font-size:10px;color:var(--g400);margin:-4px 0 8px;font-style:italic">Por responsable del area — criterios con puntaje &#8804;3 sin levantar</div>
-    <div id="dk-pendientes-cierre"></div>
-  </div>
-  <div class="dash-card">
-    <div class="dash-card-title">&#128203; Observaciones de incumplimiento por area</div>
-    <div style="position:relative;height:220px;width:100%"><canvas id="chart-audit-obs-area"></canvas></div>
-  </div>
-</div>
-
-<!-- SECCION OBSERVACIONES PENDIENTES -->
-<div id="asec-observaciones" style="display:none">
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
-    <select id="ofil-nro" class="filter-small" onchange="renderObsPendientes()">
-      <option value="">Todas las auditorias</option>
-      <option value="1">Check List N° 1</option>
-      <option value="2">Check List N° 2</option>
-      <option value="3">Check List N° 3</option>
-      <option value="4">Check List N° 4</option>
-    </select>
-    <select id="ofil-area" class="filter-small" onchange="onOfilAreaChange()">
-      <option value="">Todas las areas</option>
-    </select>
-    <select id="ofil-sector" class="filter-small" onchange="renderObsPendientes()">
-      <option value="">Todos los sectores</option>
-    </select>
-    <select id="ofil-resp" class="filter-small" onchange="renderObsPendientes()">
-      <option value="">Todos los responsables</option>
-    </select>
-    <select id="ofil-status" class="filter-small" onchange="renderObsPendientes()">
-      <option value="pendiente">Solo pendientes</option>
-      <option value="levantada">Solo levantadas</option>
-      <option value="">Todas</option>
-    </select>
-  </div>
-  <!-- KPIs rápidos -->
-  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px">
-    <div class="kpi-box red"><div class="kpi-val" id="ok-pendientes">0</div><div class="kpi-lbl">Pendientes</div></div>
-    <div class="kpi-box green"><div class="kpi-val" id="ok-levantadas">0</div><div class="kpi-lbl">Levantadas</div></div>
-    <div class="kpi-box amber"><div class="kpi-val" id="ok-pct">0%</div><div class="kpi-lbl">% Levantado</div></div>
-  </div>
-  <div id="obs-audit-list"><div class="loading"><div class="spinner-g"></div><p style="margin-top:12px;font-size:13px">Cargando...</p></div></div>
-</div>
-
-</main>
-</div><!-- /app-checklist -->
-
-<!-- MODAL CIERRE OBS AUDITORÍA -->
-<div class="modal-overlay" id="modal-cierre-audit">
-  <div class="modal">
-    <div class="modal-title">Levantar observacion</div>
-    <input type="hidden" id="mca-audit-id">
-    <input type="hidden" id="mca-criterio-num">
-    <div id="mca-detalle" style="background:var(--g50);border-radius:8px;padding:10px;margin-bottom:14px;font-size:13px;color:var(--g700)"></div>
-    <div class="fg">
-      <label>Comentario <span style="font-size:10px;color:var(--g400)">(opcional)</span></label>
-      <textarea id="mca-comentario" placeholder="Como se levanto la observacion?..." style="min-height:70px"></textarea>
-    </div>
-    <div class="fg">
-      <label>Foto de evidencia <span class="req">*</span></label>
-      <div class="photo-drop" id="drop-cierre-audit" style="border-color:var(--red)">
-        <input type="file" accept="image/*" onchange="handleFotoCierreAudit(this)">
-        <div style="font-size:24px;margin-bottom:4px">&#128247;</div>
-        <p style="font-size:12px;color:var(--g400)">Foto del levantamiento</p>
-        <p style="font-size:11px;color:var(--red);font-weight:600;margin-top:4px">Obligatoria</p>
-      </div>
-      <div class="photo-prev" id="prev-cierre-audit"></div>
-    </div>
-    <div style="display:flex;gap:10px;margin-top:4px">
-      <button class="btn-primary" onclick="confirmarCierreAudit()" style="flex:1">&#10003; Marcar como LEVANTADA</button>
-      <button class="btn-ghost" onclick="closeModal('modal-cierre-audit')">Cancelar</button>
-    </div>
-  </div>
-</div>
-
 
 
 <script>
@@ -3918,139 +3366,151 @@ function showToast(msg,isErr){
 }
 
 // ═══════════════════════════════════════════
-// AUDITORÍA 5S — MÓDULO COMPLETO
+// AUDITORÍA 5S — MÓDULO COMPLETO RECONSTRUIDO
 // ═══════════════════════════════════════════
 const AUDN_CATEGORIAS={"INFRAESTRUCTURA":["Techo","Paredes","Piso","Ventana","Otros"],"SUMINISTROS":["Agua","Luz","Aire","Combustible","Gas","Amoniaco","Lubricante","Otros"],"ACTIVOS":["Máquinas","Equipos","Instrumentos","Herramientas","Muebles","Otros"],"PROCESO":["Indicador"],"MATERIALES":["Materia Prima","Envases y Embalajes","Insumos","Producto Terminado","Repuestos","Útiles de Oficina","Materiales de Limpieza","Otros"],"INFORMACIÓN":["Murales","Documentos","Tablero de Gerencia Visible","Letreros / Carteles"],"PERSONAL":["Uniforme","Conocimientos","BPM"],"SEG. Y MEDIO AMBIENTE":["EPP","Segregación de Residuos","Señalización","Incumplimiento de Normativa"]};
+const AUDN_CAT_COLORS={"INFRAESTRUCTURA":"#5C6BC0","SUMINISTROS":"#0288D1","ACTIVOS":"#00838F","PROCESO":"#2E7D32","MATERIALES":"#E65100","INFORMACIÓN":"#6A1B9A","PERSONAL":"#AD1457","SEG. Y MEDIO AMBIENTE":"#C62828"};
 
 let audn_state={};
 let audn_fotoAntesBlob=null;
 let audn_fotoDespuesBlob=null;
 let audn_criterioActual=null;
+let audn_ptsActual=null;
 let audn_allData=[];
-let audn_accionAuditoriaId=null;
+let audn_fotoDespuesBlob2=null;
 
-// ── NAVEGACIÓN ────────────────────────────────────────────────
+// ── NAVEGACIÓN ─────────────────────────────
 function iniciarAuditoriaNew(){
   document.getElementById("pantalla-bienvenida").style.display="none";
   document.getElementById("app-recorrido").style.display="none";
   document.getElementById("app-checklist").style.display="none";
   document.getElementById("app-auditoria-nueva").style.display="block";
+  // Llenar sector selector
   const sectEl=document.getElementById("audn-sector");
   if(sectEl&&sectEl.options.length<=1){
     Object.entries(SECTORES_AUDIT).sort((a,b)=>a[0].localeCompare(b[0])).forEach(([area,info])=>{
-      info.areas.forEach(sector=>{
-        sectEl.innerHTML+=`<option value="${sector}" data-area="${area}">${sector} (${area})</option>`;
+      info.areas.forEach(s=>{
+        sectEl.innerHTML+=`<option value="${s}" data-area="${area}">${s} — ${area}</option>`;
       });
     });
   }
-  const areasUnicas=Object.keys(SECTORES_AUDIT).sort();
-  ["audn-fil-area","audn-fil-accion-area"].forEach(id=>{
+  // Llenar filtros de sector
+  ["audn-fil-sector","audn-fil-accion-sector"].forEach(id=>{
     const el=document.getElementById(id);
-    if(el&&el.options.length<=1) areasUnicas.forEach(a=>el.innerHTML+=`<option value="${a}">${a}</option>`);
+    if(el&&el.options.length<=1){
+      Object.values(SECTORES_AUDIT).forEach(info=>{
+        info.areas.forEach(s=>el.innerHTML+=`<option value="${s}">${s}</option>`);
+      });
+    }
   });
   document.getElementById("audn-fecha").value=new Date().toISOString().split("T")[0];
   audn_state={};
   auditNuevaTab("nueva");
-  audn_cargarHistorial();
+  audn_cargarTodo();
 }
 
 function salirAuditoriaNew(){
   document.getElementById("app-auditoria-nueva").style.display="none";
   document.getElementById("pantalla-bienvenida").style.display="flex";
+  audn_resetForm();
+}
+
+function audn_resetForm(){
   audn_state={};audn_fotoAntesBlob=null;audn_fotoDespuesBlob=null;
+  const ids=["audn-num","audn-auditor","audn-lider"];
+  ids.forEach(id=>{const el=document.getElementById(id);if(el)el.value="";});
+  document.getElementById("audn-sector").value="";
+  document.getElementById("audn-area-auto").value="";
+  document.getElementById("audn-fecha").value=new Date().toISOString().split("T")[0];
+  document.getElementById("audn-criterios-body").innerHTML="";
   document.getElementById("audn-eval-container").style.display="none";
   document.getElementById("audn-btn-iniciar").style.display="none";
-  document.getElementById("audn-criterios-body").innerHTML="";
+  document.getElementById("audn-badge-ronda").style.display="none";
   document.getElementById("audn-form-datos").style.opacity="1";
 }
 
 function auditNuevaTab(tab){
-  ["nueva","historial","dashboard","acciones"].forEach(t=>{
-    const cont=document.getElementById("audn-content-"+t);
-    const btn=document.getElementById("audn-tab-"+t);
-    if(cont) cont.style.display=t===tab?"block":"none";
-    if(btn){btn.style.color=t===tab?"var(--amber)":"var(--g400)";btn.style.borderBottom=t===tab?"3px solid var(--amber)":"3px solid transparent";}
+  ["nueva","historial","acciones","dashboard"].forEach(t=>{
+    const c=document.getElementById("audn-content-"+t);
+    const b=document.getElementById("audn-tab-"+t);
+    if(c) c.style.display=t===tab?"block":"none";
+    if(b){
+      b.style.color=t===tab?"#1E7C34":"#9CA3AF";
+      b.style.borderBottom=t===tab?"3px solid #1E7C34":"3px solid transparent";
+    }
   });
-  if(tab==="historial") audn_cargarHistorial();
-  if(tab==="dashboard") audn_renderDashboard();
+  if(tab==="historial") audn_cargarIncumplimientos();
   if(tab==="acciones") audn_cargarAcciones();
+  if(tab==="dashboard") audn_renderDashboard();
 }
 
-// ── SECTOR AUTO-ÁREA ──────────────────────────────────────────
-document.addEventListener("DOMContentLoaded",()=>{
+async function audn_cargarTodo(){
+  const {data}=await sb.from("auditorias_nuevas_5s").select("*").order("created_at",{ascending:false});
+  audn_allData=data||[];
+}
+
+// ── FORMULARIO ──────────────────────────────
+function audn_onSectorChange(){
   const sectEl=document.getElementById("audn-sector");
-  if(sectEl) sectEl.addEventListener("change",()=>{
-    const sector=sectEl.value;
-    const opt=sectEl.options[sectEl.selectedIndex];
-    const area=opt?opt.getAttribute("data-area"):"";
-    const aEl=document.getElementById("audn-area-auto");
-    if(aEl) aEl.value=area||"";
-    // Asignar responsable específico del sector o del área
-    const respEl=document.getElementById("audn-lider");
-    if(respEl){
-      const respSector=RESP_SECTOR[sector]||"";
-      const respArea=area&&SECTORES_AUDIT[area]?SECTORES_AUDIT[area].responsable||"":"";
-      respEl.value=respSector||respArea;
-    }
-    audn_checkReady();
-  });
-  ["audn-num","audn-fecha","audn-auditor"].forEach(id=>{
-    const el=document.getElementById(id);
-    if(el) el.addEventListener("change",audn_checkReady);
-    if(el) el.addEventListener("input",audn_checkReady);
-  });
-});
+  const sector=sectEl.value;
+  const opt=sectEl.options[sectEl.selectedIndex];
+  const area=opt?opt.getAttribute("data-area"):"";
+  document.getElementById("audn-area-auto").value=area||"";
+  // Responsable: primero buscar específico del sector, luego del área
+  const respEspecifico=RESP_SECTOR[sector]||"";
+  const respArea=area&&SECTORES_AUDIT[area]?SECTORES_AUDIT[area].responsable||"":"";
+  document.getElementById("audn-lider").value=respEspecifico||respArea;
+  audn_checkReady();
+}
 
 function audn_checkReady(){
-  const num=document.getElementById("audn-num")?.value;
-  const fecha=document.getElementById("audn-fecha")?.value;
-  const sector=document.getElementById("audn-sector")?.value;
-  const auditor=document.getElementById("audn-auditor")?.value?.trim();
-  const btn=document.getElementById("audn-btn-iniciar");
-  if(btn) btn.style.display=(num&&fecha&&sector&&auditor)?"block":"none";
+  const num=document.getElementById("audn-num").value;
+  const fecha=document.getElementById("audn-fecha").value;
+  const sector=document.getElementById("audn-sector").value;
+  const auditor=document.getElementById("audn-auditor").value.trim();
+  document.getElementById("audn-btn-iniciar").style.display=(num&&fecha&&sector&&auditor)?"block":"none";
 }
 
-// ── EVALUACIÓN ────────────────────────────────────────────────
 function audn_iniciarEvaluacion(){
   audn_state={};
   audn_renderCriterios();
   document.getElementById("audn-eval-container").style.display="block";
   document.getElementById("audn-btn-iniciar").style.display="none";
   document.getElementById("audn-form-datos").style.opacity="0.65";
-  document.getElementById("audn-badge-ronda").style.display="block";
   const num=document.getElementById("audn-num").value;
-  document.getElementById("audn-badge-ronda").textContent=["","A1","A2","A3","A4"][num]||"";
+  const badge=document.getElementById("audn-badge-ronda");
+  badge.style.display="block";
+  badge.textContent=["","A1","A2","A3","A4"][num]||"";
   document.getElementById("audn-eval-container").scrollIntoView({behavior:"smooth"});
 }
 
+// ── CRITERIOS ──────────────────────────────
 function audn_renderCriterios(){
   const body=document.getElementById("audn-criterios-body");
-  const catColors={"INFRAESTRUCTURA":"#5C6BC0","SUMINISTROS":"#0288D1","ACTIVOS":"#00838F","PROCESO":"#2E7D32","MATERIALES":"#E65100","INFORMACIÓN":"#6A1B9A","PERSONAL":"#AD1457","SEG. Y MEDIO AMBIENTE":"#C62828"};
   let html="";
   Object.entries(AUDN_CATEGORIAS).forEach(([cat,criterios])=>{
-    const color=catColors[cat]||"var(--g700)";
-    const evaluados=criterios.filter(c=>audn_state[cat+"||"+c]!==undefined).length;
-    html+=`<div data-cat="${cat}" style="background:#fff;border-radius:14px;margin-bottom:12px;overflow:hidden;box-shadow:var(--sh)">
-      <div style="background:${color};padding:12px 16px;display:flex;align-items:center;justify-content:space-between">
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;color:#fff;letter-spacing:.3px">${cat}</div>
-        <div class="audn-cat-count" style="font-size:12px;color:rgba(255,255,255,.8)">${evaluados}/${criterios.length}</div>
+    const color=AUDN_CAT_COLORS[cat]||"#1E7C34";
+    const eval_count=criterios.filter(c=>audn_state[cat+"||"+c]!==undefined).length;
+    html+=`<div style="background:#fff;border-radius:12px;margin-bottom:10px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.08)">
+      <div style="background:${color};padding:10px 14px;display:flex;justify-content:space-between;align-items:center">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:800;color:#fff">${cat}</div>
+        <div style="font-size:11px;color:rgba(255,255,255,.8);font-weight:600">${eval_count}/${criterios.length}</div>
       </div>
-      <div style="padding:8px">`;
+      <div style="padding:6px">`;
     criterios.forEach(crit=>{
       const key=cat+"||"+crit;
-      const estado=audn_state[key];
-      const pts=estado?.puntaje;
-      const bg=pts===undefined?"var(--g50)":pts>0?"#F0FDF4":pts===-5?"#FFFBEB":pts===-10?"#FFF7ED":"#FEF2F2";
-      const badge=pts===undefined?'<span style="color:var(--g300);font-size:18px">○</span>':
-        pts>0?`<span style="background:#15803D;color:#fff;border-radius:6px;padding:2px 8px;font-size:13px;font-weight:700">+5</span>`:
-        `<span style="background:${pts===-5?"#B45309":pts===-10?"#C2410C":pts===-15?"#C62828":"#7B1FA2"};color:#fff;border-radius:6px;padding:2px 8px;font-size:13px;font-weight:700">${pts}</span>`;
-      const dataKey=cat+"||"+crit;
-      html+=`<div data-key="${dataKey}" onclick="audn_abrirModal('${cat.replace(/'/g,"\\'")}','${crit.replace(/'/g,"\\'")}')" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-radius:10px;margin-bottom:4px;background:${bg};cursor:pointer;border:1px solid var(--g100)">
+      const v=audn_state[key];
+      const pts=v?.puntaje;
+      const bg=pts===undefined?"#F9FAFB":pts>0?"#F0FDF4":"#FEF2F2";
+      const badgeColor=pts===undefined?"#D1D5D1":pts>0?"#15803D":pts===-5?"#B45309":pts===-10?"#C2410C":pts===-15?"#C62828":"#7B1FA2";
+      const badgeTxt=pts===undefined?"—":pts>0?"+5":String(pts);
+      html+=`<div onclick="audn_abrirModal('${cat.replace(/'/g,"\\'")}','${crit.replace(/'/g,"\\'")}')\"
+        style="display:flex;align-items:center;gap:10px;padding:10px 10px;margin:3px 0;border-radius:8px;background:${bg};cursor:pointer;border:1px solid #F0F0F0">
         <div style="flex:1;min-width:0">
-          <div style="font-size:14px;font-weight:600;color:var(--g700);line-height:1.3">${crit}</div>
-          <div class="audn-obs-preview" style="font-size:11px;color:var(--g400);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${estado?.obs?estado.obs.substring(0,40)+"...":""}</div>
+          <div style="font-size:13px;font-weight:600;color:#1A1D18;line-height:1.3">${crit}</div>
+          ${v?.obs?`<div style="font-size:11px;color:#6B7280;margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${v.obs}</div>`:""}
         </div>
-        <div class="audn-badge" style="margin-left:10px;flex-shrink:0">${badge}</div>
+        <div style="background:${badgeColor};color:#fff;border-radius:6px;padding:3px 9px;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;flex-shrink:0">${badgeTxt}</div>
       </div>`;
     });
     html+="</div></div>";
@@ -4060,71 +3520,70 @@ function audn_renderCriterios(){
 }
 
 function audn_recalcularTotal(){
-  let descuento=0;
-  Object.values(audn_state).forEach(v=>{ descuento+=v.puntaje||0; });
-  const pts=1000+descuento;
+  let desc=0;
+  Object.values(audn_state).forEach(v=>{desc+=v.puntaje||0;});
+  const pts=1000+desc;
   const pct=Math.max(0,Math.round(pts/10));
   const nivel=pct>=90?"EXCELENTE":pct>=80?"BUENO":pct>=60?"REGULAR":"DEFICIENTE";
-  const color=pct>=80?"var(--green)":pct>=60?"var(--amber)":"var(--red)";
+  const color=pct>=80?"#fff":pct>=60?"#fff":"#FCA5A5";
   const sc=document.getElementById("audn-score-display");
   const pc=document.getElementById("audn-pct-display");
   const nv=document.getElementById("audn-nivel-display");
-  if(sc){sc.textContent=pts;sc.style.color=pct>=60?"#fff":"#FCA5A5";}
+  if(sc){sc.textContent=pts;sc.style.color=color;}
   if(pc) pc.textContent=pct+"%";
   if(nv) nv.textContent=nivel;
 }
 
-// ── MODAL CRITERIO ────────────────────────────────────────────
+// ── MODAL CRITERIO ─────────────────────────
 function audn_abrirModal(cat,crit){
   audn_criterioActual={cat,crit};
+  audn_ptsActual=null;
   audn_fotoAntesBlob=null;
-  document.getElementById("modal-audn-criterio").style.display="flex";
+  // Reset UI
+  document.querySelectorAll(".audn-pts-btn").forEach(b=>{b.style.opacity="1";b.style.transform="scale(1)";b.style.boxShadow="none";});
+  document.getElementById("audn-modal-incump").style.display="none";
+  document.getElementById("audn-modal-destacable").style.display="none";
   document.getElementById("modal-audn-cat").textContent=cat;
   document.getElementById("modal-audn-crit").textContent=crit;
-  // Limpiar selección botones
-  document.querySelectorAll(".audn-pts-btn").forEach(b=>{
-    b.style.opacity="1";b.style.transform="scale(1)";
-    b.style.boxShadow="none";
+  // Limpiar campos y bordes
+  ["audn-modal-obs","audn-modal-s","audn-modal-resp","audn-modal-fi","audn-modal-ff","audn-modal-coment"].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el){el.value="";el.style.border="";}
   });
+  document.getElementById("audn-preview-antes").style.display="none";
+  document.getElementById("audn-drop-antes").style.borderColor="#D1D5D1";
+  // Cargar estado existente
   const key=cat+"||"+crit;
-  const estado=audn_state[key];
-  if(estado){
-    audn_selPuntaje(estado.puntaje,false);
-    if(estado.obs) document.getElementById("audn-modal-obs").value=estado.obs;
-    if(estado.s) document.getElementById("audn-modal-s").value=estado.s;
-    if(estado.resp) document.getElementById("audn-modal-resp").value=estado.resp;
-    if(estado.fi) document.getElementById("audn-modal-fi").value=estado.fi;
-    if(estado.ff) document.getElementById("audn-modal-ff").value=estado.ff;
-    if(estado.coment) document.getElementById("audn-modal-coment").value=estado.coment;
-    const prev=document.getElementById("audn-preview-antes");
-    if(estado.fotoAntesUrl){prev.src=estado.fotoAntesUrl;prev.style.display="block";}
-    else prev.style.display="none";
-  } else {
-    ["audn-modal-obs","audn-modal-s","audn-modal-resp"].forEach(id=>{
-      const el=document.getElementById(id);
-      if(el){el.value="";el.style.border="";}
-    });
-    document.getElementById("audn-modal-fi").value="";
-    document.getElementById("audn-modal-ff").value="";
-    document.getElementById("audn-modal-coment").value="";
-    document.getElementById("audn-preview-antes").style.display="none";
-    document.getElementById("audn-modal-incump").style.display="none";
-    document.getElementById("audn-modal-destacable").style.display="none";
+  const v=audn_state[key];
+  if(v){
+    audn_ptsActual=v.puntaje;
+    audn_selPuntaje(v.puntaje,false);
+    if(v.obs) document.getElementById("audn-modal-obs").value=v.obs;
+    if(v.s) document.getElementById("audn-modal-s").value=v.s;
+    if(v.resp) document.getElementById("audn-modal-resp").value=v.resp;
+    if(v.fi) document.getElementById("audn-modal-fi").value=v.fi;
+    if(v.ff) document.getElementById("audn-modal-ff").value=v.ff;
+    if(v.coment) document.getElementById("audn-modal-coment").value=v.coment;
+    if(v.fotoAntesUrl){
+      const prev=document.getElementById("audn-preview-antes");
+      prev.src=v.fotoAntesUrl;prev.style.display="block";
+    }
   }
+  document.getElementById("modal-audn-criterio").style.display="flex";
 }
 
-function audn_selPuntaje(pts, updateUI=true){
+function audn_selPuntaje(pts,updateUI=true){
+  audn_ptsActual=pts;
   if(updateUI){
     document.querySelectorAll(".audn-pts-btn").forEach(b=>{
-      const bpts=parseInt(b.dataset.pts);
-      b.style.opacity=bpts===pts?"1":"0.45";
-      b.style.transform=bpts===pts?"scale(1.04)":"scale(1)";
-      b.style.boxShadow=bpts===pts?"0 0 0 3px rgba(0,0,0,.25)":"none";
+      const bp=parseInt(b.dataset.pts);
+      b.style.opacity=bp===pts?"1":"0.4";
+      b.style.transform=bp===pts?"scale(1.05)":"scale(1)";
+      b.style.boxShadow=bp===pts?"0 0 0 3px rgba(0,0,0,.2)":"none";
     });
   }
   document.getElementById("audn-modal-incump").style.display=pts<0?"block":"none";
   document.getElementById("audn-modal-destacable").style.display=pts>0?"block":"none";
-  audn_criterioActual._pts=pts;
 }
 
 function audn_cerrarModal(){
@@ -4135,8 +3594,278 @@ function audn_fotoAntes(input){
   if(!input.files||!input.files[0]) return;
   audn_fotoAntesBlob=input.files[0];
   const r=new FileReader();
-  r.onload=e=>{const p=document.getElementById("audn-preview-antes");p.src=e.target.result;p.style.display="block";};
+  r.onload=e=>{
+    const p=document.getElementById("audn-preview-antes");
+    p.src=e.target.result;p.style.display="block";
+    document.getElementById("audn-drop-antes").style.borderColor="#1E7C34";
+  };
   r.readAsDataURL(audn_fotoAntesBlob);
+}
+
+async function audn_guardarCriterio(){
+  if(audn_ptsActual===null||audn_ptsActual===undefined){
+    showToast("Selecciona un puntaje",true);return;
+  }
+  const key=audn_criterioActual.cat+"||"+audn_criterioActual.crit;
+  let fotoAntesUrl=audn_state[key]?.fotoAntesUrl||"";
+
+  if(audn_ptsActual<0){
+    const obs=document.getElementById("audn-modal-obs").value.trim();
+    const s=document.getElementById("audn-modal-s").value;
+    const resp=document.getElementById("audn-modal-resp").value.trim();
+    // Validar y marcar rojo
+    document.getElementById("audn-modal-obs").style.border=obs?"":"2px solid #E63329";
+    document.getElementById("audn-modal-s").style.border=s?"":"2px solid #E63329";
+    document.getElementById("audn-modal-resp").style.border=resp?"":"2px solid #E63329";
+    if(!audn_fotoAntesBlob&&!fotoAntesUrl) document.getElementById("audn-drop-antes").style.borderColor="#E63329";
+    const errores=[];
+    if(!obs) errores.push("observación");
+    if(!s) errores.push("S afectada");
+    if(!resp) errores.push("responsable");
+    if(!audn_fotoAntesBlob&&!fotoAntesUrl) errores.push("foto");
+    if(errores.length){showToast("Falta: "+errores.join(", "),true);return;}
+
+    if(audn_fotoAntesBlob){
+      const btn=document.querySelector(".btn-guardar-crit");
+      if(btn){btn.disabled=true;btn.innerHTML='<span class="spinner"></span>';}
+      try{fotoAntesUrl=await subirCloudinary(audn_fotoAntesBlob,null,null);}
+      catch(e){showToast("Error subiendo foto",true);if(btn){btn.disabled=false;btn.textContent="Guardar";}return;}
+      if(btn){btn.disabled=false;btn.textContent="Guardar";}
+    }
+    audn_state[key]={
+      puntaje:audn_ptsActual,obs,s,resp,
+      fi:document.getElementById("audn-modal-fi").value,
+      ff:document.getElementById("audn-modal-ff").value,
+      fotoAntesUrl,fotoDespues:""
+    };
+  } else {
+    audn_state[key]={puntaje:audn_ptsActual,obs:"",s:"",resp:"",coment:document.getElementById("audn-modal-coment").value.trim(),fotoAntesUrl:"",fotoDespues:""};
+  }
+  audn_cerrarModal();
+  audn_renderCriterios();
+  showToast("✓ Guardado");
+}
+
+// ── GUARDAR AUDITORÍA ──────────────────────
+async function audn_guardar(){
+  const num=document.getElementById("audn-num").value;
+  const fecha=document.getElementById("audn-fecha").value;
+  const sectEl=document.getElementById("audn-sector");
+  const sector=sectEl.value;
+  const opt=sectEl.options[sectEl.selectedIndex];
+  const area=opt?opt.getAttribute("data-area"):"";
+  const auditor=document.getElementById("audn-auditor").value.trim();
+  const lider=document.getElementById("audn-lider").value.trim();
+  if(!num){showToast("Selecciona el N° de Auditoría",true);return;}
+  if(!fecha){showToast("Selecciona la fecha",true);return;}
+  if(!sector){showToast("Selecciona el sector",true);return;}
+  if(!auditor){showToast("Escribe el nombre del auditor",true);return;}
+
+  const btn=document.getElementById("audn-btn-guardar");
+  btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Guardando...';
+
+  // Armar criterios
+  let descuento=0;const criterios=[];let nObs=1;
+  Object.entries(audn_state).forEach(([key,v])=>{
+    const [cat,crit]=key.split("||");
+    descuento+=v.puntaje||0;
+    criterios.push({num:nObs++,categoria:cat,criterio:crit,
+      puntaje:v.puntaje,obs:v.obs||"",s:v.s||"",resp:v.resp||"",
+      fi:v.fi||"",ff:v.ff||"",fotoAntesUrl:v.fotoAntesUrl||"",
+      fotoDespues:"",avance:0,estado:"Pendiente",coment:v.coment||""});
+  });
+  const puntajeTotal=1000+descuento;
+  const pct=Math.max(0,Math.round(puntajeTotal/10));
+  const nivel=pct>=90?"EXCELENTE":pct>=80?"BUENO":pct>=60?"REGULAR":"DEFICIENTE";
+
+  try{
+    const {error}=await sb.from("auditorias_nuevas_5s").insert({
+      num_auditoria:parseInt(num),fecha,area,sector,auditor,lider,
+      puntaje_total:puntajeTotal,pct_cumplimiento:pct,nivel,
+      criterios:JSON.stringify(criterios),
+      total_incumplimientos:criterios.filter(c=>c.puntaje<0).length,
+      status:"Activo",created_at:new Date().toISOString()
+    });
+    if(error) throw error;
+    showToast("✅ Auditoría guardada — "+puntajeTotal+" pts ("+pct+"%)");
+    audn_resetForm();
+    await audn_cargarTodo();
+    auditNuevaTab("historial");
+  }catch(e){
+    console.error(e);
+    showToast("Error al guardar: "+(e.message||JSON.stringify(e)),true);
+  }finally{
+    btn.disabled=false;btn.textContent="✓ Guardar Auditoría";
+  }
+}
+
+// ── INCUMPLIMIENTOS ────────────────────────
+async function audn_cargarIncumplimientos(){
+  const body=document.getElementById("audn-historial-body");
+  const kpisEl=document.getElementById("audn-inc-kpis");
+  if(!body) return;
+  body.innerHTML='<div style="text-align:center;padding:20px;color:#6B7280">Cargando...</div>';
+
+  const ronda=document.getElementById("audn-fil-ronda")?.value||"";
+  const filSector=document.getElementById("audn-fil-sector")?.value||"";
+  const filEstado=document.getElementById("audn-fil-estado")?.value||"";
+
+  let q=sb.from("auditorias_nuevas_5s").select("*").order("num_auditoria",{ascending:true});
+  if(ronda) q=q.eq("num_auditoria",parseInt(ronda));
+  if(filSector) q=q.eq("sector",filSector);
+  const {data,error}=await q;
+  if(error){showToast("Error cargando datos",true);return;}
+  audn_allData=data||[];
+
+  if(!audn_allData.length){
+    body.innerHTML='<div style="text-align:center;padding:30px;color:#6B7280">Sin auditorías registradas</div>';
+    return;
+  }
+
+  // Extraer incumplimientos
+  const rondaLabel=["","A1","A2","A3","A4"];
+  let incumplimientos=[];
+  audn_allData.forEach(a=>{
+    const crits=JSON.parse(a.criterios||"[]").filter(c=>c.puntaje<0);
+    crits.forEach(c=>{
+      if(filEstado&&(c.estado||"Pendiente")!==filEstado) return;
+      incumplimientos.push({...c,auditId:a.id,ronda:a.num_auditoria,
+        rondaLbl:rondaLabel[a.num_auditoria]||"",
+        sector:a.sector,area:a.area,fecha:a.fecha,auditor:a.auditor});
+    });
+  });
+
+  // KPIs
+  const total=incumplimientos.length;
+  const pend=incumplimientos.filter(i=>(i.estado||"Pendiente")==="Pendiente").length;
+  const comp=incumplimientos.filter(i=>i.estado==="Completado").length;
+  if(kpisEl) kpisEl.innerHTML=[
+    {lbl:"Total",val:total,col:"#D97706"},
+    {lbl:"Pendientes",val:pend,col:"#E63329"},
+    {lbl:"Completados",val:comp,col:"#1E7C34"},
+  ].map(k=>`<div style="background:#fff;border-radius:10px;padding:12px;box-shadow:0 1px 4px rgba(0,0,0,.08);text-align:center">
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:900;color:${k.col}">${k.val}</div>
+    <div style="font-size:11px;color:#6B7280">${k.lbl}</div>
+  </div>`).join("");
+
+  if(!incumplimientos.length){
+    body.innerHTML='<div style="text-align:center;padding:30px;color:#1E7C34;font-size:14px;font-weight:600">✅ Sin incumplimientos</div>';
+    return;
+  }
+
+  // Agrupar por auditoría
+  const porAudit={};
+  incumplimientos.forEach(i=>{
+    const k=i.auditId;
+    if(!porAudit[k]) porAudit[k]={rondaLbl:i.rondaLbl,sector:i.sector,area:i.area,fecha:i.fecha,items:[]};
+    porAudit[k].items.push(i);
+  });
+
+  const colEst={Pendiente:"#E63329","En Proceso":"#D97706",Completado:"#1E7C34"};
+
+  body.innerHTML=Object.entries(porAudit).map(([auditId,grp])=>`
+    <div style="background:#fff;border-radius:12px;margin-bottom:12px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.08)">
+      <!-- Header grupo -->
+      <div style="background:#155A25;padding:12px 14px;display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:800;color:#fff">${grp.sector}</div>
+          <div style="font-size:11px;color:rgba(255,255,255,.75)">${grp.area} · ${grp.rondaLbl} · ${grp.fecha}</div>
+        </div>
+        <div style="background:rgba(0,0,0,.25);border-radius:7px;padding:3px 10px;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;color:#fff">${grp.items.length}</div>
+      </div>
+      <!-- Incumplimientos -->
+      ${grp.items.map((inc,idx)=>{
+        const est=inc.estado||"Pendiente";
+        const col=colEst[est]||"#6B7280";
+        return `<div style="border-bottom:1px solid #F0F0F0;padding:12px 14px">
+          <div style="display:flex;justify-content:space-between;align-items:start;gap:8px;margin-bottom:6px">
+            <div style="flex:1">
+              <div style="font-size:10px;font-weight:700;color:#D97706;text-transform:uppercase;margin-bottom:2px">${inc.categoria}</div>
+              <div style="font-size:13px;font-weight:700;color:#1A1D18;line-height:1.3">${inc.criterio}</div>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:end;gap:3px;flex-shrink:0">
+              <span style="background:${col};color:#fff;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700">${est}</span>
+              <span style="background:#7B1FA2;color:#fff;border-radius:5px;padding:1px 7px;font-size:11px;font-weight:700">${inc.puntaje}</span>
+            </div>
+          </div>
+          ${inc.obs?`<div style="font-size:12px;color:#374151;background:#FFF7ED;border-left:3px solid #D97706;padding:6px 8px;border-radius:0 6px 6px 0;margin-bottom:6px">${inc.obs}</div>`:""}
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:11px;color:#6B7280;margin-bottom:6px">
+            <div>S: <strong style="color:#1A1D18">${inc.s||"—"}</strong></div>
+            <div>Resp: <strong style="color:#1A1D18">${inc.resp||"—"}</strong></div>
+            <div>Inicio: <strong>${inc.fi||"—"}</strong></div>
+            <div>Fin: <strong>${inc.ff||"—"}</strong></div>
+          </div>
+          <!-- Barra avance -->
+          <div style="margin-bottom:8px">
+            <div style="display:flex;justify-content:space-between;font-size:10px;color:#6B7280;margin-bottom:2px">
+              <span>Avance</span><span>${inc.avance||0}%</span>
+            </div>
+            <div style="background:#E5E7E5;border-radius:4px;height:5px">
+              <div style="background:${col};height:5px;border-radius:4px;width:${inc.avance||0}%"></div>
+            </div>
+          </div>
+          <!-- Fotos -->
+          <div style="display:flex;gap:8px;margin-bottom:8px">
+            ${inc.fotoAntesUrl?`<div style="flex:1">
+              <div style="font-size:10px;color:#6B7280;margin-bottom:3px">Antes</div>
+              <img src="${inc.fotoAntesUrl}" onclick="window.open('${inc.fotoAntesUrl}','_blank')" style="width:100%;height:70px;object-fit:cover;border-radius:7px;border:1px solid #E5E7E5;cursor:pointer">
+            </div>`:`<div style="flex:1;background:#F9FAFB;border-radius:7px;height:70px;display:flex;align-items:center;justify-content:center;font-size:11px;color:#9CA3AF">Sin foto antes</div>`}
+            ${inc.fotoDespues?`<div style="flex:1">
+              <div style="font-size:10px;color:#1E7C34;font-weight:600;margin-bottom:3px">Después</div>
+              <img src="${inc.fotoDespues}" onclick="window.open('${inc.fotoDespues}','_blank')" style="width:100%;height:70px;object-fit:cover;border-radius:7px;border:2px solid #1E7C34;cursor:pointer">
+            </div>`:`<div style="flex:1;background:#F9FAFB;border-radius:7px;height:70px;display:flex;align-items:center;justify-content:center;font-size:11px;color:#9CA3AF">Sin foto después</div>`}
+          </div>
+          <!-- Botones -->
+          <div style="display:flex;gap:8px">
+            <button onclick="audn_abrirActualizar(${auditId},${inc.num},'${est}',${inc.avance||0},'${inc.fotoDespues||""}')"
+              style="flex:1;padding:9px;background:#1E7C34;color:#fff;border:none;border-radius:8px;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700">
+              Actualizar
+            </button>
+            <button onclick="audn_abrirAccionModal(${auditId},'${grp.sector}')"
+              style="flex:1;padding:9px;background:#D97706;color:#fff;border:none;border-radius:8px;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700">
+              + Acción
+            </button>
+          </div>
+        </div>`;
+      }).join("")}
+    </div>`).join("");
+}
+
+// ── ACTUALIZAR INCUMPLIMIENTO ──────────────
+function audn_abrirActualizar(auditId,critNum,estado,avance,fotoDespues){
+  document.getElementById("audn-accion-id").value="";
+  document.getElementById("audn-accion-auditoria-id").value=auditId;
+  document.getElementById("audn-accion-sector").value=critNum;
+  document.getElementById("audn-accion-estado").value=estado||"Pendiente";
+  document.getElementById("audn-accion-avance").value=avance||0;
+  document.getElementById("audn-accion-avance-plan").value=100;
+  document.getElementById("audn-accion-responsable").value="";
+  document.getElementById("audn-accion-fecha-inicio").value="";
+  document.getElementById("audn-accion-fecha-fin").value="";
+  audn_fotoDespuesBlob=null;
+  const prev=document.getElementById("audn-preview-despues");
+  if(fotoDespues&&fotoDespues.startsWith("http")){prev.src=fotoDespues;prev.style.display="block";}
+  else prev.style.display="none";
+  // Guardar referencia al num criterio
+  document.getElementById("modal-audn-accion").dataset.critNum=critNum;
+  document.getElementById("modal-audn-accion").dataset.modo="actualizar";
+  document.getElementById("modal-audn-accion").style.display="flex";
+}
+
+function audn_abrirAccionModal(auditId,sector){
+  document.getElementById("audn-accion-id").value="";
+  document.getElementById("audn-accion-auditoria-id").value=auditId;
+  document.getElementById("audn-accion-sector").value=sector;
+  document.getElementById("audn-accion-estado").value="Pendiente";
+  document.getElementById("audn-accion-avance").value=0;
+  document.getElementById("audn-accion-avance-plan").value=100;
+  document.getElementById("audn-accion-responsable").value="";
+  document.getElementById("audn-accion-fecha-inicio").value="";
+  document.getElementById("audn-accion-fecha-fin").value="";
+  audn_fotoDespuesBlob=null;
+  document.getElementById("audn-preview-despues").style.display="none";
+  document.getElementById("modal-audn-accion").dataset.modo="accion";
+  document.getElementById("modal-audn-accion").style.display="flex";
 }
 
 function audn_fotoDespues(input){
@@ -4147,503 +3876,6 @@ function audn_fotoDespues(input){
   r.readAsDataURL(audn_fotoDespuesBlob);
 }
 
-async function audn_guardarCriterio(){
-  const pts=audn_criterioActual._pts;
-  if(pts===undefined||pts===null){
-    showToast("Selecciona un puntaje",true);
-    return;
-  }
-  const key=audn_criterioActual.cat+"||"+audn_criterioActual.crit;
-  let fotoAntesUrl=audn_state[key]?.fotoAntesUrl||"";
-
-  if(pts<0){
-    const obsEl=document.getElementById("audn-modal-obs");
-    const sEl=document.getElementById("audn-modal-s");
-    const respEl=document.getElementById("audn-modal-resp");
-    const obs=obsEl.value.trim();
-    const s=sEl.value;
-    const resp=respEl.value.trim();
-
-    // Marcar campos faltantes en rojo
-    obsEl.style.border=obs?"1px solid var(--g200)":"2px solid var(--red)";
-    sEl.style.border=s?"1px solid var(--g200)":"2px solid var(--red)";
-    respEl.style.border=resp?"1px solid var(--g200)":"2px solid var(--red)";
-
-    let errores=[];
-    if(!obs) errores.push("observación");
-    if(!s) errores.push("S afectada");
-    if(!resp) errores.push("responsable");
-    if(!audn_fotoAntesBlob&&!fotoAntesUrl) errores.push("foto de evidencia");
-    if(errores.length>0){
-      showToast("Falta: "+errores.join(", "),true);
-      if(!obs) obsEl.focus();
-      else if(!s) sEl.focus();
-      else if(!resp) respEl.focus();
-      return;
-    }
-
-    // Subir foto — sin showToast, solo cambiar botón
-    if(audn_fotoAntesBlob){
-      const btnG=document.querySelector("#modal-audn-criterio .btn-guardar-crit");
-      if(btnG){btnG.disabled=true;btnG.innerHTML='<span class="spinner"></span>';}
-      try{
-        fotoAntesUrl=await subirCloudinary(audn_fotoAntesBlob,null,null);
-      }catch(e){
-        showToast("Error subiendo foto",true);
-        if(btnG){btnG.disabled=false;btnG.textContent="Guardar";}
-        return;
-      }
-      if(btnG){btnG.disabled=false;btnG.textContent="Guardar";}
-    }
-
-    audn_state[key]={
-      puntaje:pts, obs, s, resp,
-      fi:document.getElementById("audn-modal-fi").value,
-      ff:document.getElementById("audn-modal-ff").value,
-      fotoAntesUrl, fotoDesUrl:""
-    };
-  } else {
-    const coment=document.getElementById("audn-modal-coment").value.trim();
-    audn_state[key]={puntaje:pts,obs:"",s:"",resp:"",coment,fotoAntesUrl:"",fotoDesUrl:""};
-  }
-
-  audn_cerrarModal();
-  // Actualizar solo el item visual sin re-renderizar todo
-  audn_actualizarItemVisual(key);
-  audn_recalcularTotal();
-}
-
-function audn_actualizarItemVisual(key){
-  const [cat,crit]=key.split("||");
-  const estado=audn_state[key];
-  const pts=estado?.puntaje;
-  const bg=pts===undefined?"var(--g50)":pts>0?"#F0FDF4":pts===-5?"#FFFBEB":pts===-10?"#FFF7ED":"#FEF2F2";
-  const badgeHTML=pts===undefined?'<span style="color:var(--g300);font-size:18px">○</span>':
-    pts>0?`<span style="background:#15803D;color:#fff;border-radius:6px;padding:2px 8px;font-size:13px;font-weight:700">+5</span>`:
-    `<span style="background:${pts===-5?"#B45309":pts===-10?"#C2410C":pts===-15?"#C62828":"#7B1FA2"};color:#fff;border-radius:6px;padding:2px 8px;font-size:13px;font-weight:700">${pts}</span>`;
-
-  // Buscar el elemento por data-key
-  const el=document.querySelector(`[data-key="${CSS.escape(key)}"]`);
-  if(el){
-    el.style.background=bg;
-    const badge=el.querySelector(".audn-badge");
-    if(badge) badge.innerHTML=badgeHTML;
-    const obs=el.querySelector(".audn-obs-preview");
-    if(obs) obs.textContent=estado?.obs?estado.obs.substring(0,40)+"...":"";
-  }
-  // Actualizar contador de categoría
-  const cats=AUDN_CATEGORIAS[cat]||[];
-  const evaluados=cats.filter(c=>audn_state[cat+"||"+c]!==undefined).length;
-  const catEl=document.querySelector(`[data-cat="${CSS.escape(cat)}"] .audn-cat-count`);
-  if(catEl) catEl.textContent=`${evaluados}/${cats.length}`;
-}
-
-function audn_actualizarTarjeta(key){
-  // Actualizar solo el badge visual del criterio sin re-renderizar todo
-  const [cat,crit]=key.split("||");
-  const estado=audn_state[key];
-  const pts=estado?.puntaje;
-  const bg=pts===undefined?"var(--g50)":pts>0?"#F0FDF4":pts===-5?"#FFFBEB":pts===-10?"#FFF7ED":"#FEF2F2";
-  const badge=pts===undefined?'<span style="color:var(--g300);font-size:18px">○</span>':
-    pts>0?`<span style="background:#15803D;color:#fff;border-radius:6px;padding:2px 8px;font-size:13px;font-weight:700">+5</span>`:
-    `<span style="background:${pts===-5?"#B45309":pts===-10?"#C2410C":pts===-15?"#C62828":"#7B1FA2"};color:#fff;border-radius:6px;padding:2px 8px;font-size:13px;font-weight:700">${pts}</span>`;
-
-  // Buscar la tarjeta en el DOM por contenido de texto
-  const cards=document.querySelectorAll("#audn-criterios-body [style]");
-  cards.forEach(card=>{
-    const textEl=card.querySelector("div[style*='font-size:14px']");
-    if(textEl&&textEl.textContent.trim()===crit){
-      card.style.background=bg;
-      const badgeEl=card.querySelector("div[style*='margin-left:10px']");
-      if(badgeEl) badgeEl.innerHTML=badge;
-      const obsEl=card.querySelector("div[style*='font-size:11px'][style*='g400']");
-      if(obsEl&&estado?.obs) obsEl.textContent=estado.obs;
-    }
-  });
-
-  // Actualizar contador de la categoría
-  const catColors={"INFRAESTRUCTURA":"#5C6BC0","SUMINISTROS":"#0288D1","ACTIVOS":"#00838F","PROCESO":"#2E7D32","MATERIALES":"#E65100","INFORMACIÓN":"#6A1B9A","PERSONAL":"#AD1457","SEG. Y MEDIO AMBIENTE":"#C62828"};
-  const criteriosCat=AUDN_CATEGORIAS[cat]||[];
-  const evaluadosCat=criteriosCat.filter(c=>audn_state[cat+"||"+c]!==undefined).length;
-  // Buscar el header de la categoría
-  const headers=document.querySelectorAll("#audn-criterios-body div[style*='font-weight:800'][style*='color:#fff']");
-  headers.forEach(h=>{
-    if(h.textContent.trim()===cat){
-      const counter=h.nextElementSibling;
-      if(counter) counter.textContent=`${evaluadosCat}/${criteriosCat.length}`;
-    }
-  });
-}
-
-// ── GUARDAR AUDITORÍA ─────────────────────────────────────────
-async function audn_guardar(){
-  const num=document.getElementById("audn-num").value;
-  const fecha=document.getElementById("audn-fecha").value;
-  const sectorEl=document.getElementById("audn-sector");
-  const sector=sectorEl.value;
-  const opt=sectorEl.options[sectorEl.selectedIndex];
-  const area=opt?opt.getAttribute("data-area"):"";
-  const auditor=document.getElementById("audn-auditor").value.trim();
-  const lider=document.getElementById("audn-lider").value.trim();
-
-  if(!num){showToast("Selecciona el N° de Auditoría",true);return;}
-  if(!fecha){showToast("Selecciona la fecha",true);return;}
-  if(!sector){showToast("Selecciona el sector",true);return;}
-  if(!auditor){showToast("Escribe el nombre del auditor",true);return;}
-
-  const btn=document.getElementById("audn-btn-guardar");
-  btn.disabled=true;
-  btn.innerHTML='<span class="spinner"></span> Guardando...';
-
-  let descuento=0;
-  const criterios=[];
-  let numObs=1;
-  Object.entries(audn_state).forEach(([key,v])=>{
-    const [cat,crit]=key.split("||");
-    descuento+=v.puntaje||0;
-    criterios.push({num:numObs++,categoria:cat,criterio:crit,
-      puntaje:v.puntaje,obs:v.obs||"",s:v.s||"",resp:v.resp||"",
-      fi:v.fi||"",ff:v.ff||"",fotoAntesUrl:v.fotoAntesUrl||""});
-  });
-  const puntajeTotal=1000+descuento;
-  const pct=Math.max(0,Math.round(puntajeTotal/10));
-  const nivel=pct>=90?"EXCELENTE":pct>=80?"BUENO":pct>=60?"REGULAR":"DEFICIENTE";
-
-  try{
-    const payload={
-      num_auditoria:parseInt(num),
-      fecha,area,sector,auditor,lider,
-      puntaje_total:puntajeTotal,
-      pct_cumplimiento:pct,
-      nivel,
-      criterios:JSON.stringify(criterios),
-      total_incumplimientos:criterios.filter(c=>c.puntaje<0).length,
-      status:"Activo",
-      created_at:new Date().toISOString()
-    };
-    const {error}=await sb.from("auditorias_nuevas_5s").insert(payload);
-    if(error) throw error;
-    // Éxito — limpiar formulario
-    audn_state={};
-    // Reset formulario
-    document.getElementById("audn-num").value="";
-    document.getElementById("audn-fecha").value=new Date().toISOString().split("T")[0];
-    document.getElementById("audn-sector").value="";
-    document.getElementById("audn-area-auto").value="";
-    document.getElementById("audn-auditor").value="";
-    document.getElementById("audn-lider").value="";
-    document.getElementById("audn-criterios-body").innerHTML="";
-    document.getElementById("audn-eval-container").style.display="none";
-    document.getElementById("audn-badge-ronda").style.display="none";
-    document.getElementById("audn-form-datos").style.opacity="1";
-    document.getElementById("audn-btn-iniciar").style.display="none";
-    showToast("✅ Auditoría guardada — "+puntajeTotal+" pts ("+pct+"%)");
-    auditNuevaTab("historial");
-  }catch(e){
-    console.error("Error guardando auditoría:",e);
-    showToast("Error: "+(e.message||JSON.stringify(e)),true);
-  }finally{
-    btn.disabled=false;
-    btn.textContent="✓ Guardar Auditoría";
-  }
-}
-
-// ── HISTORIAL ─────────────────────────────────────────────────
-async function audn_cargarHistorial(){
-  const body=document.getElementById("audn-historial-body");
-  const kpisEl=document.getElementById("audn-seg-kpis");
-  if(!body) return;
-  body.innerHTML='<div style="text-align:center;padding:20px;color:var(--g400)">Cargando...</div>';
-
-  const ronda=document.getElementById("audn-fil-ronda")?.value||"";
-  const filSector=document.getElementById("audn-fil-sector")?.value||"";
-  const filEstado=document.getElementById("audn-fil-estado")?.value||"";
-
-  // Cargar auditorías
-  let q=sb.from("auditorias_nuevas_5s").select("*").order("created_at",{ascending:false});
-  if(ronda) q=q.eq("num_auditoria",parseInt(ronda));
-  const {data,error}=await q;
-  if(error||!data||!data.length){
-    body.innerHTML='<div style="text-align:center;padding:30px;color:var(--g400)">Sin datos registrados</div>';
-    return;
-  }
-
-  // Llenar selector de sectores
-  const sectEl=document.getElementById("audn-fil-sector");
-  if(sectEl){
-    const sects=[...new Set(data.map(a=>a.sector).filter(Boolean))].sort();
-    const cur=sectEl.value;
-    sectEl.innerHTML='<option value="">Todos los sectores</option>';
-    sects.forEach(s=>sectEl.innerHTML+=`<option value="${s}"${s===cur?" selected":""}>${s}</option>`);
-  }
-
-  // Extraer TODOS los incumplimientos de todas las auditorías
-  const rondaLabel=["","A1","A2","A3","A4"];
-  let todos=[];
-  data.forEach(a=>{
-    const crits=JSON.parse(a.criterios||"[]").filter(c=>c.puntaje<0);
-    crits.forEach((c,i)=>{
-      // El estado/avance se guarda dentro del criterio (resp, fi, ff) o en acciones_auditoria
-      const estado=c.estado||"Pendiente";
-      const avance=c.avance||0;
-      todos.push({
-        auditId:a.id,
-        ronda:a.num_auditoria,
-        rondaLbl:rondaLabel[a.num_auditoria]||"",
-        sector:a.sector||"",
-        area:a.area||"",
-        fecha:a.fecha||"",
-        auditor:a.auditor||"",
-        num:c.num,
-        numObs:i+1,
-        categoria:c.categoria||"",
-        criterio:c.criterio||"",
-        obs:c.obs||"",
-        puntaje:c.puntaje,
-        s:c.s||"",
-        responsable:c.resp||"",
-        fi:c.fi||"",
-        ff:c.ff||"",
-        fotoAntes:c.fotoAntesUrl||"",
-        fotoDespues:c.fotoDespues||"",
-        avance:parseInt(c.avance||0),
-        estado:c.estado||"Pendiente"
-      });
-    });
-  });
-
-  // Aplicar filtros
-  if(filSector) todos=todos.filter(o=>o.sector===filSector);
-  if(filEstado) todos=todos.filter(o=>o.estado===filEstado);
-
-  // KPIs
-  const total=todos.length;
-  const pendientes=todos.filter(o=>o.estado==="Pendiente").length;
-  const enProceso=todos.filter(o=>o.estado==="En Proceso").length;
-  const completados=todos.filter(o=>o.estado==="Completado").length;
-  if(kpisEl) kpisEl.innerHTML=[
-    {lbl:"Total",val:total,col:"var(--amber)"},
-    {lbl:"Pendientes",val:pendientes,col:"var(--red)"},
-    {lbl:"Completados",val:completados,col:"var(--green)"},
-  ].map(k=>`<div style="background:#fff;border-radius:10px;padding:12px;box-shadow:var(--sh);text-align:center">
-    <div style="font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:900;color:${k.col}">${k.val}</div>
-    <div style="font-size:11px;color:var(--g400)">${k.lbl}</div>
-  </div>`).join("");
-
-  if(!todos.length){
-    body.innerHTML='<div style="text-align:center;padding:30px;color:var(--green);font-size:14px;font-weight:600">✅ Sin incumplimientos</div>';
-    return;
-  }
-
-  // Renderizar agrupado por auditoría/sector
-  const porAudit={};
-  todos.forEach(o=>{
-    const key=o.auditId;
-    if(!porAudit[key]) porAudit[key]={rondaLbl:o.rondaLbl,sector:o.sector,area:o.area,fecha:o.fecha,items:[]};
-    porAudit[key].items.push(o);
-  });
-
-  const colEstado={Pendiente:"var(--red)","En Proceso":"var(--amber)",Completado:"var(--green)"};
-
-  body.innerHTML=Object.entries(porAudit).map(([auditId,grp])=>`
-    <div style="background:#fff;border-radius:14px;margin-bottom:14px;overflow:hidden;box-shadow:var(--sh)">
-      <!-- Header auditoría -->
-      <div style="background:var(--amber);padding:12px 16px;display:flex;align-items:center;justify-content:space-between">
-        <div>
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;color:#fff">${grp.sector}</div>
-          <div style="font-size:11px;color:rgba(255,255,255,.8)">${grp.area} · ${grp.rondaLbl} · ${grp.fecha}</div>
-        </div>
-        <div style="background:rgba(0,0,0,.2);border-radius:8px;padding:4px 10px;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;color:#fff">${grp.items.length} incumpl.</div>
-      </div>
-      <!-- Items -->
-      <div style="padding:10px">
-        ${grp.items.map(o=>`
-          <div style="border:1px solid var(--g100);border-radius:10px;margin-bottom:10px;overflow:hidden">
-            <!-- Cabecera item -->
-            <div style="background:var(--g50);padding:10px 12px;border-bottom:1px solid var(--g100)">
-              <div style="display:flex;justify-content:space-between;align-items:start;gap:8px">
-                <div style="flex:1">
-                  <div style="font-size:10px;font-weight:700;color:var(--amber);text-transform:uppercase;margin-bottom:2px">${o.categoria}</div>
-                  <div style="font-size:13px;font-weight:700;color:var(--g700);line-height:1.3">${o.criterio}</div>
-                  ${o.obs?`<div style="font-size:12px;color:var(--g600);margin-top:4px;padding:6px 8px;background:#FFF7ED;border-radius:6px;border-left:2px solid var(--amber)">${o.obs}</div>`:""}
-                </div>
-                <div style="display:flex;flex-direction:column;align-items:end;gap:4px;flex-shrink:0">
-                  <span style="background:${colEstado[o.estado]||"var(--g400)"};color:#fff;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700">${o.estado}</span>
-                  <span style="background:#7B1FA2;color:#fff;border-radius:5px;padding:1px 7px;font-size:11px;font-weight:700">${o.puntaje}</span>
-                </div>
-              </div>
-            </div>
-            <!-- Detalle seguimiento -->
-            <div style="padding:10px 12px">
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:12px;margin-bottom:8px">
-                <div><span style="color:var(--g400)">Responsable: </span><strong>${o.responsable||"—"}</strong></div>
-                <div><span style="color:var(--g400)">S afectada: </span><strong>${o.s||"—"}</strong></div>
-                <div><span style="color:var(--g400)">F. inicio: </span><strong>${o.fi||"—"}</strong></div>
-                <div><span style="color:var(--g400)">F. fin: </span><strong>${o.ff||"—"}</strong></div>
-              </div>
-              <!-- Barra avance -->
-              <div style="margin-bottom:8px">
-                <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--g400);margin-bottom:3px">
-                  <span>% Avance</span><span>${o.avance}%</span>
-                </div>
-                <div style="background:var(--g100);border-radius:4px;height:6px">
-                  <div style="background:${colEstado[o.estado]||"var(--g400)"};height:6px;border-radius:4px;width:${o.avance}%"></div>
-                </div>
-              </div>
-              <!-- Fotos -->
-              <div style="display:flex;gap:8px;margin-bottom:8px">
-                ${o.fotoAntes?`<div style="flex:1;text-align:center">
-                  <div style="font-size:10px;color:var(--g400);margin-bottom:3px">Foto antes</div>
-                  <img src="${o.fotoAntes}" onclick="window.open(this.src,'_blank')" style="width:100%;max-height:100px;object-fit:cover;border-radius:8px;border:1px solid var(--g200);cursor:pointer">
-                </div>`:`<div style="flex:1;text-align:center;background:var(--g50);border-radius:8px;padding:12px;font-size:11px;color:var(--g400)">Sin foto antes</div>`}
-                ${o.fotoDespues?`<div style="flex:1;text-align:center">
-                  <div style="font-size:10px;color:var(--green);margin-bottom:3px;font-weight:600">Foto después</div>
-                  <img src="${o.fotoDespues}" onclick="window.open(this.src,'_blank')" style="width:100%;max-height:100px;object-fit:cover;border-radius:8px;border:2px solid var(--green);cursor:pointer">
-                </div>`:`<div style="flex:1;text-align:center;background:var(--g50);border-radius:8px;padding:12px;font-size:11px;color:var(--g400)">Sin foto después</div>`}
-              </div>
-              <!-- Botón actualizar -->
-              <button onclick="audn_abrirActualizar(${auditId},${o.num},'${o.estado}',${o.avance},'${o.fotoDespues||""}')"
-                style="width:100%;padding:9px;background:var(--amber);color:#fff;border:none;border-radius:8px;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700">
-                Actualizar seguimiento
-              </button>
-            </div>
-          </div>`).join("")}
-      </div>
-    </div>`).join("");
-}
-
-async function audn_verDetalle(id){
-  const {data}=await sb.from("auditorias_nuevas_5s").select("*").eq("id",id).single();
-  if(!data) return;
-  const criterios=JSON.parse(data.criterios||"[]");
-  const incumps=criterios.filter(c=>c.puntaje<0);
-  const rondaLabel=["","A1","A2","A3","A4"];
-  let html=`<div style="padding:18px">
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
-      <span style="background:var(--amber);color:#fff;border-radius:6px;padding:2px 10px;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700">${rondaLabel[data.num_auditoria]||""}</span>
-      <span style="font-size:12px;color:var(--g400)">${data.fecha}</span>
-    </div>
-    <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:900;color:var(--g700)">${data.sector}</div>
-    <div style="font-size:13px;color:var(--g400);margin-bottom:14px">${data.area} · Auditor: ${data.auditor}</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
-      <div style="background:var(--g50);border-radius:10px;padding:12px;text-align:center">
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:900;color:var(--amber)">${data.puntaje_total}</div>
-        <div style="font-size:11px;color:var(--g400)">Puntaje / 1000</div>
-      </div>
-      <div style="background:var(--g50);border-radius:10px;padding:12px;text-align:center">
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:900;color:${data.pct_cumplimiento>=80?"var(--green)":"var(--red)"}">${data.pct_cumplimiento}%</div>
-        <div style="font-size:11px;color:var(--g400)">Cumplimiento</div>
-      </div>
-    </div>`;
-  if(incumps.length>0){
-    html+=`<div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;color:var(--red);margin-bottom:10px">Incumplimientos (${incumps.length})</div>`;
-    incumps.forEach(c=>{
-      html+=`<div style="background:#FEF2F2;border-radius:10px;padding:12px;margin-bottom:8px;border-left:3px solid var(--red)">
-        <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:4px">
-          <div>
-            <div style="font-size:10px;font-weight:700;color:var(--amber);text-transform:uppercase">${c.categoria}</div>
-            <div style="font-weight:700;font-size:14px;color:var(--g700)">${c.txt}</div>
-          </div>
-          <span style="background:var(--red);color:#fff;border-radius:5px;padding:1px 8px;font-size:12px;font-weight:700;flex-shrink:0;margin-left:8px">${c.puntaje}</span>
-        </div>
-        ${c.s?`<div style="font-size:11px;color:var(--blue);font-weight:600;margin-bottom:4px">${c.s}</div>`:""}
-        ${c.obs?`<div style="font-size:12px;color:var(--g700);margin-bottom:4px">${c.obs}</div>`:""}
-        ${c.fotoAntesUrl?`<img src="${c.fotoAntesUrl}" style="width:100%;border-radius:8px;margin-top:8px;max-height:180px;object-fit:cover">`:""}
-        ${c.resp?`<div style="font-size:11px;color:var(--g400);margin-top:6px">Resp: ${c.resp} ${c.fi?"· Inicio: "+c.fi:""} ${c.ff?"· Fin: "+c.ff:""}</div>`:""}
-      </div>`;
-    });
-  }
-  html+="</div>";
-  document.getElementById("modal-audn-detalle-body").innerHTML=html;
-  document.getElementById("modal-audn-detalle").style.display="block";
-}
-
-// ── DASHBOARD ─────────────────────────────────────────────────
-async function audn_renderDashboard(){
-  const ronda=document.getElementById("audn-dash-ronda")?.value||"";
-  let q=sb.from("auditorias_nuevas_5s").select("*").order("created_at",{ascending:true});
-  if(ronda) q=q.eq("num_auditoria",parseInt(ronda));
-  const {data}=await q;
-  if(!data||data.length===0){
-    document.getElementById("audn-dash-kpis").innerHTML='<div style="grid-column:1/-1;text-align:center;padding:20px;color:var(--g400)">Sin datos</div>';
-    return;
-  }
-  const total=data.length;
-  const promPts=Math.round(data.reduce((s,a)=>s+(a.puntaje_total||0),0)/total);
-  const promPct=Math.round(data.reduce((s,a)=>s+(a.pct_cumplimiento||0),0)/total);
-  const totalInc=data.reduce((s,a)=>s+(a.total_incumplimientos||0),0);
-  const color=promPct>=80?"var(--green)":promPct>=60?"var(--amber)":"var(--red)";
-  // KPIs
-  document.getElementById("audn-dash-kpis").innerHTML=[
-    {lbl:"Auditorías",val:total,color:"var(--blue)"},
-    {lbl:"Puntaje Prom.",val:promPts+" pts",color:"var(--amber)"},
-    {lbl:"% Cumplimiento",val:promPct+"%",color},
-    {lbl:"Incumplimientos",val:totalInc,color:"var(--red)"},
-  ].map(k=>`<div style="background:#fff;border-radius:12px;padding:14px;box-shadow:var(--sh);text-align:center">
-    <div style="font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:900;color:${k.color}">${k.val}</div>
-    <div style="font-size:11px;color:var(--g400);margin-top:2px">${k.lbl}</div>
-  </div>`).join("");
-
-  // Gráfico por rondas
-  const rondas={};
-  data.forEach(a=>{const r="A"+a.num_auditoria;if(!rondas[r]){rondas[r]=[];}rondas[r].push(a.pct_cumplimiento||0);});
-  const rondasLabels=Object.keys(rondas).sort();
-  const rondasData=rondasLabels.map(r=>Math.round(rondas[r].reduce((s,v)=>s+v,0)/rondas[r].length));
-  const ctx1=document.getElementById("audn-chart-rondas");
-  if(ctx1){
-    if(Chart.getChart(ctx1)) Chart.getChart(ctx1).destroy();
-    new Chart(ctx1,{type:"bar",data:{labels:rondasLabels,datasets:[{label:"% Cumplimiento",data:rondasData,backgroundColor:rondasData.map(v=>v>=80?"rgba(30,124,52,.8)":v>=60?"rgba(217,119,6,.8)":"rgba(230,51,41,.8)"),borderRadius:6}]},options:{plugins:{legend:{display:false}},scales:{y:{min:0,max:100,ticks:{callback:v=>v+"%"}}}}});
-  }
-
-  // Gráfico por área
-  const areas={};
-  data.forEach(a=>{if(!areas[a.area]){areas[a.area]=[];}areas[a.area].push(a.pct_cumplimiento||0);});
-  const areasLabels=Object.keys(areas).sort();
-  const areasData=areasLabels.map(a=>Math.round(areas[a].reduce((s,v)=>s+v,0)/areas[a].length));
-  const ctx2=document.getElementById("audn-chart-areas");
-  if(ctx2){
-    if(Chart.getChart(ctx2)) Chart.getChart(ctx2).destroy();
-    new Chart(ctx2,{type:"bar",data:{labels:areasLabels,datasets:[{label:"% Promedio",data:areasData,backgroundColor:"rgba(30,124,52,.75)",borderRadius:4}]},options:{indexAxis:"y",plugins:{legend:{display:false}},scales:{x:{min:0,max:100,ticks:{callback:v=>v+"%"}}}}});
-  }
-
-  // Tabla estado observaciones
-  const obsTable=document.getElementById("audn-dash-obs-table");
-  if(obsTable){
-    const porArea={};
-    data.forEach(a=>{
-      const crits=JSON.parse(a.criterios||"[]").filter(c=>c.puntaje<0);
-      if(!porArea[a.area]) porArea[a.area]={total:0};
-      porArea[a.area].total+=crits.length;
-    });
-    obsTable.innerHTML=`<table style="width:100%;border-collapse:collapse;font-size:13px">
-      <thead><tr style="background:var(--g50)">
-        <th style="padding:8px;text-align:left;border-bottom:1px solid var(--g200)">Área</th>
-        <th style="padding:8px;text-align:center;border-bottom:1px solid var(--g200)">Incumpl.</th>
-      </tr></thead><tbody>
-      ${Object.entries(porArea).map(([area,v])=>`<tr>
-        <td style="padding:8px;border-bottom:1px solid var(--g100)">${area}</td>
-        <td style="padding:8px;text-align:center;border-bottom:1px solid var(--g100);color:var(--red);font-weight:700">${v.total}</td>
-      </tr>`).join("")}
-      </tbody></table>`;
-  }
-}
-
-// ── ACCIONES ──────────────────────────────────────────────────
-function audn_abrirAccionModal(auditoriaId){
-  audn_accionAuditoriaId=auditoriaId;
-  audn_fotoDespuesBlob=null;
-  document.getElementById("audn-accion-id").value="";
-  document.getElementById("audn-accion-auditoria-id").value=auditoriaId;
-  document.getElementById("audn-accion-responsable").value="";
-  document.getElementById("audn-accion-fecha-inicio").value="";
-  document.getElementById("audn-accion-fecha-fin").value="";
-  document.getElementById("audn-accion-avance").value="0";
-  document.getElementById("audn-accion-avance-plan").value="100";
-  document.getElementById("audn-accion-estado").value="Pendiente";
-  document.getElementById("audn-preview-despues").style.display="none";
-  document.getElementById("modal-audn-accion").style.display="flex";
-}
-
 async function audn_guardarAccion(){
   const resp=document.getElementById("audn-accion-responsable").value.trim();
   const fi=document.getElementById("audn-accion-fecha-inicio").value;
@@ -4651,79 +3883,113 @@ async function audn_guardarAccion(){
   const avance=parseInt(document.getElementById("audn-accion-avance").value||"0");
   const avancePlan=parseInt(document.getElementById("audn-accion-avance-plan").value||"100");
   const estado=document.getElementById("audn-accion-estado").value;
+  const auditId=parseInt(document.getElementById("audn-accion-auditoria-id").value);
+  const modo=document.getElementById("modal-audn-accion").dataset.modo;
+
   if(!resp||!fi||!ff){showToast("Completa responsable y fechas",true);return;}
-  let fotoDespuesUrl="";
-  if(audn_fotoDespuesBlob){
-    showToast("Subiendo foto...");
-    try{fotoDespuesUrl=await subirCloudinary(audn_fotoDespuesBlob,null,null);}
-    catch(e){showToast("Error subiendo foto",true);return;}
+
+  const btn=document.querySelector("#modal-audn-accion button:last-of-type");
+  if(btn){btn.disabled=true;btn.innerHTML='<span class="spinner"></span>';}
+
+  try{
+    let fotoDespuesUrl="";
+    if(audn_fotoDespuesBlob){
+      fotoDespuesUrl=await subirCloudinary(audn_fotoDespuesBlob,null,null);
+    }
+
+    if(modo==="actualizar"){
+      // Actualizar el criterio dentro de la auditoría
+      const critNum=parseInt(document.getElementById("modal-audn-accion").dataset.critNum);
+      const {data:aud}=await sb.from("auditorias_nuevas_5s").select("criterios").eq("id",auditId).single();
+      const crits=JSON.parse(aud.criterios||"[]");
+      const idx=crits.findIndex(c=>c.num===critNum);
+      if(idx>-1){
+        crits[idx].estado=estado;
+        crits[idx].avance=avance;
+        crits[idx].resp=resp;
+        crits[idx].fi=fi;
+        crits[idx].ff=ff;
+        if(fotoDespuesUrl) crits[idx].fotoDespues=fotoDespuesUrl;
+      }
+      const {error}=await sb.from("auditorias_nuevas_5s").update({criterios:JSON.stringify(crits)}).eq("id",auditId);
+      if(error) throw error;
+    } else {
+      // Guardar acción separada
+      const sector=document.getElementById("audn-accion-sector").value;
+      const {error}=await sb.from("acciones_auditoria").insert({
+        auditoria_id:auditId,
+        responsable:resp,fecha_inicio:fi,fecha_fin:ff,
+        avance_real:avance,avance_planificado:avancePlan,
+        estado,foto_despues:fotoDespuesUrl,
+        created_at:new Date().toISOString()
+      });
+      if(error) throw error;
+    }
+
+    document.getElementById("modal-audn-accion").style.display="none";
+    showToast("✅ Guardado correctamente");
+    audn_fotoDespuesBlob=null;
+    audn_cargarIncumplimientos();
+    if(modo==="accion") audn_cargarAcciones();
+  }catch(e){
+    showToast("Error: "+e.message,true);
+  }finally{
+    if(btn){btn.disabled=false;btn.textContent="Guardar";}
   }
-  const id=document.getElementById("audn-accion-id").value;
-  const payload={
-    auditoria_id:parseInt(document.getElementById("audn-accion-auditoria-id").value),
-    responsable:resp,fecha_inicio:fi,fecha_fin:ff,
-    avance_real:avance,avance_planificado:avancePlan,
-    estado,foto_despues:fotoDespuesUrl,
-    created_at:new Date().toISOString()
-  };
-  let error;
-  if(id){const r=await sb.from("acciones_auditoria").update(payload).eq("id",id);error=r.error;}
-  else{const r=await sb.from("acciones_auditoria").insert(payload);error=r.error;}
-  if(error){showToast("Error: "+error.message,true);return;}
-  document.getElementById("modal-audn-accion").style.display="none";
-  showToast("Acción guardada ✓");
-  audn_cargarAcciones();
 }
 
+// ── ACCIONES ──────────────────────────────
 async function audn_cargarAcciones(){
   const body=document.getElementById("audn-acciones-body");
+  const kpisEl=document.getElementById("audn-acciones-kpis");
   if(!body) return;
-  body.innerHTML='<div style="text-align:center;padding:20px;color:var(--g400)">Cargando...</div>';
-  const area=document.getElementById("audn-fil-accion-area")?.value||"";
-  const estado=document.getElementById("audn-fil-accion-estado")?.value||"";
-  let q=sb.from("acciones_auditoria").select("*, auditorias_nuevas_5s(area,sector,num_auditoria)").order("fecha_fin",{ascending:true});
-  if(estado) q=q.eq("estado",estado);
-  const {data,error}=await q;
-  if(error||!data||data.length===0){body.innerHTML='<div style="text-align:center;padding:30px;color:var(--g400)">No hay acciones registradas</div>';return;}
-  const filtered=area?data.filter(a=>a.auditorias_nuevas_5s?.area===area):data;
+  body.innerHTML='<div style="text-align:center;padding:20px;color:#6B7280">Cargando...</div>';
+  const filSector=document.getElementById("audn-fil-accion-sector")?.value||"";
+  const filEstado=document.getElementById("audn-fil-accion-estado")?.value||"";
+  let q=sb.from("acciones_auditoria").select("*,auditorias_nuevas_5s(sector,area,num_auditoria)").order("fecha_fin",{ascending:true});
+  if(filEstado) q=q.eq("estado",filEstado);
+  const {data}=await q;
+  if(!data||!data.length){
+    body.innerHTML='<div style="text-align:center;padding:30px;color:#6B7280">Sin acciones registradas</div>';
+    return;
+  }
+  const filtered=filSector?data.filter(a=>a.auditorias_nuevas_5s?.sector===filSector):data;
   const total=filtered.length;
-  const completadas=filtered.filter(a=>a.estado==="Completado").length;
-  const pendientes=filtered.filter(a=>a.estado==="Pendiente").length;
-  const kpis=document.getElementById("audn-acciones-kpis");
-  if(kpis) kpis.innerHTML=[
-    {lbl:"Total",val:total,color:"var(--blue)"},
-    {lbl:"Completadas",val:completadas,color:"var(--green)"},
-    {lbl:"Pendientes",val:pendientes,color:"var(--red)"},
-  ].map(k=>`<div style="background:#fff;border-radius:10px;padding:10px;box-shadow:var(--sh);text-align:center">
-    <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:900;color:${k.color}">${k.val}</div>
-    <div style="font-size:10px;color:var(--g400)">${k.lbl}</div>
+  const comp=filtered.filter(a=>a.estado==="Completado").length;
+  const pend=filtered.filter(a=>a.estado==="Pendiente").length;
+  if(kpisEl) kpisEl.innerHTML=[
+    {lbl:"Total",val:total,col:"#D97706"},
+    {lbl:"Pendientes",val:pend,col:"#E63329"},
+    {lbl:"Completadas",val:comp,col:"#1E7C34"},
+  ].map(k=>`<div style="background:#fff;border-radius:10px;padding:12px;box-shadow:0 1px 4px rgba(0,0,0,.08);text-align:center">
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:900;color:${k.col}">${k.val}</div>
+    <div style="font-size:11px;color:#6B7280">${k.lbl}</div>
   </div>`).join("");
-  const colorEst={Pendiente:"var(--red)","En Proceso":"var(--amber)",Completado:"var(--green)"};
+  const colEst={Pendiente:"#E63329","En Proceso":"#D97706",Completado:"#1E7C34"};
   body.innerHTML=filtered.map(a=>{
-    const color=colorEst[a.estado]||"var(--g400)";
-    const diasR=Math.ceil((new Date(a.fecha_fin)-new Date())/(1000*60*60*24));
+    const col=colEst[a.estado]||"#6B7280";
     const aud=a.auditorias_nuevas_5s;
-    return `<div style="background:#fff;border-radius:12px;padding:14px;margin-bottom:10px;box-shadow:var(--sh);border-left:4px solid ${color}">
+    const dias=Math.ceil((new Date(a.fecha_fin)-new Date())/(1000*60*60*24));
+    return `<div style="background:#fff;border-radius:12px;padding:14px;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,.08);border-left:4px solid ${col}">
       <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:8px">
         <div>
-          <div style="font-size:11px;color:var(--g400)">${aud?aud.area+" · "+aud.sector:""}</div>
-          <div style="font-weight:700;font-size:14px;color:var(--g700)">${a.responsable}</div>
-          <div style="font-size:11px;color:var(--g400)">${a.fecha_inicio} → ${a.fecha_fin}</div>
+          <div style="font-size:11px;color:#6B7280">${aud?"A"+aud.num_auditoria+" · "+aud.sector:""}</div>
+          <div style="font-weight:700;font-size:14px;color:#1A1D18">${a.responsable}</div>
+          <div style="font-size:11px;color:#6B7280">${a.fecha_inicio} → ${a.fecha_fin}</div>
         </div>
-        <div style="background:${color};color:#fff;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700">${a.estado}</div>
+        <span style="background:${col};color:#fff;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700">${a.estado}</span>
       </div>
-      <div style="margin-bottom:6px">
-        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--g400);margin-bottom:3px">
-          <span>Avance real: ${a.avance_real||0}%</span>
-          <span>Planificado: ${a.avance_planificado||100}%</span>
+      <div style="margin-bottom:8px">
+        <div style="display:flex;justify-content:space-between;font-size:10px;color:#6B7280;margin-bottom:2px">
+          <span>Avance real: ${a.avance_real||0}%</span><span>Planificado: ${a.avance_planificado||100}%</span>
         </div>
-        <div style="background:var(--g100);border-radius:4px;height:6px">
-          <div style="background:${color};height:6px;border-radius:4px;width:${a.avance_real||0}%"></div>
+        <div style="background:#E5E7E5;border-radius:4px;height:5px">
+          <div style="background:${col};height:5px;border-radius:4px;width:${a.avance_real||0}%"></div>
         </div>
       </div>
-      ${a.foto_despues?`<img src="${a.foto_despues}" style="width:100%;border-radius:8px;margin-bottom:8px;max-height:140px;object-fit:cover">`:""}
-      ${diasR<=3&&a.estado!=="Completado"?`<div style="font-size:11px;color:var(--red);margin-bottom:6px">⚠️ Vence en ${diasR} días</div>`:""}
-      <button onclick="audn_editarAccion(${a.id})" style="width:100%;padding:8px;background:var(--g50);border:1px solid var(--g200);border-radius:8px;cursor:pointer;font-size:12px;font-weight:600">Editar acción</button>
+      ${dias<=3&&a.estado!=="Completado"?`<div style="font-size:11px;color:#E63329;margin-bottom:6px">⚠️ Vence en ${dias} día(s)</div>`:""}
+      ${a.foto_despues?`<img src="${a.foto_despues}" onclick="window.open('${a.foto_despues}','_blank')" style="width:100%;border-radius:8px;margin-bottom:8px;max-height:120px;object-fit:cover;cursor:pointer">`:""}
+      <button onclick="audn_editarAccion(${a.id})" style="width:100%;padding:9px;background:#F4F6F4;border:1px solid #E5E7E5;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;color:#374151">Editar</button>
     </div>`;
   }).join("");
 }
@@ -4731,7 +3997,6 @@ async function audn_cargarAcciones(){
 async function audn_editarAccion(id){
   const {data}=await sb.from("acciones_auditoria").select("*").eq("id",id).single();
   if(!data) return;
-  audn_accionAuditoriaId=data.auditoria_id;
   document.getElementById("audn-accion-id").value=id;
   document.getElementById("audn-accion-auditoria-id").value=data.auditoria_id;
   document.getElementById("audn-accion-responsable").value=data.responsable||"";
@@ -4740,14 +4005,57 @@ async function audn_editarAccion(id){
   document.getElementById("audn-accion-avance").value=data.avance_real||0;
   document.getElementById("audn-accion-avance-plan").value=data.avance_planificado||100;
   document.getElementById("audn-accion-estado").value=data.estado||"Pendiente";
+  audn_fotoDespuesBlob=null;
   const prev=document.getElementById("audn-preview-despues");
   if(data.foto_despues){prev.src=data.foto_despues;prev.style.display="block";}
   else prev.style.display="none";
+  document.getElementById("modal-audn-accion").dataset.modo="accion";
   document.getElementById("modal-audn-accion").style.display="flex";
+}
+
+// ── DASHBOARD ─────────────────────────────
+async function audn_renderDashboard(){
+  const ronda=document.getElementById("audn-dash-ronda")?.value||"";
+  let q=sb.from("auditorias_nuevas_5s").select("*").order("created_at",{ascending:true});
+  if(ronda) q=q.eq("num_auditoria",parseInt(ronda));
+  const {data}=await q;
+  if(!data||!data.length){
+    document.getElementById("audn-dash-kpis").innerHTML='<div style="grid-column:1/-1;text-align:center;padding:20px;color:#6B7280">Sin datos</div>';
+    return;
+  }
+  const total=data.length;
+  const promPts=Math.round(data.reduce((s,a)=>s+(a.puntaje_total||0),0)/total);
+  const promPct=Math.round(data.reduce((s,a)=>s+(a.pct_cumplimiento||0),0)/total);
+  const totalInc=data.reduce((s,a)=>s+(a.total_incumplimientos||0),0);
+  const col=promPct>=80?"#1E7C34":promPct>=60?"#D97706":"#E63329";
+  document.getElementById("audn-dash-kpis").innerHTML=[
+    {lbl:"Auditorías",val:total,col:"#155A25"},
+    {lbl:"Puntaje Prom.",val:promPts+" pts",col:"#D97706"},
+    {lbl:"% Cumplimiento",val:promPct+"%",col},
+    {lbl:"Incumplimientos",val:totalInc,col:"#E63329"},
+  ].map(k=>`<div style="background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 4px rgba(0,0,0,.08);text-align:center">
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:900;color:${k.col}">${k.val}</div>
+    <div style="font-size:11px;color:#6B7280;margin-top:2px">${k.lbl}</div>
+  </div>`).join("");
+  // Gráfico rondas
+  const rondas={};data.forEach(a=>{const r="A"+a.num_auditoria;if(!rondas[r])rondas[r]=[];rondas[r].push(a.pct_cumplimiento||0);});
+  const rl=Object.keys(rondas).sort();
+  const rd=rl.map(r=>Math.round(rondas[r].reduce((s,v)=>s+v,0)/rondas[r].length));
+  const c1=document.getElementById("audn-chart-rondas");
+  if(c1){if(Chart.getChart(c1))Chart.getChart(c1).destroy();
+    new Chart(c1,{type:"bar",data:{labels:rl,datasets:[{data:rd,backgroundColor:rd.map(v=>v>=80?"#1E7C34":v>=60?"#D97706":"#E63329"),borderRadius:6}]},options:{plugins:{legend:{display:false}},scales:{y:{min:0,max:100,ticks:{callback:v=>v+"%"}}}}});}
+  // Gráfico áreas
+  const areas={};data.forEach(a=>{if(!areas[a.area])areas[a.area]=[];areas[a.area].push(a.pct_cumplimiento||0);});
+  const al=Object.keys(areas).sort();
+  const ad=al.map(a=>Math.round(areas[a].reduce((s,v)=>s+v,0)/areas[a].length));
+  const c2=document.getElementById("audn-chart-areas");
+  if(c2){if(Chart.getChart(c2))Chart.getChart(c2).destroy();
+    new Chart(c2,{type:"bar",data:{labels:al,datasets:[{data:ad,backgroundColor:"#1E7C34CC",borderRadius:4}]},options:{indexAxis:"y",plugins:{legend:{display:false}},scales:{x:{min:0,max:100,ticks:{callback:v=>v+"%"}}}}});}
 }
 // ═══════════════════════════════════════════
 // FIN AUDITORÍA NUEVA
 // ═══════════════════════════════════════════
+
 
 
 function setObs(num,val){

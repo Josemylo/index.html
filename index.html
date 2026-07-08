@@ -118,7 +118,7 @@ textarea{resize:vertical;min-height:78px}
 .dash-card{overflow:hidden}
 canvas{max-width:100%!important}
 /* AUDITORÍA */
-#app-auditoria{display:none}
+#app-checklist{display:none}
 .puntaje-sel{display:flex;gap:6px}
 .puntaje-btn{flex:1;padding:10px 4px;border:2px solid var(--g200);border-radius:8px;background:#fff;cursor:pointer;text-align:center;font-family:"Barlow Condensed",sans-serif;font-size:18px;font-weight:800;transition:all .15s;color:var(--g700)}
 .puntaje-btn:hover{border-color:var(--green)}
@@ -138,24 +138,378 @@ canvas{max-width:100%!important}
 </head>
 <body>
 <!-- PANTALLA BIENVENIDA -->
-<div id="pantalla-bienvenida" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;background:var(--green);padding:30px 20px;text-align:center">
-  <div style="background:#fff;border-radius:10px;padding:6px 10px;margin-bottom:20px;display:inline-block">
-    <img id="ism-logo-bienvenida" src="" alt="ISM">
+<div id="pantalla-bienvenida" style="display:flex;flex-direction:column;min-height:100vh;background:linear-gradient(160deg,#155A25 0%,#1E7C34 55%,#2DA048 100%);overflow:hidden;position:relative">
+
+  <!-- Decoración fondo -->
+  <div style="position:absolute;top:-80px;right:-80px;width:300px;height:300px;background:rgba(255,255,255,.04);border-radius:50%;pointer-events:none"></div>
+  <div style="position:absolute;bottom:-60px;left:-60px;width:240px;height:240px;background:rgba(255,255,255,.03);border-radius:50%;pointer-events:none"></div>
+  <div style="position:absolute;top:40%;left:-40px;width:160px;height:160px;background:rgba(255,255,255,.03);border-radius:50%;pointer-events:none"></div>
+
+  <!-- Header corporativo -->
+  <div style="padding:32px 24px 0;display:flex;align-items:center;justify-content:space-between">
+    <div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;color:rgba(255,255,255,.5);letter-spacing:2px;text-transform:uppercase;margin-bottom:2px">Industrias San Miguel</div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:600;color:rgba(255,255,255,.7)">Planta Huaura · Excelencia Operacional</div>
+    </div>
+    <div style="background:rgba(255,255,255,.12);border-radius:8px;padding:5px 10px;border:1px solid rgba(255,255,255,.2)">
+      <div style="font-size:10px;color:rgba(255,255,255,.6);font-weight:600">SGI-5S-001</div>
+    </div>
   </div>
-  <h1 style="font-family:'Barlow Condensed',sans-serif;font-size:32px;font-weight:800;color:#fff;margin-bottom:6px;letter-spacing:.5px">Programa 5S</h1>
-  <p style="font-size:14px;color:rgba(255,255,255,.8);margin-bottom:40px">Industrias San Miguel — Huaura</p>
-  <div style="display:flex;flex-direction:column;gap:16px;width:100%;max-width:320px">
-    <button onclick="iniciarRecorrido()" style="background:#fff;color:var(--green);border:none;border-radius:14px;padding:20px 24px;font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,.2);display:flex;align-items:center;justify-content:center;gap:12px;transition:transform .18s;letter-spacing:.3px" onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'">
-      <span style="font-size:30px">&#128203;</span>
-      <div style="text-align:left"><div>Recorrido Diario</div><div style="font-size:12px;font-weight:400;color:var(--g400);font-family:Barlow,sans-serif">Observaciones del día</div></div>
-    </button>
-    <button onclick="iniciarAuditoria()" style="background:var(--amber);color:#fff;border:none;border-radius:14px;padding:20px 24px;font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,.25);display:flex;align-items:center;justify-content:center;gap:12px;transition:transform .18s;letter-spacing:.3px" onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'">
-      <span style="font-size:30px">&#128202;</span>
-      <div style="text-align:left"><div>Auditoría 5S</div><div style="font-size:12px;font-weight:400;color:rgba(255,255,255,.8);font-family:Barlow,sans-serif">Evaluación trimestral</div></div>
-    </button>
+
+  <!-- Hero -->
+  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;text-align:center">
+    <!-- Ícono central -->
+    <div style="width:88px;height:88px;background:rgba(255,255,255,.12);border-radius:24px;display:flex;align-items:center;justify-content:center;margin-bottom:20px;border:1.5px solid rgba(255,255,255,.2);box-shadow:0 8px 32px rgba(0,0,0,.15)">
+      <span style="font-size:44px">⭐</span>
+    </div>
+    <h1 style="font-family:'Barlow Condensed',sans-serif;font-size:38px;font-weight:900;color:#fff;margin:0 0 8px;letter-spacing:.5px;line-height:1">Programa 5S</h1>
+    <p style="font-size:14px;color:rgba(255,255,255,.7);margin:0 0 40px;max-width:260px;line-height:1.5">Sistema integral de gestión, auditoría y mejora continua</p>
+
+    <!-- Módulos -->
+    <div style="width:100%;max-width:340px;display:flex;flex-direction:column;gap:12px">
+
+      <!-- Recorrido -->
+      <button onclick="iniciarRecorrido()" style="background:#fff;color:var(--green-d,#155A25);border:none;border-radius:16px;padding:0;cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,.2);display:flex;align-items:stretch;overflow:hidden;transition:transform .18s;text-align:left" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+        <div style="background:var(--green,#1E7C34);width:6px;flex-shrink:0"></div>
+        <div style="padding:16px 18px;flex:1">
+          <div style="display:flex;align-items:center;gap:10px">
+            <span style="font-size:28px">🔍</span>
+            <div>
+              <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:#1A1D18;line-height:1">Recorrido Diario</div>
+              <div style="font-size:12px;color:#64748B;margin-top:2px">Observaciones y seguimiento en campo</div>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;padding-right:16px;color:#94A3B8;font-size:18px">›</div>
+      </button>
+      <button onclick="iniciarCheckList()" style="background:#fff;color:#155A25;border:none;border-radius:16px;padding:0;cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,.2);display:flex;align-items:stretch;overflow:hidden;transition:transform .18s;text-align:left" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+        <div style="background:#D97706;width:6px;flex-shrink:0"></div>
+        <div style="padding:16px 18px;flex:1">
+          <div style="display:flex;align-items:center;gap:10px">
+            <span style="font-size:28px">📊</span>
+            <div>
+              <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:#1A1D18;line-height:1">Check List 5S</div>
+              <div style="font-size:12px;color:#64748B;margin-top:2px">Evaluación mensual por sector</div>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;padding-right:16px;color:#94A3B8;font-size:18px">›</div>
+      </button>
+      <button onclick="iniciarAuditoriaNew()" style="background:#fff;color:#155A25;border:none;border-radius:16px;padding:0;cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,.2);display:flex;align-items:stretch;overflow:hidden;transition:transform .18s;text-align:left" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+        <div style="background:#1565C0;width:6px;flex-shrink:0"></div>
+        <div style="padding:16px 18px;flex:1">
+          <div style="display:flex;align-items:center;gap:10px">
+            <span style="font-size:28px">📋</span>
+            <div>
+              <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:#1A1D18;line-height:1">Auditoría 5S</div>
+              <div style="font-size:12px;color:#64748B;margin-top:2px">Evaluación cruzada · 4 veces al año</div>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;padding-right:16px;color:#94A3B8;font-size:18px">›</div>
+      </button>
+
+    </div>
   </div>
-  <p style="font-size:11px;color:rgba(255,255,255,.5);margin-top:40px">SGI-5S-001 · v01 · 12/01/2026</p>
+
+  <!-- Footer -->
+  <div style="padding:16px 24px 28px;text-align:center">
+    <div style="font-size:10px;color:rgba(255,255,255,.3)">v01 · 2026 · Planta Huaura</div>
+  </div>
+
 </div>
+
+<!-- APP AUDITORIA NUEVA -->
+<div id="app-auditoria-nueva" style="display:none;min-height:100vh;background:var(--g50);padding-bottom:80px">
+
+  <!-- Header -->
+  <div style="background:var(--amber);padding:16px 20px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.2)">
+    <button onclick="salirAuditoriaNew()" style="background:rgba(0,0,0,.15);border:none;color:#fff;border-radius:8px;padding:6px 12px;cursor:pointer;font-size:13px;font-weight:600">← Inicio</button>
+    <div style="flex:1">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:900;color:#fff;letter-spacing:.3px">Auditoría 5S</div>
+      <div style="font-size:11px;color:rgba(255,255,255,.8)">Industrias San Miguel · Planta Huaura</div>
+    </div>
+    <div id="audn-badge-ronda" style="background:rgba(0,0,0,.2);border-radius:8px;padding:4px 12px;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;color:#fff;display:none"></div>
+  </div>
+
+  <!-- Tabs -->
+  <div style="display:flex;background:#fff;border-bottom:2px solid var(--g100);overflow-x:auto;position:sticky;top:57px;z-index:99;box-shadow:0 1px 4px rgba(0,0,0,.06)">
+    <button id="audn-tab-nueva" onclick="auditNuevaTab('nueva')" style="flex:1;padding:11px 6px;border:none;background:none;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;color:var(--amber);border-bottom:3px solid var(--amber);cursor:pointer;white-space:nowrap">+ Nueva</button>
+    <button id="audn-tab-historial" onclick="auditNuevaTab('historial')" style="flex:1;padding:11px 6px;border:none;background:none;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;color:var(--g400);border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap">Historial</button>
+    <button id="audn-tab-dashboard" onclick="auditNuevaTab('dashboard')" style="flex:1;padding:11px 6px;border:none;background:none;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;color:var(--g400);border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap">Dashboard</button>
+    <button id="audn-tab-acciones" onclick="auditNuevaTab('acciones')" style="flex:1;padding:11px 6px;border:none;background:none;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;color:var(--g400);border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap">Acciones</button>
+  </div>
+
+  <!-- ── TAB NUEVA ── -->
+  <div id="audn-content-nueva" style="padding:16px">
+    <!-- Datos de la auditoría -->
+    <div id="audn-form-datos" style="background:#fff;border-radius:14px;padding:18px;margin-bottom:14px;box-shadow:var(--sh)">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
+        <div style="width:4px;height:22px;background:var(--amber);border-radius:2px"></div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;color:var(--g700)">Datos de la Auditoría</div>
+      </div>
+      <div class="row2">
+        <div class="fg">
+          <label>N° Check List <span class="req">*</span></label>
+          <select id="audn-num">
+            <option value="">- Selecciona -</option>
+            <option value="1">A1 — 1ra Ronda</option>
+            <option value="2">A2 — 2da Ronda</option>
+            <option value="3">A3 — 3ra Ronda</option>
+            <option value="4">A4 — 4ta Ronda</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label>Fecha <span class="req">*</span></label>
+          <input type="date" id="audn-fecha">
+        </div>
+      </div>
+      <div class="fg">
+        <label>Sector auditado <span class="req">*</span></label>
+        <select id="audn-sector"><option value="">- Selecciona sector -</option></select>
+      </div>
+      <div class="fg">
+        <label>Área</label>
+        <input type="text" id="audn-area-auto" readonly style="background:var(--g50);color:var(--green);font-weight:700" placeholder="Se asigna automáticamente">
+      </div>
+      <div class="row2">
+        <div class="fg">
+          <label>Auditor <span class="req">*</span></label>
+          <input type="text" id="audn-auditor" placeholder="Nombre del auditor">
+        </div>
+        <div class="fg">
+          <label>Responsable</label>
+          <input type="text" id="audn-lider" placeholder="Responsable del sector">
+        </div>
+      </div>
+      <button id="audn-btn-iniciar" onclick="audn_iniciarEvaluacion()" style="display:none;width:100%;margin-top:8px;background:var(--amber);color:#fff;border:none;border-radius:10px;padding:14px;font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:700;cursor:pointer">
+        Iniciar Evaluación →
+      </button>
+    </div>
+
+    <!-- Evaluación de criterios -->
+    <div id="audn-eval-container" style="display:none">
+      <!-- Score en tiempo real -->
+      <div style="background:linear-gradient(135deg,var(--amber) 0%,#B45309 100%);border-radius:14px;padding:16px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;color:rgba(255,255,255,.8);letter-spacing:.5px">PUNTAJE ACTUAL</div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:42px;font-weight:900;color:#fff;line-height:1" id="audn-score-display">1000</div>
+          <div style="font-size:11px;color:rgba(255,255,255,.7)">de 1000 puntos</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:900;color:#fff" id="audn-pct-display">100%</div>
+          <div style="font-size:11px;color:rgba(255,255,255,.7)">Cumplimiento</div>
+          <div id="audn-nivel-display" style="margin-top:6px;background:rgba(255,255,255,.2);border-radius:6px;padding:3px 10px;font-size:12px;font-weight:700;color:#fff">EXCELENTE</div>
+        </div>
+      </div>
+
+      <!-- Criterios por categoría -->
+      <div id="audn-criterios-body"></div>
+
+      <!-- Botón guardar -->
+      <button id="audn-btn-guardar" onclick="audn_guardar()" style="width:100%;margin-top:14px;background:var(--green);color:#fff;border:none;border-radius:12px;padding:16px;font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;cursor:pointer">
+        ✓ Guardar Auditoría
+      </button>
+    </div>
+  </div>
+
+  <!-- ── TAB HISTORIAL ── -->
+  <div id="audn-content-historial" style="padding:16px;display:none">
+    <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+      <select id="audn-fil-ronda" onchange="audn_cargarHistorial()" style="flex:1;min-width:110px;padding:8px;border-radius:8px;border:1px solid var(--g200);font-size:13px">
+        <option value="">Todos los check lists</option>
+        <option value="1">A1</option><option value="2">A2</option>
+        <option value="3">A3</option><option value="4">A4</option>
+      </select>
+      <select id="audn-fil-area" onchange="audn_cargarHistorial()" style="flex:1;min-width:110px;padding:8px;border-radius:8px;border:1px solid var(--g200);font-size:13px">
+        <option value="">Todas las áreas</option>
+      </select>
+    </div>
+    <div id="audn-historial-body"></div>
+  </div>
+
+  <!-- ── TAB DASHBOARD ── -->
+  <div id="audn-content-dashboard" style="padding:16px;display:none">
+    <div style="display:flex;gap:8px;margin-bottom:12px">
+      <select id="audn-dash-ronda" onchange="audn_renderDashboard()" style="flex:1;padding:8px;border-radius:8px;border:1px solid var(--g200);font-size:13px">
+        <option value="">Todos los check lists</option>
+        <option value="1">A1</option><option value="2">A2</option>
+        <option value="3">A3</option><option value="4">A4</option>
+      </select>
+    </div>
+    <!-- KPIs -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px" id="audn-dash-kpis"></div>
+    <!-- Gráfico % cumplimiento por ronda -->
+    <div style="background:#fff;border-radius:12px;padding:16px;margin-bottom:12px;box-shadow:var(--sh)">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;color:var(--g700);margin-bottom:12px">% Cumplimiento por Ronda</div>
+      <canvas id="audn-chart-rondas" height="180"></canvas>
+    </div>
+    <!-- Gráfico por área -->
+    <div style="background:#fff;border-radius:12px;padding:16px;margin-bottom:12px;box-shadow:var(--sh)">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;color:var(--g700);margin-bottom:12px">Puntaje Promedio por Área</div>
+      <canvas id="audn-chart-areas" height="220"></canvas>
+    </div>
+    <!-- Tabla observaciones levantadas -->
+    <div style="background:#fff;border-radius:12px;padding:16px;box-shadow:var(--sh)">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;color:var(--g700);margin-bottom:12px">Estado de Observaciones</div>
+      <div id="audn-dash-obs-table"></div>
+    </div>
+  </div>
+
+  <!-- ── TAB ACCIONES ── -->
+  <div id="audn-content-acciones" style="padding:16px;display:none">
+    <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+      <select id="audn-fil-accion-area" onchange="audn_cargarAcciones()" style="flex:1;min-width:110px;padding:8px;border-radius:8px;border:1px solid var(--g200);font-size:13px">
+        <option value="">Todas las áreas</option>
+      </select>
+      <select id="audn-fil-accion-estado" onchange="audn_cargarAcciones()" style="flex:1;min-width:110px;padding:8px;border-radius:8px;border:1px solid var(--g200);font-size:13px">
+        <option value="">Todos los estados</option>
+        <option value="Pendiente">Pendiente</option>
+        <option value="En Proceso">En Proceso</option>
+        <option value="Completado">Completado</option>
+      </select>
+    </div>
+    <!-- KPI acciones -->
+    <div id="audn-acciones-kpis" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px"></div>
+    <div id="audn-acciones-body"></div>
+  </div>
+</div>
+
+<!-- MODAL CRITERIO AUDITORÍA -->
+<div id="modal-audn-criterio" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1000;align-items:flex-end;justify-content:center;padding:0">
+  <div style="background:#fff;border-radius:20px 20px 0 0;padding:20px;width:100%;max-width:480px;max-height:92vh;overflow-y:auto">
+    <div style="display:flex;align-items:start;justify-content:space-between;margin-bottom:14px">
+      <div style="flex:1">
+        <div id="modal-audn-cat" style="font-size:11px;font-weight:700;color:var(--amber);letter-spacing:.5px;text-transform:uppercase"></div>
+        <div id="modal-audn-crit" style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:var(--g700);line-height:1.2;margin-top:2px"></div>
+      </div>
+      <button onclick="audn_cerrarModal()" style="background:var(--g100);border:none;border-radius:8px;width:32px;height:32px;cursor:pointer;font-size:16px;flex-shrink:0;margin-left:8px">✕</button>
+    </div>
+
+    <div class="fg">
+      <label>Puntaje <span class="req">*</span></label>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px" id="audn-puntaje-btns">
+        <button onclick="audn_selPuntaje(-20)" class="audn-pts-btn" data-pts="-20" style="padding:10px;border-radius:10px;border:2px solid #E0D0F0;background:#F9F5FF;color:#7B1FA2;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;cursor:pointer">-20 SSOMA</button>
+        <button onclick="audn_selPuntaje(-15)" class="audn-pts-btn" data-pts="-15" style="padding:10px;border-radius:10px;border:2px solid #FECACA;background:#FEF2F2;color:#C62828;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;cursor:pointer">-15 Calidad</button>
+        <button onclick="audn_selPuntaje(-10)" class="audn-pts-btn" data-pts="-10" style="padding:10px;border-radius:10px;border:2px solid #FED7AA;background:#FFF7ED;color:#C2410C;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;cursor:pointer">-10 Operac.</button>
+        <button onclick="audn_selPuntaje(-5)" class="audn-pts-btn" data-pts="-5" style="padding:10px;border-radius:10px;border:2px solid #FDE68A;background:#FFFBEB;color:#B45309;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;cursor:pointer">-5 No Oper.</button>
+        <button onclick="audn_selPuntaje(5)" class="audn-pts-btn" data-pts="5" style="padding:10px;border-radius:10px;border:2px solid #BBF7D0;background:#F0FDF4;color:#15803D;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;cursor:pointer;grid-column:1/-1">+5 Destacable ✓</button>
+      </div>
+    </div>
+
+    <div id="audn-modal-incump" style="display:none">
+      <div class="fg" style="margin-top:12px">
+        <label>S afectada <span class="req">*</span></label>
+        <select id="audn-modal-s">
+          <option value="">- Selecciona -</option>
+          <option value="1S">1S — Seleccionar</option>
+          <option value="2S">2S — Ordenar</option>
+          <option value="3S">3S — Limpiar</option>
+          <option value="4S">4S — Estandarizar</option>
+          <option value="5S">5S — Disciplinar</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label>Observación <span class="req">*</span></label>
+        <textarea id="audn-modal-obs" rows="3" placeholder="Describe el incumplimiento..." style="resize:vertical"></textarea>
+      </div>
+      <div class="fg">
+        <label>Foto de evidencia (antes) <span class="req">*</span></label>
+        <div onclick="document.getElementById('audn-input-foto-antes').click()" style="border:2px dashed var(--g200);border-radius:10px;padding:16px;text-align:center;cursor:pointer;background:var(--g50)" id="audn-drop-antes">
+          <div style="font-size:28px">📷</div>
+          <div style="font-size:12px;color:var(--g400)">Toca para agregar foto antes</div>
+        </div>
+        <input type="file" id="audn-input-foto-antes" accept="image/*" capture="environment" style="display:none" onchange="audn_fotoAntes(this)">
+        <img id="audn-preview-antes" style="display:none;width:100%;border-radius:8px;margin-top:8px;max-height:180px;object-fit:cover">
+      </div>
+      <div class="fg">
+        <label>Responsable <span class="req">*</span></label>
+        <input type="text" id="audn-modal-resp" placeholder="Nombre del responsable">
+      </div>
+      <div class="row2">
+        <div class="fg">
+          <label>Fecha inicio planificada</label>
+          <input type="date" id="audn-modal-fi">
+        </div>
+        <div class="fg">
+          <label>Fecha fin planificada</label>
+          <input type="date" id="audn-modal-ff">
+        </div>
+      </div>
+    </div>
+
+    <div id="audn-modal-destacable" style="display:none;margin-top:12px">
+      <div class="fg">
+        <label>Comentario de fortaleza</label>
+        <textarea id="audn-modal-coment" rows="2" placeholder="¿Qué se destacó?" style="resize:vertical"></textarea>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px;margin-top:16px">
+      <button onclick="audn_cerrarModal()" style="flex:1;padding:13px;border:1.5px solid var(--g200);border-radius:10px;background:#fff;cursor:pointer;font-size:14px;font-weight:600">Cancelar</button>
+      <button onclick="audn_guardarCriterio()" class="btn-guardar-crit" style="flex:2;padding:13px;background:var(--amber);color:#fff;border:none;border-radius:10px;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:700">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DETALLE AUDITORÍA -->
+<div id="modal-audn-detalle" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1000;overflow-y:auto;padding:16px">
+  <div style="background:#fff;border-radius:16px;max-width:480px;margin:0 auto">
+    <div id="modal-audn-detalle-body"></div>
+    <div style="padding:16px">
+      <button onclick="document.getElementById('modal-audn-detalle').style.display='none'" style="width:100%;padding:12px;background:var(--g100);border:none;border-radius:10px;cursor:pointer;font-size:14px;font-weight:600">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL ACCIÓN AUDITORÍA -->
+<div id="modal-audn-accion" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1000;align-items:flex-end;justify-content:center;padding:0">
+  <div style="background:#fff;border-radius:20px 20px 0 0;padding:20px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto">
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:var(--amber);margin-bottom:16px">Plan de Acción</div>
+    <input type="hidden" id="audn-accion-id">
+    <input type="hidden" id="audn-accion-auditoria-id">
+    <input type="hidden" id="audn-accion-obs-num">
+    <div class="fg"><label>Responsable <span class="req">*</span></label>
+      <input type="text" id="audn-accion-responsable" placeholder="Nombre del responsable">
+    </div>
+    <div class="row2">
+      <div class="fg"><label>Fecha inicio <span class="req">*</span></label>
+        <input type="date" id="audn-accion-fecha-inicio">
+      </div>
+      <div class="fg"><label>Fecha fin <span class="req">*</span></label>
+        <input type="date" id="audn-accion-fecha-fin">
+      </div>
+    </div>
+    <div class="row2">
+      <div class="fg"><label>% Avance real</label>
+        <input type="number" id="audn-accion-avance" min="0" max="100" placeholder="0">
+      </div>
+      <div class="fg"><label>% Avance planificado</label>
+        <input type="number" id="audn-accion-avance-plan" min="0" max="100" placeholder="0">
+      </div>
+    </div>
+    <div class="fg"><label>Estado</label>
+      <select id="audn-accion-estado">
+        <option value="Pendiente">Pendiente</option>
+        <option value="En Proceso">En Proceso</option>
+        <option value="Completado">Completado</option>
+      </select>
+    </div>
+    <div class="fg"><label>Foto de cierre (después)</label>
+      <div onclick="document.getElementById('audn-input-foto-despues').click()" style="border:2px dashed var(--g200);border-radius:10px;padding:14px;text-align:center;cursor:pointer;background:var(--g50)">
+        <div style="font-size:24px">📸</div>
+        <div style="font-size:12px;color:var(--g400)">Foto del estado corregido</div>
+      </div>
+      <input type="file" id="audn-input-foto-despues" accept="image/*" capture="environment" style="display:none" onchange="audn_fotoDespues(this)">
+      <img id="audn-preview-despues" style="display:none;width:100%;border-radius:8px;margin-top:8px;max-height:160px;object-fit:cover">
+    </div>
+    <div style="display:flex;gap:8px;margin-top:16px">
+      <button onclick="document.getElementById('modal-audn-accion').style.display='none'" style="flex:1;padding:12px;border:1.5px solid var(--g200);border-radius:10px;background:#fff;cursor:pointer;font-size:14px">Cancelar</button>
+      <button onclick="audn_guardarAccion()" style="flex:2;padding:12px;background:var(--amber);color:#fff;border:none;border-radius:10px;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700">Guardar</button>
+    </div>
+  </div>
+</div>
+
 
 <!-- APP RECORRIDO -->
 <div id="app-recorrido" style="display:none">
@@ -410,15 +764,15 @@ canvas{max-width:100%!important}
 
 
 <!-- APP AUDITORIA -->
-<div id="app-auditoria" style="display:none">
+<div id="app-checklist" style="display:none">
 <header>
   <div class="hdr">
-    <div class="logo-box"><img id="ism-logo-auditoria" src="" alt="ISM"></div>
-    <div class="hdr-brand"><h1>Auditoria 5S</h1><span>Industrias San Miguel</span></div>
+    <div class="logo-box" style="display:none"></div>
+    <div class="hdr-brand"><h1>Check List 5S</h1><span>Industrias San Miguel</span></div>
     <button class="hdr-sync" onclick="volverBienvenida()">&#8592; Salir</button>
   </div>
 </header>
-<nav style="background:#004D2E;display:flex;overflow-x:auto;scrollbar-width:none">
+<nav style="background:#1565C0;display:flex;overflow-x:auto;scrollbar-width:none">
   <div id="atab-nueva" onclick="showAuditTab('nueva')" style="flex-shrink:0;padding:11px 20px;color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;cursor:pointer;border-bottom:3px solid var(--amber);user-select:none;white-space:nowrap">+ Nueva</div>
   <div id="atab-historial" onclick="showAuditTab('historial')" style="flex-shrink:0;padding:11px 20px;color:rgba(255,255,255,.6);font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;cursor:pointer;border-bottom:3px solid transparent;user-select:none;white-space:nowrap">Historial</div>
   <div id="atab-dashboard" onclick="showAuditTab('dashboard')" style="flex-shrink:0;padding:11px 20px;color:rgba(255,255,255,.6);font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;cursor:pointer;border-bottom:3px solid transparent;user-select:none;white-space:nowrap">Dashboard</div>
@@ -433,7 +787,7 @@ canvas{max-width:100%!important}
 <!-- PASO 1 -->
 <div id="audit-paso1">
   <div class="card">
-    <div class="card-title">&#128203; Datos de la Auditoria</div>
+    <div class="card-title">&#9989; Datos del Check List</div>
     <div class="fg"><label>Auditor <span class="req">*</span></label>
       <select id="a-auditor" onchange="onAuditorChange()">
         <option value="">&#8212; Selecciona auditor &#8212;</option>
@@ -453,28 +807,19 @@ canvas{max-width:100%!important}
         <option value="Mariluz Reynaldina Montes Laurente">Mariluz Reynaldina Montes Laurente</option>
         <option value="Paula Valeria Cecilia La Rosa La Rosa">Paula Valeria Cecilia La Rosa La Rosa</option>
         <option value="Cristopher William Reyes Islado">Cristopher William Reyes Islado</option>
-        <option value="Jose Daniel Jara Muñoz">Jose Daniel Jara Muñoz</option>
-        <option value="Kiara Dioselinda Argandoña Cabanilla">Kiara Dioselinda Argandoña Cabanilla</option>
-        <option value="Jean Frano Blas Suarez">Jean Frano Blas Suarez</option>
         <option value="Rosa Emilia Mejia Jaimes">Rosa Emilia Mejia Jaimes</option>
         <option value="Julio Arroyo Puse">Julio Arroyo Puse</option>
       </select>
     </div>
-    <div class="fg"><label>N&#176; de Auditoria <span class="req">*</span></label>
-      <select id="a-nro" onchange="onNroAuditoriaChange()" disabled>
-        <option value="">&#8212; Elige auditor primero &#8212;</option>
-        <option value="1">Auditoria N&#176; 1</option>
-        <option value="2">Auditoria N&#176; 2</option>
-        <option value="3">Auditoria N&#176; 3</option>
-        <option value="4">Auditoria N&#176; 4</option>
-      </select>
+    <div class="fg"><label>Mes <span class="req">*</span></label>
+      <input type="month" id="a-nro" onchange="onNroAuditoriaChange()">
     </div>
     <div class="fg"><label>Fecha</label>
       <input type="text" id="a-fecha" readonly style="background:var(--g50);font-weight:700;color:var(--green)">
     </div>
     <div class="fg"><label>Sector auditado <span class="req">*</span></label>
       <select id="a-sector" onchange="updateAreasAudit()" disabled>
-        <option value="">&#8212; Elige N&#176; de auditoria primero &#8212;</option>
+        <option value="">&#8212; Elige el mes primero &#8212;</option>
       </select>
     </div>
     <div class="fg"><label>Area</label>
@@ -501,13 +846,13 @@ canvas{max-width:100%!important}
     <div id="audit-prog-bar" style="height:100%;width:0%;background:var(--green);border-radius:20px;transition:width .4s"></div>
   </div>
   <div id="criterios-container"></div>
-  <button class="btn-primary" onclick="finalizarAuditoria()" style="margin-top:8px">&#10003; Finalizar Auditoria</button>
+  <button class="btn-primary" onclick="finalizarAuditoria()" style="margin-top:8px">&#10003; Finalizar Check List</button>
 </div>
 
 <!-- PASO 3 -->
 <div id="audit-paso3" style="display:none">
   <div class="card" style="text-align:center">
-    <div class="card-title" style="text-align:left">&#127942; Resultado de la Auditoria</div>
+    <div class="card-title" style="text-align:left">&#127942; Resultado del Check List</div>
     <div class="score-ring" style="margin-bottom:16px">
       <svg width="120" height="120" viewBox="0 0 120 120">
         <circle cx="60" cy="60" r="50" fill="none" stroke="#EEF0EC" stroke-width="12"/>
@@ -524,7 +869,7 @@ canvas{max-width:100%!important}
     <div style="font-size:12px;color:var(--g400);margin-bottom:16px" id="result-info"></div>
     <div id="result-pilares" style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:16px"></div>
     <button class="btn-primary" onclick="exportarPDFAuditoria()" style="margin-bottom:10px">&#128196; Descargar PDF</button>
-    <button class="btn-ghost" onclick="nuevaAuditoria()" style="width:100%;justify-content:center">+ Nueva auditoria</button>
+    <button class="btn-ghost" onclick="nuevaAuditoria()" style="width:100%;justify-content:center">+ Nuevo Check List</button>
   </div>
   <div class="card" id="card-obs-audit" style="display:none">
     <div class="card-title">&#9888;&#65039; Observaciones de incumplimiento</div>
@@ -539,10 +884,10 @@ canvas{max-width:100%!important}
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
     <select id="hfil-nro" class="filter-small" onchange="renderHistorial()">
       <option value="">Todas las auditorias</option>
-      <option value="1">Auditoria N&#176; 1</option>
-      <option value="2">Auditoria N&#176; 2</option>
-      <option value="3">Auditoria N&#176; 3</option>
-      <option value="4">Auditoria N&#176; 4</option>
+      <option value="1">Check List N° 1</option>
+      <option value="2">Check List N° 2</option>
+      <option value="3">Check List N° 3</option>
+      <option value="4">Check List N° 4</option>
     </select>
     <select id="hfil-area" class="filter-small" onchange="renderHistorial()"><option value="">Todas las areas</option></select>
     <select id="hfil-nivel" class="filter-small" onchange="renderHistorial()">
@@ -556,22 +901,22 @@ canvas{max-width:100%!important}
   <div id="historial-list"><div class="loading"><div class="spinner-g"></div><p style="margin-top:12px;font-size:13px">Cargando...</p></div></div>
 </div>
 
-<!-- SECCION DASHBOARD AUDITORIA -->
+<!-- SECCION DASHBOARD CHECK LIST -->
 <div id="asec-dashboard" style="display:none">
   <div style="display:flex;gap:8px;margin-bottom:12px;align-items:center;flex-wrap:wrap">
     <select id="d-fil-sector-a" onchange="renderAuditDashboard()" class="filter-small"><option value="">Todos los sectores</option></select>
     <select id="d-fil-area-a" onchange="renderAuditDashboard()" class="filter-small"><option value="">Todas las areas</option></select>
     <select id="d-fil-nro-pdf" class="filter-small" style="max-width:160px">
-      <option value="">Todas las rondas</option>
-      <option value="1">Auditoria N&#176; 1</option>
-      <option value="2">Auditoria N&#176; 2</option>
-      <option value="3">Auditoria N&#176; 3</option>
-      <option value="4">Auditoria N&#176; 4</option>
+      <option value="">Todos los check lists</option>
+      <option value="1">Check List N° 1</option>
+      <option value="2">Check List N° 2</option>
+      <option value="3">Check List N° 3</option>
+      <option value="4">Check List N° 4</option>
     </select>
     <button onclick="const b=this;b.innerHTML='<span class=&quot;spinner&quot;></span> Generando...';b.disabled=true;setTimeout(()=>exportarPDFGerencial(b),50)" style="flex-shrink:0;background:#1565C0;color:#fff;border:none;border-radius:8px;padding:8px 14px;font-family:Barlow,sans-serif;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">&#128196; PDF Gerencial</button>
   </div>
   <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px">
-    <div class="kpi-box"><div class="kpi-val" id="dk-total">0</div><div class="kpi-lbl">Auditorias</div></div>
+    <div class="kpi-box"><div class="kpi-val" id="dk-total">0</div><div class="kpi-lbl">Check Lists</div></div>
     <div class="kpi-box green"><div class="kpi-val" id="dk-prom">0</div><div class="kpi-lbl">Puntaje prom.</div></div>
     <div class="kpi-box red"><div class="kpi-val" id="dk-obs">0</div><div class="kpi-lbl">Obs. incumpl.</div></div>
     <div class="kpi-box amber"><div class="kpi-val" id="dk-pct">0%</div><div class="kpi-lbl">Cumplimiento</div></div>
@@ -615,8 +960,8 @@ canvas{max-width:100%!important}
     <div id="dk-criterios-criticos"></div>
   </div>
   <div class="dash-card">
-    <div class="dash-card-title">&#128203; Resumen de auditorias</div>
-    <div style="font-size:10px;color:var(--g400);margin:-4px 0 8px;font-style:italic">N° de auditoria, area y puntaje obtenido</div>
+    <div class="dash-card-title">&#128203; Resumen de Check Lists</div>
+    <div style="font-size:10px;color:var(--g400);margin:-4px 0 8px;font-style:italic">N° de check list, area y % de cumplimiento</div>
     <div style="overflow-x:auto"><div id="dk-comparativo-areas"></div></div>
   </div>
   <div class="dash-card">
@@ -624,10 +969,10 @@ canvas{max-width:100%!important}
     <div style="display:flex;gap:8px;margin-bottom:10px">
       <select id="dfil-nro-pend" class="filter-small" onchange="renderPendientes()" style="max-width:180px">
         <option value="">Todas las auditorias</option>
-        <option value="1">Auditoria N&#176; 1</option>
-        <option value="2">Auditoria N&#176; 2</option>
-        <option value="3">Auditoria N&#176; 3</option>
-        <option value="4">Auditoria N&#176; 4</option>
+        <option value="1">Check List N° 1</option>
+        <option value="2">Check List N° 2</option>
+        <option value="3">Check List N° 3</option>
+        <option value="4">Check List N° 4</option>
       </select>
     </div>
     <div id="dk-pendientes"></div>
@@ -637,7 +982,7 @@ canvas{max-width:100%!important}
     <div id="dk-areas-criticas"></div>
   </div>
   <div class="dash-card">
-    <div class="dash-card-title">&#128203; Obs. de auditoria pendientes de levantamiento</div>
+    <div class="dash-card-title">&#128203; Observaciones pendientes de levantamiento</div>
     <div style="font-size:10px;color:var(--g400);margin:-4px 0 8px;font-style:italic">Por responsable del area — criterios con puntaje &#8804;3 sin levantar</div>
     <div id="dk-pendientes-cierre"></div>
   </div>
@@ -652,10 +997,10 @@ canvas{max-width:100%!important}
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
     <select id="ofil-nro" class="filter-small" onchange="renderObsPendientes()">
       <option value="">Todas las auditorias</option>
-      <option value="1">Auditoria N&#176; 1</option>
-      <option value="2">Auditoria N&#176; 2</option>
-      <option value="3">Auditoria N&#176; 3</option>
-      <option value="4">Auditoria N&#176; 4</option>
+      <option value="1">Check List N° 1</option>
+      <option value="2">Check List N° 2</option>
+      <option value="3">Check List N° 3</option>
+      <option value="4">Check List N° 4</option>
     </select>
     <select id="ofil-area" class="filter-small" onchange="onOfilAreaChange()">
       <option value="">Todas las areas</option>
@@ -682,7 +1027,7 @@ canvas{max-width:100%!important}
 </div>
 
 </main>
-</div><!-- /app-auditoria -->
+</div><!-- /app-checklist -->
 
 <!-- MODAL CIERRE OBS AUDITORÍA -->
 <div class="modal-overlay" id="modal-cierre-audit">
@@ -723,23 +1068,23 @@ const ISM_LOGO="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gKgSUNDX1BST
 
 // DATOS
 const RESP_AREA={
-  "LINEA1":"DANIEL TABOADA / YONER ANGULO / JUNIOR GERVACIO",
-  "LINEA2":"DANIEL TABOADA / YONER ANGULO / JUNIOR GERVACIO",
-  "LINEA3":"DANIEL TABOADA / YONER ANGULO / JUNIOR GERVACIO",
-  "LINEA4":"DANIEL TABOADA / YONER ANGULO / JUNIOR GERVACIO",
-  "LINEA5":"JUAN GORDILLO / FABRICIO POLO / MOISES NIETO",
-  "LINEA6":"JUAN GORDILLO / FABRICIO POLO / MOISES NIETO",
-  "LINEA7":"JUAN GORDILLO / FABRICIO POLO / MOISES NIETO",
-  "LINEA8":"JUAN GORDILLO / FABRICIO POLO / MOISES NIETO",
-  "LINEA9":"DANIEL TABOADA / YONER ANGULO / JUNIOR GERVACIO",
-  "LINEA_10":"JUAN GORDILLO / FABRICIO POLO / MOISES NIETO",
+  "LP01":"",
+  "LP02":"JUNIOR GERVACIO",
+  "LP03":"DANIEL TABOADA",
+  "LP04":"JUAN GORDILLO",
+  "LP05":"YONER ANGULO",
+  "LP06":"FABRICIO POLO",
+  "LP07":"WILLIAM ARHUIZ",
+  "LP08":"YONER ANGULO",
+  "LP09":"JUNIOR GERVACIO",
+  "LP10":"FABRICIO POLO",
   "OFICINAS":"",
   "ALMACEN":"HECTOR ARTEAGA",
   "SALA_DE_MANEJOS":"DARLENE CRUZ",
   "SALA_DE_FUERZA":"DANIEL TABOADA / YONER ANGULO / JUNIOR GERVACIO",
-  "SALA_DE_CALDEROS":"AYRTON COTRINA",
-  "TRATAMIENTO_DE_AGUA":"DEBORAH SANTILLAN",
-  "SALA_DE_JARABE":"DANIEL TABOADA / YONER ANGULO / JUNIOR GERVACIO"
+  "SALA DE CALDERO":"DANIEL TABOADA",
+  "TRATAMIENTO DE AGUAS":"WILLIAM ARHUIZ",
+  "SALA DE JARABE":"JUAN GORDILLO"
 };
 const RESP_ZONA={
   "OFICINA DE PRODUCCION":"HENRY TREVIÑOS",
@@ -765,26 +1110,26 @@ const RESP_ZONA={
 };
 const TIPOS=[{tipo:"Presencia de Innecesarios",s:"1S"},{tipo:"Desorden",s:"2S"},{tipo:"Falta de limpieza",s:"3S"},{tipo:"Falta de rotulación y/o demarcación",s:"4S"},{tipo:"Incumplimiento del Estándar",s:"5S"},{tipo:"Falta de EPP",s:"EPP"}];
 const AREA_PADRE={
-  "LINEA1":"PRODUCCIÓN","LINEA2":"PRODUCCIÓN","LINEA3":"PRODUCCIÓN",
-  "LINEA4":"PRODUCCIÓN","LINEA5":"PRODUCCIÓN","LINEA6":"PRODUCCIÓN",
-  "LINEA7":"PRODUCCIÓN","LINEA8":"PRODUCCIÓN","LINEA9":"PRODUCCIÓN",
-  "LINEA_10":"PRODUCCIÓN","SALA_DE_MANEJOS":"PRODUCCIÓN",
+  "LP01":"PRODUCCIÓN","LP02":"PRODUCCIÓN","LP03":"PRODUCCIÓN",
+  "LP04":"PRODUCCIÓN","LP05":"PRODUCCIÓN","LP06":"PRODUCCIÓN",
+  "LP07":"PRODUCCIÓN","LP08":"PRODUCCIÓN","LP09":"PRODUCCIÓN",
+  "LP10":"PRODUCCIÓN","SALA_DE_MANEJOS":"PRODUCCIÓN",
   "SALA_DE_FUERZA":"PRODUCCIÓN","SALA_DE_CALDEROS":"PRODUCCIÓN",
   "TRATAMIENTO_DE_AGUA":"PRODUCCIÓN","SALA_DE_JARABE":"PRODUCCIÓN",
   "ALMACEN":"LOGISTICA","OFICINAS":"GERENCIA"
 };
 
 const DATOS={
-  LINEA1:{sector:"A",zonas:["SOPLADO","FAJA TRANSPORTADORA","LLENADO","AREAS COMUNES"]},
-  LINEA2:{sector:"A",zonas:["SOPLADO","ETIQUETADO","AEROTRANSPORTADOR","INGRESO A LLENADO","LLENADO","PANTALLA","FAJA TRANSPORTADORA","EMPACADO","PALETIZADO MANUAL","AREAS COMUNES"]},
-  LINEA3:{sector:"A",zonas:["SOPLADO","ETIQUETADO","AEROTRANSPORTADOR","LLENADO","PANTALLA","FAJA TRANSPORTADORA","EMPACADO","PALETIZADO","AREAS COMUNES"]},
-  LINEA4:{sector:"A",zonas:["SOPLADO","ETIQUETADO","PANTALLA","LLENADO","EMPACADO","PALETIZADO MANUAL","AREAS COMUNES"]},
-  LINEA5:{sector:"B",zonas:["POSICIONADO","FAJA TRANSPORTADORA","LLENADO","TUNEL DE ENFRIAMIENTO","PANTALLA","EMPACADO","PALETIZADO MANUAL","AREAS COMUNES"]},
-  LINEA6:{sector:"B",zonas:["SOPLADO-LLENADO","FAJA TRANSPORTADORA","ETIQUETADO","PANTALLA","EMPACADO","PALETIZADO","AREAS COMUNES"]},
-  LINEA7:{sector:"B",zonas:["SOPLADO-LLENADO","FAJA TRANSPORTADORA","ETIQUETADO","PANTALLA","EMPACADO","PALETIZADO","AREAS COMUNES"]},
-  LINEA8:{sector:"B",zonas:["POSICIONADO","AEROTRANSPORTADOR","ETIQUETADO","LLENADO","FAJA TRANSPORTADORA","EMPACADO","PALETIZADO MANUAL","AREAS COMUNES"]},
-  LINEA9:{sector:"A",zonas:["SOPLADO-LLENADO","ETIQUETADO","FAJA TRANSPORTADORA","EMPACADO","PALETIZADO","AREAS COMUNES"]},
-  LINEA_10:{sector:"B",zonas:["SOPLADO-LLENADO","FAJA TRANSPORTADORA","LLENADO","EMPACADO","PALETIZADO","AREAS COMUNES"]},
+  LP01:{sector:"A",zonas:["SOPLADO","FAJA TRANSPORTADORA","LLENADO","AREAS COMUNES"]},
+  LP02:{sector:"A",zonas:["SOPLADO","ETIQUETADO","AEROTRANSPORTADOR","INGRESO A LLENADO","LLENADO","PANTALLA","FAJA TRANSPORTADORA","EMPACADO","PALETIZADO MANUAL","AREAS COMUNES"]},
+  LP03:{sector:"A",zonas:["SOPLADO","ETIQUETADO","AEROTRANSPORTADOR","LLENADO","PANTALLA","FAJA TRANSPORTADORA","EMPACADO","PALETIZADO","AREAS COMUNES"]},
+  LP04:{sector:"A",zonas:["SOPLADO","ETIQUETADO","PANTALLA","LLENADO","EMPACADO","PALETIZADO MANUAL","AREAS COMUNES"]},
+  LP05:{sector:"B",zonas:["POSICIONADO","FAJA TRANSPORTADORA","LLENADO","TUNEL DE ENFRIAMIENTO","PANTALLA","EMPACADO","PALETIZADO MANUAL","AREAS COMUNES"]},
+  LP06:{sector:"B",zonas:["SOPLADO-LLENADO","FAJA TRANSPORTADORA","ETIQUETADO","PANTALLA","EMPACADO","PALETIZADO","AREAS COMUNES"]},
+  LP07:{sector:"B",zonas:["SOPLADO-LLENADO","FAJA TRANSPORTADORA","ETIQUETADO","PANTALLA","EMPACADO","PALETIZADO","AREAS COMUNES"]},
+  LP08:{sector:"B",zonas:["POSICIONADO","AEROTRANSPORTADOR","ETIQUETADO","LLENADO","FAJA TRANSPORTADORA","EMPACADO","PALETIZADO MANUAL","AREAS COMUNES"]},
+  LP09:{sector:"A",zonas:["SOPLADO-LLENADO","ETIQUETADO","FAJA TRANSPORTADORA","EMPACADO","PALETIZADO","AREAS COMUNES"]},
+  LP10:{sector:"B",zonas:["SOPLADO-LLENADO","FAJA TRANSPORTADORA","LLENADO","EMPACADO","PALETIZADO","AREAS COMUNES"]},
   OFICINAS:{sector:"C",zonas:["OFICINA DE PRODUCCION","OFICINA DE MEJORA CONTINUA","OFICINA DE CALIDAD","OFICINA DE PLANIFICACION Y PRODUCCION","OFICINA DE JEFATURA DE PRODUCCION","OFICINA DE JEFATURA DE PLANTA","OFICINA ALMACEN DE INSUMOS","OFICINA ALMACEN DE REPUESTOS Y SUMINISTROS","OFICINA DE APT","OFICINA DE MANTENIMIENTO MECANICO","OFICINA DE MANTENIMIENTO ELECTRICO","OFICINA DE SEGURIDAD INDUSTRIAL","OFICINA DE GESTION HUMANA","OFICINA DE CONTABILIDAD","OFICINA DE PROYECTOS","OFICINA DE LOGISTICA","OFICINA DE SEGURIDAD CIVIL","GARITA","OFICINA DE SECRETARIA GENERAL","OFICINA DE SISTEMAS"]},
   ALMACEN:{sector:"C",zonas:["ALMACEN DE INSUMOS","APT"]},
   SALA_DE_MANEJOS:{sector:"A",zonas:["AREAS COMUNES","INTERIOR DE SALA DE MANEJOS"]},
@@ -1511,9 +1856,24 @@ function closeModal(id){document.getElementById(id).classList.remove("show");doc
 let toastT;
 
 // ═══ AUDITORÍA ═══
+const RESP_SECTOR={
+  "LP01":"",
+  "LP02":"JUNIOR GERVACIO",
+  "LP03":"DANIEL TABOADA",
+  "LP04":"JUAN GORDILLO",
+  "LP05":"YONER ANGULO",
+  "LP06":"FABRICIO POLO",
+  "LP07":"WILLIAM ARHUIZ",
+  "LP08":"YONER ANGULO",
+  "LP09":"JUNIOR GERVACIO",
+  "LP10":"FABRICIO POLO",
+  "SALA DE JARABE":"JUAN GORDILLO",
+  "TRATAMIENTO DE AGUAS":"WILLIAM ARHUIZ",
+  "SALA DE CALDERO":"DANIEL TABOADA"
+};
 const SECTORES_AUDIT={
   "LOGISTICA":{"responsable":"Claudio Escobedo Chávez","areas":["ALM. TEMPORAL MP","ALM. DE INSUMOS","ALM. DE REPUESTOS","ALM. DE INSUMOS GENERALES","ALM. DE INSUMOS QUÍMICOS","ALM. DE PT 1","ALM. TEMPORAL PT","ALM. PT HANGAR 8","ALM. PT HANGAR 10","ALM. DE ENVASES Y EMBALAJES","OFIC. DE LOGÍSTICA","OFIC. DE APT","OFIC. ALM. DE REPUESTOS"]},
-  "PRODUCCIÓN":{"responsable":"Henry Treviños Torres","areas":["OFIC. DE JEF. DE PRODUCCIÓN","OFIC. DE PLANEAMIENTO","OFIC. DE MEJORA CONTINUA","SALA DE REUNIONES MC","OFIC. DE JEFATURA DE PLANTA","LÍNEA 1","LÍNEA 2","LÍNEA 3","LÍNEA 4","LÍNEA 5","LINEA 6","LÍNEA 7","LÍNEA 8","LÍNEA 9","SALA DE JARABE","TRATAMIENTO DE AGUAS","OFICINA DE PRODUCCIÓN","SALA DE CALDERO","SALA DE MANEJOS","LINEA 10","LABORATORIO DE SOPLADO"]},
+  "PRODUCCIÓN":{"responsable":"Henry Treviños Torres","areas":["OFIC. DE JEF. DE PRODUCCIÓN","OFIC. DE PLANEAMIENTO","OFIC. DE MEJORA CONTINUA","SALA DE REUNIONES MC","OFIC. DE JEFATURA DE PLANTA","LP01","LP02","LP03","LP04","LP05","LP06","LP07","LP08","LP09","SALA DE JARABE","TRATAMIENTO DE AGUAS","OFICINA DE PRODUCCIÓN","SALA DE CALDERO","SALA DE MANEJOS","LP10","LABORATORIO DE SOPLADO"]},
   "GESTION HUMANA":{"responsable":"Álvaro Sotomayor Checa","areas":["OFIC. DE GESTION HUMANA","AUDITORIO DE PLANTA","COMEDOR","SSHH Y VESTUARIOS"]},
   "SEGURIDAD CIVIL":{"responsable":"Fabio Caldas Antúnez","areas":["OFIC. DE SEGURIDAD CIVIL / GARITA"]},
   "SEGURIDAD":{"responsable":"Ubaldo Llacho Alhuirca","areas":["OFIC. DE SEG. INDUSTRIAL","TÓPICO"]},
@@ -1569,11 +1929,11 @@ const AREA_RESPONSABLE={
   "LÍNEA 7":"Henry Treviños Torres",
   "LÍNEA 8":"Henry Treviños Torres",
   "LÍNEA 9":"Henry Treviños Torres",
-  "SALA DE JARABE":"Henry Treviños Torres",
-  "TRATAMIENTO DE AGUAS":"Henry Treviños Torres",
+  "SALA DE JARABE":"JUAN GORDILLO",
+  "TRATAMIENTO DE AGUAS":"WILLIAM ARHUIZ",
   "OFICINA DE PRODUCCIÓN":"Henry Treviños Torres",
-  "SALA DE CALDERO":"Henry Treviños Torres",
-  "SALA DE MANEJOS":"Henry Treviños Torres",
+  "SALA DE CALDERO":"DANIEL TABOADA",
+  "SALA DE MANEJOS":"",
   "SALA DE FUERZAS":"Roberto Cárdenas Arias",
   "TALLER DE MANT. MECÁNICO":"Roberto Cárdenas Arias",
   "TALLER DE MANT. ELÉCTRICO":"Roberto Cárdenas Arias",
@@ -1586,29 +1946,39 @@ const AREA_RESPONSABLE={
   "LAB. MICROBIOLÓGICO":"Martin Castillo Guerra",
   "OFIC. SUPERVISORES SOS":"Martin Castillo Guerra",
   "LINEA 10":"Henry Treviños Torres",
-  "LABORATORIO DE SOPLADO":"Henry Treviños Torres",
-  "SECRETARIA GENERAL":"Fabio Caldas Antúnez"
-};
+  "LABORATORIO DE SOPLADO":"WILLIAM ARHUIZ",
+  "SECRETARIA GENERAL":"Fabio Caldas Antúnez",
+  "LP01":"",
+  "LP02":"JUNIOR GERVACIO",
+  "LP03":"DANIEL TABOADA",
+  "LP04":"JUAN GORDILLO",
+  "LP05":"YONER ANGULO",
+  "LP06":"FABRICIO POLO",
+  "LP07":"WILLIAM ARHUIZ",
+  "LP08":"YONER ANGULO",
+  "LP09":"JUNIOR GERVACIO",
+  "LP10":"FABRICIO POLO"
+};;
 const AUDITORES_SECTORES={
-  "Fabio Caldas Antúnez":["LÍNEA 1","OFIC. DE COSTOS","AUDITORIO DE PLANTA"],
+  "Fabio Caldas Antúnez":["LP01","OFIC. DE COSTOS","AUDITORIO DE PLANTA"],
   "Ítalo Buendia Poma":["ALM. DE ENVASES Y EMBALAJES","OFICINA DE PRODUCCIÓN","OFIC. DE LOGÍSTICA"],
-  "Héctor Arteaga Espinoza":["SUB-ESTACIÓN","OFIC. DE COMUNICACIONES","LÍNEA 4"],
+  "Héctor Arteaga Espinoza":["SUB-ESTACIÓN","OFIC. DE COMUNICACIONES","LP04"],
   "Carlos Joél Luyo Diaz":["TÓPICO","ALM. DE PT 1","OFIC. DE FINANZAS"],
   "Enrique Fabricio Polo Manrique":["ALM. PT HANGAR 8","SECRETARIA GENERAL","SALA DE FUERZAS"],
-  "Ayrton Raphael Cotrina Esteves":["LÍNEA 9","OFIC. DE CONTROL INTERNO","OFIC. DE SEG. INDUSTRIAL"],
-  "William Jesus Joel Rivera Ramirez":["LABORATORIO DE SOPLADO","LÍNEA 7","OFIC. DE SEGURIDAD CIVIL / GARITA"],
+  "Ayrton Raphael Cotrina Esteves":["LP09","OFIC. DE CONTROL INTERNO","OFIC. DE SEG. INDUSTRIAL"],
+  "William Jesus Joel Rivera Ramirez":["LABORATORIO DE SOPLADO","LP07","OFIC. DE SEGURIDAD CIVIL / GARITA"],
   "Nuria del Pilar Diaz Ramirez":["OFIC. DE JEFATURA DE PLANTA","COMEDOR","OFICINA DE MANTENIMIENTO"],
-  "Alejandro Salvador Grados":["OFIC. DE APT","ALM. DE INSUMOS","LÍNEA 2"],
-  "Adiel Abednego Aguayo Flores":["OFIC. ALM. DE REPUESTOS","TALLER DE MANT. ELÉCTRICO","LÍNEA 3"],
-  "Roberto Carlos Medina La Rosa":["SSHH Y VESTUARIOS","OFIC. DE CONTABILIDAD","LÍNEA 5"],
+  "Alejandro Salvador Grados":["OFIC. DE APT","ALM. DE INSUMOS","LP02"],
+  "Adiel Abednego Aguayo Flores":["OFIC. ALM. DE REPUESTOS","TALLER DE MANT. ELÉCTRICO","LP03"],
+  "Roberto Carlos Medina La Rosa":["SSHH Y VESTUARIOS","OFIC. DE CONTABILIDAD","LP05"],
   "Ulises Eliseo Anselmo Carranza":["OFIC. DE GESTION HUMANA","OFIC. DE JEF. DE PRODUCCIÓN","SALA DE MUESTRAS"],
-  "Dylan Yaret Pintado Fernandez":["ALM. TEMPORAL MP","OFIC. SUPERVISORES SOS","LINEA 6"],
-  "Mariluz Reynaldina Montes Laurente":["SALA DE CALDERO","LINEA 10","ALM. DE REPUESTOS"],
+  "Dylan Yaret Pintado Fernandez":["ALM. TEMPORAL MP","OFIC. SUPERVISORES SOS","LP06"],
+  "Mariluz Reynaldina Montes Laurente":["SALA DE CALDERO","LP10","ALM. DE REPUESTOS"],
   "Paula Valeria Cecilia La Rosa La Rosa":["OFIC. DE MEJORA CONTINUA","ALM. DE INSUMOS GENERALES","LAB. FISICOQUÍMICO"],
-  "Cristopher William Reyes Islado":["LÍNEA 8","TALLER DE MANT. MECÁNICO","TRATAMIENTO DE AGUAS"],
-  "Jose Daniel Jara Muñoz":["SALA DE REUNIONES MC","SALA DE JARABE","OFIC. DE PROYECTOS"],
-  "Kiara Dioselinda Argandoña Cabanilla":["SALA DE MANEJOS","LAB. MICROBIOLÓGICO"],
-  "Jean Frano Blas Suarez":["OFIC. DE PLANEAMIENTO","OFIC. SOSTENIBILIDAD Y SGI"],
+  "Cristopher William Reyes Islado":["LP08","TALLER DE MANT. MECÁNICO","TRATAMIENTO DE AGUAS"],
+  
+  
+  
   "Rosa Emilia Mejia Jaimes":["OFIC. DE SISTEMAS","ALM. PT HANGAR 10"],
   "Julio Arroyo Puse":["ALM. DE INSUMOS QUÍMICOS","ALM. TEMPORAL PT"]
 };
@@ -1641,14 +2011,21 @@ let auditMeta = {}; // auditor, fecha, sector, area, responsable
 function iniciarRecorrido(){
   document.getElementById("pantalla-bienvenida").style.display="none";
   document.getElementById("app-recorrido").style.display="block";
-  document.getElementById("app-auditoria").style.display="none";
+  document.getElementById("app-checklist").style.display="none";
 }
 
-function iniciarAuditoria(){
+function salirAuditoria(){
+  document.getElementById("app-checklist").style.display="none";
+  document.getElementById("app-auditoria-nueva").style.display="none";
+  document.getElementById("app-recorrido").style.display="none";
+  document.getElementById("pantalla-bienvenida").style.display="flex";
+}
+
+function iniciarCheckList(){
   document.getElementById("pantalla-bienvenida").style.display="none";
   cargarAuditorias();
   document.getElementById("app-recorrido").style.display="none";
-  document.getElementById("app-auditoria").style.display="block";
+  document.getElementById("app-checklist").style.display="block";
   document.getElementById("a-fecha").value=new Date().toLocaleDateString("es-PE",{day:"2-digit",month:"2-digit",year:"numeric"});
   auditData={};
 }
@@ -1656,7 +2033,7 @@ function iniciarAuditoria(){
 function volverBienvenida(){
   document.getElementById("pantalla-bienvenida").style.display="flex";
   document.getElementById("app-recorrido").style.display="none";
-  document.getElementById("app-auditoria").style.display="none";
+  document.getElementById("app-checklist").style.display="none";
   irPaso1();
 }
 
@@ -1666,7 +2043,7 @@ function onAuditorChange(){
   const sEl=document.getElementById("a-sector");
   // Reset todo
   if(nroEl){nroEl.value="";nroEl.disabled=!auditor;}
-  sEl.innerHTML='<option value="">&#8212; Elige N&#176; de auditoria primero &#8212;</option>';
+  sEl.innerHTML='<option value="">&#8212; Elige el mes primero &#8212;</option>';
   sEl.disabled=true;
   document.getElementById("a-area").value="";
   document.getElementById("a-responsable").value="";
@@ -1766,73 +2143,79 @@ function renderCriterios(){
       hdr.textContent=pilarActual;
       container.appendChild(hdr);
     }
-    const d=auditData[c.num]||{puntaje:0,obs:"",fortaleza:"",fotos:[]};
+    const d=auditData[c.num]||{respuesta:null,obs:"",accion:"",responsable:"",fecha:"",fotos:[]};
     const card=document.createElement("div");
-    card.className="criterio-card"+(d.puntaje>=1?(d.puntaje<=3?" critico":" evaluado"):"");
+    const esNo=d.respuesta==="NO";
+    const esSi=d.respuesta==="SI";
+    card.className="criterio-card"+(esNo?" critico":esSi?" evaluado":"");
     card.id=`criterio-${c.num}`;
 
-    // Sección extra según puntaje
+    // Sección acción si es NO
     let extraHTML="";
-    if(d.puntaje>=1&&d.puntaje<=3){
-      // Obs + hasta 3 fotos
+    if(esNo){
       const fotosHTML=(d.fotos||[]).map((f,i)=>`<div style="position:relative;display:inline-block">
         <img src="${f}" style="width:60px;height:60px;object-fit:cover;border-radius:6px;border:2px solid var(--g200)">
         <button onclick="removeFotoCriterio(${c.num},${i})" style="position:absolute;top:-4px;right:-4px;background:var(--red);color:#fff;border:none;border-radius:50%;width:16px;height:16px;font-size:9px;cursor:pointer;line-height:16px;text-align:center">x</button>
       </div>`).join("");
       extraHTML=`
-        <textarea placeholder="Observación de incumplimiento..."
-          style="width:100%;padding:8px;border:1.5px solid var(--red);border-radius:8px;font-family:Barlow,sans-serif;font-size:13px;resize:vertical;min-height:55px;margin-top:6px"
-          oninput="setObs(${c.num},this.value)">${d.obs||""}</textarea>
-        <div style="margin-top:8px">
-          <div style="font-size:10px;color:var(--g400);margin-bottom:4px">Fotos de evidencia (opcional, máx. 5)</div>
-          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px">${fotosHTML}</div>
-          ${(d.fotos||[]).length<5?`<label style="display:inline-flex;align-items:center;gap:6px;background:var(--g50);border:1.5px solid var(--g200);border-radius:8px;padding:7px 12px;cursor:pointer;font-size:12px;color:var(--g700)">
-            📷 Agregar foto
-            <input type="file" accept="image/*" style="display:none" onchange="addFotoCriterio(${c.num},this)">
-          </label>`:""}
-        </div>`;
-    } else if(d.puntaje>=4){
-      // Fortaleza + 1 foto opcional
-      const fotoHTML=d.fotos&&d.fotos[0]?`<div style="position:relative;display:inline-block;margin-top:6px">
-        <img src="${d.fotos[0]}" style="width:60px;height:60px;object-fit:cover;border-radius:6px;border:2px solid var(--green)">
-        <button onclick="removeFotoCriterio(${c.num},0)" style="position:absolute;top:-4px;right:-4px;background:var(--red);color:#fff;border:none;border-radius:50%;width:16px;height:16px;font-size:9px;cursor:pointer;line-height:16px;text-align:center">x</button>
-      </div>`:"";
-      extraHTML=`
-        <textarea placeholder="Fortaleza observada (opcional)..."
-          style="width:100%;padding:8px;border:1.5px solid var(--green);border-radius:8px;font-family:Barlow,sans-serif;font-size:13px;resize:vertical;min-height:50px;margin-top:6px"
-          oninput="setFortaleza(${c.num},this.value)">${d.fortaleza||""}</textarea>
-        <div style="margin-top:6px">
-          ${fotoHTML||`<label style="display:inline-flex;align-items:center;gap:6px;background:#E8F5E9;border:1.5px solid var(--green);border-radius:8px;padding:7px 12px;cursor:pointer;font-size:12px;color:var(--green)">
-            📷 Foto fortaleza (opcional)
-            <input type="file" accept="image/*" style="display:none" onchange="addFotoCriterio(${c.num},this)">
-          </label>
-          <label style="display:inline-flex;align-items:center;gap:5px;background:var(--g100);border:1.5px solid var(--g200);border-radius:8px;padding:7px 10px;cursor:pointer;font-size:12px;color:var(--g700);margin-left:6px">
-            📁 Galería
-            <input type="file" accept="image/*" style="display:none" onchange="addFotoCriterio(${c.num},this)">
-          </label>`}
+        <div style="margin-top:10px;padding:10px;background:#FEF2F2;border-radius:8px;border:1px solid #FECACA">
+          <div style="font-size:11px;font-weight:700;color:var(--red);margin-bottom:6px">Acción requerida</div>
+          <textarea placeholder="Describe el incumplimiento y la acción a tomar..."
+            style="width:100%;padding:8px;border:1.5px solid var(--red);border-radius:8px;font-family:Barlow,sans-serif;font-size:13px;resize:vertical;min-height:55px"
+            oninput="setObs(${c.num},this.value)">${d.obs||""}</textarea>
+          <div style="margin-top:8px;display:flex;gap:8px">
+            <input type="text" placeholder="Responsable" value="${d.responsable||""}"
+              style="flex:1;padding:7px;border:1px solid var(--g200);border-radius:7px;font-size:12px"
+              oninput="setResp(${c.num},this.value)">
+            <input type="date" value="${d.fecha||""}"
+              style="flex:1;padding:7px;border:1px solid var(--g200);border-radius:7px;font-size:12px"
+              oninput="setFecha(${c.num},this.value)">
+          </div>
+          <div style="margin-top:8px">
+            <div style="font-size:10px;color:var(--g400);margin-bottom:4px">Foto de evidencia (obligatoria)</div>
+            <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px">${fotosHTML}</div>
+            ${(d.fotos||[]).length<3?`<label style="display:inline-flex;align-items:center;gap:4px;background:var(--g50);border:1px dashed var(--g300);border-radius:7px;padding:6px 10px;cursor:pointer;font-size:12px">
+              📷 Agregar foto
+              <input type="file" accept="image/*" capture="environment" style="display:none" onchange="addFotoCriterio(${c.num},this)">
+            </label>`:""}
+          </div>
         </div>`;
     }
 
     card.innerHTML=`
-      <div style="font-size:12px;font-weight:600;color:var(--g700);margin-bottom:8px;line-height:1.4">
-        <span style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;color:var(--g400);margin-right:6px">${c.num}.</span>${c.txt}
-      </div>
-      <div class="puntaje-sel" style="margin-bottom:4px">
-        ${[1,2,3,4,5].map(p=>`
-          <button class="puntaje-btn p${p} ${d.puntaje===p?"active":""}"
-            onclick="setPuntaje(${c.num},${p})"
-            title="${["Muy deficiente","Deficiente","Regular","Bueno","Excelente"][p-1]}">
-            ${p}
-          </button>`).join("")}
-      </div>
-      <div style="font-size:10px;color:${d.puntaje>0?(d.puntaje<=3?"var(--red)":"var(--green)"):"var(--g400)"};margin-bottom:2px">
-        ${d.puntaje>0?["","Muy deficiente","Deficiente","Regular","Bueno","Excelente"][d.puntaje]:"Sin evaluar"}
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+        <div style="flex:1">
+          <span style="font-size:11px;color:var(--g400);font-weight:600">C${c.num}</span>
+          <div style="font-size:14px;font-weight:600;color:var(--g700);line-height:1.3;margin-top:2px">${c.txt}</div>
+        </div>
+        <div style="display:flex;gap:6px;flex-shrink:0">
+          <button onclick="setCriterioSiNo(${c.num},'SI')"
+            style="padding:8px 16px;border-radius:8px;border:2px solid ${esSi?"var(--green)":"var(--g200)"};
+            background:${esSi?"var(--green)":"#fff"};color:${esSi?"#fff":"var(--g400)"};
+            font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:800;cursor:pointer;transition:.15s">
+            SI
+          </button>
+          <button onclick="setCriterioSiNo(${c.num},'NO')"
+            style="padding:8px 16px;border-radius:8px;border:2px solid ${esNo?"var(--red)":"var(--g200)"};
+            background:${esNo?"var(--red)":"#fff"};color:${esNo?"#fff":"var(--g400)"};
+            font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:800;cursor:pointer;transition:.15s">
+            NO
+          </button>
+        </div>
       </div>
       ${extraHTML}`;
     container.appendChild(card);
   });
   updateProgreso();
 }
+function setCriterioSiNo(num,val){
+  if(!auditData[num]) auditData[num]={respuesta:null,obs:"",responsable:"",fecha:"",fotos:[]};
+  auditData[num].respuesta=val;
+  if(val==="SI"){auditData[num].obs="";auditData[num].fotos=[];auditData[num].responsable="";auditData[num].fecha="";}
+  renderCriterios();
+}
+
+
 
 
 function setPuntaje(num,puntaje){
@@ -1883,14 +2266,17 @@ function setObs(num,obs){
 }
 
 function updateProgreso(){
-  const evaluados=Object.values(auditData).filter(d=>d.puntaje>0).length;
   const total=CRITERIOS.length;
-  const puntajeTotal=Object.values(auditData).reduce((s,d)=>s+(d.puntaje||0),0);
-  const maxPuntaje=total*5;
-  const pct=Math.round(puntajeTotal/maxPuntaje*100);
-  document.getElementById("audit-progreso").textContent=`${evaluados} / ${total} criterios`;
-  document.getElementById("audit-prog-bar").style.width=(evaluados/total*100)+"%";
-  document.getElementById("audit-puntaje-live").textContent=`${puntajeTotal}/${maxPuntaje}`;
+  const evaluados=CRITERIOS.filter(c=>auditData[c.num]&&auditData[c.num].respuesta!=null).length;
+  const noCumple=CRITERIOS.filter(c=>auditData[c.num]&&auditData[c.num].respuesta==="NO").length;
+  const siCumple=evaluados-noCumple;
+  const pct=evaluados>0?Math.round(siCumple/evaluados*100):0;
+  const txtEl=document.getElementById("audit-progreso");
+  if(txtEl) txtEl.textContent=`${evaluados}/${total} criterios · ${noCumple} NO`;
+  const barEl=document.getElementById("audit-prog-bar");
+  if(barEl){barEl.style.width=(evaluados/total*100)+"%";barEl.style.background=pct>=80?"var(--green)":pct>=60?"var(--amber)":"var(--red)";}
+  const scEl=document.getElementById("audit-puntaje-live");
+  if(scEl) scEl.textContent=evaluados===total?pct+"%":evaluados+"/"+total;
 }
 
 function getNivel(pct){
@@ -1901,83 +2287,73 @@ function getNivel(pct){
 }
 
 async function finalizarAuditoria(){
-  const evaluados=Object.values(auditData).filter(d=>d.puntaje>0).length;
-  if(evaluados<20){
-    showToast(`Faltan ${20-evaluados} criterios por evaluar`,true);
-    return;
-  }
-  const puntajeTotal=Object.values(auditData).reduce((s,d)=>s+(d.puntaje||0),0);
-  const maxPuntaje=100;
-  const pct=Math.round(puntajeTotal/maxPuntaje*100);
+  const evaluados=CRITERIOS.filter(c=>auditData[c.num]&&auditData[c.num].respuesta!=null).length;
+  if(evaluados<20){showToast(`Faltan ${20-evaluados} criterios por evaluar`,true);return;}
+  const noCumple=CRITERIOS.filter(c=>auditData[c.num]&&auditData[c.num].respuesta==="NO").length;
+  const siCumple=20-noCumple;
+  const pct=Math.round(siCumple/20*100);
   const nivel=getNivel(pct);
 
-  // Mostrar resultado
   document.getElementById("audit-paso2").style.display="none";
   document.getElementById("audit-paso3").style.display="block";
-  document.getElementById("result-puntaje").textContent=puntajeTotal;
+  document.getElementById("result-puntaje").textContent=pct+"%";
   document.getElementById("result-puntaje").style.color=nivel.color;
   document.getElementById("result-nivel").textContent=nivel.nivel;
   document.getElementById("result-nivel").style.color=nivel.color;
-  document.getElementById("result-info").textContent=`${pct}% de cumplimiento · ${auditMeta.area}`;
+  document.getElementById("result-info").textContent=`${pct}% cumplimiento · ${auditMeta.area}`;
 
-  // Animar score ring
   setTimeout(()=>{
     const circle=document.getElementById("score-circle");
-    const offset=314-(314*(pct/100));
-    circle.style.strokeDashoffset=offset;
-    circle.style.stroke=nivel.color;
+    if(circle){
+      circle.style.strokeDashoffset=314-(314*(pct/100));
+      circle.style.stroke=nivel.color;
+    }
   },200);
 
   // KPIs por pilar
   const pilares={"1S — Seleccionar":[1,2,3,4],"2S — Ordenar":[5,6,7,8],"3S — Limpiar":[9,10,11,12],"4S — Estandarizar":[13,14,15,16],"5S — Disciplinar":[17,18,19,20]};
   const pilarColors={"1S":"#E65100","2S":"#1B5E20","3S":"#0D47A1","4S":"#4A148C","5S":"#880E4F"};
   document.getElementById("result-pilares").innerHTML=Object.entries(pilares).map(([pilar,nums])=>{
-    const pts=nums.reduce((s,n)=>s+(auditData[n]?.puntaje||0),0);
-    const maxPts=nums.length*5;
-    const pPct=Math.round(pts/maxPts*100);
+    const si=nums.filter(n=>auditData[n]?.respuesta==="SI").length;
+    const pPct=Math.round(si/nums.length*100);
     const key=pilar.substring(0,2);
     const col=pilarColors[key]||"#888";
     return `<div style="background:${col}15;border-radius:8px;padding:8px 4px;text-align:center;border-top:3px solid ${col}">
-      <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:${col}">${pts}</div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:${col}">${si}/${nums.length}</div>
       <div style="font-size:8px;color:${col};font-weight:700;text-transform:uppercase">${key}</div>
       <div style="font-size:9px;color:var(--g400)">${pPct}%</div>
     </div>`;
   }).join("");
 
-  // Observaciones de incumplimiento
-  const incumplimientos=CRITERIOS.filter(c=>auditData[c.num]&&auditData[c.num].puntaje<=2);
+  const incumplimientos=CRITERIOS.filter(c=>auditData[c.num]?.respuesta==="NO");
   const cardObs=document.getElementById("card-obs-audit");
-  if(incumplimientos.length>0){
-    cardObs.style.display="block";
-    document.getElementById("obs-incumplimiento").innerHTML=incumplimientos.map(c=>{
-      const d=auditData[c.num];
-      const col=d.puntaje===1?"var(--red)":"var(--amber)";
-      const lbl=d.puntaje===1?"Muy deficiente":"Deficiente";
-      return `<div style="padding:10px 12px;background:var(--g50);border-radius:8px;border-left:3px solid ${col};margin-bottom:8px">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">
-          <span style="font-size:11px;font-weight:700;color:var(--g700);flex:1;line-height:1.4">${c.num}. ${c.txt}</span>
-          <span style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;color:${col};margin-left:8px;flex-shrink:0">${d.puntaje} — ${lbl}</span>
-        </div>
-        <div style="font-size:10px;color:var(--g400);margin-bottom:4px">Pilar: ${c.pilar}</div>
-        ${d.obs?`<div style="font-size:12px;color:var(--g700);background:#fff;border-radius:6px;padding:6px 8px;border:1px solid var(--g200)"><strong>Obs:</strong> ${d.obs}</div>`:""}
-        <div style="font-size:10px;color:var(--g400);margin-top:4px">&#128100; Responsable: <strong>${auditMeta.responsable}</strong></div>
-      </div>`;
-    }).join("");
-  }else{
-    cardObs.style.display="none";
+  if(cardObs){
+    if(incumplimientos.length>0){
+      cardObs.style.display="block";
+      document.getElementById("obs-incumplimiento").innerHTML=incumplimientos.map(c=>{
+        const d=auditData[c.num]||{};
+        return `<div style="padding:10px 12px;background:var(--g50);border-radius:8px;border-left:3px solid var(--red);margin-bottom:8px">
+          <div style="font-size:12px;font-weight:700;color:var(--g700);margin-bottom:4px">${c.num}. ${c.txt}</div>
+          <div style="font-size:10px;color:var(--g400)">Pilar: ${c.pilar}</div>
+          ${d.obs?`<div style="font-size:12px;color:var(--g700);background:#fff;border-radius:6px;padding:6px 8px;border:1px solid var(--g200);margin-top:4px">${d.obs}</div>`:""}
+          ${d.responsable?`<div style="font-size:10px;color:var(--g400);margin-top:4px">Resp: <strong>${d.responsable}</strong> · Fecha: ${d.fecha||"-"}</div>`:""}
+        </div>`;
+      }).join("");
+    } else {
+      cardObs.style.display="none";
+    }
   }
-
-  // Guardar en Supabase
-  await guardarAuditoriaDB(puntajeTotal, pct, nivel.nivel, incumplimientos);
+  await guardarAuditoriaDB(pct, pct, nivel.nivel, incumplimientos);
 }
 
-async function guardarAuditoriaDB(puntaje, pct, nivel, incumplimientos){
+async function guardarAuditoriaDB(pct, pct2, nivel, incumplimientos){
   try{
     const detalles=CRITERIOS.map(c=>({
       num:c.num, pilar:c.pilar, criterio:c.txt,
-      puntaje:auditData[c.num]?.puntaje||0,
+      respuesta:auditData[c.num]?.respuesta||null,
       obs:auditData[c.num]?.obs||"",
-      fortaleza:auditData[c.num]?.fortaleza||"",
+      responsable:auditData[c.num]?.responsable||"",
+      fecha:auditData[c.num]?.fecha||"",
       fotos:auditData[c.num]?.fotos||[]
     }));
     const {error:errAudit}=await sb.from("auditorias_5s_ism").insert({
@@ -1987,23 +2363,23 @@ async function guardarAuditoriaDB(puntaje, pct, nivel, incumplimientos){
       sector:auditMeta.sector,
       area:auditMeta.area,
       responsable:auditMeta.responsable,
-      puntaje_total:puntaje,
+      puntaje_total:pct,
       pct_cumplimiento:pct,
       nivel,
       detalles:JSON.stringify(detalles),
       incumplimientos:JSON.stringify(incumplimientos.map(c=>({
         num:c.num,pilar:c.pilar,criterio:c.txt,
-        puntaje:auditData[c.num]?.puntaje||0,
+        respuesta:auditData[c.num]?.respuesta||"NO",
         obs:auditData[c.num]?.obs||""
       })))
     });
-    if(errAudit)throw errAudit;
-    showToast("Auditoría guardada — ve al Dashboard para ver resultados");
-    // Cargar datos en memoria (sin renderizar gráficos ocultos)
+    if(errAudit) throw errAudit;
+    showToast("Check List guardado — ve al Dashboard para ver resultados");
     await cargarAuditorias();
-    window._auditDashboardDirty = true;
+    window._auditDashboardDirty=true;
   }catch(e){
-    console.error("Error guardando auditoría:",e);
+    console.error("Error guardando check list:",e);
+    showToast("Error al guardar: "+e.message,true);
   }
 }
 
@@ -3405,6 +3781,737 @@ function showToast(msg,isErr){
   t.textContent=msg;t.className="show"+(isErr?" error":"");
   clearTimeout(window._toastT);window._toastT=setTimeout(()=>t.className="",3500);
 }
+
+// ═══════════════════════════════════════════
+// AUDITORÍA 5S — MÓDULO COMPLETO
+// ═══════════════════════════════════════════
+const AUDN_CATEGORIAS={"INFRAESTRUCTURA":["Techo","Paredes","Piso","Ventana","Otros"],"SUMINISTROS":["Agua","Luz","Aire","Combustible","Gas","Amoniaco","Lubricante","Otros"],"ACTIVOS":["Máquinas","Equipos","Instrumentos","Herramientas","Muebles","Otros"],"PROCESO":["Indicador"],"MATERIALES":["Materia Prima","Envases y Embalajes","Insumos","Producto Terminado","Repuestos","Útiles de Oficina","Materiales de Limpieza","Otros"],"INFORMACIÓN":["Murales","Documentos","Tablero de Gerencia Visible","Letreros / Carteles"],"PERSONAL":["Uniforme","Conocimientos","BPM"],"SEG. Y MEDIO AMBIENTE":["EPP","Segregación de Residuos","Señalización","Incumplimiento de Normativa"]};
+
+let audn_state={};
+let audn_fotoAntesBlob=null;
+let audn_fotoDespuesBlob=null;
+let audn_criterioActual=null;
+let audn_allData=[];
+let audn_accionAuditoriaId=null;
+
+// ── NAVEGACIÓN ────────────────────────────────────────────────
+function iniciarAuditoriaNew(){
+  document.getElementById("pantalla-bienvenida").style.display="none";
+  document.getElementById("app-recorrido").style.display="none";
+  document.getElementById("app-checklist").style.display="none";
+  document.getElementById("app-auditoria-nueva").style.display="block";
+  const sectEl=document.getElementById("audn-sector");
+  if(sectEl&&sectEl.options.length<=1){
+    Object.entries(SECTORES_AUDIT).sort((a,b)=>a[0].localeCompare(b[0])).forEach(([area,info])=>{
+      info.areas.forEach(sector=>{
+        sectEl.innerHTML+=`<option value="${sector}" data-area="${area}">${sector} (${area})</option>`;
+      });
+    });
+  }
+  const areasUnicas=Object.keys(SECTORES_AUDIT).sort();
+  ["audn-fil-area","audn-fil-accion-area"].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el&&el.options.length<=1) areasUnicas.forEach(a=>el.innerHTML+=`<option value="${a}">${a}</option>`);
+  });
+  document.getElementById("audn-fecha").value=new Date().toISOString().split("T")[0];
+  audn_state={};
+  auditNuevaTab("nueva");
+  audn_cargarHistorial();
+}
+
+function salirAuditoriaNew(){
+  document.getElementById("app-auditoria-nueva").style.display="none";
+  document.getElementById("pantalla-bienvenida").style.display="flex";
+  audn_state={};audn_fotoAntesBlob=null;audn_fotoDespuesBlob=null;
+  document.getElementById("audn-eval-container").style.display="none";
+  document.getElementById("audn-btn-iniciar").style.display="none";
+  document.getElementById("audn-criterios-body").innerHTML="";
+  document.getElementById("audn-form-datos").style.opacity="1";
+}
+
+function auditNuevaTab(tab){
+  ["nueva","historial","dashboard","acciones"].forEach(t=>{
+    const cont=document.getElementById("audn-content-"+t);
+    const btn=document.getElementById("audn-tab-"+t);
+    if(cont) cont.style.display=t===tab?"block":"none";
+    if(btn){btn.style.color=t===tab?"var(--amber)":"var(--g400)";btn.style.borderBottom=t===tab?"3px solid var(--amber)":"3px solid transparent";}
+  });
+  if(tab==="historial") audn_cargarHistorial();
+  if(tab==="dashboard") audn_renderDashboard();
+  if(tab==="acciones") audn_cargarAcciones();
+}
+
+// ── SECTOR AUTO-ÁREA ──────────────────────────────────────────
+document.addEventListener("DOMContentLoaded",()=>{
+  const sectEl=document.getElementById("audn-sector");
+  if(sectEl) sectEl.addEventListener("change",()=>{
+    const sector=sectEl.value;
+    const opt=sectEl.options[sectEl.selectedIndex];
+    const area=opt?opt.getAttribute("data-area"):"";
+    const aEl=document.getElementById("audn-area-auto");
+    if(aEl) aEl.value=area||"";
+    // Asignar responsable específico del sector o del área
+    const respEl=document.getElementById("audn-lider");
+    if(respEl){
+      const respSector=RESP_SECTOR[sector]||"";
+      const respArea=area&&SECTORES_AUDIT[area]?SECTORES_AUDIT[area].responsable||"":"";
+      respEl.value=respSector||respArea;
+    }
+    audn_checkReady();
+  });
+  ["audn-num","audn-fecha","audn-auditor"].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.addEventListener("change",audn_checkReady);
+    if(el) el.addEventListener("input",audn_checkReady);
+  });
+});
+
+function audn_checkReady(){
+  const num=document.getElementById("audn-num")?.value;
+  const fecha=document.getElementById("audn-fecha")?.value;
+  const sector=document.getElementById("audn-sector")?.value;
+  const auditor=document.getElementById("audn-auditor")?.value?.trim();
+  const btn=document.getElementById("audn-btn-iniciar");
+  if(btn) btn.style.display=(num&&fecha&&sector&&auditor)?"block":"none";
+}
+
+// ── EVALUACIÓN ────────────────────────────────────────────────
+function audn_iniciarEvaluacion(){
+  audn_state={};
+  audn_renderCriterios();
+  document.getElementById("audn-eval-container").style.display="block";
+  document.getElementById("audn-btn-iniciar").style.display="none";
+  document.getElementById("audn-form-datos").style.opacity="0.65";
+  document.getElementById("audn-badge-ronda").style.display="block";
+  const num=document.getElementById("audn-num").value;
+  document.getElementById("audn-badge-ronda").textContent=["","A1","A2","A3","A4"][num]||"";
+  document.getElementById("audn-eval-container").scrollIntoView({behavior:"smooth"});
+}
+
+function audn_renderCriterios(){
+  const body=document.getElementById("audn-criterios-body");
+  const catColors={"INFRAESTRUCTURA":"#5C6BC0","SUMINISTROS":"#0288D1","ACTIVOS":"#00838F","PROCESO":"#2E7D32","MATERIALES":"#E65100","INFORMACIÓN":"#6A1B9A","PERSONAL":"#AD1457","SEG. Y MEDIO AMBIENTE":"#C62828"};
+  let html="";
+  Object.entries(AUDN_CATEGORIAS).forEach(([cat,criterios])=>{
+    const color=catColors[cat]||"var(--g700)";
+    const evaluados=criterios.filter(c=>audn_state[cat+"||"+c]!==undefined).length;
+    html+=`<div data-cat="${cat}" style="background:#fff;border-radius:14px;margin-bottom:12px;overflow:hidden;box-shadow:var(--sh)">
+      <div style="background:${color};padding:12px 16px;display:flex;align-items:center;justify-content:space-between">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;color:#fff;letter-spacing:.3px">${cat}</div>
+        <div class="audn-cat-count" style="font-size:12px;color:rgba(255,255,255,.8)">${evaluados}/${criterios.length}</div>
+      </div>
+      <div style="padding:8px">`;
+    criterios.forEach(crit=>{
+      const key=cat+"||"+crit;
+      const estado=audn_state[key];
+      const pts=estado?.puntaje;
+      const bg=pts===undefined?"var(--g50)":pts>0?"#F0FDF4":pts===-5?"#FFFBEB":pts===-10?"#FFF7ED":"#FEF2F2";
+      const badge=pts===undefined?'<span style="color:var(--g300);font-size:18px">○</span>':
+        pts>0?`<span style="background:#15803D;color:#fff;border-radius:6px;padding:2px 8px;font-size:13px;font-weight:700">+5</span>`:
+        `<span style="background:${pts===-5?"#B45309":pts===-10?"#C2410C":pts===-15?"#C62828":"#7B1FA2"};color:#fff;border-radius:6px;padding:2px 8px;font-size:13px;font-weight:700">${pts}</span>`;
+      const dataKey=cat+"||"+crit;
+      html+=`<div data-key="${dataKey}" onclick="audn_abrirModal('${cat.replace(/'/g,"\\'")}','${crit.replace(/'/g,"\\'")}')" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-radius:10px;margin-bottom:4px;background:${bg};cursor:pointer;border:1px solid var(--g100)">
+        <div style="flex:1;min-width:0">
+          <div style="font-size:14px;font-weight:600;color:var(--g700);line-height:1.3">${crit}</div>
+          <div class="audn-obs-preview" style="font-size:11px;color:var(--g400);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${estado?.obs?estado.obs.substring(0,40)+"...":""}</div>
+        </div>
+        <div class="audn-badge" style="margin-left:10px;flex-shrink:0">${badge}</div>
+      </div>`;
+    });
+    html+="</div></div>";
+  });
+  body.innerHTML=html;
+  audn_recalcularTotal();
+}
+
+function audn_recalcularTotal(){
+  let descuento=0;
+  Object.values(audn_state).forEach(v=>{ descuento+=v.puntaje||0; });
+  const pts=1000+descuento;
+  const pct=Math.max(0,Math.round(pts/10));
+  const nivel=pct>=90?"EXCELENTE":pct>=80?"BUENO":pct>=60?"REGULAR":"DEFICIENTE";
+  const color=pct>=80?"var(--green)":pct>=60?"var(--amber)":"var(--red)";
+  const sc=document.getElementById("audn-score-display");
+  const pc=document.getElementById("audn-pct-display");
+  const nv=document.getElementById("audn-nivel-display");
+  if(sc){sc.textContent=pts;sc.style.color=pct>=60?"#fff":"#FCA5A5";}
+  if(pc) pc.textContent=pct+"%";
+  if(nv) nv.textContent=nivel;
+}
+
+// ── MODAL CRITERIO ────────────────────────────────────────────
+function audn_abrirModal(cat,crit){
+  audn_criterioActual={cat,crit};
+  audn_fotoAntesBlob=null;
+  document.getElementById("modal-audn-criterio").style.display="flex";
+  document.getElementById("modal-audn-cat").textContent=cat;
+  document.getElementById("modal-audn-crit").textContent=crit;
+  // Limpiar selección botones
+  document.querySelectorAll(".audn-pts-btn").forEach(b=>{
+    b.style.opacity="1";b.style.transform="scale(1)";
+    b.style.boxShadow="none";
+  });
+  const key=cat+"||"+crit;
+  const estado=audn_state[key];
+  if(estado){
+    audn_selPuntaje(estado.puntaje,false);
+    if(estado.obs) document.getElementById("audn-modal-obs").value=estado.obs;
+    if(estado.s) document.getElementById("audn-modal-s").value=estado.s;
+    if(estado.resp) document.getElementById("audn-modal-resp").value=estado.resp;
+    if(estado.fi) document.getElementById("audn-modal-fi").value=estado.fi;
+    if(estado.ff) document.getElementById("audn-modal-ff").value=estado.ff;
+    if(estado.coment) document.getElementById("audn-modal-coment").value=estado.coment;
+    const prev=document.getElementById("audn-preview-antes");
+    if(estado.fotoAntesUrl){prev.src=estado.fotoAntesUrl;prev.style.display="block";}
+    else prev.style.display="none";
+  } else {
+    ["audn-modal-obs","audn-modal-s","audn-modal-resp"].forEach(id=>{
+      const el=document.getElementById(id);
+      if(el){el.value="";el.style.border="";}
+    });
+    document.getElementById("audn-modal-fi").value="";
+    document.getElementById("audn-modal-ff").value="";
+    document.getElementById("audn-modal-coment").value="";
+    document.getElementById("audn-preview-antes").style.display="none";
+    document.getElementById("audn-modal-incump").style.display="none";
+    document.getElementById("audn-modal-destacable").style.display="none";
+  }
+}
+
+function audn_selPuntaje(pts, updateUI=true){
+  if(updateUI){
+    document.querySelectorAll(".audn-pts-btn").forEach(b=>{
+      const bpts=parseInt(b.dataset.pts);
+      b.style.opacity=bpts===pts?"1":"0.45";
+      b.style.transform=bpts===pts?"scale(1.04)":"scale(1)";
+      b.style.boxShadow=bpts===pts?"0 0 0 3px rgba(0,0,0,.25)":"none";
+    });
+  }
+  document.getElementById("audn-modal-incump").style.display=pts<0?"block":"none";
+  document.getElementById("audn-modal-destacable").style.display=pts>0?"block":"none";
+  audn_criterioActual._pts=pts;
+}
+
+function audn_cerrarModal(){
+  document.getElementById("modal-audn-criterio").style.display="none";
+}
+
+function audn_fotoAntes(input){
+  if(!input.files||!input.files[0]) return;
+  audn_fotoAntesBlob=input.files[0];
+  const r=new FileReader();
+  r.onload=e=>{const p=document.getElementById("audn-preview-antes");p.src=e.target.result;p.style.display="block";};
+  r.readAsDataURL(audn_fotoAntesBlob);
+}
+
+function audn_fotoDespues(input){
+  if(!input.files||!input.files[0]) return;
+  audn_fotoDespuesBlob=input.files[0];
+  const r=new FileReader();
+  r.onload=e=>{const p=document.getElementById("audn-preview-despues");p.src=e.target.result;p.style.display="block";};
+  r.readAsDataURL(audn_fotoDespuesBlob);
+}
+
+async function audn_guardarCriterio(){
+  const pts=audn_criterioActual._pts;
+  if(pts===undefined||pts===null){
+    showToast("Selecciona un puntaje",true);
+    return;
+  }
+  const key=audn_criterioActual.cat+"||"+audn_criterioActual.crit;
+  let fotoAntesUrl=audn_state[key]?.fotoAntesUrl||"";
+
+  if(pts<0){
+    const obsEl=document.getElementById("audn-modal-obs");
+    const sEl=document.getElementById("audn-modal-s");
+    const respEl=document.getElementById("audn-modal-resp");
+    const obs=obsEl.value.trim();
+    const s=sEl.value;
+    const resp=respEl.value.trim();
+
+    // Marcar campos faltantes en rojo
+    obsEl.style.border=obs?"1px solid var(--g200)":"2px solid var(--red)";
+    sEl.style.border=s?"1px solid var(--g200)":"2px solid var(--red)";
+    respEl.style.border=resp?"1px solid var(--g200)":"2px solid var(--red)";
+
+    let errores=[];
+    if(!obs) errores.push("observación");
+    if(!s) errores.push("S afectada");
+    if(!resp) errores.push("responsable");
+    if(!audn_fotoAntesBlob&&!fotoAntesUrl) errores.push("foto de evidencia");
+    if(errores.length>0){
+      showToast("Falta: "+errores.join(", "),true);
+      if(!obs) obsEl.focus();
+      else if(!s) sEl.focus();
+      else if(!resp) respEl.focus();
+      return;
+    }
+
+    // Subir foto — sin showToast, solo cambiar botón
+    if(audn_fotoAntesBlob){
+      const btnG=document.querySelector("#modal-audn-criterio .btn-guardar-crit");
+      if(btnG){btnG.disabled=true;btnG.innerHTML='<span class="spinner"></span>';}
+      try{
+        fotoAntesUrl=await subirCloudinary(audn_fotoAntesBlob,null,null);
+      }catch(e){
+        showToast("Error subiendo foto",true);
+        if(btnG){btnG.disabled=false;btnG.textContent="Guardar";}
+        return;
+      }
+      if(btnG){btnG.disabled=false;btnG.textContent="Guardar";}
+    }
+
+    audn_state[key]={
+      puntaje:pts, obs, s, resp,
+      fi:document.getElementById("audn-modal-fi").value,
+      ff:document.getElementById("audn-modal-ff").value,
+      fotoAntesUrl, fotoDesUrl:""
+    };
+  } else {
+    const coment=document.getElementById("audn-modal-coment").value.trim();
+    audn_state[key]={puntaje:pts,obs:"",s:"",resp:"",coment,fotoAntesUrl:"",fotoDesUrl:""};
+  }
+
+  audn_cerrarModal();
+  // Actualizar solo el item visual sin re-renderizar todo
+  audn_actualizarItemVisual(key);
+  audn_recalcularTotal();
+}
+
+function audn_actualizarItemVisual(key){
+  const [cat,crit]=key.split("||");
+  const estado=audn_state[key];
+  const pts=estado?.puntaje;
+  const bg=pts===undefined?"var(--g50)":pts>0?"#F0FDF4":pts===-5?"#FFFBEB":pts===-10?"#FFF7ED":"#FEF2F2";
+  const badgeHTML=pts===undefined?'<span style="color:var(--g300);font-size:18px">○</span>':
+    pts>0?`<span style="background:#15803D;color:#fff;border-radius:6px;padding:2px 8px;font-size:13px;font-weight:700">+5</span>`:
+    `<span style="background:${pts===-5?"#B45309":pts===-10?"#C2410C":pts===-15?"#C62828":"#7B1FA2"};color:#fff;border-radius:6px;padding:2px 8px;font-size:13px;font-weight:700">${pts}</span>`;
+
+  // Buscar el elemento por data-key
+  const el=document.querySelector(`[data-key="${CSS.escape(key)}"]`);
+  if(el){
+    el.style.background=bg;
+    const badge=el.querySelector(".audn-badge");
+    if(badge) badge.innerHTML=badgeHTML;
+    const obs=el.querySelector(".audn-obs-preview");
+    if(obs) obs.textContent=estado?.obs?estado.obs.substring(0,40)+"...":"";
+  }
+  // Actualizar contador de categoría
+  const cats=AUDN_CATEGORIAS[cat]||[];
+  const evaluados=cats.filter(c=>audn_state[cat+"||"+c]!==undefined).length;
+  const catEl=document.querySelector(`[data-cat="${CSS.escape(cat)}"] .audn-cat-count`);
+  if(catEl) catEl.textContent=`${evaluados}/${cats.length}`;
+}
+
+function audn_actualizarTarjeta(key){
+  // Actualizar solo el badge visual del criterio sin re-renderizar todo
+  const [cat,crit]=key.split("||");
+  const estado=audn_state[key];
+  const pts=estado?.puntaje;
+  const bg=pts===undefined?"var(--g50)":pts>0?"#F0FDF4":pts===-5?"#FFFBEB":pts===-10?"#FFF7ED":"#FEF2F2";
+  const badge=pts===undefined?'<span style="color:var(--g300);font-size:18px">○</span>':
+    pts>0?`<span style="background:#15803D;color:#fff;border-radius:6px;padding:2px 8px;font-size:13px;font-weight:700">+5</span>`:
+    `<span style="background:${pts===-5?"#B45309":pts===-10?"#C2410C":pts===-15?"#C62828":"#7B1FA2"};color:#fff;border-radius:6px;padding:2px 8px;font-size:13px;font-weight:700">${pts}</span>`;
+
+  // Buscar la tarjeta en el DOM por contenido de texto
+  const cards=document.querySelectorAll("#audn-criterios-body [style]");
+  cards.forEach(card=>{
+    const textEl=card.querySelector("div[style*='font-size:14px']");
+    if(textEl&&textEl.textContent.trim()===crit){
+      card.style.background=bg;
+      const badgeEl=card.querySelector("div[style*='margin-left:10px']");
+      if(badgeEl) badgeEl.innerHTML=badge;
+      const obsEl=card.querySelector("div[style*='font-size:11px'][style*='g400']");
+      if(obsEl&&estado?.obs) obsEl.textContent=estado.obs;
+    }
+  });
+
+  // Actualizar contador de la categoría
+  const catColors={"INFRAESTRUCTURA":"#5C6BC0","SUMINISTROS":"#0288D1","ACTIVOS":"#00838F","PROCESO":"#2E7D32","MATERIALES":"#E65100","INFORMACIÓN":"#6A1B9A","PERSONAL":"#AD1457","SEG. Y MEDIO AMBIENTE":"#C62828"};
+  const criteriosCat=AUDN_CATEGORIAS[cat]||[];
+  const evaluadosCat=criteriosCat.filter(c=>audn_state[cat+"||"+c]!==undefined).length;
+  // Buscar el header de la categoría
+  const headers=document.querySelectorAll("#audn-criterios-body div[style*='font-weight:800'][style*='color:#fff']");
+  headers.forEach(h=>{
+    if(h.textContent.trim()===cat){
+      const counter=h.nextElementSibling;
+      if(counter) counter.textContent=`${evaluadosCat}/${criteriosCat.length}`;
+    }
+  });
+}
+
+// ── GUARDAR AUDITORÍA ─────────────────────────────────────────
+async function audn_guardar(){
+  const num=document.getElementById("audn-num").value;
+  const fecha=document.getElementById("audn-fecha").value;
+  const sectorEl=document.getElementById("audn-sector");
+  const sector=sectorEl.value;
+  const opt=sectorEl.options[sectorEl.selectedIndex];
+  const area=opt?opt.getAttribute("data-area"):"";
+  const auditor=document.getElementById("audn-auditor").value.trim();
+  const lider=document.getElementById("audn-lider").value.trim();
+
+  if(!num){showToast("Selecciona el N° de Auditoría",true);return;}
+  if(!fecha){showToast("Selecciona la fecha",true);return;}
+  if(!sector){showToast("Selecciona el sector",true);return;}
+  if(!auditor){showToast("Escribe el nombre del auditor",true);return;}
+
+  const btn=document.getElementById("audn-btn-guardar");
+  btn.disabled=true;
+  btn.innerHTML='<span class="spinner"></span> Guardando...';
+
+  let descuento=0;
+  const criterios=[];
+  let numObs=1;
+  Object.entries(audn_state).forEach(([key,v])=>{
+    const [cat,crit]=key.split("||");
+    descuento+=v.puntaje||0;
+    criterios.push({num:numObs++,categoria:cat,criterio:crit,
+      puntaje:v.puntaje,obs:v.obs||"",s:v.s||"",resp:v.resp||"",
+      fi:v.fi||"",ff:v.ff||"",fotoAntesUrl:v.fotoAntesUrl||""});
+  });
+  const puntajeTotal=1000+descuento;
+  const pct=Math.max(0,Math.round(puntajeTotal/10));
+  const nivel=pct>=90?"EXCELENTE":pct>=80?"BUENO":pct>=60?"REGULAR":"DEFICIENTE";
+
+  try{
+    const payload={
+      num_auditoria:parseInt(num),
+      fecha,area,sector,auditor,lider,
+      puntaje_total:puntajeTotal,
+      pct_cumplimiento:pct,
+      nivel,
+      criterios:JSON.stringify(criterios),
+      total_incumplimientos:criterios.filter(c=>c.puntaje<0).length,
+      status:"Activo",
+      created_at:new Date().toISOString()
+    };
+    const {error}=await sb.from("auditorias_nuevas_5s").insert(payload);
+    if(error) throw error;
+    // Éxito — limpiar formulario
+    audn_state={};
+    // Reset formulario
+    document.getElementById("audn-num").value="";
+    document.getElementById("audn-fecha").value=new Date().toISOString().split("T")[0];
+    document.getElementById("audn-sector").value="";
+    document.getElementById("audn-area-auto").value="";
+    document.getElementById("audn-auditor").value="";
+    document.getElementById("audn-lider").value="";
+    document.getElementById("audn-criterios-body").innerHTML="";
+    document.getElementById("audn-eval-container").style.display="none";
+    document.getElementById("audn-badge-ronda").style.display="none";
+    document.getElementById("audn-form-datos").style.opacity="1";
+    document.getElementById("audn-btn-iniciar").style.display="none";
+    showToast("✅ Auditoría guardada — "+puntajeTotal+" pts ("+pct+"%)");
+    auditNuevaTab("historial");
+  }catch(e){
+    console.error("Error guardando auditoría:",e);
+    showToast("Error: "+(e.message||JSON.stringify(e)),true);
+  }finally{
+    btn.disabled=false;
+    btn.textContent="✓ Guardar Auditoría";
+  }
+}
+
+// ── HISTORIAL ─────────────────────────────────────────────────
+async function audn_cargarHistorial(){
+  const body=document.getElementById("audn-historial-body");
+  if(!body) return;
+  body.innerHTML='<div style="text-align:center;padding:20px;color:var(--g400)">Cargando...</div>';
+  const ronda=document.getElementById("audn-fil-ronda")?.value||"";
+  const area=document.getElementById("audn-fil-area")?.value||"";
+  let q=sb.from("auditorias_nuevas_5s").select("*").order("created_at",{ascending:false});
+  if(ronda) q=q.eq("num_auditoria",parseInt(ronda));
+  if(area) q=q.eq("area",area);
+  const {data,error}=await q;
+  audn_allData=data||[];
+  if(error||!data||data.length===0){body.innerHTML='<div style="text-align:center;padding:30px;color:var(--g400)">No hay auditorías registradas</div>';return;}
+  const rondaLabel=["","A1","A2","A3","A4"];
+  body.innerHTML=data.map(a=>{
+    const pct=a.pct_cumplimiento||0;
+    const color=pct>=80?"var(--green)":pct>=60?"var(--amber)":"var(--red)";
+    const incumps=a.total_incumplimientos||0;
+    return `<div style="background:#fff;border-radius:14px;padding:16px;margin-bottom:10px;box-shadow:var(--sh);border-left:4px solid ${color}">
+      <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:10px">
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px">
+            <span style="background:var(--amber);color:#fff;border-radius:5px;padding:1px 8px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700">${rondaLabel[a.num_auditoria]||""}</span>
+            <span style="font-size:11px;color:var(--g400)">${a.fecha||""}</span>
+          </div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:19px;font-weight:800;color:var(--g700)">${a.sector}</div>
+          <div style="font-size:12px;color:var(--g400)">${a.area} · Auditor: ${a.auditor}</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:30px;font-weight:900;color:${color};line-height:1">${pct}%</div>
+          <div style="font-size:11px;color:var(--g400)">${a.puntaje_total} pts</div>
+          <div style="font-size:10px;font-weight:700;color:${color}">${a.nivel||""}</div>
+        </div>
+      </div>
+      <div style="background:var(--g100);border-radius:6px;height:6px;margin-bottom:8px">
+        <div style="background:${color};height:6px;border-radius:6px;width:${pct}%"></div>
+      </div>
+      <div style="font-size:12px;color:var(--red);margin-bottom:10px">${incumps} incumplimiento(s) registrado(s)</div>
+      <div style="display:flex;gap:8px">
+        <button onclick="audn_verDetalle(${a.id})" style="flex:1;padding:9px;background:var(--g50);border:1px solid var(--g200);border-radius:8px;cursor:pointer;font-size:12px;font-weight:600">Ver detalle</button>
+        <button onclick="audn_abrirAccionModal(${a.id})" style="flex:1;padding:9px;background:var(--amber);color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600">+ Acción</button>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+async function audn_verDetalle(id){
+  const {data}=await sb.from("auditorias_nuevas_5s").select("*").eq("id",id).single();
+  if(!data) return;
+  const criterios=JSON.parse(data.criterios||"[]");
+  const incumps=criterios.filter(c=>c.puntaje<0);
+  const rondaLabel=["","A1","A2","A3","A4"];
+  let html=`<div style="padding:18px">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+      <span style="background:var(--amber);color:#fff;border-radius:6px;padding:2px 10px;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700">${rondaLabel[data.num_auditoria]||""}</span>
+      <span style="font-size:12px;color:var(--g400)">${data.fecha}</span>
+    </div>
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:900;color:var(--g700)">${data.sector}</div>
+    <div style="font-size:13px;color:var(--g400);margin-bottom:14px">${data.area} · Auditor: ${data.auditor}</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+      <div style="background:var(--g50);border-radius:10px;padding:12px;text-align:center">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:900;color:var(--amber)">${data.puntaje_total}</div>
+        <div style="font-size:11px;color:var(--g400)">Puntaje / 1000</div>
+      </div>
+      <div style="background:var(--g50);border-radius:10px;padding:12px;text-align:center">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:900;color:${data.pct_cumplimiento>=80?"var(--green)":"var(--red)"}">${data.pct_cumplimiento}%</div>
+        <div style="font-size:11px;color:var(--g400)">Cumplimiento</div>
+      </div>
+    </div>`;
+  if(incumps.length>0){
+    html+=`<div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;color:var(--red);margin-bottom:10px">Incumplimientos (${incumps.length})</div>`;
+    incumps.forEach(c=>{
+      html+=`<div style="background:#FEF2F2;border-radius:10px;padding:12px;margin-bottom:8px;border-left:3px solid var(--red)">
+        <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:4px">
+          <div>
+            <div style="font-size:10px;font-weight:700;color:var(--amber);text-transform:uppercase">${c.categoria}</div>
+            <div style="font-weight:700;font-size:14px;color:var(--g700)">${c.txt}</div>
+          </div>
+          <span style="background:var(--red);color:#fff;border-radius:5px;padding:1px 8px;font-size:12px;font-weight:700;flex-shrink:0;margin-left:8px">${c.puntaje}</span>
+        </div>
+        ${c.s?`<div style="font-size:11px;color:var(--blue);font-weight:600;margin-bottom:4px">${c.s}</div>`:""}
+        ${c.obs?`<div style="font-size:12px;color:var(--g700);margin-bottom:4px">${c.obs}</div>`:""}
+        ${c.fotoAntesUrl?`<img src="${c.fotoAntesUrl}" style="width:100%;border-radius:8px;margin-top:8px;max-height:180px;object-fit:cover">`:""}
+        ${c.resp?`<div style="font-size:11px;color:var(--g400);margin-top:6px">Resp: ${c.resp} ${c.fi?"· Inicio: "+c.fi:""} ${c.ff?"· Fin: "+c.ff:""}</div>`:""}
+      </div>`;
+    });
+  }
+  html+="</div>";
+  document.getElementById("modal-audn-detalle-body").innerHTML=html;
+  document.getElementById("modal-audn-detalle").style.display="block";
+}
+
+// ── DASHBOARD ─────────────────────────────────────────────────
+async function audn_renderDashboard(){
+  const ronda=document.getElementById("audn-dash-ronda")?.value||"";
+  let q=sb.from("auditorias_nuevas_5s").select("*").order("created_at",{ascending:true});
+  if(ronda) q=q.eq("num_auditoria",parseInt(ronda));
+  const {data}=await q;
+  if(!data||data.length===0){
+    document.getElementById("audn-dash-kpis").innerHTML='<div style="grid-column:1/-1;text-align:center;padding:20px;color:var(--g400)">Sin datos</div>';
+    return;
+  }
+  const total=data.length;
+  const promPts=Math.round(data.reduce((s,a)=>s+(a.puntaje_total||0),0)/total);
+  const promPct=Math.round(data.reduce((s,a)=>s+(a.pct_cumplimiento||0),0)/total);
+  const totalInc=data.reduce((s,a)=>s+(a.total_incumplimientos||0),0);
+  const color=promPct>=80?"var(--green)":promPct>=60?"var(--amber)":"var(--red)";
+  // KPIs
+  document.getElementById("audn-dash-kpis").innerHTML=[
+    {lbl:"Auditorías",val:total,color:"var(--blue)"},
+    {lbl:"Puntaje Prom.",val:promPts+" pts",color:"var(--amber)"},
+    {lbl:"% Cumplimiento",val:promPct+"%",color},
+    {lbl:"Incumplimientos",val:totalInc,color:"var(--red)"},
+  ].map(k=>`<div style="background:#fff;border-radius:12px;padding:14px;box-shadow:var(--sh);text-align:center">
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:900;color:${k.color}">${k.val}</div>
+    <div style="font-size:11px;color:var(--g400);margin-top:2px">${k.lbl}</div>
+  </div>`).join("");
+
+  // Gráfico por rondas
+  const rondas={};
+  data.forEach(a=>{const r="A"+a.num_auditoria;if(!rondas[r]){rondas[r]=[];}rondas[r].push(a.pct_cumplimiento||0);});
+  const rondasLabels=Object.keys(rondas).sort();
+  const rondasData=rondasLabels.map(r=>Math.round(rondas[r].reduce((s,v)=>s+v,0)/rondas[r].length));
+  const ctx1=document.getElementById("audn-chart-rondas");
+  if(ctx1){
+    if(Chart.getChart(ctx1)) Chart.getChart(ctx1).destroy();
+    new Chart(ctx1,{type:"bar",data:{labels:rondasLabels,datasets:[{label:"% Cumplimiento",data:rondasData,backgroundColor:rondasData.map(v=>v>=80?"rgba(30,124,52,.8)":v>=60?"rgba(217,119,6,.8)":"rgba(230,51,41,.8)"),borderRadius:6}]},options:{plugins:{legend:{display:false}},scales:{y:{min:0,max:100,ticks:{callback:v=>v+"%"}}}}});
+  }
+
+  // Gráfico por área
+  const areas={};
+  data.forEach(a=>{if(!areas[a.area]){areas[a.area]=[];}areas[a.area].push(a.pct_cumplimiento||0);});
+  const areasLabels=Object.keys(areas).sort();
+  const areasData=areasLabels.map(a=>Math.round(areas[a].reduce((s,v)=>s+v,0)/areas[a].length));
+  const ctx2=document.getElementById("audn-chart-areas");
+  if(ctx2){
+    if(Chart.getChart(ctx2)) Chart.getChart(ctx2).destroy();
+    new Chart(ctx2,{type:"bar",data:{labels:areasLabels,datasets:[{label:"% Promedio",data:areasData,backgroundColor:"rgba(30,124,52,.75)",borderRadius:4}]},options:{indexAxis:"y",plugins:{legend:{display:false}},scales:{x:{min:0,max:100,ticks:{callback:v=>v+"%"}}}}});
+  }
+
+  // Tabla estado observaciones
+  const obsTable=document.getElementById("audn-dash-obs-table");
+  if(obsTable){
+    const porArea={};
+    data.forEach(a=>{
+      const crits=JSON.parse(a.criterios||"[]").filter(c=>c.puntaje<0);
+      if(!porArea[a.area]) porArea[a.area]={total:0};
+      porArea[a.area].total+=crits.length;
+    });
+    obsTable.innerHTML=`<table style="width:100%;border-collapse:collapse;font-size:13px">
+      <thead><tr style="background:var(--g50)">
+        <th style="padding:8px;text-align:left;border-bottom:1px solid var(--g200)">Área</th>
+        <th style="padding:8px;text-align:center;border-bottom:1px solid var(--g200)">Incumpl.</th>
+      </tr></thead><tbody>
+      ${Object.entries(porArea).map(([area,v])=>`<tr>
+        <td style="padding:8px;border-bottom:1px solid var(--g100)">${area}</td>
+        <td style="padding:8px;text-align:center;border-bottom:1px solid var(--g100);color:var(--red);font-weight:700">${v.total}</td>
+      </tr>`).join("")}
+      </tbody></table>`;
+  }
+}
+
+// ── ACCIONES ──────────────────────────────────────────────────
+function audn_abrirAccionModal(auditoriaId){
+  audn_accionAuditoriaId=auditoriaId;
+  audn_fotoDespuesBlob=null;
+  document.getElementById("audn-accion-id").value="";
+  document.getElementById("audn-accion-auditoria-id").value=auditoriaId;
+  document.getElementById("audn-accion-responsable").value="";
+  document.getElementById("audn-accion-fecha-inicio").value="";
+  document.getElementById("audn-accion-fecha-fin").value="";
+  document.getElementById("audn-accion-avance").value="0";
+  document.getElementById("audn-accion-avance-plan").value="100";
+  document.getElementById("audn-accion-estado").value="Pendiente";
+  document.getElementById("audn-preview-despues").style.display="none";
+  document.getElementById("modal-audn-accion").style.display="flex";
+}
+
+async function audn_guardarAccion(){
+  const resp=document.getElementById("audn-accion-responsable").value.trim();
+  const fi=document.getElementById("audn-accion-fecha-inicio").value;
+  const ff=document.getElementById("audn-accion-fecha-fin").value;
+  const avance=parseInt(document.getElementById("audn-accion-avance").value||"0");
+  const avancePlan=parseInt(document.getElementById("audn-accion-avance-plan").value||"100");
+  const estado=document.getElementById("audn-accion-estado").value;
+  if(!resp||!fi||!ff){showToast("Completa responsable y fechas",true);return;}
+  let fotoDespuesUrl="";
+  if(audn_fotoDespuesBlob){
+    showToast("Subiendo foto...");
+    try{fotoDespuesUrl=await subirCloudinary(audn_fotoDespuesBlob,null,null);}
+    catch(e){showToast("Error subiendo foto",true);return;}
+  }
+  const id=document.getElementById("audn-accion-id").value;
+  const payload={
+    auditoria_id:parseInt(document.getElementById("audn-accion-auditoria-id").value),
+    responsable:resp,fecha_inicio:fi,fecha_fin:ff,
+    avance_real:avance,avance_planificado:avancePlan,
+    estado,foto_despues:fotoDespuesUrl,
+    created_at:new Date().toISOString()
+  };
+  let error;
+  if(id){const r=await sb.from("acciones_auditoria").update(payload).eq("id",id);error=r.error;}
+  else{const r=await sb.from("acciones_auditoria").insert(payload);error=r.error;}
+  if(error){showToast("Error: "+error.message,true);return;}
+  document.getElementById("modal-audn-accion").style.display="none";
+  showToast("Acción guardada ✓");
+  audn_cargarAcciones();
+}
+
+async function audn_cargarAcciones(){
+  const body=document.getElementById("audn-acciones-body");
+  if(!body) return;
+  body.innerHTML='<div style="text-align:center;padding:20px;color:var(--g400)">Cargando...</div>';
+  const area=document.getElementById("audn-fil-accion-area")?.value||"";
+  const estado=document.getElementById("audn-fil-accion-estado")?.value||"";
+  let q=sb.from("acciones_auditoria").select("*, auditorias_nuevas_5s(area,sector,num_auditoria)").order("fecha_fin",{ascending:true});
+  if(estado) q=q.eq("estado",estado);
+  const {data,error}=await q;
+  if(error||!data||data.length===0){body.innerHTML='<div style="text-align:center;padding:30px;color:var(--g400)">No hay acciones registradas</div>';return;}
+  const filtered=area?data.filter(a=>a.auditorias_nuevas_5s?.area===area):data;
+  const total=filtered.length;
+  const completadas=filtered.filter(a=>a.estado==="Completado").length;
+  const pendientes=filtered.filter(a=>a.estado==="Pendiente").length;
+  const kpis=document.getElementById("audn-acciones-kpis");
+  if(kpis) kpis.innerHTML=[
+    {lbl:"Total",val:total,color:"var(--blue)"},
+    {lbl:"Completadas",val:completadas,color:"var(--green)"},
+    {lbl:"Pendientes",val:pendientes,color:"var(--red)"},
+  ].map(k=>`<div style="background:#fff;border-radius:10px;padding:10px;box-shadow:var(--sh);text-align:center">
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:900;color:${k.color}">${k.val}</div>
+    <div style="font-size:10px;color:var(--g400)">${k.lbl}</div>
+  </div>`).join("");
+  const colorEst={Pendiente:"var(--red)","En Proceso":"var(--amber)",Completado:"var(--green)"};
+  body.innerHTML=filtered.map(a=>{
+    const color=colorEst[a.estado]||"var(--g400)";
+    const diasR=Math.ceil((new Date(a.fecha_fin)-new Date())/(1000*60*60*24));
+    const aud=a.auditorias_nuevas_5s;
+    return `<div style="background:#fff;border-radius:12px;padding:14px;margin-bottom:10px;box-shadow:var(--sh);border-left:4px solid ${color}">
+      <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:8px">
+        <div>
+          <div style="font-size:11px;color:var(--g400)">${aud?aud.area+" · "+aud.sector:""}</div>
+          <div style="font-weight:700;font-size:14px;color:var(--g700)">${a.responsable}</div>
+          <div style="font-size:11px;color:var(--g400)">${a.fecha_inicio} → ${a.fecha_fin}</div>
+        </div>
+        <div style="background:${color};color:#fff;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700">${a.estado}</div>
+      </div>
+      <div style="margin-bottom:6px">
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--g400);margin-bottom:3px">
+          <span>Avance real: ${a.avance_real||0}%</span>
+          <span>Planificado: ${a.avance_planificado||100}%</span>
+        </div>
+        <div style="background:var(--g100);border-radius:4px;height:6px">
+          <div style="background:${color};height:6px;border-radius:4px;width:${a.avance_real||0}%"></div>
+        </div>
+      </div>
+      ${a.foto_despues?`<img src="${a.foto_despues}" style="width:100%;border-radius:8px;margin-bottom:8px;max-height:140px;object-fit:cover">`:""}
+      ${diasR<=3&&a.estado!=="Completado"?`<div style="font-size:11px;color:var(--red);margin-bottom:6px">⚠️ Vence en ${diasR} días</div>`:""}
+      <button onclick="audn_editarAccion(${a.id})" style="width:100%;padding:8px;background:var(--g50);border:1px solid var(--g200);border-radius:8px;cursor:pointer;font-size:12px;font-weight:600">Editar acción</button>
+    </div>`;
+  }).join("");
+}
+
+async function audn_editarAccion(id){
+  const {data}=await sb.from("acciones_auditoria").select("*").eq("id",id).single();
+  if(!data) return;
+  audn_accionAuditoriaId=data.auditoria_id;
+  document.getElementById("audn-accion-id").value=id;
+  document.getElementById("audn-accion-auditoria-id").value=data.auditoria_id;
+  document.getElementById("audn-accion-responsable").value=data.responsable||"";
+  document.getElementById("audn-accion-fecha-inicio").value=data.fecha_inicio||"";
+  document.getElementById("audn-accion-fecha-fin").value=data.fecha_fin||"";
+  document.getElementById("audn-accion-avance").value=data.avance_real||0;
+  document.getElementById("audn-accion-avance-plan").value=data.avance_planificado||100;
+  document.getElementById("audn-accion-estado").value=data.estado||"Pendiente";
+  const prev=document.getElementById("audn-preview-despues");
+  if(data.foto_despues){prev.src=data.foto_despues;prev.style.display="block";}
+  else prev.style.display="none";
+  document.getElementById("modal-audn-accion").style.display="flex";
+}
+// ═══════════════════════════════════════════
+// FIN AUDITORÍA NUEVA
+// ═══════════════════════════════════════════
+
+
+function setObs(num,val){
+  if(!auditData[num]) auditData[num]={respuesta:null,obs:"",responsable:"",fecha:"",fotos:[]};
+  auditData[num].obs=val;
+}
+
+function setResp(num,val){
+  if(!auditData[num]) auditData[num]={respuesta:null,obs:"",responsable:"",fecha:"",fotos:[]};
+  auditData[num].responsable=val;
+}
+
+function setFecha(num,val){
+  if(!auditData[num]) auditData[num]={respuesta:null,obs:"",responsable:"",fecha:"",fotos:[]};
+  auditData[num].fecha=val;
+}
+
 </script>
 </body>
 </html>

@@ -412,7 +412,7 @@ canvas{max-width:100%!important}
         <input type="file" id="audn-input-foto-antes" accept="image/*" capture="environment" style="display:none" onchange="audn_fotoAntes(this)">
         <img id="audn-preview-antes" style="display:none;width:100%;border-radius:8px;margin-top:8px;max-height:160px;object-fit:cover">
       </div>
-      <div class="row2">
+      <div class="row2" style="display:none">
         <div class="fg"><label>F. inicio planificada</label><input type="date" id="audn-modal-fi"></div>
         <div class="fg"><label>F. fin planificada</label><input type="date" id="audn-modal-ff"></div>
       </div>
@@ -2095,13 +2095,10 @@ function renderCriterios(){
           <textarea placeholder="Describe el incumplimiento y la acción a tomar..."
             style="width:100%;padding:8px;border:1.5px solid var(--red);border-radius:8px;font-family:Barlow,sans-serif;font-size:13px;resize:vertical;min-height:55px"
             oninput="setObs(${c.num},this.value)">${d.obs||""}</textarea>
-          <div style="margin-top:8px;display:flex;gap:8px">
+          <div style="margin-top:8px">
             <input type="text" placeholder="Responsable" value="${d.responsable||""}"
-              style="flex:1;padding:7px;border:1px solid var(--g200);border-radius:7px;font-size:12px"
+              style="width:100%;padding:7px;border:1px solid var(--g200);border-radius:7px;font-size:12px"
               oninput="setResp(${c.num},this.value)">
-            <input type="date" value="${d.fecha||""}"
-              style="flex:1;padding:7px;border:1px solid var(--g200);border-radius:7px;font-size:12px"
-              oninput="setFecha(${c.num},this.value)">
           </div>
           <div style="margin-top:8px">
             <div style="font-size:10px;color:var(--g400);margin-bottom:4px">Foto de evidencia (obligatoria)</div>

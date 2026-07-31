@@ -250,7 +250,7 @@ canvas{max-width:100%!important}
       </div>
       <div class="row2">
         <div class="fg">
-          <label>N° Auditoría <span class="req">*</span></label>
+          <label>N° Check List <span class="req">*</span></label>
           <select id="audn-num">
             <option value="">- Selecciona -</option>
             <option value="1">A1 — 1ra Ronda</option>
@@ -265,45 +265,22 @@ canvas{max-width:100%!important}
         </div>
       </div>
       <div class="fg">
-        <label>Auditor <span class="req">*</span></label>
-        <select id="audn-auditor-sel" onchange="audn_onAuditorChange()">
-          <option value="">— Selecciona auditor —</option>
-          <option value="Adiel Abednego Aguayo Flores">Adiel Abednego Aguayo Flores</option>
-          <option value="Alejandro Salvador Grados">Alejandro Salvador Grados</option>
-          <option value="Ayrton Raphael Cotrina Esteves">Ayrton Raphael Cotrina Esteves</option>
-          <option value="Carlos Joél Luyo Diaz">Carlos Joél Luyo Diaz</option>
-          <option value="Cristopher William Reyes Islado">Cristopher William Reyes Islado</option>
-          <option value="Darlene Cruz Donayre">Darlene Cruz Donayre</option>
-          <option value="Dylan Yaret Pintado Fernandez">Dylan Yaret Pintado Fernandez</option>
-          <option value="Enrique Fabricio Polo Manrique">Enrique Fabricio Polo Manrique</option>
-          <option value="Fabio Caldas Antúnez">Fabio Caldas Antúnez</option>
-          <option value="Héctor Arteaga Espinoza">Héctor Arteaga Espinoza</option>
-          <option value="Julio Arroyo Puse">Julio Arroyo Puse</option>
-          <option value="Luis Bossio Vargas">Luis Bossio Vargas</option>
-          <option value="Mariluz Reynaldina Montes Laurente">Mariluz Reynaldina Montes Laurente</option>
-          <option value="Nuria del Pilar Diaz Ramirez">Nuria del Pilar Diaz Ramirez</option>
-          <option value="Paula Valeria Cecilia La Rosa La Rosa">Paula Valeria Cecilia La Rosa La Rosa</option>
-          <option value="Roberto Carlos Medina La Rosa">Roberto Carlos Medina La Rosa</option>
-          <option value="Rosa Emilia Mejia Jaimes">Rosa Emilia Mejia Jaimes</option>
-          <option value="Ulises Eliseo Anselmo Carranza">Ulises Eliseo Anselmo Carranza</option>
-          <option value="William Jesus Joel Rivera Ramirez">William Jesus Joel Rivera Ramirez</option>
-          <option value="Ítalo Buendia Poma">Ítalo Buendia Poma</option>
-        </select>
-        <input type="hidden" id="audn-auditor">
-      </div>
-      <div class="fg">
         <label>Sector auditado <span class="req">*</span></label>
-        <select id="audn-sector" onchange="audn_onSectorChange()" disabled>
-          <option value="">— Elige auditor primero —</option>
-        </select>
+        <select id="audn-sector"><option value="">- Selecciona sector -</option></select>
       </div>
       <div class="fg">
         <label>Área</label>
         <input type="text" id="audn-area-auto" readonly style="background:var(--g50);color:var(--green);font-weight:700" placeholder="Se asigna automáticamente">
       </div>
-      <div class="fg">
-        <label>Responsable del sector</label>
-        <input type="text" id="audn-lider" readonly style="background:var(--g50);color:var(--green);font-weight:700" placeholder="Se asigna automáticamente">
+      <div class="row2">
+        <div class="fg">
+          <label>Auditor <span class="req">*</span></label>
+          <input type="text" id="audn-auditor" placeholder="Nombre del auditor">
+        </div>
+        <div class="fg">
+          <label>Responsable</label>
+          <input type="text" id="audn-lider" placeholder="Responsable del sector">
+        </div>
       </div>
       <button id="audn-btn-iniciar" onclick="audn_iniciarEvaluacion()" style="display:none;width:100%;margin-top:8px;background:var(--amber);color:#fff;border:none;border-radius:10px;padding:14px;font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:700;cursor:pointer">
         Iniciar Evaluación →
@@ -340,7 +317,7 @@ canvas{max-width:100%!important}
   <div id="audn-content-historial" style="padding:16px;display:none">
     <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
       <select id="audn-fil-ronda" onchange="audn_cargarHistorial()" style="flex:1;min-width:110px;padding:8px;border-radius:8px;border:1px solid var(--g200);font-size:13px">
-        <option value="">Todas las rondas</option>
+        <option value="">Todos los check lists</option>
         <option value="1">A1</option><option value="2">A2</option>
         <option value="3">A3</option><option value="4">A4</option>
       </select>
@@ -355,7 +332,7 @@ canvas{max-width:100%!important}
   <div id="audn-content-dashboard" style="padding:16px;display:none">
     <div style="display:flex;gap:8px;margin-bottom:12px">
       <select id="audn-dash-ronda" onchange="audn_renderDashboard()" style="flex:1;padding:8px;border-radius:8px;border:1px solid var(--g200);font-size:13px">
-        <option value="">Todas las rondas</option>
+        <option value="">Todos los check lists</option>
         <option value="1">A1</option><option value="2">A2</option>
         <option value="3">A3</option><option value="4">A4</option>
       </select>
@@ -814,48 +791,53 @@ canvas{max-width:100%!important}
     <div class="fg"><label>Auditor <span class="req">*</span></label>
       <select id="a-auditor" onchange="onAuditorChange()">
         <option value="">&#8212; Selecciona auditor &#8212;</option>
-        <option value="Fabio Caldas Antúnez">Fabio Caldas Antúnez</option>
-        <option value="Ítalo Buendia Poma">Ítalo Buendia Poma</option>
-        <option value="Héctor Arteaga Espinoza">Héctor Arteaga Espinoza</option>
-        <option value="Carlos Joél Luyo Diaz">Carlos Joél Luyo Diaz</option>
-        <option value="Enrique Fabricio Polo Manrique">Enrique Fabricio Polo Manrique</option>
-        <option value="Ayrton Raphael Cotrina Esteves">Ayrton Raphael Cotrina Esteves</option>
-        <option value="William Jesus Joel Rivera Ramirez">William Jesus Joel Rivera Ramirez</option>
-        <option value="Nuria del Pilar Diaz Ramirez">Nuria del Pilar Diaz Ramirez</option>
-        <option value="Alejandro Salvador Grados">Alejandro Salvador Grados</option>
         <option value="Adiel Abednego Aguayo Flores">Adiel Abednego Aguayo Flores</option>
-        <option value="Roberto Carlos Medina La Rosa">Roberto Carlos Medina La Rosa</option>
-        <option value="Ulises Eliseo Anselmo Carranza">Ulises Eliseo Anselmo Carranza</option>
-        <option value="Dylan Yaret Pintado Fernandez">Dylan Yaret Pintado Fernandez</option>
-        <option value="Mariluz Reynaldina Montes Laurente">Mariluz Reynaldina Montes Laurente</option>
-        <option value="Paula Valeria Cecilia La Rosa La Rosa">Paula Valeria Cecilia La Rosa La Rosa</option>
+        <option value="Alejandro Salvador Grados">Alejandro Salvador Grados</option>
+        <option value="Ayrton Raphael Cotrina Esteves">Ayrton Raphael Cotrina Esteves</option>
+        <option value="Carlos Joél Luyo Diaz">Carlos Joél Luyo Diaz</option>
         <option value="Cristopher William Reyes Islado">Cristopher William Reyes Islado</option>
-        <option value="Rosa Emilia Mejia Jaimes">Rosa Emilia Mejia Jaimes</option>
+        <option value="Darlene Cruz Donayre">Darlene Cruz Donayre</option>
+        <option value="Dylan Yaret Pintado Fernandez">Dylan Yaret Pintado Fernandez</option>
+        <option value="Enrique Fabricio Polo Manrique">Enrique Fabricio Polo Manrique</option>
+        <option value="Fabio Caldas Antúnez">Fabio Caldas Antúnez</option>
+        <option value="Héctor Arteaga Espinoza">Héctor Arteaga Espinoza</option>
         <option value="Julio Arroyo Puse">Julio Arroyo Puse</option>
+        <option value="Luis Bossio Vargas">Luis Bossio Vargas</option>
+        <option value="Mariluz Reynaldina Montes Laurente">Mariluz Reynaldina Montes Laurente</option>
+        <option value="Nuria del Pilar Diaz Ramirez">Nuria del Pilar Diaz Ramirez</option>
+        <option value="Paula Valeria Cecilia La Rosa La Rosa">Paula Valeria Cecilia La Rosa La Rosa</option>
+        <option value="Roberto Carlos Medina La Rosa">Roberto Carlos Medina La Rosa</option>
+        <option value="Rosa Emilia Mejia Jaimes">Rosa Emilia Mejia Jaimes</option>
+        <option value="Ulises Eliseo Anselmo Carranza">Ulises Eliseo Anselmo Carranza</option>
+        <option value="William Jesus Joel Rivera Ramirez">William Jesus Joel Rivera Ramirez</option>
+        <option value="Ítalo Buendia Poma">Ítalo Buendia Poma</option>
       </select>
     </div>
     <div class="fg"><label>Mes <span class="req">*</span></label>
-      <input type="month" id="a-nro" onchange="onNroAuditoriaChange()">
+      <input type="month" id="a-nro" readonly style="background:var(--g50);font-weight:700;color:var(--blue)">
+    </div>
+    <div class="fg"><label>Sector auditado <span class="req">*</span></label>
+      <select id="a-sector" onchange="onSectorChange()" disabled>
+        <option value="">&#8212; Elige auditor primero &#8212;</option>
+      </select>
+    </div>
+    <div class="fg" id="fg-zona-cl" style="display:none">
+      <label>Zona / Equipo</label>
+      <select id="a-zona"><option value="">&#8212; Selecciona zona &#8212;</option></select>
+    </div>
+    <div class="fg"><label>Área</label>
+      <input type="text" id="a-area" readonly style="background:var(--g50);color:var(--green);font-weight:700" placeholder="Se asigna automáticamente">
+    </div>
+    <div class="fg"><label>Responsable</label>
+      <input type="text" id="a-responsable" readonly style="background:var(--g50);color:var(--g700)" placeholder="Se asigna automáticamente">
     </div>
     <div class="fg"><label>Fecha</label>
       <input type="text" id="a-fecha" readonly style="background:var(--g50);font-weight:700;color:var(--green)">
     </div>
-    <div class="fg"><label>Sector auditado <span class="req">*</span></label>
-      <select id="a-sector" onchange="updateAreasAudit()" disabled>
-        <option value="">&#8212; Elige el mes primero &#8212;</option>
-      </select>
-    </div>
-    <div class="fg"><label>Area</label>
-      <input type="text" id="a-area" readonly style="background:var(--g50);color:var(--green);font-weight:700" placeholder="Se asigna automaticamente">
-    </div>
-    <div class="fg"><label>Responsable</label>
-      <input type="text" id="a-responsable" readonly style="background:var(--g50);color:var(--g700)" placeholder="Se asigna automaticamente">
-    </div>
-    <button class="btn-primary" onclick="irPaso2()">Iniciar Evaluacion &#8594;</button>
+    <button class="btn-primary" onclick="irPaso2()">Iniciar Check List &#8594;</button>
   </div>
 </div>
 
-<!-- PASO 2 -->
 <div id="audit-paso2" style="display:none">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
     <button class="btn-ghost" onclick="irPaso1()" style="font-size:12px;padding:6px 10px">&#8592; Atras</button>
@@ -930,7 +912,7 @@ canvas{max-width:100%!important}
     <select id="d-fil-sector-a" onchange="renderAuditDashboard()" class="filter-small"><option value="">Todos los sectores</option></select>
     <select id="d-fil-area-a" onchange="renderAuditDashboard()" class="filter-small"><option value="">Todas las areas</option></select>
     <select id="d-fil-nro-pdf" class="filter-small" style="max-width:160px">
-      <option value="">Todas las rondas</option>
+      <option value="">Todos los check lists</option>
       <option value="1">Check List N° 1</option>
       <option value="2">Check List N° 2</option>
       <option value="3">Check List N° 3</option>
@@ -1082,6 +1064,12 @@ canvas{max-width:100%!important}
 
 
 
+
+<!-- TAB OBSERVACIONES PENDIENTES -->
+<div id="audit-observaciones" style="display:none;padding:14px">
+  <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;color:var(--g700);margin-bottom:12px">⚠️ Observaciones Pendientes</div>
+  <div id="audit-obs-pend-list"></div>
+</div>
 <script>
 // CONFIG
 const {createClient}=supabase;
@@ -1090,6 +1078,8 @@ const IMGBB_KEY="fbce45ba13956877423a7e2d41e82080";
 const ISM_LOGO="data:image/jpeg;base64,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RKufkQmiSsEk4nEPxGLBkRzX48rBqsXbZL8dPw85HNhb5lHy43K5epx/CxjhO93Uk11uMg8xZ88qtltvtW/BrXASrlSQI1uv6t5yxSYI20qzhaM1o7/wOFYRxjMdDd7+gHZMnsP3QFeuWjv9fIF64KwfQb/RXmHZcH7nWB+xMXf61AFpUgKFRwsN3DQ9I7HOGe5odGptvtl6tabKZrQKdmSbL1avTDFac2fd8qfhM/Tligcibu5nyp2ta5bjT1OvJYweJnUZuTy+JiVhJclD6NqWImdMcXKr4DnWeLn62SwzBs8TBoUS/ri/dDks1x0N/PXFuSCt4Pz3X9VOzLcHjm0/gC1QIL3PvhQoNbgdn91iY6J8TUGMuQZ6UIWTrUmuxJrRE8O6T4voX22oSHdQHzU1zY+rNb0OhfiJQTWCsJP21rBudOlK2IckKPjjO/8AE//aAAwDAQACAAMAAAAQBBBBBBBBBBD72/LBBBBBBBBBBBBBBBBB4iK8N8N7TdqBBBBBBBBBBBBH04888888888A++BBBBBBBBB8t888888888888872BBBBBBB4d888888888888888P6BBBBBHM88888888888888888R1BBBBg8888458888888888888wBBBqQ88Bp2ej888888888888H0BB+888sCCDw8888888888888jBBo88MmT3LQNKPKwDQILGBR8PBBL88D/AO/QP/8A+zH8/wC//c/+gT0CJ88W/wD/AH9xhTT78u3/AJa//J8eC88DX/4l/wD/ANEj9qz/APsn/wD4fKgofCv+w626/wC2j8deb/nP/kHzYGPyn8d3/wC/7Zk/kC/5vi/Q8HcBo81/GcZ3lWmCTIsjq8oR88zBB+8CkVln4Tl9ZPMFCA42Ti8LBBqEBsvmE9e8tfcH+Pnzmd1TcBBBI8888888888888888888MBBBBTw88888888888888888FdBBBBBs1888888888888888zuBBBBBBB858888888888888veBBBBBBBBBTcs888888888A++BBBBBBBBBBBBsKi8x8xvH1qBBBBBBBBBBBBBBBBBDve/jBBBBBBBBBB//EACcRAQABAgQFBQEBAAAAAAAAAAERACEQMUFhUXGBkaEwscHR4SBA/9oACAEDAQE/EPTy9NDkj7NCSgcqRP8AEYCV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";
 
 // DATOS
+const SECTOR_AREA_MAP={"ALM. TEMPORAL MP": "LOGISTICA", "ALM. DE INSUMOS": "LOGISTICA", "ALM. DE REPUESTOS": "LOGISTICA", "ALM. DE INSUMOS GENERALES": "LOGISTICA", "ALM. DE INSUMOS QUÍMICOS": "LOGISTICA", "ALM. DE PT 1": "LOGISTICA", "ALM. TEMPORAL PT": "LOGISTICA", "ALM. PT HANGAR 8": "LOGISTICA", "ALM. PT HANGAR 10": "LOGISTICA", "ALM. DE ENVASES Y EMBALAJES": "LOGISTICA", "OFIC. ALM. DE REPUESTOS": "LOGISTICA", "OFIC. DE LOGÍSTICA": "LOGISTICA", "OFIC. DE APT": "LOGISTICA", "OFIC. DE JEF. DE PRODUCCIÓN": "PRODUCCIÓN", "OFIC. DE PLANEAMIENTO": "PRODUCCIÓN", "SALA DE REUNIONES MC": "PRODUCCIÓN", "LÍNEA 1": "PRODUCCIÓN", "LÍNEA 2": "PRODUCCIÓN", "LÍNEA 3": "PRODUCCIÓN", "LÍNEA 4": "PRODUCCIÓN", "LÍNEA 5": "PRODUCCIÓN", "LINEA 6": "PRODUCCIÓN", "LÍNEA 7": "PRODUCCIÓN", "LÍNEA 8": "PRODUCCIÓN", "LÍNEA 9": "PRODUCCIÓN", "SALA DE JARABE": "PRODUCCIÓN", "TRATAMIENTO DE AGUAS": "PRODUCCIÓN", "OFICINA DE PRODUCCIÓN": "PRODUCCIÓN", "SALA DE CALDERO": "PRODUCCIÓN", "SALA DE MANEJOS": "PRODUCCIÓN", "LINEA 10": "PRODUCCIÓN", "LABORATORIO DE SOPLADO": "PRODUCCIÓN", "OFIC. DE MEJORA CONTINUA": "EXCELENCIA OPERACIONAL", "OFIC. DE JEFATURA DE PLANTA": "GERENCIA", "SECRETARIA GENERAL": "GERENCIA", "OFIC. DE GESTION HUMANA": "GESTION HUMANA", "AUDITORIO DE PLANTA": "GESTION HUMANA", "COMEDOR": "GESTION HUMANA", "SSHH Y VESTUARIOS": "GESTION HUMANA", "OFIC. DE SEGURIDAD CIVIL / GARITA": "SEGURIDAD CIVIL", "OFIC. DE SEG. INDUSTRIAL": "SEGURIDAD", "TÓPICO": "SEGURIDAD", "OFIC. DE CONTROL INTERNO": "CONTROL INTERNO", "OFIC. DE FINANZAS": "FINANZAS", "OFIC. DE SISTEMAS": "SISTEMAS", "OFIC. DE CONTABILIDAD": "CONTABILIDAD", "OFIC. DE COMUNICACIONES": "COMUNICACIONES", "OFIC. DE COSTOS": "COSTOS", "OFIC. DE PROYECTOS": "PROYECTOS", "SALA DE FUERZAS": "MANTENIMIENTO", "TALLER DE MANT. MECÁNICO": "MANTENIMIENTO", "TALLER DE MANT. ELÉCTRICO": "MANTENIMIENTO", "SUB-ESTACIÓN": "MANTENIMIENTO", "OFICINA DE MANTENIMIENTO": "MANTENIMIENTO", "OFIC. SOSTENIBILIDAD Y SGI": "CALIDAD", "SALA DE MUESTRAS": "CALIDAD", "LAB. FISICOQUÍMICO": "CALIDAD", "LAB. MICROBIOLÓGICO": "CALIDAD", "OFIC. SUPERVISORES SOS": "CALIDAD"};
+const ZONAS_POR_SECTOR={"LÍNEA 1": ["CAPSULADOR ALCOA B242", "CODIFICADOR VIDEOJET EXCEL 2000 02CWD", "CONJTO PROPORCIONADOR MOJONNIER FE", "EMPACADORA PACKERS VITZ", "ETIQUETADORA TRINE 4600 6364", "LLENADORA CROWN 50-10", "TRANSPORTADOR A TABLILLAS CONVEYOR LP01", "CALDERO PIROTUBULAR INTESA 50 BHP", "POSICIONADOR BOTELLA POSIMAT MASTER 20", "AREA DE SOPLADO", "AREAS COMUNES", "AREA DE PALETIZADO MANUAL"], "LÍNEA 2": ["CODIFICAD IMAJE 1000 S8 CLASIC 4490004U", "CONJTO PROPORCIONADOR MESAL MIX-50", "DOSIFICADOR DE NITROGENO SC-350", "ELEVADOR DE TAPAS TIPO JET FLOW MESAL", "ENVOLVEDORA TECMI EV 850-50 J0.EV50.011", "ETIQUETADORA TRINE 4500FS", "LLEN MESAL ISOBARICA E50-60-15IA S-0790", "PASTEURIZADOR HUHTAMAKI 15000LH", "TRANSPORTADOR A TABLILLAS CONVEYOR LP02", "TRANSPORTADOR NEUMATICO PNEUMATIC LP02", "OZONIZADOR INTERIN 40 m3", "SOPLADORA SIDEL SBO MATRIX 12/20", "ETIQUETADORA NEWTEC GIOTTO 720 F15 CY S1 E1", "LLENADORA CROWN", "CHILLER CTA IPC 252 SIDEL - LP02", "AREAS COMUNES", "AREA DE PALETIZADO MANUAL", "PREDILUBIO LLENADORA", "PREDILUBIO SALIDA LLENADORA"], "LÍNEA 3": ["CODIFICADOR IMAJE 1000 S8 IP-65 2420242A", "CONJTO PROPORCIONADOR MOJONNIER 22-48", "ELEVADOR DE TAPAS TIPO JET FLOW ZEFP", "ENVOLVEDORA TECMI EV 750,50 J0.EV50.024", "ETIQUETADORA TRINE 4600 6364", "GENERADORES DE OXIGENO P P TITAN", "LLENAD MESAL ISOB E80-100-25IA2 S-09021", "OZONIZADOR INTERIN 20m3", "SEPARAD LIQ HORIZONTAL MEBRAFE SLT 900-3", "TRANSPORTADOR A TABLILLAS MESAL LP03", "TRANSPORTADOR NEUMATICO PNEUMATIC LP03", "PALETIZADOR AUTOMATICO TMG-SIRIO S2S", "ETIQUETADORA VERTICAL XYL-450AJ", "ETIQUETADORA ROTATIVA OPERA PRO 300", "SOPLADORA SIDEL SBO UNIVERSAL2 16/20", "CHILLER CTA IPC 702 SIDEL - LP03", "CAPSULADOR MONOCABEZAL ASTECH CATA 140", "CODIFICADOR VIDEOJET EXCEL 2000 19CWD", "AREAS COMUNES"], "LÍNEA 4": ["LLENADORA LINEAL DE BIDONES MESAL", "TRANSPORTADOR A TABLILLAS CONVEY LP04", "LLENADORA 20 LITROS RERCPAC SA", "EMPACADORA EVOPACK T452", "ETIQUETADORA TRINE 5500_LP04", "RINSER DE 7 LITROS", "SOPLADORA CHINA DE BIDONES", "SOPLADORA CHINA DE BIDONES 2 MOLDES", "APLICADOR DE ADHESIVO DURABLUE", "AREAS COMUNES", "AREA DE PALETIZADO MANUAL"], "LÍNEA 5": ["ALIMENTADOR D TAPAS UNIMAC GHERRI GG/900", "APLICADOR D PRECINTOS DASE SEAL XYL-450S", "CAPSULADOR UNIMAC GHERRI GG/300", "CODIFICADOR VIDEOJET EXCEL 2000 16CWD", "CUCHILLA DE AIRE SONIC 70", "DETECTOR DE VACIO GHERRI GG/670", "ENJUAGADOR DE AIRE MESAL ER50PM", "ENVOLVEDORA TECMI EV 750,50 EQ.AÑO1.043", "ESTERILIZADOR DE TAPAS BEVCO ZPPI-31", "ETIQUETADORA B&H 8000S", "LLEN MESAL GRAVEDAD E50-60-15G2 S-10138", "MESA ELEVADORA HIDRAULICA", "PASTEURIZADOR HUHTAMAKI 8000L", "SIST CALENTAM AGUA P11-014RP P/ENJ BOT", "SIST ENFRIAM AGUA P11-007bMV P/ENFR BOT", "TRANSPORTADOR A TABLILLLAS MESAL LP05", "TUNEL CONTRACC DE PRECINTOS MITRI LP15D", "TUNEL DE ENFRIAMIENTO J. BEHNKE E-500", "TUNEL DE VAPOR J.BEHNKE C500", "POSICIONADOR", "AREAS COMUNES"], "LINEA 6": ["MÁQUINA SOPLADORA ROTATIVA MODELO SBF 410 HERO", "LLENADORA AWF", "TAPONADORA DE TAPA EN PLÁSTICO PRE-ROSCADO FLAT DIÁM. 29/25 MM", "CHILLER PARA LA SOPLADORA ROTATIVA MODELO SBF 410 HERO", "DOSIFICADOR DE NITRÓGENO LÍQUIDO 75.000 BPH", "ELEVADOR DE TAPAS MECÁNICO LINEA 06", "ETIQUETADORA ROTATIVA OPERA 300 RF 24T/R 2/4/265 S1/E1", "CODIFICADOR LASER VIDEOJET 1620", "EMPACADORA SMI - MODELO SK 800 F", "PALETIZADORA ARES 2 CP/P", "OZONIZADOR INTERIN 20m3", "PASTEURIZADOR ALFA LAVAL", "TRANSPORTADOR A TABLILLAS MESAL LP06", "AREAS COMUNES"], "LÍNEA 7": ["ETIQUETADORA SIDEL EVODECO SL100", "LLENADORA SIDEL SF300", "EMPACADORA SIDEL EVO FILM ACCESS", "PALETIZADOR SIDEL PALKOMBI", "ALIMENTADOR DE TAPAS GEBO OPTIFEED", "TAPONADORA DE TAPA EN PLÁSTICO PRE-ROSCADO", "TRANSPORTADOR A TABLILLLAS SIDEL LP07", "SOPLADORA SIDEL MATRIX SBO 16", "MIXER SIDEL SF300", "CHILLER PARA LA SOPLADORA ROTATIVA MODELO MATRIX SBO 16", "SECADOR DE BOTELLA SIDEL GEBO OPTYDRY", "CODIFICADOR VIDEOJET EXCEL 3340 LP07", "AREAS COMUNES"], "LÍNEA 8": ["POSICIONADOR POSIMAT ACCESS N-40", "TRANSPORTADOR NEUMATICO PNEUMATIC LP08", "APLICADOR D PRECINTOS SCALIGERA ULISSE 40000", "LLENADORA SACMI AHF+EPD 50.20.50.15", "PASTEURIZADOR DE ALOE VERA HRS", "EMPACADORA TECMI TT70.45X3C LP08", "TUNEL DE VAPOR SCALIGERA PACKAGING", "CODIFICADOR VIDEOJET EXCEL 2000 LP08", "TRANSPORTADOR A TABLILLLAS LP08", "AREAS COMUNES", "TUNEL DE ENFRIAMIENTO", "ETIQUETADORA B&H"], "LÍNEA 9": ["CODIFICADOR LASER VIDEOJET - LP09", "CHILLER TERMALCARE Q37.5 - LP09", "CHILLER TERMALCARE Q37.6 - LP09", "SOPLADORA TECHLONG CPX16A - LP09", "LLENADORA TECHLONG CPX16A - LP09", "ALIMENTADOR DE TAPAS TECHLONG - LP09", "OZONIZADOR AGUAMUNDO - LP09", "INSPECTOR DE NIVEL DE LLENADO - LP09", "TRANSP TABLILLA LLENA-ETIQ - LP09", "TRANSP TABLILLA ETIQ-EMPAC - LP09", "TRANSP TABLILLA EMPAC-PALET - LP09", "SECADOR DE BOTELLA TECHLONG - LP09", "ETIQUETADORA TECHLONG 1440-31 - LP09", "INSPECTOR DE ETIQUETA HS700 - LP09", "EMPACADORA TECHLONG DBZ-MB63", "PALETIZADORA TECHLONG BMD61", "AREAS COMUNES"], "OFICINAS": ["OFICINA DE PRODUCCION", "OFICINA DE MEJORA CONTINUA", "AREA DE CALIDAD", "OFICINA DE PLANIFICACION Y PRODUCCION", "OFICINA DE JEFATURA DE PRODUCCION", "OFICINA DE JEFATURA DE PLANTA", "ALMACEN DE INSUMOS", "ALMACEN DE REPUESTOS Y SUMINISTROS", "ALMACEN TEMPORAL", "MANTENIMIENTO ELECTRICO", "MANTENIMIENTO MECANICO", "OFICINA DE SEGURIDAD INDUSTRIAL", "OFICINA DE GESTION HUMANA"], "SALA DE MANEJOS": ["ALREDEDORES", "SALA DE MANEJOS"], "SALA DE FUERZAS": ["ALREDEDORES", "SALA DE FUERZA"], "SALA DE CALDERO": ["AREAS COMUNES", "SALA DE CALDEROS"], "TRATAMIENTO DE AGUAS": ["AREAS COMUNES", "TRATAMIENTO DE AGUA"], "SALA DE JARABE": ["ALREDEDORES", "SALA DE JARABE"]};
 const RESP_AREA={
   "LP01":"",
   "LP02":"JUNIOR GERVACIO",
@@ -1894,94 +1884,8 @@ const RESP_SECTOR={
   "TRATAMIENTO DE AGUAS":"WILLIAM ARHUIZ",
   "SALA DE CALDERO":"DANIEL TABOADA"
 };
-const SECTORES_AUDIT={
-  "LOGISTICA":{"responsable":"Claudio Escobedo Chávez","areas":["ALM. TEMPORAL MP","ALM. DE INSUMOS","ALM. DE REPUESTOS","ALM. DE INSUMOS GENERALES","ALM. DE INSUMOS QUÍMICOS","ALM. DE PT 1","ALM. TEMPORAL PT","ALM. PT HANGAR 8","ALM. PT HANGAR 10","ALM. DE ENVASES Y EMBALAJES","OFIC. DE LOGÍSTICA","OFIC. DE APT","OFIC. ALM. DE REPUESTOS"]},
-  "PRODUCCIÓN":{"responsable":"Henry Treviños Torres","areas":["OFIC. DE JEF. DE PRODUCCIÓN","OFIC. DE PLANEAMIENTO","OFIC. DE MEJORA CONTINUA","SALA DE REUNIONES MC","OFIC. DE JEFATURA DE PLANTA","LP01","LP02","LP03","LP04","LP05","LP06","LP07","LP08","LP09","SALA DE JARABE","TRATAMIENTO DE AGUAS","OFICINA DE PRODUCCIÓN","SALA DE CALDERO","SALA DE MANEJOS","LP10","LABORATORIO DE SOPLADO"]},
-  "GESTION HUMANA":{"responsable":"Álvaro Sotomayor Checa","areas":["OFIC. DE GESTION HUMANA","AUDITORIO DE PLANTA","COMEDOR","SSHH Y VESTUARIOS"]},
-  "SEGURIDAD CIVIL":{"responsable":"Fabio Caldas Antúnez","areas":["OFIC. DE SEGURIDAD CIVIL / GARITA"]},
-  "SEGURIDAD":{"responsable":"Ubaldo Llacho Alhuirca","areas":["OFIC. DE SEG. INDUSTRIAL","TÓPICO"]},
-  "CONTROL INTERNO":{"responsable":"Fabio Caldas Antúnez","areas":["OFIC. DE CONTROL INTERNO"]},
-  "FINANZAS":{"responsable":"Fabio Caldas Antúnez","areas":["OFIC. DE FINANZAS"]},
-  "SISTEMAS":{"responsable":"Fabio Caldas Antúnez","areas":["OFIC. DE SISTEMAS"]},
-  "CONTABILIDAD":{"responsable":"Fabio Caldas Antúnez","areas":["OFIC. DE CONTABILIDAD"]},
-  "COMUNICACIONES":{"responsable":"Fabio Caldas Antúnez","areas":["OFIC. DE COMUNICACIONES"]},
-  "COSTOS":{"responsable":"Fabio Caldas Antúnez","areas":["OFIC. DE COSTOS"]},
-  "PROYECTOS":{"responsable":"Fabio Caldas Antúnez","areas":["OFIC. DE PROYECTOS"]},
-  "MANTENIMIENTO":{"responsable":"Roberto Cárdenas Arias","areas":["TALLER DE MANT. MECÁNICO","TALLER DE MANT. ELÉCTRICO","SUB-ESTACIÓN","OFICINA DE MANTENIMIENTO","SALA DE FUERZAS"]},
-  "CALIDAD":{"responsable":"Martin Castillo Guerra","areas":["OFIC. SOSTENIBILIDAD Y SGI","SALA DE MUESTRAS","LAB. FISICOQUÍMICO","LAB. MICROBIOLÓGICO","OFIC. SUPERVISORES SOS"]},
-  "GERENCIA":{"responsable":"Fabio Caldas Antúnez","areas":["SECRETARIA GENERAL"]}
-};
-const AREA_RESPONSABLE={
-  "ALM. TEMPORAL MP":"Claudio Escobedo Chávez",
-  "ALM. DE INSUMOS":"Claudio Escobedo Chávez",
-  "ALM. DE REPUESTOS":"Claudio Escobedo Chávez",
-  "ALM. DE INSUMOS GENERALES":"Claudio Escobedo Chávez",
-  "ALM. DE INSUMOS QUÍMICOS":"Claudio Escobedo Chávez",
-  "ALM. DE PT 1":"Claudio Escobedo Chávez",
-  "ALM. TEMPORAL PT":"Claudio Escobedo Chávez",
-  "ALM. PT HANGAR 8":"Claudio Escobedo Chávez",
-  "ALM. PT HANGAR 10":"Claudio Escobedo Chávez",
-  "ALM. DE ENVASES Y EMBALAJES":"Claudio Escobedo Chávez",
-  "OFIC. DE JEF. DE PRODUCCIÓN":"Henry Treviños Torres",
-  "OFIC. DE PLANEAMIENTO":"Henry Treviños Torres",
-  "OFIC. DE MEJORA CONTINUA":"Henry Treviños Torres",
-  "SALA DE REUNIONES MC":"Henry Treviños Torres",
-  "OFIC. DE JEFATURA DE PLANTA":"Fabio Caldas Antúnez",
-  "OFIC. DE GESTION HUMANA":"Álvaro Sotomayor Checa",
-  "OFIC. DE SEGURIDAD CIVIL / GARITA":"Fabio Caldas Antúnez",
-  "OFIC. DE SEG. INDUSTRIAL":"Ubaldo Llacho Alhuirca",
-  "OFIC. DE LOGÍSTICA":"Claudio Escobedo Chávez",
-  "OFIC. DE APT":"Claudio Escobedo Chávez",
-  "OFIC. DE CONTROL INTERNO":"Fabio Caldas Antúnez",
-  "OFIC. DE FINANZAS":"Fabio Caldas Antúnez",
-  "OFIC. DE SISTEMAS":"Fabio Caldas Antúnez",
-  "OFIC. DE CONTABILIDAD":"Fabio Caldas Antúnez",
-  "OFIC. DE COMUNICACIONES":"Fabio Caldas Antúnez",
-  "OFIC. DE COSTOS":"Fabio Caldas Antúnez",
-  "OFIC. DE PROYECTOS":"Fabio Caldas Antúnez",
-  "AUDITORIO DE PLANTA":"Álvaro Sotomayor Checa",
-  "TÓPICO":"Ubaldo Llacho Alhuirca",
-  "COMEDOR":"Álvaro Sotomayor Checa",
-  "SSHH Y VESTUARIOS":"Álvaro Sotomayor Checa",
-  "LÍNEA 1":"Henry Treviños Torres",
-  "LÍNEA 2":"Henry Treviños Torres",
-  "LÍNEA 3":"Henry Treviños Torres",
-  "LÍNEA 4":"Henry Treviños Torres",
-  "LÍNEA 5":"Henry Treviños Torres",
-  "LINEA 6":"Henry Treviños Torres",
-  "LÍNEA 7":"Henry Treviños Torres",
-  "LÍNEA 8":"Henry Treviños Torres",
-  "LÍNEA 9":"Henry Treviños Torres",
-  "SALA DE JARABE":"JUAN GORDILLO",
-  "TRATAMIENTO DE AGUAS":"WILLIAM ARHUIZ",
-  "OFICINA DE PRODUCCIÓN":"Henry Treviños Torres",
-  "SALA DE CALDERO":"DANIEL TABOADA",
-  "SALA DE MANEJOS":"",
-  "SALA DE FUERZAS":"Roberto Cárdenas Arias",
-  "TALLER DE MANT. MECÁNICO":"Roberto Cárdenas Arias",
-  "TALLER DE MANT. ELÉCTRICO":"Roberto Cárdenas Arias",
-  "SUB-ESTACIÓN":"Roberto Cárdenas Arias",
-  "OFIC. SOSTENIBILIDAD Y SGI":"Martin Castillo Guerra",
-  "SALA DE MUESTRAS":"Martin Castillo Guerra",
-  "LAB. FISICOQUÍMICO":"Martin Castillo Guerra",
-  "OFIC. ALM. DE REPUESTOS":"Claudio Escobedo Chávez",
-  "OFICINA DE MANTENIMIENTO":"Roberto Cárdenas Arias",
-  "LAB. MICROBIOLÓGICO":"Martin Castillo Guerra",
-  "OFIC. SUPERVISORES SOS":"Martin Castillo Guerra",
-  "LINEA 10":"Henry Treviños Torres",
-  "LABORATORIO DE SOPLADO":"WILLIAM ARHUIZ",
-  "SECRETARIA GENERAL":"Fabio Caldas Antúnez",
-  "LP01":"",
-  "LP02":"JUNIOR GERVACIO",
-  "LP03":"DANIEL TABOADA",
-  "LP04":"JUAN GORDILLO",
-  "LP05":"YONER ANGULO",
-  "LP06":"FABRICIO POLO",
-  "LP07":"WILLIAM ARHUIZ",
-  "LP08":"YONER ANGULO",
-  "LP09":"JUNIOR GERVACIO",
-  "LP10":"FABRICIO POLO"
-};;
+const SECTORES_AUDIT={"LOGISTICA": {"responsable": "Claudio Escobedo Chávez", "areas": ["ALM. TEMPORAL MP", "ALM. DE INSUMOS", "ALM. DE REPUESTOS", "ALM. DE INSUMOS GENERALES", "ALM. DE INSUMOS QUÍMICOS", "ALM. DE PT 1", "ALM. TEMPORAL PT", "ALM. PT HANGAR 8", "ALM. PT HANGAR 10", "ALM. DE ENVASES Y EMBALAJES", "OFIC. ALM. DE REPUESTOS", "OFIC. DE LOGÍSTICA", "OFIC. DE APT"]}, "PRODUCCIÓN": {"responsable": "Henry Treviños Torres", "areas": ["OFIC. DE JEF. DE PRODUCCIÓN", "OFIC. DE PLANEAMIENTO", "SALA DE REUNIONES MC", "LÍNEA 1", "LÍNEA 2", "LÍNEA 3", "LÍNEA 4", "LÍNEA 5", "LINEA 6", "LÍNEA 7", "LÍNEA 8", "LÍNEA 9", "SALA DE JARABE", "TRATAMIENTO DE AGUAS", "OFICINA DE PRODUCCIÓN", "SALA DE CALDERO", "SALA DE MANEJOS", "LINEA 10", "LABORATORIO DE SOPLADO"]}, "EXCELENCIA OPERACIONAL": {"responsable": "Darlene Cruz Donayre", "areas": ["OFIC. DE MEJORA CONTINUA"]}, "GERENCIA": {"responsable": "Fabio Caldas Antúnez", "areas": ["OFIC. DE JEFATURA DE PLANTA", "SECRETARIA GENERAL"]}, "GESTION HUMANA": {"responsable": "Álvaro Sotomayor Checa", "areas": ["OFIC. DE GESTION HUMANA", "AUDITORIO DE PLANTA", "COMEDOR", "SSHH Y VESTUARIOS"]}, "SEGURIDAD CIVIL": {"responsable": "Fabio Caldas Antúnez", "areas": ["OFIC. DE SEGURIDAD CIVIL / GARITA"]}, "SEGURIDAD": {"responsable": "Ubaldo Llacho Alhuirca", "areas": ["OFIC. DE SEG. INDUSTRIAL", "TÓPICO"]}, "CONTROL INTERNO": {"responsable": "Fabio Caldas Antúnez", "areas": ["OFIC. DE CONTROL INTERNO"]}, "FINANZAS": {"responsable": "Fabio Caldas Antúnez", "areas": ["OFIC. DE FINANZAS"]}, "SISTEMAS": {"responsable": "Fabio Caldas Antúnez", "areas": ["OFIC. DE SISTEMAS"]}, "CONTABILIDAD": {"responsable": "Fabio Caldas Antúnez", "areas": ["OFIC. DE CONTABILIDAD"]}, "COMUNICACIONES": {"responsable": "Fabio Caldas Antúnez", "areas": ["OFIC. DE COMUNICACIONES"]}, "COSTOS": {"responsable": "Eber Valdez Nolasco", "areas": ["OFIC. DE COSTOS"]}, "PROYECTOS": {"responsable": "Fabio Caldas Antúnez", "areas": ["OFIC. DE PROYECTOS"]}, "MANTENIMIENTO": {"responsable": "Roberto Cárdenas Arias", "areas": ["SALA DE FUERZAS", "TALLER DE MANT. MECÁNICO", "TALLER DE MANT. ELÉCTRICO", "SUB-ESTACIÓN", "OFICINA DE MANTENIMIENTO"]}, "CALIDAD": {"responsable": "Martin Castillo Guerra", "areas": ["OFIC. SOSTENIBILIDAD Y SGI", "SALA DE MUESTRAS", "LAB. FISICOQUÍMICO", "LAB. MICROBIOLÓGICO", "OFIC. SUPERVISORES SOS"]}};;
+const AREA_RESPONSABLE={"ALM. TEMPORAL MP": "Claudio Escobedo Chávez", "ALM. DE INSUMOS": "Claudio Escobedo Chávez", "ALM. DE REPUESTOS": "Claudio Escobedo Chávez", "ALM. DE INSUMOS GENERALES": "Claudio Escobedo Chávez", "ALM. DE INSUMOS QUÍMICOS": "Claudio Escobedo Chávez", "ALM. DE PT 1": "Claudio Escobedo Chávez", "ALM. TEMPORAL PT": "Claudio Escobedo Chávez", "ALM. PT HANGAR 8": "Claudio Escobedo Chávez", "ALM. PT HANGAR 10": "Claudio Escobedo Chávez", "ALM. DE ENVASES Y EMBALAJES": "Claudio Escobedo Chávez", "OFIC. ALM. DE REPUESTOS": "Claudio Escobedo Chávez", "OFIC. DE LOGÍSTICA": "Claudio Escobedo Chávez", "OFIC. DE APT": "Claudio Escobedo Chávez", "OFIC. DE JEF. DE PRODUCCIÓN": "Henry Treviños Torres", "OFIC. DE PLANEAMIENTO": "Freddy Pacherres", "OFIC. DE MEJORA CONTINUA": "Darlene Cruz Donayre", "SALA DE REUNIONES MC": "Carlos Luyo", "OFIC. DE JEFATURA DE PLANTA": "Fabio Caldas Antúnez", "SECRETARIA GENERAL": "Fabio Caldas Antúnez", "OFIC. DE GESTION HUMANA": "Álvaro Sotomayor Checa", "OFIC. DE SEGURIDAD CIVIL / GARITA": "Fabio Caldas Antúnez", "OFIC. DE SEG. INDUSTRIAL": "Ubaldo Llacho Alhuirca", "OFIC. DE CONTROL INTERNO": "Fabio Caldas Antúnez", "OFIC. DE FINANZAS": "Fabio Caldas Antúnez", "OFIC. DE SISTEMAS": "Fabio Caldas Antúnez", "OFIC. DE CONTABILIDAD": "Fabio Caldas Antúnez", "OFIC. DE COMUNICACIONES": "Fabio Caldas Antúnez", "OFIC. DE COSTOS": "Eber Valdez Nolasco", "OFIC. DE PROYECTOS": "Fabio Caldas Antúnez", "AUDITORIO DE PLANTA": "Álvaro Sotomayor Checa", "TÓPICO": "Ubaldo Llacho Alhuirca", "COMEDOR": "Álvaro Sotomayor Checa", "SSHH Y VESTUARIOS": "Álvaro Sotomayor Checa", "LÍNEA 1": "Henry Treviños Torres", "LÍNEA 2": "Junior Gervacio", "LÍNEA 3": "Daniel Taboada", "LÍNEA 4": "Juan Gordillo", "LÍNEA 5": "Yoner Angulo", "LINEA 6": "Fabricio Polo", "LÍNEA 7": "William Arhuiz", "LÍNEA 8": "Yoner Angulo", "LÍNEA 9": "Junior Gervacio", "SALA DE JARABE": "Juan Gordillo", "TRATAMIENTO DE AGUAS": "William Arhuiz", "OFICINA DE PRODUCCIÓN": "Henry Treviños Torres", "SALA DE CALDERO": "Daniel Taboada", "SALA DE MANEJOS": "Carlos Luyo", "LINEA 10": "Fabricio Polo", "LABORATORIO DE SOPLADO": "Fabricio Polo", "SALA DE FUERZAS": "Roberto Cárdenas Arias", "TALLER DE MANT. MECÁNICO": "Roberto Cárdenas Arias", "TALLER DE MANT. ELÉCTRICO": "Roberto Cárdenas Arias", "SUB-ESTACIÓN": "Roberto Cárdenas Arias", "OFICINA DE MANTENIMIENTO": "Roberto Cárdenas Arias", "OFIC. SOSTENIBILIDAD Y SGI": "Martin Castillo Guerra", "SALA DE MUESTRAS": "Martin Castillo Guerra", "LAB. FISICOQUÍMICO": "Martin Castillo Guerra", "LAB. MICROBIOLÓGICO": "Martin Castillo Guerra", "OFIC. SUPERVISORES SOS": "Martin Castillo Guerra"};;;
 const AUDITORES_SECTORES={"Fabio Caldas Antúnez": ["LÍNEA 1", "OFIC. DE COSTOS", "AUDITORIO DE PLANTA"], "Ítalo Buendia Poma": ["ALM. DE ENVASES Y EMBALAJES", "OFICINA DE PRODUCCIÓN", "OFIC. DE LOGÍSTICA"], "Héctor Arteaga Espinoza": ["SUB-ESTACIÓN", "OFIC. DE COMUNICACIONES", "LÍNEA 4"], "Carlos Joél Luyo Diaz": ["TÓPICO", "ALM. DE PT 1", "OFIC. DE FINANZAS"], "Enrique Fabricio Polo Manrique": ["ALM. PT HANGAR 8", "SECRETARIA GENERAL", "SALA DE FUERZAS"], "Ayrton Raphael Cotrina Esteves": ["LÍNEA 9", "OFIC. DE CONTROL INTERNO", "OFIC. DE SEG. INDUSTRIAL"], "William Jesus Joel Rivera Ramirez": ["LABORATORIO DE SOPLADO", "LÍNEA 7", "OFIC. DE SEGURIDAD CIVIL / GARITA"], "Nuria del Pilar Diaz Ramirez": ["OFIC. DE JEFATURA DE PLANTA", "COMEDOR", "OFICINA DE MANTENIMIENTO"], "Alejandro Salvador Grados": ["OFIC. DE APT", "ALM. DE INSUMOS", "LÍNEA 2"], "Adiel Abednego Aguayo Flores": ["OFIC. ALM. DE REPUESTOS", "TALLER DE MANT. ELÉCTRICO", "LÍNEA 3"], "Roberto Carlos Medina La Rosa": ["SSHH Y VESTUARIOS", "OFIC. DE CONTABILIDAD", "LÍNEA 5"], "Ulises Eliseo Anselmo Carranza": ["OFIC. DE GESTION HUMANA", "OFIC. DE JEF. DE PRODUCCIÓN", "SALA DE MUESTRAS"], "Dylan Yaret Pintado Fernandez": ["ALM. TEMPORAL MP", "OFIC. SUPERVISORES SOS", "LINEA 6"], "Mariluz Reynaldina Montes Laurente": ["SALA DE CALDERO", "LINEA 10", "ALM. DE REPUESTOS"], "Paula Valeria Cecilia La Rosa La Rosa": ["OFIC. DE MEJORA CONTINUA", "ALM. DE INSUMOS GENERALES", "LAB. FISICOQUÍMICO"], "Cristopher William Reyes Islado": ["LÍNEA 8", "TALLER DE MANT. MECÁNICO", "TRATAMIENTO DE AGUAS"], "Rosa Emilia Mejia Jaimes": ["OFIC. DE SISTEMAS", "ALM. PT HANGAR 10"], "Julio Arroyo Puse": ["ALM. DE INSUMOS QUÍMICOS", "ALM. TEMPORAL PT"], "Luis Bossio Vargas": ["SALA DE REUNIONES MC", "SALA DE JARABE", "OFIC. DE PROYECTOS"], "Darlene Cruz Donayre": ["SALA DE MANEJOS", "LAB. MICROBIOLÓGICO", "OFIC. DE PLANEAMIENTO", "OFIC. SOSTENIBILIDAD Y SGI"]};;
 const CRITERIOS=[
   {num:1,pilar:"1S — Seleccionar",txt:"Se observan únicamente los objetos esenciales para la operación actual."},
@@ -2042,59 +1946,71 @@ function onAuditorChange(){
   const auditor=document.getElementById("a-auditor").value;
   const mesEl=document.getElementById("a-nro");
   const sEl=document.getElementById("a-sector");
+  const fechaEl=document.getElementById("a-fecha");
   document.getElementById("a-area").value="";
   document.getElementById("a-responsable").value="";
-  sEl.innerHTML='<option value="">&#8212; Selecciona sector &#8212;</option>';
+  const zf=document.getElementById("fg-zona-cl");
+  if(zf) zf.style.display="none";
+  sEl.innerHTML='<option value="">&#8212; Elige auditor primero &#8212;</option>';
   sEl.disabled=true;
-  if(!auditor)return;
+  if(!auditor) return;
+
+  // Mes vigente — inmediato, sin esperar Supabase
   const now=new Date();
-  if(mesEl)mesEl.value=now.getFullYear()+"-"+String(now.getMonth()+1).padStart(2,"0");
+  const mes=now.getFullYear()+"-"+String(now.getMonth()+1).padStart(2,"0");
+  if(mesEl) mesEl.value=mes;
+  if(fechaEl) fechaEl.value=now.toLocaleDateString("es-PE",{day:"2-digit",month:"2-digit",year:"numeric"});
+
+  // Mostrar sectores inmediatamente
   const sectores=AUDITORES_SECTORES[auditor]||[];
-  if(sectores.length>0){
-    sEl.innerHTML='<option value="">&#8212; Selecciona sector &#8212;</option>'+
-      sectores.map(s=>`<option value="${s}">${s}</option>`).join("");
-    sEl.disabled=false;
-  }
-}
-
-
-function onNroAuditoriaChange(){
-  const auditor=document.getElementById("a-auditor").value;
-  const nro=document.getElementById("a-nro").value;
-  const sEl=document.getElementById("a-sector");
-  document.getElementById("a-area").value="";
-  document.getElementById("a-responsable").value="";
   sEl.innerHTML='<option value="">&#8212; Selecciona sector &#8212;</option>';
-  if(!nro||!auditor){sEl.disabled=true;return;}
-  // Sectores del auditor — bloqueados si ya auditó ese N°
-  const sectoresAuditor=AUDITORES_SECTORES[auditor]||[];
-  sectoresAuditor.forEach(s=>{
-    const bloqueado=sectoresAuditadosNro.has(nro+"_"+s);
-    sEl.innerHTML+=`<option value="${s}" ${bloqueado?"disabled":""} style="${bloqueado?"color:#aaa":""}">${s}${bloqueado?" ✅":""}</option>`;
+  sectores.forEach(s=>{
+    const opt=document.createElement("option");
+    opt.value=s; opt.textContent=s;
+    sEl.appendChild(opt);
   });
   sEl.disabled=false;
-  const todosAuditados=sectoresAuditor.every(s=>sectoresAuditadosNro.has(nro+"_"+s));
-  if(todosAuditados) showToast("Este auditor ya completó todos sus sectores en esta auditoria",true);
+
+  // Verificar duplicados en segundo plano (sin bloquear la UI)
+  const mesIni=new Date(now.getFullYear(),now.getMonth(),1).toISOString().split("T")[0];
+  const mesFin=new Date(now.getFullYear(),now.getMonth()+1,0).toISOString().split("T")[0];
+  sb.from("auditorias_5s_ism").select("sector,zona")
+    .gte("fecha",mesIni).lte("fecha",mesFin)
+    .then(({data})=>{
+      if(!data||!data.length) return;
+      const auditadosSinZona=new Set(data.filter(d=>!d.zona).map(d=>d.sector));
+      Array.from(sEl.options).forEach(opt=>{
+        if(!opt.value) return;
+        const tieneZonas=(ZONAS_POR_SECTOR[opt.value]||[]).length>0;
+        if(!tieneZonas&&auditadosSinZona.has(opt.value)){
+          opt.textContent=`✓ ${opt.value} (ya realizado)`;
+          opt.disabled=true;
+          opt.style.color="#9CA3AF";
+        }
+      });
+    });
 }
 
 
-function updateAreasAudit(){
-  const sector=document.getElementById("a-sector").value;
-  document.getElementById("a-area").value="";
-  document.getElementById("a-responsable").value="";
-  if(!sector)return;
-  // Buscar área auditada y responsable según el sector
-  let areaAuditada="", responsable="";
-  for(const [area,data] of Object.entries(SECTORES_AUDIT)){
-    if(data.areas.includes(sector)){
-      areaAuditada=area;
-      responsable=data.responsable;
-      break;
-    }
+function onSectorChange(){
+  const sector=document.getElementById("a-sector")?.value||"";
+  const aEl=document.getElementById("a-area");
+  const rEl=document.getElementById("a-responsable");
+  const zf=document.getElementById("fg-zona-cl");
+  const ze=document.getElementById("a-zona");
+  if(!sector){if(aEl)aEl.value="";if(rEl)rEl.value="";if(zf)zf.style.display="none";return;}
+  if(aEl) aEl.value=SECTOR_AREA_MAP[sector]||"";
+  if(rEl) rEl.value=AREA_RESPONSABLE[sector]||"";
+  if(zf&&ze){
+    const zs=ZONAS_POR_SECTOR[sector]||[];
+    if(zs.length){ze.innerHTML='<option value="">&#8212; Selecciona zona &#8212;</option>';zs.forEach(z=>ze.innerHTML+=`<option value="${z}">${z}</option>`);zf.style.display="block";}
+    else{zf.style.display="none";ze.value="";}
   }
-  document.getElementById("a-area").value=areaAuditada;
-  document.getElementById("a-responsable").value=AREA_RESPONSABLE[sector]||responsable;
 }
+function onNroAuditoriaChange(){ onSectorChange(); }
+
+
+function updateAreasAudit(){ onSectorChange(); }
 
 
 function onAreaAuditChange(){
@@ -2113,26 +2029,43 @@ function irPaso1(){
   document.getElementById("audit-paso3").style.display="none";
 }
 
-function irPaso2(){
+async function irPaso2(){
   const auditor=document.getElementById("a-auditor").value;
   const nro=document.getElementById("a-nro")?.value||"";
   const sector=document.getElementById("a-sector").value;
+  const zona=document.getElementById("a-zona")?.value||"";
   const area=document.getElementById("a-area").value.trim();
   const resp=document.getElementById("a-responsable").value.trim();
   if(!auditor){showToast("Selecciona el auditor",true);return;}
-  if(!nro){showToast("Selecciona el N de auditoria",true);return;}
+  if(!nro){showToast("El mes se asigna automáticamente — elige el auditor primero",true);return;}
   if(!sector){showToast("Selecciona el sector auditado",true);return;}
-  if(!area){showToast("El area se asigna automaticamente al elegir sector",true);return;}
-  if(!resp){showToast("No se encontro responsable para esta area",true);return;}
-  auditMeta={
-    auditor,nro_auditoria:nro,
-    sector,area,responsable:resp,
-    fecha:document.getElementById("a-fecha").value
-  };
-  document.getElementById("audit-area-lbl").textContent=area;
+  if(!area){showToast("El área se asigna automáticamente al elegir sector",true);return;}
+
+  // Verificar duplicado en el mes vigente
+  const now=new Date();
+  const mesIni=new Date(now.getFullYear(),now.getMonth(),1).toISOString().split("T")[0];
+  const mesFin=new Date(now.getFullYear(),now.getMonth()+1,0).toISOString().split("T")[0];
+  const {data:dup}=await sb.from("auditorias_5s_ism")
+    .select("id,sector,zona,auditor")
+    .eq("sector",sector)
+    .gte("fecha",mesIni).lte("fecha",mesFin);
+  if(dup&&dup.length>0){
+    // Si hay zona, verificar que la combinación sector+zona no esté duplicada
+    const dupZona=zona?dup.some(d=>d.zona===zona):true;
+    if(dupZona){
+      const quienLo=dup[0].auditor||"otro auditor";
+      showToast(`⚠️ ${sector}${zona?" — "+zona:""} ya fue evaluado este mes por ${quienLo}`,true);
+      return;
+    }
+  }
+
+  auditMeta={auditor,nro_auditoria:nro,sector,zona,area,responsable:resp,
+    fecha:document.getElementById("a-fecha").value};
+  document.getElementById("audit-area-lbl").textContent=`${area} · ${sector}${zona?" · "+zona:""}`;
   renderCriterios();
   document.getElementById("audit-paso1").style.display="none";
   document.getElementById("audit-paso2").style.display="block";
+  document.getElementById("audit-paso2").scrollTop=0;
 }
 
 function renderCriterios(){
@@ -2361,32 +2294,36 @@ async function guardarAuditoriaDB(pct, pct2, nivel, incumplimientos){
       respuesta:auditData[c.num]?.respuesta||null,
       obs:auditData[c.num]?.obs||"",
       responsable:auditData[c.num]?.responsable||"",
-      fecha:auditData[c.num]?.fecha||"",
+      fecha_compromiso:auditData[c.num]?.fecha||"",
       fotos:auditData[c.num]?.fotos||[]
     }));
-    const {error:errAudit}=await sb.from("auditorias_5s_ism").insert({
+    const noOk=incumplimientos.map(c=>({
+      num:c.num, pilar:c.pilar, criterio:c.txt,
+      obs:auditData[c.num]?.obs||"",
+      responsable:auditData[c.num]?.responsable||"",
+      fecha_compromiso:auditData[c.num]?.fecha||"",
+      fotos:auditData[c.num]?.fotos||[],
+      estado:"Pendiente"
+    }));
+    const {error}=await sb.from("auditorias_5s_ism").insert({
       auditor:auditMeta.auditor,
-      nro_auditoria:parseInt(auditMeta.nro_auditoria)||1,
+      nro_auditoria:auditMeta.nro_auditoria||"",
       fecha:new Date().toISOString().split("T")[0],
       sector:auditMeta.sector,
+      zona:auditMeta.zona||"",
       area:auditMeta.area,
       responsable:auditMeta.responsable,
       puntaje_total:pct,
       pct_cumplimiento:pct,
       nivel,
       detalles:JSON.stringify(detalles),
-      incumplimientos:JSON.stringify(incumplimientos.map(c=>({
-        num:c.num,pilar:c.pilar,criterio:c.txt,
-        respuesta:auditData[c.num]?.respuesta||"NO",
-        obs:auditData[c.num]?.obs||""
-      })))
+      incumplimientos:JSON.stringify(noOk)
     });
-    if(errAudit) throw errAudit;
-    showToast("Check List guardado — ve al Dashboard para ver resultados");
+    if(error) throw error;
+    showToast("✅ Check List guardado correctamente");
     await cargarAuditorias();
-    window._auditDashboardDirty=true;
   }catch(e){
-    console.error("Error guardando check list:",e);
+    console.error("Error guardando:",e);
     showToast("Error al guardar: "+e.message,true);
   }
 }
@@ -2950,8 +2887,12 @@ function renderAuditDashboard(){
   const progrEl=document.getElementById("progreso-sectores");
   if(progrEl){
     const totalSects=[...new Set(Object.values(AUDITORES_SECTORES).flat())].length;
-    const auditados=sectoresAuditados.size;
-    const pctProgr=totalSects?Math.round(auditados/totalSects*100):0;
+    const _now=new Date();
+    const _mi=new Date(_now.getFullYear(),_now.getMonth(),1).toISOString().split("T")[0];
+    const _mf=new Date(_now.getFullYear(),_now.getMonth()+1,0).toISOString().split("T")[0];
+    const _am=new Set(auditorias.filter(a=>a.fecha>=_mi&&a.fecha<=_mf).map(a=>a.sector).filter(Boolean));
+    const auditados=_am.size;
+    const pctProgr=totalSects>0?Math.min(100,Math.round(auditados/totalSects*100)):0;
     const colP=pctProgr>=80?G:pctProgr>=50?A:R;
     progrEl.innerHTML=`
       <div style="background:#fff;border-radius:10px;padding:12px 14px;box-shadow:var(--sh);border-left:4px solid ${colP}">
@@ -3266,9 +3207,11 @@ function destroyChartAudit(id){
 function getAuditFiltradas(){
   const fs=document.getElementById("d-fil-sector-a")?.value||"";
   const fa=document.getElementById("d-fil-area-a")?.value||"";
-  return auditorias.filter(a=>{
-    if(fs&&a.sector!==fs)return false;
-    if(fa&&a.area!==fa)return false;
+  // Solo datos reales de Supabase, sin inventados
+  return (auditorias||[]).filter(a=>{
+    if(!a.sector||!a.fecha) return false; // Descartar registros incompletos
+    if(fs&&a.sector!==fs) return false;
+    if(fa&&a.area!==fa) return false;
     return true;
   });
 }
@@ -3808,14 +3751,18 @@ function iniciarAuditoriaNew(){
   document.getElementById("app-recorrido").style.display="none";
   document.getElementById("app-checklist").style.display="none";
   document.getElementById("app-auditoria-nueva").style.display="block";
-  // Selector de auditor ya tiene opciones en HTML
-  ["audn-fil-sector","audn-fil-accion-sector"].forEach(id=>{
-    const el=document.getElementById(id);
-    if(el&&el.options.length<=1){
-      Object.values(SECTORES_AUDIT).forEach(info=>{
-        info.areas.forEach(s=>el.innerHTML+=`<option value="${s}">${s}</option>`);
+  const sectEl=document.getElementById("audn-sector");
+  if(sectEl&&sectEl.options.length<=1){
+    Object.entries(SECTORES_AUDIT).sort((a,b)=>a[0].localeCompare(b[0])).forEach(([area,info])=>{
+      info.areas.forEach(sector=>{
+        sectEl.innerHTML+=`<option value="${sector}" data-area="${area}">${sector} (${area})</option>`;
       });
-    }
+    });
+  }
+  const areasUnicas=Object.keys(SECTORES_AUDIT).sort();
+  ["audn-fil-area","audn-fil-accion-area"].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el&&el.options.length<=1) areasUnicas.forEach(a=>el.innerHTML+=`<option value="${a}">${a}</option>`);
   });
   document.getElementById("audn-fecha").value=new Date().toISOString().split("T")[0];
   audn_state={};
@@ -3871,12 +3818,12 @@ document.addEventListener("DOMContentLoaded",()=>{
 });
 
 function audn_checkReady(){
-  const auditor=document.getElementById("audn-auditor-sel")?.value||document.getElementById("audn-auditor")?.value?.trim()||"";
-  const sector=document.getElementById("audn-sector")?.value||"";
-  const num=document.getElementById("audn-num")?.value||"";
-  const fecha=document.getElementById("audn-fecha")?.value||"";
+  const num=document.getElementById("audn-num")?.value;
+  const fecha=document.getElementById("audn-fecha")?.value;
+  const sector=document.getElementById("audn-sector")?.value;
+  const auditor=document.getElementById("audn-auditor")?.value?.trim();
   const btn=document.getElementById("audn-btn-iniciar");
-  if(btn)btn.style.display=(auditor&&sector&&num&&fecha)?"block":"none";
+  if(btn) btn.style.display=(num&&fecha&&sector&&auditor)?"block":"none";
 }
 
 // ── EVALUACIÓN ────────────────────────────────────────────────
@@ -3894,40 +3841,32 @@ function audn_iniciarEvaluacion(){
 
 function audn_renderCriterios(){
   const body=document.getElementById("audn-criterios-body");
-  if(!body) return;
-  const AUDN_CAT_COLORS={"INFRAESTRUCTURA":"#5C6BC0","SUMINISTROS":"#0288D1","ACTIVOS":"#00838F","PROCESO":"#2E7D32","MATERIALES":"#E65100","INFORMACIÓN":"#6A1B9A","PERSONAL":"#AD1457","SEG. Y MEDIO AMBIENTE":"#C62828"};
-  const AUDN_CATS={"INFRAESTRUCTURA":["Techo","Paredes","Piso","Ventana","Otros"],"SUMINISTROS":["Agua","Luz","Aire","Combustible","Gas","Amoniaco","Lubricante","Otros"],"ACTIVOS":["Máquinas","Equipos","Instrumentos","Herramientas","Muebles","Otros"],"PROCESO":["Indicador"],"MATERIALES":["Materia Prima","Envases y Embalajes","Insumos","Producto Terminado","Repuestos","Útiles de Oficina","Materiales de Limpieza","Otros"],"INFORMACIÓN":["Murales","Documentos","Tablero de Gerencia Visible","Letreros / Carteles"],"PERSONAL":["Uniforme","Conocimientos","BPM"],"SEG. Y MEDIO AMBIENTE":["EPP","Segregación de Residuos","Señalización","Incumplimiento de Normativa"]};
+  const catColors={"INFRAESTRUCTURA":"#5C6BC0","SUMINISTROS":"#0288D1","ACTIVOS":"#00838F","PROCESO":"#2E7D32","MATERIALES":"#E65100","INFORMACIÓN":"#6A1B9A","PERSONAL":"#AD1457","SEG. Y MEDIO AMBIENTE":"#C62828"};
   let html="";
-  Object.entries(AUDN_CATS).forEach(([cat,criterios])=>{
-    const color=AUDN_CAT_COLORS[cat]||"#1E7C34";
-    const evalCount=criterios.filter(c=>audn_state[cat+"||"+c]!==undefined).length;
-    const incumpCount=criterios.filter(c=>(audn_state[cat+"||"+c]?.puntaje||0)<0).length;
-    const catId="cat_"+cat.replace(/[^a-z0-9]/gi,"_");
-    html+=`<div style="background:#fff;border-radius:12px;margin-bottom:10px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.08)">
-      <div onclick="audn_toggleCat('${catId}')" style="background:${color};padding:12px 14px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;-webkit-tap-highlight-color:transparent;user-select:none">
-        <div style="display:flex;align-items:center;gap:8px">
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;color:#fff">${cat}</div>
-          ${incumpCount>0?`<div style="background:rgba(0,0,0,.25);border-radius:5px;padding:1px 7px;font-size:11px;color:#fff;font-weight:700">${incumpCount} incumpl.</div>`:""}
-        </div>
-        <div style="display:flex;align-items:center;gap:8px">
-          <div style="font-size:11px;color:rgba(255,255,255,.8);font-weight:600">${evalCount}/${criterios.length}</div>
-          <div id="arr_${catId}" style="color:#fff;font-size:18px;display:inline-block;transform:rotate(90deg);transition:.2s">›</div>
-        </div>
+  Object.entries(AUDN_CATEGORIAS).forEach(([cat,criterios])=>{
+    const color=catColors[cat]||"var(--g700)";
+    const evaluados=criterios.filter(c=>audn_state[cat+"||"+c]!==undefined).length;
+    html+=`<div data-cat="${cat}" style="background:#fff;border-radius:14px;margin-bottom:12px;overflow:hidden;box-shadow:var(--sh)">
+      <div style="background:${color};padding:12px 16px;display:flex;align-items:center;justify-content:space-between">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;color:#fff;letter-spacing:.3px">${cat}</div>
+        <div class="audn-cat-count" style="font-size:12px;color:rgba(255,255,255,.8)">${evaluados}/${criterios.length}</div>
       </div>
-      <div id="${catId}" style="padding:6px">`;
+      <div style="padding:8px">`;
     criterios.forEach(crit=>{
       const key=cat+"||"+crit;
-      const v=audn_state[key];
-      const pts=v?.puntaje;
-      const bg=pts===undefined?"#F9FAFB":pts>0?"#F0FDF4":"#FEF2F2";
-      const bc=pts===undefined?"#D1D5D1":pts>0?"#15803D":pts===-5?"#B45309":pts===-10?"#C2410C":pts===-15?"#C62828":"#7B1FA2";
-      const bt=pts===undefined?"—":pts>0?"+5":String(pts);
-      html+=`<div data-key="${key}" onclick="audn_abrirModalKey(this)" style="display:flex;align-items:center;gap:10px;padding:10px;margin:3px 0;border-radius:8px;background:${bg};cursor:pointer;border:1px solid #F0F0F0;-webkit-tap-highlight-color:rgba(0,0,0,.05)">
+      const estado=audn_state[key];
+      const pts=estado?.puntaje;
+      const bg=pts===undefined?"var(--g50)":pts>0?"#F0FDF4":pts===-5?"#FFFBEB":pts===-10?"#FFF7ED":"#FEF2F2";
+      const badge=pts===undefined?'<span style="color:var(--g300);font-size:18px">○</span>':
+        pts>0?`<span style="background:#15803D;color:#fff;border-radius:6px;padding:2px 8px;font-size:13px;font-weight:700">+5</span>`:
+        `<span style="background:${pts===-5?"#B45309":pts===-10?"#C2410C":pts===-15?"#C62828":"#7B1FA2"};color:#fff;border-radius:6px;padding:2px 8px;font-size:13px;font-weight:700">${pts}</span>`;
+      const dataKey=cat+"||"+crit;
+      html+=`<div data-key="${dataKey}" onclick="audn_abrirModal('${cat.replace(/'/g,"\\'")}','${crit.replace(/'/g,"\\'")}')" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-radius:10px;margin-bottom:4px;background:${bg};cursor:pointer;border:1px solid var(--g100)">
         <div style="flex:1;min-width:0">
-          <div style="font-size:13px;font-weight:600;color:#1A1D18;line-height:1.3">${crit}</div>
-          ${v?.obs?`<div style="font-size:11px;color:#6B7280;margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${v.obs}</div>`:""}
+          <div style="font-size:14px;font-weight:600;color:var(--g700);line-height:1.3">${crit}</div>
+          <div class="audn-obs-preview" style="font-size:11px;color:var(--g400);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${estado?.obs?estado.obs.substring(0,40)+"...":""}</div>
         </div>
-        <div style="background:${bc};color:#fff;border-radius:6px;padding:3px 9px;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;flex-shrink:0;min-width:36px;text-align:center">${bt}</div>
+        <div class="audn-badge" style="margin-left:10px;flex-shrink:0">${badge}</div>
       </div>`;
     });
     html+="</div></div>";
@@ -4162,7 +4101,7 @@ async function audn_guardar(){
   const area=opt?opt.getAttribute("data-area"):"";
   const auditor=document.getElementById("audn-auditor").value.trim();
   const lider=document.getElementById("audn-lider").value.trim();
-  if(!num||!fecha||!sector||!auditor){showToast("Completa todos los campos obligatorios",true);return;}
+  if(!num||!fecha||!sectorKey||!auditor){showToast("Completa todos los campos obligatorios",true);return;}
   const btn=document.getElementById("audn-btn-guardar");
   btn.disabled=true;btn.textContent="Guardando...";
   // Calcular puntaje
@@ -4482,51 +4421,6 @@ async function audn_editarAccion(id){
   else prev.style.display="none";
   document.getElementById("modal-audn-accion").style.display="flex";
 }
-
-function audn_onAuditorChange(){
-  const sel=document.getElementById("audn-auditor-sel");
-  const auditor=sel?sel.value:"";
-  const hidEl=document.getElementById("audn-auditor");
-  if(hidEl)hidEl.value=auditor;
-  const sectEl=document.getElementById("audn-sector");
-  const areaEl=document.getElementById("audn-area-auto");
-  const respEl=document.getElementById("audn-lider");
-  if(areaEl)areaEl.value="";
-  if(respEl)respEl.value="";
-  if(sectEl){sectEl.innerHTML='<option value="">— Elige auditor primero —</option>';sectEl.disabled=true;}
-  document.getElementById("audn-btn-iniciar").style.display="none";
-  if(!auditor)return;
-  const sectores=AUDITORES_SECTORES[auditor]||[];
-  if(sectEl){
-    sectEl.innerHTML='<option value="">— Selecciona sector —</option>';
-    if(sectores.length>0){
-      sectores.forEach(s=>{
-        let area="";
-        for(const[a,info]of Object.entries(SECTORES_AUDIT)){if(info.areas.includes(s)){area=a;break;}}
-        sectEl.innerHTML+=`<option value="${s}" data-area="${area}">${s}</option>`;
-      });
-    }else{
-      Object.entries(SECTORES_AUDIT).sort((a,b)=>a[0].localeCompare(b[0])).forEach(([area,info])=>{
-        info.areas.forEach(s=>sectEl.innerHTML+=`<option value="${s}" data-area="${area}">${s}</option>`);
-      });
-    }
-    sectEl.disabled=false;
-  }
-}
-
-function audn_onSectorChange(){
-  const sectEl=document.getElementById("audn-sector");
-  const sector=sectEl?sectEl.value:"";
-  const opt=sectEl?sectEl.options[sectEl.selectedIndex]:null;
-  const area=opt?opt.getAttribute("data-area")||"":"";
-  const areaEl=document.getElementById("audn-area-auto");
-  const respEl=document.getElementById("audn-lider");
-  if(areaEl)areaEl.value=area;
-  const resp=AREA_RESPONSABLE[sector]||(area&&SECTORES_AUDIT[area]?SECTORES_AUDIT[area].responsable||"":"");
-  if(respEl)respEl.value=resp;
-  audn_checkReady();
-}
-
 // ═══════════════════════════════════════════
 // FIN AUDITORÍA NUEVA
 // ═══════════════════════════════════════════
@@ -4548,21 +4442,70 @@ function setFecha(num,val){
 }
 
 
-function audn_toggleCat(catId){
-  const body=document.getElementById(catId);
-  const arrow=document.getElementById("arr_"+catId);
+async function cargarObsPendientes(){
+  const body=document.getElementById("audit-obs-pend-list");
   if(!body) return;
-  const isOpen=body.style.display!=="none";
-  body.style.display=isOpen?"none":"block";
-  if(arrow) arrow.style.transform=isOpen?"rotate(0deg)":"rotate(90deg)";
+  body.innerHTML='<div style="text-align:center;padding:20px;color:var(--g400)">Cargando...</div>';
+
+  // Extraer incumplimientos de todas las auditorías con estado Pendiente
+  const pendientes=[];
+  (auditorias||[]).forEach(a=>{
+    const incs=safeJson(a.incumplimientos,"[]");
+    incs.forEach(inc=>{
+      if(!inc.estado||inc.estado==="Pendiente"){
+        pendientes.push({...inc,
+          auditId:a.id,sector:a.sector,zona:a.zona||"",
+          area:a.area,fecha:a.fecha,auditor:a.auditor,
+          mes:a.nro_auditoria
+        });
+      }
+    });
+  });
+
+  if(!pendientes.length){
+    body.innerHTML='<div style="text-align:center;padding:24px;color:var(--green);font-weight:700">✅ Sin observaciones pendientes</div>';
+    return;
+  }
+
+  body.innerHTML=pendientes.map((p,i)=>`
+    <div style="background:#fff;border-radius:10px;padding:14px;margin-bottom:10px;box-shadow:var(--sh);border-left:4px solid var(--red)">
+      <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:6px">
+        <div>
+          <div style="font-size:10px;color:var(--g400);font-weight:600">${p.area} · ${p.sector}${p.zona?" · "+p.zona:""}</div>
+          <div style="font-size:13px;font-weight:700;color:var(--g700);margin-top:2px">${p.num}. ${p.criterio}</div>
+          <div style="font-size:11px;color:var(--g500);margin-top:2px">Pilar: ${p.pilar}</div>
+        </div>
+        <span style="background:var(--red);color:#fff;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700;flex-shrink:0">Pendiente</span>
+      </div>
+      ${p.obs?`<div style="font-size:12px;color:var(--g700);background:var(--g50);border-radius:6px;padding:8px;margin-bottom:6px">${p.obs}</div>`:""}
+      <div style="display:flex;gap:8px;font-size:11px;color:var(--g400);margin-bottom:8px">
+        ${p.responsable?`<span>👤 ${p.responsable}</span>`:""}
+        ${p.fecha_compromiso?`<span>📅 ${p.fecha_compromiso}</span>`:""}
+        <span>📋 ${p.fecha}</span>
+      </div>
+      ${(p.fotos||[]).length>0?`<img src="${p.fotos[0]}" onclick="window.open('${p.fotos[0]}','_blank')" style="width:100%;max-height:120px;object-fit:cover;border-radius:8px;cursor:pointer;margin-bottom:8px">`:""}
+      <button onclick="cerrarObsCL(${p.auditId},${p.num},this)" style="width:100%;padding:9px;background:var(--green);color:#fff;border:none;border-radius:8px;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700">
+        ✓ Marcar como Levantada
+      </button>
+    </div>`).join("");
 }
 
-function audn_abrirModalKey(el){
-  const key=el.getAttribute("data-key");
-  if(!key) return;
-  const sep=key.indexOf("||");
-  if(sep<0) return;
-  audn_abrirModal(key.substring(0,sep),key.substring(sep+2));
+async function cerrarObsCL(auditId, numCriterio, btn){
+  if(btn){btn.disabled=true;btn.textContent="Guardando...";}
+  try{
+    const {data:aud}=await sb.from("auditorias_5s_ism").select("incumplimientos").eq("id",auditId).single();
+    const incs=safeJson(aud.incumplimientos,"[]");
+    const idx=incs.findIndex(i=>i.num===numCriterio);
+    if(idx>-1) incs[idx].estado="Levantada";
+    const {error}=await sb.from("auditorias_5s_ism").update({incumplimientos:JSON.stringify(incs)}).eq("id",auditId);
+    if(error) throw error;
+    showToast("✅ Observación levantada");
+    await cargarAuditorias();
+    cargarObsPendientes();
+  }catch(e){
+    showToast("Error: "+e.message,true);
+    if(btn){btn.disabled=false;btn.textContent="✓ Marcar como Levantada";}
+  }
 }
 </script>
 </body>

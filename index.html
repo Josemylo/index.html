@@ -1440,9 +1440,6 @@ canvas{max-width:100%!important}
     </select>
   </div>
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
-    <select id="hfil-nro" class="filter-small" onchange="renderHistorial()">
-      <option value="">Todos los meses</option>
-    </select>
     <select id="hfil-area" class="filter-small" onchange="renderHistorial()"><option value="">Todas las areas</option></select>
     <select id="hfil-nivel" class="filter-small" onchange="renderHistorial()">
       <option value="">Todos los niveles</option>
@@ -1458,8 +1455,9 @@ canvas{max-width:100%!important}
 <!-- SECCION DASHBOARD CHECK LIST -->
 <div id="asec-dashboard" style="display:none">
   <div style="display:flex;gap:8px;margin-bottom:12px;align-items:center;flex-wrap:wrap">
+    <select id="d-fil-mes" onchange="renderAuditDashboard()" class="filter-small"><option value="">Todos los meses</option></select>
     <select id="d-fil-sector-a" onchange="renderAuditDashboard()" class="filter-small"><option value="">Todos los sectores</option></select>
-    <select id="d-fil-area-a" onchange="renderAuditDashboard()" class="filter-small"><option value="">Todas las areas</option></select>
+    <select id="d-fil-area-a" onchange="renderAuditDashboard()" class="filter-small"><option value="">Todas las áreas</option></select>
     <select id="d-fil-nro-pdf" class="filter-small" style="max-width:160px">
       <option value="">Todos los check lists</option>
       <option value="1">Check List N° 1</option>
@@ -1549,11 +1547,21 @@ canvas{max-width:100%!important}
 <!-- SECCION OBSERVACIONES PENDIENTES -->
 <div id="asec-observaciones" style="display:none">
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
-    <select id="ofil-nro" class="filter-small" onchange="renderObsPendientes()">
-      <option value="">Todas las auditorias</option>
-      <option value="1">Check List N° 1</option>
-      <option value="2">Check List N° 2</option>
-      <option value="3">Check List N° 3</option>
+    <select id="ofil-mes" class="filter-small" onchange="renderObsPendientes()">
+      <option value="">Todos los meses</option>
+    </select>
+    <select id="ofil-nro" class="filter-small" style="display:none" onchange="renderObsPendientes()">
+      <option value="">Todos</option>
+      <option value="1">1</option>
+      <option value="2">2</option>
+      <option value="3">3</option>
+      <option value="3">4</option>
+    </select>
+    <select id="ofil-area-obs" class="filter-small" onchange="renderObsPendientes()">
+      <option value="">Todas las áreas</option>
+    </select>
+    <select id="ofil-dummy" style="display:none" onchange="renderObsPendientes()">
+      <option value="">Check List N° 3</option>
       <option value="4">Check List N° 4</option>
     </select>
     <select id="ofil-area" class="filter-small" onchange="onOfilAreaChange()">
@@ -3064,7 +3072,7 @@ async function cargarAuditorias(){
     });
     // Llenar filtro de mes (yyyy-mm único)
     const meses=[...new Set(auditorias.map(a=>(a.nro_auditoria||a.fecha||"").substring(0,7)).filter(v=>v.length===7))].sort().reverse();
-    ["hfil-mes"].forEach(id=>{
+    ["hfil-mes","d-fil-mes","ofil-mes"].forEach(id=>{
       const el=document.getElementById(id);if(!el)return;
       const cur=el.value;
       el.innerHTML='<option value="">Todos los meses</option>';
@@ -3074,6 +3082,13 @@ async function cargarAuditorias(){
         el.innerHTML+=`<option value="${m}"${m===cur?' selected':''}>${lbl}</option>`;
       });
     });
+    // Llenar ofil-area-obs
+    const obsAreaEl=document.getElementById("ofil-area-obs");
+    if(obsAreaEl){
+      const cur=obsAreaEl.value;
+      obsAreaEl.innerHTML='<option value="">Todas las áreas</option>';
+      areas.forEach(a=>obsAreaEl.innerHTML+=`<option value="${a}"${a===cur?' selected':''}>${a}</option>`);
+    }
   }catch(e){
     console.error("cargarAuditorias error:",e);
     showToast("Error cargando auditorias: "+e.message,true);
@@ -3817,11 +3832,12 @@ function destroyChartAudit(id){
 function getAuditFiltradas(){
   const fs=document.getElementById("d-fil-sector-a")?.value||"";
   const fa=document.getElementById("d-fil-area-a")?.value||"";
-  // Solo datos reales de Supabase, sin inventados
+  const fm=document.getElementById("d-fil-mes")?.value||"";
   return (auditorias||[]).filter(a=>{
-    if(!a.sector||!a.fecha) return false; // Descartar registros incompletos
-    if(fs&&a.sector!==fs) return false;
-    if(fa&&a.area!==fa) return false;
+    if(!a.sector||!a.fecha) return false;
+    if(fs && a.sector!==fs) return false;
+    if(fa && a.area!==fa) return false;
+    if(fm && a.fecha?.substring(0,7)!==fm) return false;
     return true;
   });
 }
@@ -3839,113 +3855,77 @@ function onOfilAreaChange(){
 
 function renderObsPendientes(){
   window._obsCache = window._obsCache||[];
-  const filNro    = document.getElementById("ofil-nro")?.value||"";
-  const filArea   = document.getElementById("ofil-area")?.value||"";
+  const filMes    = document.getElementById("ofil-mes")?.value||"";
+  const filArea   = document.getElementById("ofil-area")?.value||document.getElementById("ofil-area-obs")?.value||"";
   const filSector = document.getElementById("ofil-sector")?.value||"";
-  const filSt     = document.getElementById("ofil-status")?.value ?? "pendiente";
-  const filResp   = document.getElementById("ofil-resp")?.value||"";
-  const el      = document.getElementById("obs-audit-list");
+  const filSt     = document.getElementById("ofil-status")?.value??"pendiente";
+  const filResp   = document.getElementById("ofil-responsable")?.value||"";
+  const el        = document.getElementById("obs-pend-list");
   if(!el) return;
+
   const G="#1E7C34",R="#E63329",A="#D97706";
 
-  // Recolectar todas las obs de incumplimiento
-  let todasObs = [];
-  auditorias.forEach(a=>{
-    const detalles = Array.isArray(a.detalles)?a.detalles:safeJson(a.detalles,"[]");
-    const cierres  = (typeof a.cierre_criterios==='object'&&a.cierre_criterios)?a.cierre_criterios:safeJson(a.cierre_criterios,"{}");
-    detalles.forEach(d=>{
-      if(d.puntaje<=3 && d.puntaje>0){
-        todasObs.push({
-          auditId: a.id, nro: a.nro_auditoria,
-          area: a.area, sector: a.sector||"",
-          fecha: a.fecha||"", auditor: a.auditor||"",
-          responsable: a.responsable||"Sin responsable",
-          num: d.num, pilar: d.pilar||"",
-          criterio: d.criterio||"", obs: d.obs||"",
-          puntaje: d.puntaje, fotos: d.fotos||[],
-          cerrado: cierres[d.num]?.cerrado||false,
-          fotoCierre: cierres[d.num]?.foto_cierre||"",
-          comentarioCierre: cierres[d.num]?.comentario||"",
-          fechaCierre: cierres[d.num]?.fecha_cierre||""
-        });
-      }
+  // Extraer TODAS las observaciones NO de todas las auditorías
+  let obs=[];
+  (auditorias||[]).forEach(a=>{
+    // Filtro de mes
+    if(filMes && !((a.nro_auditoria||a.fecha||"").substring(0,7)===filMes||a.fecha?.substring(0,7)===filMes)) return;
+    if(filArea && a.area!==filArea) return;
+    if(filSector && a.sector!==filSector) return;
+
+    const detalles=Array.isArray(a.detalles)?a.detalles:safeJson(a.detalles,"[]");
+    // Soporta tanto sistema SI/NO como puntaje 1-5
+    detalles.filter(d=>{
+      const esIncumpl=d.respuesta==="NO"||(d.puntaje>0&&d.puntaje<=3);
+      if(!esIncumpl) return false;
+      const est=d.estado||d.cerrado?"cerrado":"pendiente";
+      if(filSt==="pendiente" && est!=="pendiente") return false;
+      if(filSt==="cerrado"   && est!=="cerrado")   return false;
+      if(filResp && !(d.responsable||"").toLowerCase().includes(filResp.toLowerCase())) return false;
+      return true;
+    }).forEach((d,i)=>{
+      obs.push({...d,
+        _auditId:a.id, _sector:a.sector, _zona:a.zona||"",
+        _area:a.area,  _fecha:a.fecha,   _auditor:a.auditor,
+        _uid:"obs"+a.id+"_"+d.num
+      });
     });
   });
 
-  // Llenar filtros dinámicos — encadenados
-  const areas = [...new Set(todasObs.map(o=>o.area))].sort();
-  const aEl=document.getElementById("ofil-area");
-  if(aEl){const cur=aEl.value;aEl.innerHTML='<option value="">Todas las areas</option>';areas.forEach(a=>aEl.innerHTML+=`<option value="${a}"${a===cur?" selected":""}>${a}</option>`);}
-
-  // Sectores filtrados por área seleccionada
-  const obsParaSect = filArea ? todasObs.filter(o=>o.area===filArea) : todasObs;
-  const sects = [...new Set(obsParaSect.map(o=>o.sector).filter(Boolean))].sort();
-  const sEl=document.getElementById("ofil-sector");
-  if(sEl){const cur=sEl.value;sEl.innerHTML='<option value="">Todos los sectores</option>';sects.forEach(s=>sEl.innerHTML+=`<option value="${s}"${s===cur?" selected":""}>${s}</option>`);}
-
-  // Responsables filtrados por área y sector
-  const obsParaResp = obsParaSect.filter(o=>!filSector||o.sector===filSector);
-  const resps = [...new Set(obsParaResp.map(o=>o.responsable).filter(Boolean))].sort();
-  const rEl=document.getElementById("ofil-resp");
-  if(rEl){const cur=rEl.value;rEl.innerHTML='<option value="">Todos los responsables</option>';resps.forEach(r=>rEl.innerHTML+=`<option value="${r}"${r===cur?" selected":""}>${r}</option>`);}
-
-  // KPIs
-  // Filtrar lista
-  const lista = todasObs.filter(o=>{
-    if(filNro    && String(o.nro)!==filNro)   return false;
-    if(filArea   && o.area!==filArea)          return false;
-    if(filSector && o.sector!==filSector)      return false;
-    if(filResp   && o.responsable!==filResp)   return false;
-    return true;
-  });
-
-  // KPIs basados en lista filtrada (sin filtro de estado para mostrar total real)
-  const pend=lista.filter(o=>!o.cerrado).length;
-  const levt=lista.filter(o=>o.cerrado).length;
-  const total=lista.length;
-  const pct=total?Math.round(levt/total*100):0;
-  const kEl=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
-  kEl("ok-pendientes",pend); kEl("ok-levantadas",levt); kEl("ok-pct",pct+"%");
-
-  // Filtrar por estado para mostrar en lista
-  const listaFinal = lista.filter(o=>{
-    const st=filSt||"pendiente";
-    if(st==="pendiente" && o.cerrado) return false;
-    if(st==="levantada" && !o.cerrado) return false;
-    return true;
-  });
-
-  if(!listaFinal.length){
-    const st = filSt||"pendiente";
-    el.innerHTML = st==="pendiente"
-      ? '<div style="text-align:center;padding:30px;color:var(--green)"><div style="font-size:40px;margin-bottom:8px">&#10003;</div><div style="font-size:14px;font-weight:700">No hay observaciones pendientes</div></div>'
-      : '<div class="empty"><div class="empty-ico">&#128202;</div><p>No hay observaciones con los filtros seleccionados</p></div>';
+  if(!obs.length){
+    el.innerHTML=`<div class="empty"><div class="empty-ico">✅</div><p>${filSt==="pendiente"?"Sin observaciones pendientes":"Sin observaciones cerradas"}</p></div>`;
     return;
   }
 
-  const puntajeCols={1:"#B71C1C",2:R,3:A};
-  const puntajeLbls={1:"Muy deficiente",2:"Deficiente",3:"Regular"};
+  el.innerHTML=obs.map(d=>{
+    const col=d.estado==="Levantada"||d.cerrado?G:R;
+    const estado=d.estado||d.cerrado?"Levantada":"Pendiente";
+    const fotosHtml=(d.fotos||[]).length>0
+      ?`<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px">${d.fotos.map(f=>`<img src="${f}" onclick="window.open('${f}','_blank')" style="width:56px;height:56px;object-fit:cover;border-radius:6px;cursor:pointer">`).join("")}</div>`
+      :"";
 
-  // Generar HTML con cache para botones de cierre
-  const htmlItems = listaFinal.map(o=>{
-    const col  = puntajeCols[o.puntaje]||A;
-    const lbl  = puntajeLbls[o.puntaje]||"";
-    const fotosHtml = o.fotos.length
-      ? `<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px">${o.fotos.map(f=>`<img src="${f}" onclick="window.open(this.src,'_blank')" style="width:56px;height:56px;object-fit:cover;border-radius:6px;border:2px solid var(--g200);cursor:pointer">`).join("")}</div>`
-      : "";
-
-    if(o.cerrado){
-      return `<div style="background:#fff;border-radius:10px;box-shadow:var(--sh);margin-bottom:10px;border-left:4px solid ${G};overflow:hidden"><div style="padding:12px 14px"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:6px"><div style="flex:1"><div style="font-size:10px;color:var(--g400)">Aud. N°${o.nro||"—"} · ${o.area} · ${o.sector} · ${o.fecha}</div><div style="font-size:12px;font-weight:700;color:var(--g700);margin-top:2px">${o.criterio}</div>${o.obs?`<div style="font-size:11px;color:${col};margin-top:3px;padding:3px 6px;background:#FFF8E1;border-radius:4px">${o.obs}</div>`:""}${fotosHtml}</div><span style="background:#E8F5E9;color:${G};font-size:10px;font-weight:700;padding:3px 8px;border-radius:10px;flex-shrink:0;white-space:nowrap">&#10003; Levantada</span></div><div style="background:#E8F5E9;border-radius:8px;padding:8px 10px;font-size:11px"><div style="color:${G};font-weight:700;margin-bottom:4px">Cierre: ${o.fechaCierre} · &#128100; ${o.responsable}</div>${o.comentarioCierre?`<div style="color:var(--g700)">${o.comentarioCierre}</div>`:""}${o.fotoCierre?`<img src="${o.fotoCierre}" onclick="window.open(this.src,'_blank')" style="width:56px;height:56px;object-fit:cover;border-radius:6px;border:2px solid ${G};margin-top:6px;cursor:pointer">`:""}</div></div></div>`;
-    }
-
-    // Guardar en cache y usar índice
-    const cacheIdx = window._obsCache.length;
-    window._obsCache.push({auditId:o.auditId, num:o.num, criterio:o.criterio, obs:o.obs});
-
-    return `<div style="background:#fff;border-radius:10px;box-shadow:var(--sh);margin-bottom:10px;border-left:4px solid ${col};overflow:hidden"><div style="padding:12px 14px"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:6px"><div style="flex:1"><div style="font-size:10px;color:var(--g400)">Aud. N°${o.nro||"—"} · ${o.area} · ${o.sector} · ${o.fecha}</div><div style="font-size:11px;color:var(--g400)">&#128100; Resp: <strong>${o.responsable}</strong></div><div style="display:flex;align-items:center;gap:6px;margin-top:4px"><span style="background:${col}18;color:${col};font-size:10px;font-weight:700;padding:2px 7px;border-radius:8px">${o.pilar}</span><span style="font-size:11px;font-weight:700;color:${col}">${o.puntaje} — ${lbl}</span></div><div style="font-size:12px;font-weight:700;color:var(--g700);margin-top:4px">${o.criterio}</div>${o.obs?`<div style="font-size:11px;color:var(--g700);margin-top:3px;padding:4px 6px;background:#FFF8E1;border-radius:4px;border-left:2px solid ${col}">${o.obs}</div>`:""}${fotosHtml}</div></div><button data-idx="${cacheIdx}" onclick="abrirCierreAudit(+this.dataset.idx)" style="width:100%;background:var(--green);color:#fff;border:none;border-radius:8px;padding:9px;font-family:Barlow,sans-serif;font-size:13px;font-weight:700;cursor:pointer;margin-top:4px">&#128274; Levantar observacion</button></div></div>`;
-  });
-
-  el.innerHTML = htmlItems.join("");
+    return `<div class="obs-card" style="border-left:4px solid ${col};margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:6px">
+        <div style="flex:1;min-width:0">
+          <div style="font-size:10px;color:var(--g400);font-weight:600">${d._area} · ${d._sector}${d._zona?" · "+d._zona:""} · ${d._fecha}</div>
+          <div style="font-size:13px;font-weight:700;color:var(--g700);margin-top:2px">${d.num}. ${d.criterio||d.txt||""}</div>
+          <div style="font-size:10px;color:var(--g500)">Pilar: ${d.pilar||""}</div>
+        </div>
+        <span style="background:${col};color:#fff;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700;flex-shrink:0;margin-left:8px">${estado}</span>
+      </div>
+      ${d.obs?`<div style="font-size:12px;color:var(--g700);background:var(--g50);border-radius:6px;padding:8px;margin-bottom:6px">${d.obs}</div>`:""}
+      <div style="display:flex;gap:12px;font-size:11px;color:var(--g400);margin-bottom:6px;flex-wrap:wrap">
+        ${d.responsable?`<span>👤 <strong>${d.responsable}</strong></span>`:""}
+        ${d.fecha_compromiso?`<span>📅 ${d.fecha_compromiso}</span>`:""}
+        <span>📋 ${d._auditor||""}</span>
+      </div>
+      ${fotosHtml}
+      ${estado==="Pendiente"?`<button onclick="cerrarObsCL(${d._auditId},${d.num},this)"
+        style="width:100%;margin-top:8px;padding:9px;background:var(--green);color:#fff;border:none;border-radius:8px;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700">
+        ✓ Marcar como Levantada
+      </button>`:""}
+    </div>`;
+  }).join("");
 }
 
 

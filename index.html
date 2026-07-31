@@ -18,7 +18,7 @@
   --r:10px;--sh:0 2px 12px rgba(30,124,52,.13);--shl:0 6px 32px rgba(30,124,52,.18);
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{font-family:"Barlow",sans-serif;background:var(--g50);color:var(--g900);min-height:100vh;overflow-x:hidden}
+body{font-family:"Barlow",sans-serif;background:var(--g50);color:var(--g900);min-height:100vh;overflow-x:clip}
 header{background:var(--green);position:sticky;top:0;z-index:100;box-shadow:0 3px 16px rgba(0,0,0,.22)}
 .hdr{display:flex;align-items:center;gap:12px;padding:8px 16px;max-width:720px;margin:0 auto}
 .logo-box{background:#fff;border-radius:6px;padding:3px 6px;flex-shrink:0}
@@ -39,7 +39,7 @@ nav::-webkit-scrollbar{display:none}
 .tab:hover:not(.active){color:rgba(255,255,255,.9)}
 main{max-width:720px;margin:0 auto;padding:18px 14px 100px}
 .section{display:none}.section.active{display:block}
-.card{background:#fff;border-radius:var(--r);box-shadow:var(--sh);padding:18px;margin-bottom:14px}
+.card{background:#fff;border-radius:var(--r);box-shadow:var(--sh);padding:18px;overflow:visible;margin-bottom:14px}
 .card-title{font-family:"Barlow Condensed",sans-serif;font-size:17px;font-weight:700;color:var(--green);margin-bottom:14px;text-transform:uppercase;letter-spacing:.4px;border-left:4px solid var(--red);padding-left:10px}
 .fg{margin-bottom:13px}
 label{display:block;font-size:11px;font-weight:600;color:var(--g700);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
@@ -118,7 +118,7 @@ textarea{resize:vertical;min-height:78px}
 .dash-card{overflow:hidden}
 canvas{max-width:100%!important}
 /* AUDITORÍA */
-#app-checklist{display:none}
+#app-checklist{display:none;position:relative;z-index:1}
 .puntaje-sel{display:flex;gap:6px}
 .puntaje-btn{flex:1;padding:10px 4px;border:2px solid var(--g200);border-radius:8px;background:#fff;cursor:pointer;text-align:center;font-family:"Barlow Condensed",sans-serif;font-size:18px;font-weight:800;transition:all .15s;color:var(--g700)}
 .puntaje-btn:hover{border-color:var(--green)}
@@ -134,6 +134,21 @@ canvas{max-width:100%!important}
 .score-ring{position:relative;width:120px;height:120px;margin:0 auto}
 .score-ring svg{transform:rotate(-90deg)}
 .score-ring .score-txt{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}
+
+/* Custom select para evitar dropdown nativo fuera del viewport */
+.cs-wrap{position:relative;width:100%}
+.cs-selected{width:100%;padding:10px 12px;border:1.5px solid var(--g200);border-radius:8px;background:#fff;font-size:14px;color:var(--g700);cursor:pointer;display:flex;justify-content:space-between;align-items:center;box-sizing:border-box}
+.cs-selected::after{content:"▾";color:var(--g400);font-size:12px;flex-shrink:0;margin-left:8px}
+.cs-list{display:none;position:fixed;left:0;right:0;bottom:0;background:#fff;border-radius:16px 16px 0 0;box-shadow:0 -4px 24px rgba(0,0,0,.18);z-index:9999;max-height:70vh;overflow:hidden;flex-direction:column}
+.cs-list.open{display:flex}
+.cs-list-header{padding:14px 16px 8px;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;color:var(--g700);border-bottom:1px solid var(--g100);display:flex;justify-content:space-between;align-items:center}
+.cs-list-body{overflow-y:auto;flex:1;padding:6px 0}
+.cs-opt{padding:13px 16px;font-size:14px;color:var(--g700);cursor:pointer;border-bottom:1px solid var(--g50)}
+.cs-opt:active{background:var(--g50)}
+.cs-opt.selected{color:var(--green);font-weight:700}
+.cs-opt.disabled{color:var(--g300);pointer-events:none}
+.cs-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:9998}
+.cs-overlay.open{display:block}
 </style>
 </head>
 <body>
@@ -248,25 +263,10 @@ canvas{max-width:100%!important}
         <div style="width:4px;height:22px;background:var(--amber);border-radius:2px"></div>
         <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;color:var(--g700)">Datos de la Auditoría</div>
       </div>
-      <div class="row2">
-        <div class="fg">
-          <label>N° Auditoría <span class="req">*</span></label>
-          <select id="audn-num">
-            <option value="">- Selecciona -</option>
-            <option value="1">A1 — 1ra Ronda</option>
-            <option value="2">A2 — 2da Ronda</option>
-            <option value="3">A3 — 3ra Ronda</option>
-            <option value="4">A4 — 4ta Ronda</option>
-          </select>
-        </div>
-        <div class="fg">
-          <label>Fecha <span class="req">*</span></label>
-          <input type="date" id="audn-fecha">
-        </div>
-      </div>
+      <!-- 1. Auditor primero -->
       <div class="fg">
         <label>Auditor <span class="req">*</span></label>
-        <select id="audn-auditor-sel" onchange="audn_onAuditorChange()">
+        <select id="audn-auditor" onchange="audn_onAuditorChange()">
           <option value="">— Selecciona auditor —</option>
           <option value="Adiel Abednego Aguayo Flores">Adiel Abednego Aguayo Flores</option>
           <option value="Alejandro Salvador Grados">Alejandro Salvador Grados</option>
@@ -289,14 +289,39 @@ canvas{max-width:100%!important}
           <option value="William Jesus Joel Rivera Ramirez">William Jesus Joel Rivera Ramirez</option>
           <option value="Ítalo Buendia Poma">Ítalo Buendia Poma</option>
         </select>
-        <input type="hidden" id="audn-auditor">
       </div>
+      <!-- 2. N° y Fecha -->
+      <div class="row2">
+        <div class="fg">
+          <label>N° Auditoría <span class="req">*</span></label>
+          <select id="audn-num" onchange="audn_checkReady()">
+            <option value="">- Selecciona -</option>
+            <option value="1">A1 — 1ra Ronda</option>
+            <option value="2">A2 — 2da Ronda</option>
+            <option value="3">A3 — 3ra Ronda</option>
+            <option value="4">A4 — 4ta Ronda</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label>Fecha <span class="req">*</span></label>
+          <input type="date" id="audn-fecha" onchange="audn_checkReady()">
+        </div>
+      </div>
+      <!-- 3. Sector -->
       <div class="fg">
         <label>Sector auditado <span class="req">*</span></label>
         <select id="audn-sector" onchange="audn_onSectorChange()" disabled>
           <option value="">— Elige auditor primero —</option>
         </select>
       </div>
+      <!-- 4. Zona (visible solo si el sector tiene zonas) -->
+      <div class="fg" id="fg-zona" style="display:none">
+        <label>Zona / Equipo</label>
+        <select id="audn-zona" onchange="audn_checkReady()">
+          <option value="">— Selecciona zona —</option>
+        </select>
+      </div>
+      <!-- 5. Área y responsable automáticos -->
       <div class="fg">
         <label>Área</label>
         <input type="text" id="audn-area-auto" readonly style="background:var(--g50);color:var(--green);font-weight:700" placeholder="Se asigna automáticamente">
@@ -310,8 +335,7 @@ canvas{max-width:100%!important}
       </button>
     </div>
 
-    <!-- Evaluación de criterios -->
-    <div id="audn-eval-container" style="display:none">
+    id="audn-eval-container" style="display:none">
       <!-- Score en tiempo real -->
       <div style="background:linear-gradient(135deg,var(--amber) 0%,#B45309 100%);border-radius:14px;padding:16px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between">
         <div>
@@ -340,7 +364,7 @@ canvas{max-width:100%!important}
   <div id="audn-content-historial" style="padding:16px;display:none">
     <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
       <select id="audn-fil-ronda" onchange="audn_cargarHistorial()" style="flex:1;min-width:110px;padding:8px;border-radius:8px;border:1px solid var(--g200);font-size:13px">
-        <option value="">Todas las rondas</option>
+        <option value="">Todos los check lists</option>
         <option value="1">A1</option><option value="2">A2</option>
         <option value="3">A3</option><option value="4">A4</option>
       </select>
@@ -355,7 +379,7 @@ canvas{max-width:100%!important}
   <div id="audn-content-dashboard" style="padding:16px;display:none">
     <div style="display:flex;gap:8px;margin-bottom:12px">
       <select id="audn-dash-ronda" onchange="audn_renderDashboard()" style="flex:1;padding:8px;border-radius:8px;border:1px solid var(--g200);font-size:13px">
-        <option value="">Todas las rondas</option>
+        <option value="">Todos los check lists</option>
         <option value="1">A1</option><option value="2">A2</option>
         <option value="3">A3</option><option value="4">A4</option>
       </select>
@@ -811,47 +835,38 @@ canvas{max-width:100%!important}
 <div id="audit-paso1">
   <div class="card">
     <div class="card-title">&#9989; Datos del Check List</div>
-    <div class="fg"><label>Auditor <span class="req">*</span></label>
-      <select id="a-auditor" onchange="onAuditorChange()">
-        <option value="">&#8212; Selecciona auditor &#8212;</option>
-        <option value="Fabio Caldas Antúnez">Fabio Caldas Antúnez</option>
-        <option value="Ítalo Buendia Poma">Ítalo Buendia Poma</option>
-        <option value="Héctor Arteaga Espinoza">Héctor Arteaga Espinoza</option>
-        <option value="Carlos Joél Luyo Diaz">Carlos Joél Luyo Diaz</option>
-        <option value="Enrique Fabricio Polo Manrique">Enrique Fabricio Polo Manrique</option>
-        <option value="Ayrton Raphael Cotrina Esteves">Ayrton Raphael Cotrina Esteves</option>
-        <option value="William Jesus Joel Rivera Ramirez">William Jesus Joel Rivera Ramirez</option>
-        <option value="Nuria del Pilar Diaz Ramirez">Nuria del Pilar Diaz Ramirez</option>
-        <option value="Alejandro Salvador Grados">Alejandro Salvador Grados</option>
-        <option value="Adiel Abednego Aguayo Flores">Adiel Abednego Aguayo Flores</option>
-        <option value="Roberto Carlos Medina La Rosa">Roberto Carlos Medina La Rosa</option>
-        <option value="Ulises Eliseo Anselmo Carranza">Ulises Eliseo Anselmo Carranza</option>
-        <option value="Dylan Yaret Pintado Fernandez">Dylan Yaret Pintado Fernandez</option>
-        <option value="Mariluz Reynaldina Montes Laurente">Mariluz Reynaldina Montes Laurente</option>
-        <option value="Paula Valeria Cecilia La Rosa La Rosa">Paula Valeria Cecilia La Rosa La Rosa</option>
-        <option value="Cristopher William Reyes Islado">Cristopher William Reyes Islado</option>
-        <option value="Rosa Emilia Mejia Jaimes">Rosa Emilia Mejia Jaimes</option>
-        <option value="Julio Arroyo Puse">Julio Arroyo Puse</option>
-      </select>
+        <div class="fg"><label>Auditor <span class="req">*</span></label>
+      <input type="hidden" id="a-auditor" value="">
+      <div class="cs-wrap">
+        <div class="cs-selected" id="cs-cl-aud-display" onclick="clOpenSelect('cl-aud')">
+          <span id="cs-cl-aud-label">&#8212; Selecciona auditor &#8212;</span>
+        </div>
+      </div>
     </div>
     <div class="fg"><label>Mes <span class="req">*</span></label>
-      <input type="month" id="a-nro" onchange="onNroAuditoriaChange()">
+      <input type="month" id="a-nro" readonly style="background:var(--g50);font-weight:700;color:var(--blue)">
+    </div>
+    <div class="fg"><label>Sector auditado <span class="req">*</span></label>
+      <select id="a-sector" onchange="onSectorChange()" disabled>
+        <option value="">&#8212; Elige auditor primero &#8212;</option>
+      </select>
+    </div>
+    <div class="fg" id="fg-zona-cl" style="display:none">
+      <label>Zona / Equipo</label>
+      <select id="a-zona">
+        <option value="">&#8212; Selecciona zona &#8212;</option>
+      </select>
+    </div>
+    <div class="fg"><label>Área</label>
+      <input type="text" id="a-area" readonly style="background:var(--g50);color:var(--green);font-weight:700" placeholder="Se asigna automáticamente">
+    </div>
+    <div class="fg"><label>Responsable</label>
+      <input type="text" id="a-responsable" readonly style="background:var(--g50);color:var(--g700)" placeholder="Se asigna automáticamente">
     </div>
     <div class="fg"><label>Fecha</label>
       <input type="text" id="a-fecha" readonly style="background:var(--g50);font-weight:700;color:var(--green)">
     </div>
-    <div class="fg"><label>Sector auditado <span class="req">*</span></label>
-      <select id="a-sector" onchange="updateAreasAudit()" disabled>
-        <option value="">&#8212; Elige el mes primero &#8212;</option>
-      </select>
-    </div>
-    <div class="fg"><label>Area</label>
-      <input type="text" id="a-area" readonly style="background:var(--g50);color:var(--green);font-weight:700" placeholder="Se asigna automaticamente">
-    </div>
-    <div class="fg"><label>Responsable</label>
-      <input type="text" id="a-responsable" readonly style="background:var(--g50);color:var(--g700)" placeholder="Se asigna automaticamente">
-    </div>
-    <button class="btn-primary" onclick="irPaso2()">Iniciar Evaluacion &#8594;</button>
+    <button class="btn-primary" onclick="irPaso2()">Iniciar Check List &#8594;</button>
   </div>
 </div>
 
@@ -930,7 +945,7 @@ canvas{max-width:100%!important}
     <select id="d-fil-sector-a" onchange="renderAuditDashboard()" class="filter-small"><option value="">Todos los sectores</option></select>
     <select id="d-fil-area-a" onchange="renderAuditDashboard()" class="filter-small"><option value="">Todas las areas</option></select>
     <select id="d-fil-nro-pdf" class="filter-small" style="max-width:160px">
-      <option value="">Todas las rondas</option>
+      <option value="">Todos los check lists</option>
       <option value="1">Check List N° 1</option>
       <option value="2">Check List N° 2</option>
       <option value="3">Check List N° 3</option>
@@ -1894,95 +1909,11 @@ const RESP_SECTOR={
   "TRATAMIENTO DE AGUAS":"WILLIAM ARHUIZ",
   "SALA DE CALDERO":"DANIEL TABOADA"
 };
-const SECTORES_AUDIT={
-  "LOGISTICA":{"responsable":"Claudio Escobedo Chávez","areas":["ALM. TEMPORAL MP","ALM. DE INSUMOS","ALM. DE REPUESTOS","ALM. DE INSUMOS GENERALES","ALM. DE INSUMOS QUÍMICOS","ALM. DE PT 1","ALM. TEMPORAL PT","ALM. PT HANGAR 8","ALM. PT HANGAR 10","ALM. DE ENVASES Y EMBALAJES","OFIC. DE LOGÍSTICA","OFIC. DE APT","OFIC. ALM. DE REPUESTOS"]},
-  "PRODUCCIÓN":{"responsable":"Henry Treviños Torres","areas":["OFIC. DE JEF. DE PRODUCCIÓN","OFIC. DE PLANEAMIENTO","OFIC. DE MEJORA CONTINUA","SALA DE REUNIONES MC","OFIC. DE JEFATURA DE PLANTA","LP01","LP02","LP03","LP04","LP05","LP06","LP07","LP08","LP09","SALA DE JARABE","TRATAMIENTO DE AGUAS","OFICINA DE PRODUCCIÓN","SALA DE CALDERO","SALA DE MANEJOS","LP10","LABORATORIO DE SOPLADO"]},
-  "GESTION HUMANA":{"responsable":"Álvaro Sotomayor Checa","areas":["OFIC. DE GESTION HUMANA","AUDITORIO DE PLANTA","COMEDOR","SSHH Y VESTUARIOS"]},
-  "SEGURIDAD CIVIL":{"responsable":"Fabio Caldas Antúnez","areas":["OFIC. DE SEGURIDAD CIVIL / GARITA"]},
-  "SEGURIDAD":{"responsable":"Ubaldo Llacho Alhuirca","areas":["OFIC. DE SEG. INDUSTRIAL","TÓPICO"]},
-  "CONTROL INTERNO":{"responsable":"Fabio Caldas Antúnez","areas":["OFIC. DE CONTROL INTERNO"]},
-  "FINANZAS":{"responsable":"Fabio Caldas Antúnez","areas":["OFIC. DE FINANZAS"]},
-  "SISTEMAS":{"responsable":"Fabio Caldas Antúnez","areas":["OFIC. DE SISTEMAS"]},
-  "CONTABILIDAD":{"responsable":"Fabio Caldas Antúnez","areas":["OFIC. DE CONTABILIDAD"]},
-  "COMUNICACIONES":{"responsable":"Fabio Caldas Antúnez","areas":["OFIC. DE COMUNICACIONES"]},
-  "COSTOS":{"responsable":"Fabio Caldas Antúnez","areas":["OFIC. DE COSTOS"]},
-  "PROYECTOS":{"responsable":"Fabio Caldas Antúnez","areas":["OFIC. DE PROYECTOS"]},
-  "MANTENIMIENTO":{"responsable":"Roberto Cárdenas Arias","areas":["TALLER DE MANT. MECÁNICO","TALLER DE MANT. ELÉCTRICO","SUB-ESTACIÓN","OFICINA DE MANTENIMIENTO","SALA DE FUERZAS"]},
-  "CALIDAD":{"responsable":"Martin Castillo Guerra","areas":["OFIC. SOSTENIBILIDAD Y SGI","SALA DE MUESTRAS","LAB. FISICOQUÍMICO","LAB. MICROBIOLÓGICO","OFIC. SUPERVISORES SOS"]},
-  "GERENCIA":{"responsable":"Fabio Caldas Antúnez","areas":["SECRETARIA GENERAL"]}
-};
-const AREA_RESPONSABLE={
-  "ALM. TEMPORAL MP":"Claudio Escobedo Chávez",
-  "ALM. DE INSUMOS":"Claudio Escobedo Chávez",
-  "ALM. DE REPUESTOS":"Claudio Escobedo Chávez",
-  "ALM. DE INSUMOS GENERALES":"Claudio Escobedo Chávez",
-  "ALM. DE INSUMOS QUÍMICOS":"Claudio Escobedo Chávez",
-  "ALM. DE PT 1":"Claudio Escobedo Chávez",
-  "ALM. TEMPORAL PT":"Claudio Escobedo Chávez",
-  "ALM. PT HANGAR 8":"Claudio Escobedo Chávez",
-  "ALM. PT HANGAR 10":"Claudio Escobedo Chávez",
-  "ALM. DE ENVASES Y EMBALAJES":"Claudio Escobedo Chávez",
-  "OFIC. DE JEF. DE PRODUCCIÓN":"Henry Treviños Torres",
-  "OFIC. DE PLANEAMIENTO":"Henry Treviños Torres",
-  "OFIC. DE MEJORA CONTINUA":"Henry Treviños Torres",
-  "SALA DE REUNIONES MC":"Henry Treviños Torres",
-  "OFIC. DE JEFATURA DE PLANTA":"Fabio Caldas Antúnez",
-  "OFIC. DE GESTION HUMANA":"Álvaro Sotomayor Checa",
-  "OFIC. DE SEGURIDAD CIVIL / GARITA":"Fabio Caldas Antúnez",
-  "OFIC. DE SEG. INDUSTRIAL":"Ubaldo Llacho Alhuirca",
-  "OFIC. DE LOGÍSTICA":"Claudio Escobedo Chávez",
-  "OFIC. DE APT":"Claudio Escobedo Chávez",
-  "OFIC. DE CONTROL INTERNO":"Fabio Caldas Antúnez",
-  "OFIC. DE FINANZAS":"Fabio Caldas Antúnez",
-  "OFIC. DE SISTEMAS":"Fabio Caldas Antúnez",
-  "OFIC. DE CONTABILIDAD":"Fabio Caldas Antúnez",
-  "OFIC. DE COMUNICACIONES":"Fabio Caldas Antúnez",
-  "OFIC. DE COSTOS":"Fabio Caldas Antúnez",
-  "OFIC. DE PROYECTOS":"Fabio Caldas Antúnez",
-  "AUDITORIO DE PLANTA":"Álvaro Sotomayor Checa",
-  "TÓPICO":"Ubaldo Llacho Alhuirca",
-  "COMEDOR":"Álvaro Sotomayor Checa",
-  "SSHH Y VESTUARIOS":"Álvaro Sotomayor Checa",
-  "LÍNEA 1":"Henry Treviños Torres",
-  "LÍNEA 2":"Henry Treviños Torres",
-  "LÍNEA 3":"Henry Treviños Torres",
-  "LÍNEA 4":"Henry Treviños Torres",
-  "LÍNEA 5":"Henry Treviños Torres",
-  "LINEA 6":"Henry Treviños Torres",
-  "LÍNEA 7":"Henry Treviños Torres",
-  "LÍNEA 8":"Henry Treviños Torres",
-  "LÍNEA 9":"Henry Treviños Torres",
-  "SALA DE JARABE":"JUAN GORDILLO",
-  "TRATAMIENTO DE AGUAS":"WILLIAM ARHUIZ",
-  "OFICINA DE PRODUCCIÓN":"Henry Treviños Torres",
-  "SALA DE CALDERO":"DANIEL TABOADA",
-  "SALA DE MANEJOS":"",
-  "SALA DE FUERZAS":"Roberto Cárdenas Arias",
-  "TALLER DE MANT. MECÁNICO":"Roberto Cárdenas Arias",
-  "TALLER DE MANT. ELÉCTRICO":"Roberto Cárdenas Arias",
-  "SUB-ESTACIÓN":"Roberto Cárdenas Arias",
-  "OFIC. SOSTENIBILIDAD Y SGI":"Martin Castillo Guerra",
-  "SALA DE MUESTRAS":"Martin Castillo Guerra",
-  "LAB. FISICOQUÍMICO":"Martin Castillo Guerra",
-  "OFIC. ALM. DE REPUESTOS":"Claudio Escobedo Chávez",
-  "OFICINA DE MANTENIMIENTO":"Roberto Cárdenas Arias",
-  "LAB. MICROBIOLÓGICO":"Martin Castillo Guerra",
-  "OFIC. SUPERVISORES SOS":"Martin Castillo Guerra",
-  "LINEA 10":"Henry Treviños Torres",
-  "LABORATORIO DE SOPLADO":"WILLIAM ARHUIZ",
-  "SECRETARIA GENERAL":"Fabio Caldas Antúnez",
-  "LP01":"",
-  "LP02":"JUNIOR GERVACIO",
-  "LP03":"DANIEL TABOADA",
-  "LP04":"JUAN GORDILLO",
-  "LP05":"YONER ANGULO",
-  "LP06":"FABRICIO POLO",
-  "LP07":"WILLIAM ARHUIZ",
-  "LP08":"YONER ANGULO",
-  "LP09":"JUNIOR GERVACIO",
-  "LP10":"FABRICIO POLO"
-};;
-const AUDITORES_SECTORES={"Fabio Caldas Antúnez": ["LÍNEA 1", "OFIC. DE COSTOS", "AUDITORIO DE PLANTA"], "Ítalo Buendia Poma": ["ALM. DE ENVASES Y EMBALAJES", "OFICINA DE PRODUCCIÓN", "OFIC. DE LOGÍSTICA"], "Héctor Arteaga Espinoza": ["SUB-ESTACIÓN", "OFIC. DE COMUNICACIONES", "LÍNEA 4"], "Carlos Joél Luyo Diaz": ["TÓPICO", "ALM. DE PT 1", "OFIC. DE FINANZAS"], "Enrique Fabricio Polo Manrique": ["ALM. PT HANGAR 8", "SECRETARIA GENERAL", "SALA DE FUERZAS"], "Ayrton Raphael Cotrina Esteves": ["LÍNEA 9", "OFIC. DE CONTROL INTERNO", "OFIC. DE SEG. INDUSTRIAL"], "William Jesus Joel Rivera Ramirez": ["LABORATORIO DE SOPLADO", "LÍNEA 7", "OFIC. DE SEGURIDAD CIVIL / GARITA"], "Nuria del Pilar Diaz Ramirez": ["OFIC. DE JEFATURA DE PLANTA", "COMEDOR", "OFICINA DE MANTENIMIENTO"], "Alejandro Salvador Grados": ["OFIC. DE APT", "ALM. DE INSUMOS", "LÍNEA 2"], "Adiel Abednego Aguayo Flores": ["OFIC. ALM. DE REPUESTOS", "TALLER DE MANT. ELÉCTRICO", "LÍNEA 3"], "Roberto Carlos Medina La Rosa": ["SSHH Y VESTUARIOS", "OFIC. DE CONTABILIDAD", "LÍNEA 5"], "Ulises Eliseo Anselmo Carranza": ["OFIC. DE GESTION HUMANA", "OFIC. DE JEF. DE PRODUCCIÓN", "SALA DE MUESTRAS"], "Dylan Yaret Pintado Fernandez": ["ALM. TEMPORAL MP", "OFIC. SUPERVISORES SOS", "LINEA 6"], "Mariluz Reynaldina Montes Laurente": ["SALA DE CALDERO", "LINEA 10", "ALM. DE REPUESTOS"], "Paula Valeria Cecilia La Rosa La Rosa": ["OFIC. DE MEJORA CONTINUA", "ALM. DE INSUMOS GENERALES", "LAB. FISICOQUÍMICO"], "Cristopher William Reyes Islado": ["LÍNEA 8", "TALLER DE MANT. MECÁNICO", "TRATAMIENTO DE AGUAS"], "Rosa Emilia Mejia Jaimes": ["OFIC. DE SISTEMAS", "ALM. PT HANGAR 10"], "Julio Arroyo Puse": ["ALM. DE INSUMOS QUÍMICOS", "ALM. TEMPORAL PT"], "Luis Bossio Vargas": ["SALA DE REUNIONES MC", "SALA DE JARABE", "OFIC. DE PROYECTOS"], "Darlene Cruz Donayre": ["SALA DE MANEJOS", "LAB. MICROBIOLÓGICO", "OFIC. DE PLANEAMIENTO", "OFIC. SOSTENIBILIDAD Y SGI"]};;
+const SECTORES_AUDIT={"LOGISTICA": {"responsable": "Claudio Escobedo Chávez", "areas": ["ALM. TEMPORAL MP", "ALM. DE INSUMOS", "ALM. DE REPUESTOS", "ALM. DE INSUMOS GENERALES", "ALM. DE INSUMOS QUÍMICOS", "ALM. DE PT 1", "ALM. TEMPORAL PT", "ALM. PT HANGAR 8", "ALM. PT HANGAR 10", "ALM. DE ENVASES Y EMBALAJES", "OFIC. ALM. DE REPUESTOS", "OFIC. DE LOGÍSTICA", "OFIC. DE APT"]}, "PRODUCCIÓN": {"responsable": "Henry Treviños Torres", "areas": ["OFIC. DE JEF. DE PRODUCCIÓN", "OFIC. DE PLANEAMIENTO", "SALA DE REUNIONES MC", "LÍNEA 1", "LÍNEA 2", "LÍNEA 3", "LÍNEA 4", "LÍNEA 5", "LINEA 6", "LÍNEA 7", "LÍNEA 8", "LÍNEA 9", "SALA DE JARABE", "TRATAMIENTO DE AGUAS", "OFICINA DE PRODUCCIÓN", "SALA DE CALDERO", "SALA DE MANEJOS", "LINEA 10", "LABORATORIO DE SOPLADO"]}, "EXCELENCIA OPERACIONAL": {"responsable": "Darlene Cruz Donayre", "areas": ["OFIC. DE MEJORA CONTINUA"]}, "GERENCIA": {"responsable": "Fabio Caldas Antúnez", "areas": ["OFIC. DE JEFATURA DE PLANTA", "SECRETARIA GENERAL"]}, "GESTION HUMANA": {"responsable": "Álvaro Sotomayor Checa", "areas": ["OFIC. DE GESTION HUMANA", "AUDITORIO DE PLANTA", "COMEDOR", "SSHH Y VESTUARIOS"]}, "SEGURIDAD CIVIL": {"responsable": "Fabio Caldas Antúnez", "areas": ["OFIC. DE SEGURIDAD CIVIL / GARITA"]}, "SEGURIDAD": {"responsable": "Ubaldo Llacho Alhuirca", "areas": ["OFIC. DE SEG. INDUSTRIAL", "TÓPICO"]}, "CONTROL INTERNO": {"responsable": "Fabio Caldas Antúnez", "areas": ["OFIC. DE CONTROL INTERNO"]}, "FINANZAS": {"responsable": "Fabio Caldas Antúnez", "areas": ["OFIC. DE FINANZAS"]}, "SISTEMAS": {"responsable": "Fabio Caldas Antúnez", "areas": ["OFIC. DE SISTEMAS"]}, "CONTABILIDAD": {"responsable": "Fabio Caldas Antúnez", "areas": ["OFIC. DE CONTABILIDAD"]}, "COMUNICACIONES": {"responsable": "Fabio Caldas Antúnez", "areas": ["OFIC. DE COMUNICACIONES"]}, "COSTOS": {"responsable": "Eber Valdez Nolasco", "areas": ["OFIC. DE COSTOS"]}, "PROYECTOS": {"responsable": "Fabio Caldas Antúnez", "areas": ["OFIC. DE PROYECTOS"]}, "MANTENIMIENTO": {"responsable": "Roberto Cárdenas Arias", "areas": ["SALA DE FUERZAS", "TALLER DE MANT. MECÁNICO", "TALLER DE MANT. ELÉCTRICO", "SUB-ESTACIÓN", "OFICINA DE MANTENIMIENTO"]}, "CALIDAD": {"responsable": "Martin Castillo Guerra", "areas": ["OFIC. SOSTENIBILIDAD Y SGI", "SALA DE MUESTRAS", "LAB. FISICOQUÍMICO", "LAB. MICROBIOLÓGICO", "OFIC. SUPERVISORES SOS"]}};;;
+const AREA_RESPONSABLE={"ALM. TEMPORAL MP": "Claudio Escobedo Chávez", "ALM. DE INSUMOS": "Claudio Escobedo Chávez", "ALM. DE REPUESTOS": "Claudio Escobedo Chávez", "ALM. DE INSUMOS GENERALES": "Claudio Escobedo Chávez", "ALM. DE INSUMOS QUÍMICOS": "Claudio Escobedo Chávez", "ALM. DE PT 1": "Claudio Escobedo Chávez", "ALM. TEMPORAL PT": "Claudio Escobedo Chávez", "ALM. PT HANGAR 8": "Claudio Escobedo Chávez", "ALM. PT HANGAR 10": "Claudio Escobedo Chávez", "ALM. DE ENVASES Y EMBALAJES": "Claudio Escobedo Chávez", "OFIC. ALM. DE REPUESTOS": "Claudio Escobedo Chávez", "OFIC. DE LOGÍSTICA": "Claudio Escobedo Chávez", "OFIC. DE APT": "Claudio Escobedo Chávez", "OFIC. DE JEF. DE PRODUCCIÓN": "Henry Treviños Torres", "OFIC. DE PLANEAMIENTO": "Freddy Pacherres", "OFIC. DE MEJORA CONTINUA": "Darlene Cruz Donayre", "SALA DE REUNIONES MC": "Carlos Luyo", "OFIC. DE JEFATURA DE PLANTA": "Fabio Caldas Antúnez", "SECRETARIA GENERAL": "Fabio Caldas Antúnez", "OFIC. DE GESTION HUMANA": "Álvaro Sotomayor Checa", "OFIC. DE SEGURIDAD CIVIL / GARITA": "Fabio Caldas Antúnez", "OFIC. DE SEG. INDUSTRIAL": "Ubaldo Llacho Alhuirca", "OFIC. DE CONTROL INTERNO": "Fabio Caldas Antúnez", "OFIC. DE FINANZAS": "Fabio Caldas Antúnez", "OFIC. DE SISTEMAS": "Fabio Caldas Antúnez", "OFIC. DE CONTABILIDAD": "Fabio Caldas Antúnez", "OFIC. DE COMUNICACIONES": "Fabio Caldas Antúnez", "OFIC. DE COSTOS": "Eber Valdez Nolasco", "OFIC. DE PROYECTOS": "Fabio Caldas Antúnez", "AUDITORIO DE PLANTA": "Álvaro Sotomayor Checa", "TÓPICO": "Ubaldo Llacho Alhuirca", "COMEDOR": "Álvaro Sotomayor Checa", "SSHH Y VESTUARIOS": "Álvaro Sotomayor Checa", "LÍNEA 1": "Henry Treviños Torres", "LÍNEA 2": "Junior Gervacio", "LÍNEA 3": "Daniel Taboada", "LÍNEA 4": "Juan Gordillo", "LÍNEA 5": "Yoner Angulo", "LINEA 6": "Fabricio Polo", "LÍNEA 7": "William Arhuiz", "LÍNEA 8": "Yoner Angulo", "LÍNEA 9": "Junior Gervacio", "SALA DE JARABE": "Juan Gordillo", "TRATAMIENTO DE AGUAS": "William Arhuiz", "OFICINA DE PRODUCCIÓN": "Henry Treviños Torres", "SALA DE CALDERO": "Daniel Taboada", "SALA DE MANEJOS": "Carlos Luyo", "LINEA 10": "Fabricio Polo", "LABORATORIO DE SOPLADO": "Fabricio Polo", "SALA DE FUERZAS": "Roberto Cárdenas Arias", "TALLER DE MANT. MECÁNICO": "Roberto Cárdenas Arias", "TALLER DE MANT. ELÉCTRICO": "Roberto Cárdenas Arias", "SUB-ESTACIÓN": "Roberto Cárdenas Arias", "OFICINA DE MANTENIMIENTO": "Roberto Cárdenas Arias", "OFIC. SOSTENIBILIDAD Y SGI": "Martin Castillo Guerra", "SALA DE MUESTRAS": "Martin Castillo Guerra", "LAB. FISICOQUÍMICO": "Martin Castillo Guerra", "LAB. MICROBIOLÓGICO": "Martin Castillo Guerra", "OFIC. SUPERVISORES SOS": "Martin Castillo Guerra"};
+const SECTOR_AREA_MAP={"ALM. TEMPORAL MP": "LOGISTICA", "ALM. DE INSUMOS": "LOGISTICA", "ALM. DE REPUESTOS": "LOGISTICA", "ALM. DE INSUMOS GENERALES": "LOGISTICA", "ALM. DE INSUMOS QUÍMICOS": "LOGISTICA", "ALM. DE PT 1": "LOGISTICA", "ALM. TEMPORAL PT": "LOGISTICA", "ALM. PT HANGAR 8": "LOGISTICA", "ALM. PT HANGAR 10": "LOGISTICA", "ALM. DE ENVASES Y EMBALAJES": "LOGISTICA", "OFIC. ALM. DE REPUESTOS": "LOGISTICA", "OFIC. DE LOGÍSTICA": "LOGISTICA", "OFIC. DE APT": "LOGISTICA", "OFIC. DE JEF. DE PRODUCCIÓN": "PRODUCCIÓN", "OFIC. DE PLANEAMIENTO": "PRODUCCIÓN", "SALA DE REUNIONES MC": "PRODUCCIÓN", "LÍNEA 1": "PRODUCCIÓN", "LÍNEA 2": "PRODUCCIÓN", "LÍNEA 3": "PRODUCCIÓN", "LÍNEA 4": "PRODUCCIÓN", "LÍNEA 5": "PRODUCCIÓN", "LINEA 6": "PRODUCCIÓN", "LÍNEA 7": "PRODUCCIÓN", "LÍNEA 8": "PRODUCCIÓN", "LÍNEA 9": "PRODUCCIÓN", "SALA DE JARABE": "PRODUCCIÓN", "TRATAMIENTO DE AGUAS": "PRODUCCIÓN", "OFICINA DE PRODUCCIÓN": "PRODUCCIÓN", "SALA DE CALDERO": "PRODUCCIÓN", "SALA DE MANEJOS": "PRODUCCIÓN", "LINEA 10": "PRODUCCIÓN", "LABORATORIO DE SOPLADO": "PRODUCCIÓN", "OFIC. DE MEJORA CONTINUA": "EXCELENCIA OPERACIONAL", "OFIC. DE JEFATURA DE PLANTA": "GERENCIA", "SECRETARIA GENERAL": "GERENCIA", "OFIC. DE GESTION HUMANA": "GESTION HUMANA", "AUDITORIO DE PLANTA": "GESTION HUMANA", "COMEDOR": "GESTION HUMANA", "SSHH Y VESTUARIOS": "GESTION HUMANA", "OFIC. DE SEGURIDAD CIVIL / GARITA": "SEGURIDAD CIVIL", "OFIC. DE SEG. INDUSTRIAL": "SEGURIDAD", "TÓPICO": "SEGURIDAD", "OFIC. DE CONTROL INTERNO": "CONTROL INTERNO", "OFIC. DE FINANZAS": "FINANZAS", "OFIC. DE SISTEMAS": "SISTEMAS", "OFIC. DE CONTABILIDAD": "CONTABILIDAD", "OFIC. DE COMUNICACIONES": "COMUNICACIONES", "OFIC. DE COSTOS": "COSTOS", "OFIC. DE PROYECTOS": "PROYECTOS", "SALA DE FUERZAS": "MANTENIMIENTO", "TALLER DE MANT. MECÁNICO": "MANTENIMIENTO", "TALLER DE MANT. ELÉCTRICO": "MANTENIMIENTO", "SUB-ESTACIÓN": "MANTENIMIENTO", "OFICINA DE MANTENIMIENTO": "MANTENIMIENTO", "OFIC. SOSTENIBILIDAD Y SGI": "CALIDAD", "SALA DE MUESTRAS": "CALIDAD", "LAB. FISICOQUÍMICO": "CALIDAD", "LAB. MICROBIOLÓGICO": "CALIDAD", "OFIC. SUPERVISORES SOS": "CALIDAD"};
+const ZONAS_POR_SECTOR={"LÍNEA 1": ["CAPSULADOR ALCOA B242", "CODIFICADOR VIDEOJET EXCEL 2000 02CWD", "CONJTO PROPORCIONADOR MOJONNIER FE", "EMPACADORA PACKERS VITZ", "ETIQUETADORA TRINE 4600 6364", "LLENADORA CROWN 50-10", "TRANSPORTADOR A TABLILLAS CONVEYOR LP01", "CALDERO PIROTUBULAR INTESA 50 BHP", "POSICIONADOR BOTELLA POSIMAT MASTER 20", "AREA DE SOPLADO", "AREAS COMUNES", "AREA DE PALETIZADO MANUAL"], "LÍNEA 2": ["CODIFICAD IMAJE 1000 S8 CLASIC 4490004U", "CONJTO PROPORCIONADOR MESAL MIX-50", "DOSIFICADOR DE NITROGENO SC-350", "ELEVADOR DE TAPAS TIPO JET FLOW MESAL", "ENVOLVEDORA TECMI EV 850-50 J0.EV50.011", "ETIQUETADORA TRINE 4500FS", "LLEN MESAL ISOBARICA E50-60-15IA S-0790", "PASTEURIZADOR HUHTAMAKI 15000LH", "TRANSPORTADOR A TABLILLAS CONVEYOR LP02", "TRANSPORTADOR NEUMATICO PNEUMATIC LP02", "OZONIZADOR INTERIN 40 m3", "SOPLADORA SIDEL SBO MATRIX 12/20", "ETIQUETADORA NEWTEC GIOTTO 720 F15 CY S1 E1", "LLENADORA CROWN", "CHILLER CTA IPC 252 SIDEL - LP02", "AREAS COMUNES", "AREAS COMUNES", "AREA DE PALETIZADO MANUAL", "PREDILUBIO LLENADORA", "PREDILUBIO SALIDA LLENADORA"], "LÍNEA 3": ["CODIFICADOR IMAJE 1000 S8 IP-65 2420242A", "CONJTO PROPORCIONADOR MOJONNIER 22-48", "ELEVADOR DE TAPAS TIPO JET FLOW ZEFP", "ENVOLVEDORA TECMI EV 750,50 J0.EV50.024", "ETIQUETADORA TRINE 4600 6364", "GENERADORES DE OXIGENO P P TITAN", "LLENAD MESAL ISOB E80-100-25IA2 S-09021", "OZONIZADOR INTERIN 20m3", "SEPARAD LIQ HORIZONTAL MEBRAFE SLT 900-3", "TRANSPORTADOR A TABLILLAS MESAL LP03", "TRANSPORTADOR NEUMATICO PNEUMATIC LP03", "PALETIZADOR AUTOMATICO TMG-SIRIO S2S", "ETIQUETADORA VERTICAL XYL-450AJ", "ETIQUETADORA ROTATIVA OPERA PRO 300", "SOPLADORA SIDEL SBO UNIVERSAL2 16/20", "CHILLER CTA IPC 702 SIDEL - LP03", "CAPSULADOR MONOCABEZAL ASTECH CATA 140", "CODIFICADOR VIDEOJET EXCEL 2000 19CWD", "AREAS COMUNES"], "LÍNEA 4": ["LLENADORA LINEAL DE BIDONES MESAL", "TRANSPORTADOR A TABLILLAS CONVEY LP04", "LLENADORA 20 LITROS RERCPAC SA", "EMPACADORA EVOPACK T452", "ETIQUETADORA TRINE 5500_LP04", "RINSER DE 7 LITROS", "SOPLADORA CHINA DE BIDONES", "SOPLADORA CHINA DE BIDONES 2 MOLDES", "APLICADOR DE ADHESIVO DURABLUE", "AREAS COMUNES", "AREA DE PALETIZADO MANUAL"], "LÍNEA 5": ["ALIMENTADOR D TAPAS UNIMAC GHERRI GG/900", "APLICADOR D PRECINTOS DASE SEAL XYL-450S", "CAPSULADOR UNIMAC GHERRI GG/300", "CODIFICADOR VIDEOJET EXCEL 2000 16CWD", "CUCHILLA DE AIRE SONIC 70", "DETECTOR DE VACIO GHERRI GG/670", "ENJUAGADOR DE AIRE MESAL ER50PM", "ENVOLVEDORA TECMI EV 750,50 EQ.AÑO1.043", "ESTERILIZADOR DE TAPAS BEVCO ZPPI-31", "ETIQUETADORA B&H 8000S", "LLEN MESAL GRAVEDAD E50-60-15G2 S-10138", "MESA ELEVADORA HIDRAULICA", "PASTEURIZADOR HUHTAMAKI 8000L", "SIST CALENTAM AGUA P11-014RP P/ENJ BOT", "SIST ENFRIAM AGUA P11-007bMV P/ENFR BOT", "TRANSPORTADOR A TABLILLLAS MESAL LP05", "TUNEL CONTRACC DE PRECINTOS MITRI LP15D", "TUNEL DE ENFRIAMIENTO J. BEHNKE E-500", "TUNEL DE VAPOR J.BEHNKE C500", "POSICIONADOR", "AREAS COMUNES"], "LINEA 6": ["MÁQUINA SOPLADORA ROTATIVA MODELO SBF 410 HERO", "LLENADORA AWF", "TAPONADORA DE TAPA EN PLÁSTICO PRE-ROSCADO FLAT DIÁM. 29/25 MM", "CHILLER PARA LA SOPLADORA ROTATIVA MODELO SBF 410 HERO", "DOSIFICADOR DE NITRÓGENO LÍQUIDO 75.000 BPH", "ELEVADOR DE TAPAS MECÁNICO LINEA 06", "ETIQUETADORA ROTATIVA OPERA 300 RF 24T/R 2/4/265 S1/E1", "CODIFICADOR LASER VIDEOJET 1620", "EMPACADORA SMI - MODELO SK 800 F", "PALETIZADORA ARES 2 CP/P", "OZONIZADOR INTERIN 20m3", "PASTEURIZADOR ALFA LAVAL", "TRANSPORTADOR A TABLILLAS MESAL LP06", "AREAS COMUNES"], "LÍNEA 7": ["ETIQUETADORA SIDEL EVODECO SL100", "LLENADORA SIDEL SF300", "EMPACADORA SIDEL EVO FILM ACCESS", "PALETIZADOR SIDEL PALKOMBI", "ALIMENTADOR DE TAPAS GEBO OPTIFEED", "TAPONADORA DE TAPA EN PLÁSTICO PRE-ROSCADO", "TRANSPORTADOR A TABLILLLAS SIDEL LP07", "SOPLADORA SIDEL MATRIX SBO 16", "MIXER SIDEL SF300", "CHILLER PARA LA SOPLADORA ROTATIVA MODELO MATRIX SBO 16", "SECADOR DE BOTELLA SIDEL GEBO OPTYDRY", "CODIFICADOR VIDEOJET EXCEL 3340 LP07", "AREAS COMUNES"], "LÍNEA 8": ["POSICIONADOR POSIMAT ACCESS N-40", "TRANSPORTADOR NEUMATICO PNEUMATIC LP08", "APLICADOR D PRECINTOS SCALIGERA ULISSE 40000", "LLENADORA SACMI AHF+EPD 50.20.50.15", "PASTEURIZADOR DE ALOE VERA HRS", "EMPACADORA TECMI TT70.45X3C LP08", "TUNEL DE VAPOR SCALIGERA PACKAGING", "CODIFICADOR VIDEOJET EXCEL 2000 LP08", "TRANSPORTADOR A TABLILLLAS LP08", "AREAS COMUNES", "TUNEL DE ENFRIAMIENTO", "ETIQUETADORA B&H"], "LÍNEA 9": ["CODIFICADOR LASER VIDEOJET - LP09", "CHILLER TERMALCARE Q37.5 - LP09", "CHILLER TERMALCARE Q37.6 - LP09", "SOPLADORA TECHLONG CPX16A - LP09", "LLENADORA TECHLONG CPX16A - LP09", "ALIMENTADOR DE TAPAS TECHLONG - LP09", "OZONIZADOR AGUAMUNDO - LP09", "INSPECTOR DE NIVEL DE LLENADO - LP09", "TRANSP TABLILLA LLENA-ETIQ - LP09", "TRANSP TABLILLA ETIQ-EMPAC - LP09", "TRANSP TABLILLA EMPAC-PALET - LP09", "SECADOR DE BOTELLA TECHLONG - LP09", "ETIQUETADORA TECHLONG 1440-31 - LP09", "INSPECTOR DE ETIQUETA HS700 - LP09", "EMPACADORA TECHLONG DBZ-MB63", "PALETIZADORA TECHLONG BMD61", "AREAS COMUNES"], "OFICINAS": ["OFICINA DE PRODUCCION", "OFICINA DE MEJORA CONTINUA", "AREA DE CALIDAD", "OFICINA DE PLANIFICACION Y PRODUCCION", "OFICINA DE JEFATURA DE PRODUCCION", "OFICINA DE JEFATURA DE PLANTA", "ALMACEN DE INSUMOS", "ALMACEN DE REPUESTOS Y SUMINISTROS", "ALMACEN TEMPORAL", "MANTENIMIENTO ELECTRICO", "MANTENIMIENTO MECANICO", "OFICINA DE SEGURIDAD INDUSTRIAL", "OFICINA DE GESTION HUMANA"], "SALA DE MANEJOS": ["ALREDEDORES", "SALA DE MANEJOS"], "ALMACÉN": ["ALMACEN DE INSUMOS", "ALMACEN TEMPORAL"], "SALA DE FUERZAS": ["ALREDORES", "SALA DE FUERZA"], "SALA DE CALDERO": ["AREAS COMUNES", "SALA DE CALDEROS"], "TRATAMIENTO DE AGUAS": ["AREAS COMUNES", "TRATAMIENTO DE AGUA"], "SALA DE JARABE": ["ALREDEDORES", "SALA DE JARABE"]};;;;
+const AUDITORES_SECTORES={"Fabio Caldas Antúnez": ["LÍNEA 1", "OFIC. DE COSTOS", "AUDITORIO DE PLANTA"], "Ítalo Buendia Poma": ["ALM. DE ENVASES Y EMBALAJES", "OFICINA DE PRODUCCIÓN", "OFIC. DE LOGÍSTICA"], "Héctor Arteaga Espinoza": ["SUB-ESTACIÓN", "OFIC. DE COMUNICACIONES", "LÍNEA 4"], "Carlos Joél Luyo Diaz": ["TÓPICO", "ALM. DE PT 1", "OFIC. DE FINANZAS"], "Enrique Fabricio Polo Manrique": ["ALM. PT HANGAR 8", "SECRETARIA GENERAL", "SALA DE FUERZAS"], "Ayrton Raphael Cotrina Esteves": ["LÍNEA 9", "OFIC. DE CONTROL INTERNO", "OFIC. DE SEG. INDUSTRIAL"], "William Jesus Joel Rivera Ramirez": ["LABORATORIO DE SOPLADO", "LÍNEA 7", "OFIC. DE SEGURIDAD CIVIL / GARITA"], "Nuria del Pilar Diaz Ramirez": ["OFIC. DE JEFATURA DE PLANTA", "COMEDOR", "OFICINA DE MANTENIMIENTO"], "Alejandro Salvador Grados": ["OFIC. DE APT", "ALM. DE INSUMOS", "LÍNEA 2"], "Adiel Abednego Aguayo Flores": ["OFIC. ALM. DE REPUESTOS", "TALLER DE MANT. ELÉCTRICO", "LÍNEA 3"], "Roberto Carlos Medina La Rosa": ["SSHH Y VESTUARIOS", "OFIC. DE CONTABILIDAD", "LÍNEA 5"], "Ulises Eliseo Anselmo Carranza": ["OFIC. DE GESTION HUMANA", "OFIC. DE JEF. DE PRODUCCIÓN", "SALA DE MUESTRAS"], "Dylan Yaret Pintado Fernandez": ["ALM. TEMPORAL MP", "OFIC. SUPERVISORES SOS", "LINEA 6"], "Mariluz Reynaldina Montes Laurente": ["SALA DE CALDERO", "LINEA 10", "ALM. DE REPUESTOS"], "Paula Valeria Cecilia La Rosa La Rosa": ["OFIC. DE MEJORA CONTINUA", "ALM. DE INSUMOS GENERALES", "LAB. FISICOQUÍMICO"], "Cristopher William Reyes Islado": ["LÍNEA 8", "TALLER DE MANT. MECÁNICO", "TRATAMIENTO DE AGUAS"], "Rosa Emilia Mejia Jaimes": ["OFIC. DE SISTEMAS", "ALM. PT HANGAR 10"], "Julio Arroyo Puse": ["ALM. DE INSUMOS QUÍMICOS", "ALM. TEMPORAL PT"], "Luis Bossio Vargas": ["SALA DE REUNIONES MC", "SALA DE JARABE", "OFIC. DE PROYECTOS"], "Darlene Cruz Donayre": ["SALA DE MANEJOS", "LAB. MICROBIOLÓGICO", "OFIC. DE PLANEAMIENTO", "OFIC. SOSTENIBILIDAD Y SGI"]};;;
 const CRITERIOS=[
   {num:1,pilar:"1S — Seleccionar",txt:"Se observan únicamente los objetos esenciales para la operación actual."},
   {num:2,pilar:"1S — Seleccionar",txt:"Los objetos (herramientas, equipos, mobiliario) se encuentran en condiciones operativas y óptimas de uso."},
@@ -2042,59 +1973,68 @@ function onAuditorChange(){
   const auditor=document.getElementById("a-auditor").value;
   const mesEl=document.getElementById("a-nro");
   const sEl=document.getElementById("a-sector");
+  const fechaEl=document.getElementById("a-fecha");
   document.getElementById("a-area").value="";
   document.getElementById("a-responsable").value="";
-  sEl.innerHTML='<option value="">&#8212; Selecciona sector &#8212;</option>';
+  const zonaFg=document.getElementById("fg-zona-cl");
+  if(zonaFg) zonaFg.style.display="none";
+  sEl.innerHTML='<option value="">&#8212; Elige auditor primero &#8212;</option>';
   sEl.disabled=true;
-  if(!auditor)return;
+  if(!auditor) return;
+  // Mes vigente automático
   const now=new Date();
-  if(mesEl)mesEl.value=now.getFullYear()+"-"+String(now.getMonth()+1).padStart(2,"0");
+  const mes=now.getFullYear()+"-"+String(now.getMonth()+1).padStart(2,"0");
+  if(mesEl) mesEl.value=mes;
+  // Fecha actual
+  if(fechaEl) fechaEl.value=now.toLocaleDateString("es-PE",{day:"2-digit",month:"2-digit",year:"numeric"});
+  // Sectores asignados al auditor
   const sectores=AUDITORES_SECTORES[auditor]||[];
-  if(sectores.length>0){
-    sEl.innerHTML='<option value="">&#8212; Selecciona sector &#8212;</option>'+
-      sectores.map(s=>`<option value="${s}">${s}</option>`).join("");
-    sEl.disabled=false;
-  }
-}
-
-
-function onNroAuditoriaChange(){
-  const auditor=document.getElementById("a-auditor").value;
-  const nro=document.getElementById("a-nro").value;
-  const sEl=document.getElementById("a-sector");
-  document.getElementById("a-area").value="";
-  document.getElementById("a-responsable").value="";
-  sEl.innerHTML='<option value="">&#8212; Selecciona sector &#8212;</option>';
-  if(!nro||!auditor){sEl.disabled=true;return;}
-  // Sectores del auditor — bloqueados si ya auditó ese N°
-  const sectoresAuditor=AUDITORES_SECTORES[auditor]||[];
-  sectoresAuditor.forEach(s=>{
-    const bloqueado=sectoresAuditadosNro.has(nro+"_"+s);
-    sEl.innerHTML+=`<option value="${s}" ${bloqueado?"disabled":""} style="${bloqueado?"color:#aaa":""}">${s}${bloqueado?" ✅":""}</option>`;
+  sectores.forEach(s=>{
+    const opt=document.createElement("option");
+    opt.value=s; opt.textContent=s;
+    sEl.appendChild(opt);
   });
   sEl.disabled=false;
-  const todosAuditados=sectoresAuditor.every(s=>sectoresAuditadosNro.has(nro+"_"+s));
-  if(todosAuditados) showToast("Este auditor ya completó todos sus sectores en esta auditoria",true);
 }
 
 
-function updateAreasAudit(){
-  const sector=document.getElementById("a-sector").value;
-  document.getElementById("a-area").value="";
-  document.getElementById("a-responsable").value="";
-  if(!sector)return;
-  // Buscar área auditada y responsable según el sector
-  let areaAuditada="", responsable="";
-  for(const [area,data] of Object.entries(SECTORES_AUDIT)){
-    if(data.areas.includes(sector)){
-      areaAuditada=area;
-      responsable=data.responsable;
-      break;
+function onSectorChange(){
+  const sector=document.getElementById("a-sector")?.value||"";
+  const areaEl=document.getElementById("a-area");
+  const respEl=document.getElementById("a-responsable");
+  const zonaFg=document.getElementById("fg-zona-cl");
+  const zonaEl=document.getElementById("a-zona");
+  if(!sector){
+    if(areaEl) areaEl.value="";
+    if(respEl) respEl.value="";
+    if(zonaFg) zonaFg.style.display="none";
+    return;
+  }
+  // Área del sector
+  const area=SECTOR_AREA_MAP[sector]||"";
+  if(areaEl) areaEl.value=area;
+  // Responsable específico del sector
+  if(respEl) respEl.value=AREA_RESPONSABLE[sector]||"";
+  // Zonas si existen
+  if(zonaFg&&zonaEl){
+    const zonas=ZONAS_POR_SECTOR[sector]||[];
+    if(zonas.length>0){
+      zonaEl.innerHTML='<option value="">&#8212; Selecciona zona &#8212;</option>';
+      zonas.forEach(z=>zonaEl.innerHTML+=`<option value="${z}">${z}</option>`);
+      zonaFg.style.display="block";
+    } else {
+      zonaFg.style.display="none";
+      zonaEl.value="";
     }
   }
-  document.getElementById("a-area").value=areaAuditada;
-  document.getElementById("a-responsable").value=AREA_RESPONSABLE[sector]||responsable;
 }
+
+function onNroAuditoriaChange(){
+  onSectorChange();
+}
+
+
+function updateAreasAudit(){ onSectorChange(); }
 
 
 function onAreaAuditChange(){
@@ -2115,6 +2055,7 @@ function irPaso1(){
 
 function irPaso2(){
   const auditor=document.getElementById("a-auditor").value;
+  const zona=document.getElementById("a-zona")?.value||"";
   const nro=document.getElementById("a-nro")?.value||"";
   const sector=document.getElementById("a-sector").value;
   const area=document.getElementById("a-area").value.trim();
@@ -2125,7 +2066,7 @@ function irPaso2(){
   if(!area){showToast("El area se asigna automaticamente al elegir sector",true);return;}
   if(!resp){showToast("No se encontro responsable para esta area",true);return;}
   auditMeta={
-    auditor,nro_auditoria:nro,
+    auditor,nro_auditoria:nro,zona,
     sector,area,responsable:resp,
     fecha:document.getElementById("a-fecha").value
   };
@@ -2572,6 +2513,8 @@ async function cargarAuditorias(){
     console.error("cargarAuditorias error:",e);
     showToast("Error cargando auditorias: "+e.message,true);
   }
+
+  renderAuditDashboard();
 }
 
 function safeJson(val, def){
@@ -2949,16 +2892,24 @@ function renderAuditDashboard(){
   // Progreso de sectores
   const progrEl=document.getElementById("progreso-sectores");
   if(progrEl){
+    // Solo contar sectores únicos (sin duplicados entre auditores)
     const totalSects=[...new Set(Object.values(AUDITORES_SECTORES).flat())].length;
-    const auditados=sectoresAuditados.size;
-    const pctProgr=totalSects?Math.round(auditados/totalSects*100):0;
+    // Solo auditorías del mes vigente
+    const now=new Date();
+    const mesIni=new Date(now.getFullYear(),now.getMonth(),1).toISOString().split("T")[0];
+    const mesFin=new Date(now.getFullYear(),now.getMonth()+1,0).toISOString().split("T")[0];
+    const auditadosMes=new Set(auditorias
+      .filter(a=>a.fecha>=mesIni&&a.fecha<=mesFin)
+      .map(a=>a.sector).filter(Boolean));
+    const auditados=auditadosMes.size;
+    const pctProgr=totalSects>0?Math.min(100,Math.round(auditados/totalSects*100)):0;
     const colP=pctProgr>=80?G:pctProgr>=50?A:R;
     progrEl.innerHTML=`
       <div style="background:#fff;border-radius:10px;padding:12px 14px;box-shadow:var(--sh);border-left:4px solid ${colP}">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
           <div>
             <div style="font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:800;color:var(--green)">Progreso de auditorías</div>
-            <div style="font-size:11px;color:var(--g400)">${auditados} de ${totalSects} sectores auditados en total</div>
+            <div style="font-size:11px;color:var(--g400)">${auditados} de ${totalSects} sectores auditados este mes en total</div>
           </div>
           <div style="font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:800;color:${colP}">${pctProgr}%</div>
         </div>
@@ -3808,14 +3759,18 @@ function iniciarAuditoriaNew(){
   document.getElementById("app-recorrido").style.display="none";
   document.getElementById("app-checklist").style.display="none";
   document.getElementById("app-auditoria-nueva").style.display="block";
-  // Selector de auditor ya tiene opciones en HTML
-  ["audn-fil-sector","audn-fil-accion-sector"].forEach(id=>{
-    const el=document.getElementById(id);
-    if(el&&el.options.length<=1){
-      Object.values(SECTORES_AUDIT).forEach(info=>{
-        info.areas.forEach(s=>el.innerHTML+=`<option value="${s}">${s}</option>`);
+  const sectEl=document.getElementById("audn-sector");
+  if(sectEl&&sectEl.options.length<=1){
+    Object.entries(SECTORES_AUDIT).sort((a,b)=>a[0].localeCompare(b[0])).forEach(([area,info])=>{
+      info.areas.forEach(sector=>{
+        sectEl.innerHTML+=`<option value="${sector}" data-area="${area}">${sector} (${area})</option>`;
       });
-    }
+    });
+  }
+  const areasUnicas=Object.keys(SECTORES_AUDIT).sort();
+  ["audn-fil-area","audn-fil-accion-area"].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el&&el.options.length<=1) areasUnicas.forEach(a=>el.innerHTML+=`<option value="${a}">${a}</option>`);
   });
   document.getElementById("audn-fecha").value=new Date().toISOString().split("T")[0];
   audn_state={};
@@ -3870,13 +3825,62 @@ document.addEventListener("DOMContentLoaded",()=>{
   });
 });
 
+async function audn_onSectorChange(){
+  const sectEl=document.getElementById("audn-sector");
+  const sector=sectEl?.value||"";
+  const area=SECTOR_AREA_MAP[sector]||"";
+  const aEl=document.getElementById("audn-area-auto");
+  const rEl=document.getElementById("audn-lider");
+  const zonaFg=document.getElementById("fg-zona");
+  const zonaEl=document.getElementById("audn-zona");
+  if(aEl) aEl.value=area;
+  if(rEl) rEl.value=AREA_RESPONSABLE[sector]||"";
+
+  // Cargar zonas si existen para este sector
+  const zonas=ZONAS_POR_SECTOR[sector]||[];
+  if(zonaFg&&zonaEl){
+    if(zonas.length>0){
+      zonaFg.style.display="block";
+      zonaEl.innerHTML='<option value="">— Selecciona zona —</option>';
+      zonas.forEach(z=>zonaEl.innerHTML+=`<option value="${z}">${z}</option>`);
+    } else {
+      zonaFg.style.display="none";
+      zonaEl.value="";
+    }
+  }
+
+  // Bloquear zonas/sector ya auditado en el mes vigente
+  if(sector){
+    const num=document.getElementById("audn-num")?.value;
+    const now=new Date();
+    const mesInicio=new Date(now.getFullYear(),now.getMonth(),1).toISOString().split("T")[0];
+    const mesFin=new Date(now.getFullYear(),now.getMonth()+1,0).toISOString().split("T")[0];
+    const {data}=await sb.from("auditorias_nuevas_5s")
+      .select("sector,num_auditoria")
+      .eq("sector",sector)
+      .gte("fecha",mesInicio)
+      .lte("fecha",mesFin);
+    if(data&&data.length>0){
+      // Ya existe auditoría de este sector en el mes vigente
+      const yaCubierto=num?data.some(d=>String(d.num_auditoria)===String(num)):true;
+      if(yaCubierto){
+        showToast(`⚠️ ${sector} ya fue auditado este mes (${data[0].num_auditoria>0?"A"+data[0].num_auditoria:""})`,true);
+      }
+    }
+  }
+  audn_checkReady();
+}
+
 function audn_checkReady(){
-  const auditor=document.getElementById("audn-auditor-sel")?.value||document.getElementById("audn-auditor")?.value?.trim()||"";
+  const auditor=document.getElementById("audn-auditor")?.value||"";
   const sector=document.getElementById("audn-sector")?.value||"";
   const num=document.getElementById("audn-num")?.value||"";
   const fecha=document.getElementById("audn-fecha")?.value||"";
+  const zonaFg=document.getElementById("fg-zona");
+  const zonaEl=document.getElementById("audn-zona");
+  const zonaOk=!zonaFg||zonaFg.style.display==="none"||(zonaEl&&zonaEl.value);
   const btn=document.getElementById("audn-btn-iniciar");
-  if(btn)btn.style.display=(auditor&&sector&&num&&fecha)?"block":"none";
+  if(btn) btn.style.display=(auditor&&sector&&num&&fecha&&zonaOk)?"block":"none";
 }
 
 // ── EVALUACIÓN ────────────────────────────────────────────────
@@ -3895,22 +3899,22 @@ function audn_iniciarEvaluacion(){
 function audn_renderCriterios(){
   const body=document.getElementById("audn-criterios-body");
   if(!body) return;
-  const AUDN_CAT_COLORS={"INFRAESTRUCTURA":"#5C6BC0","SUMINISTROS":"#0288D1","ACTIVOS":"#00838F","PROCESO":"#2E7D32","MATERIALES":"#E65100","INFORMACIÓN":"#6A1B9A","PERSONAL":"#AD1457","SEG. Y MEDIO AMBIENTE":"#C62828"};
-  const AUDN_CATS={"INFRAESTRUCTURA":["Techo","Paredes","Piso","Ventana","Otros"],"SUMINISTROS":["Agua","Luz","Aire","Combustible","Gas","Amoniaco","Lubricante","Otros"],"ACTIVOS":["Máquinas","Equipos","Instrumentos","Herramientas","Muebles","Otros"],"PROCESO":["Indicador"],"MATERIALES":["Materia Prima","Envases y Embalajes","Insumos","Producto Terminado","Repuestos","Útiles de Oficina","Materiales de Limpieza","Otros"],"INFORMACIÓN":["Murales","Documentos","Tablero de Gerencia Visible","Letreros / Carteles"],"PERSONAL":["Uniforme","Conocimientos","BPM"],"SEG. Y MEDIO AMBIENTE":["EPP","Segregación de Residuos","Señalización","Incumplimiento de Normativa"]};
+  const CAT_COLORS={"INFRAESTRUCTURA":"#5C6BC0","SUMINISTROS":"#0288D1","ACTIVOS":"#00838F","PROCESO":"#2E7D32","MATERIALES":"#E65100","INFORMACIÓN":"#6A1B9A","PERSONAL":"#AD1457","SEG. Y MEDIO AMBIENTE":"#C62828"};
+  const CATS={"INFRAESTRUCTURA":["Techo","Paredes","Piso","Ventana","Otros"],"SUMINISTROS":["Agua","Luz","Aire","Combustible","Gas","Amoniaco","Lubricante","Otros"],"ACTIVOS":["Máquinas","Equipos","Instrumentos","Herramientas","Muebles","Otros"],"PROCESO":["Indicador"],"MATERIALES":["Materia Prima","Envases y Embalajes","Insumos","Producto Terminado","Repuestos","Útiles de Oficina","Materiales de Limpieza","Otros"],"INFORMACIÓN":["Murales","Documentos","Tablero de Gerencia Visible","Letreros / Carteles"],"PERSONAL":["Uniforme","Conocimientos","BPM"],"SEG. Y MEDIO AMBIENTE":["EPP","Segregación de Residuos","Señalización","Incumplimiento de Normativa"]};
   let html="";
-  Object.entries(AUDN_CATS).forEach(([cat,criterios])=>{
-    const color=AUDN_CAT_COLORS[cat]||"#1E7C34";
+  Object.entries(CATS).forEach(([cat,criterios])=>{
+    const color=CAT_COLORS[cat]||"#1E7C34";
     const evalCount=criterios.filter(c=>audn_state[cat+"||"+c]!==undefined).length;
     const incumpCount=criterios.filter(c=>(audn_state[cat+"||"+c]?.puntaje||0)<0).length;
-    const catId="cat_"+cat.replace(/[^a-z0-9]/gi,"_");
+    const catId="audn_cat_"+cat.replace(/[^a-z0-9]/gi,"_");
     html+=`<div style="background:#fff;border-radius:12px;margin-bottom:10px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.08)">
-      <div onclick="audn_toggleCat('${catId}')" style="background:${color};padding:12px 14px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;-webkit-tap-highlight-color:transparent;user-select:none">
+      <div onclick="audn_toggleCat('${catId}')" style="background:${color};padding:12px 14px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent">
         <div style="display:flex;align-items:center;gap:8px">
           <div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;color:#fff">${cat}</div>
           ${incumpCount>0?`<div style="background:rgba(0,0,0,.25);border-radius:5px;padding:1px 7px;font-size:11px;color:#fff;font-weight:700">${incumpCount} incumpl.</div>`:""}
         </div>
         <div style="display:flex;align-items:center;gap:8px">
-          <div style="font-size:11px;color:rgba(255,255,255,.8);font-weight:600">${evalCount}/${criterios.length}</div>
+          <div style="font-size:11px;color:rgba(255,255,255,.8)">${evalCount}/${criterios.length}</div>
           <div id="arr_${catId}" style="color:#fff;font-size:18px;display:inline-block;transform:rotate(90deg);transition:.2s">›</div>
         </div>
       </div>
@@ -3922,7 +3926,7 @@ function audn_renderCriterios(){
       const bg=pts===undefined?"#F9FAFB":pts>0?"#F0FDF4":"#FEF2F2";
       const bc=pts===undefined?"#D1D5D1":pts>0?"#15803D":pts===-5?"#B45309":pts===-10?"#C2410C":pts===-15?"#C62828":"#7B1FA2";
       const bt=pts===undefined?"—":pts>0?"+5":String(pts);
-      html+=`<div data-key="${key}" onclick="audn_abrirModalKey(this)" style="display:flex;align-items:center;gap:10px;padding:10px;margin:3px 0;border-radius:8px;background:${bg};cursor:pointer;border:1px solid #F0F0F0;-webkit-tap-highlight-color:rgba(0,0,0,.05)">
+      html+=`<div data-key="${key}" onclick="audn_abrirModalKey(this)" style="display:flex;align-items:center;gap:10px;padding:10px;margin:3px 0;border-radius:8px;background:${bg};cursor:pointer;border:1px solid #F0F0F0">
         <div style="flex:1;min-width:0">
           <div style="font-size:13px;font-weight:600;color:#1A1D18;line-height:1.3">${crit}</div>
           ${v?.obs?`<div style="font-size:11px;color:#6B7280;margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${v.obs}</div>`:""}
@@ -4162,7 +4166,7 @@ async function audn_guardar(){
   const area=opt?opt.getAttribute("data-area"):"";
   const auditor=document.getElementById("audn-auditor").value.trim();
   const lider=document.getElementById("audn-lider").value.trim();
-  if(!num||!fecha||!sector||!auditor){showToast("Completa todos los campos obligatorios",true);return;}
+  if(!num||!fecha||!sectorKey||!auditor){showToast("Completa todos los campos obligatorios",true);return;}
   const btn=document.getElementById("audn-btn-guardar");
   btn.disabled=true;btn.textContent="Guardando...";
   // Calcular puntaje
@@ -4482,51 +4486,6 @@ async function audn_editarAccion(id){
   else prev.style.display="none";
   document.getElementById("modal-audn-accion").style.display="flex";
 }
-
-function audn_onAuditorChange(){
-  const sel=document.getElementById("audn-auditor-sel");
-  const auditor=sel?sel.value:"";
-  const hidEl=document.getElementById("audn-auditor");
-  if(hidEl)hidEl.value=auditor;
-  const sectEl=document.getElementById("audn-sector");
-  const areaEl=document.getElementById("audn-area-auto");
-  const respEl=document.getElementById("audn-lider");
-  if(areaEl)areaEl.value="";
-  if(respEl)respEl.value="";
-  if(sectEl){sectEl.innerHTML='<option value="">— Elige auditor primero —</option>';sectEl.disabled=true;}
-  document.getElementById("audn-btn-iniciar").style.display="none";
-  if(!auditor)return;
-  const sectores=AUDITORES_SECTORES[auditor]||[];
-  if(sectEl){
-    sectEl.innerHTML='<option value="">— Selecciona sector —</option>';
-    if(sectores.length>0){
-      sectores.forEach(s=>{
-        let area="";
-        for(const[a,info]of Object.entries(SECTORES_AUDIT)){if(info.areas.includes(s)){area=a;break;}}
-        sectEl.innerHTML+=`<option value="${s}" data-area="${area}">${s}</option>`;
-      });
-    }else{
-      Object.entries(SECTORES_AUDIT).sort((a,b)=>a[0].localeCompare(b[0])).forEach(([area,info])=>{
-        info.areas.forEach(s=>sectEl.innerHTML+=`<option value="${s}" data-area="${area}">${s}</option>`);
-      });
-    }
-    sectEl.disabled=false;
-  }
-}
-
-function audn_onSectorChange(){
-  const sectEl=document.getElementById("audn-sector");
-  const sector=sectEl?sectEl.value:"";
-  const opt=sectEl?sectEl.options[sectEl.selectedIndex]:null;
-  const area=opt?opt.getAttribute("data-area")||"":"";
-  const areaEl=document.getElementById("audn-area-auto");
-  const respEl=document.getElementById("audn-lider");
-  if(areaEl)areaEl.value=area;
-  const resp=AREA_RESPONSABLE[sector]||(area&&SECTORES_AUDIT[area]?SECTORES_AUDIT[area].responsable||"":"");
-  if(respEl)respEl.value=resp;
-  audn_checkReady();
-}
-
 // ═══════════════════════════════════════════
 // FIN AUDITORÍA NUEVA
 // ═══════════════════════════════════════════
@@ -4548,6 +4507,46 @@ function setFecha(num,val){
 }
 
 
+async function audn_onAuditorChange(){
+  const auditor=document.getElementById("audn-auditor")?.value||"";
+  const sectEl=document.getElementById("audn-sector");
+  const areaEl=document.getElementById("audn-area-auto");
+  const respEl=document.getElementById("audn-lider");
+  const zonaFg=document.getElementById("fg-zona");
+  if(areaEl) areaEl.value="";
+  if(respEl) respEl.value="";
+  if(zonaFg) zonaFg.style.display="none";
+  const btnInic=document.getElementById("audn-btn-iniciar");
+  if(btnInic) btnInic.style.display="none";
+  if(!sectEl) return;
+  sectEl.innerHTML='<option value="">— Selecciona sector —</option>';
+  if(!auditor){sectEl.disabled=true;return;}
+
+  // Obtener sectores ya auditados este mes
+  const now=new Date();
+  const mesInicio=new Date(now.getFullYear(),now.getMonth(),1).toISOString().split("T")[0];
+  const mesFin=new Date(now.getFullYear(),now.getMonth()+1,0).toISOString().split("T")[0];
+  const {data:yaAuditados}=await sb.from("auditorias_nuevas_5s")
+    .select("sector,num_auditoria")
+    .gte("fecha",mesInicio)
+    .lte("fecha",mesFin);
+  const auditadosSet=new Set((yaAuditados||[]).map(d=>d.sector));
+
+  const sectores=AUDITORES_SECTORES[auditor]||[];
+  sectores.forEach(s=>{
+    const area=SECTOR_AREA_MAP[s]||"";
+    const yaHecho=auditadosSet.has(s);
+    const opt=document.createElement("option");
+    opt.value=s;
+    opt.textContent=yaHecho?`${s} ✓ (ya auditado)`:s;
+    opt.style.color=yaHecho?"#9CA3AF":"";
+    opt.disabled=yaHecho;
+    sectEl.appendChild(opt);
+  });
+  sectEl.disabled=false;
+  audn_checkReady();
+}
+
 function audn_toggleCat(catId){
   const body=document.getElementById(catId);
   const arrow=document.getElementById("arr_"+catId);
@@ -4565,5 +4564,59 @@ function audn_abrirModalKey(el){
   audn_abrirModal(key.substring(0,sep),key.substring(sep+2));
 }
 </script>
+
+<!-- Custom select overlay -->
+<div class="cs-overlay" id="cs-overlay" onclick="clCloseSelect()" style="display:none"></div>
+<div class="cs-list" id="cs-panel-cl-aud" style="display:none">
+  <div class="cs-list-header">
+    <span>Selecciona auditor</span>
+    <span onclick="clCloseSelect()" style="cursor:pointer;color:var(--g400);font-size:20px">✕</span>
+  </div>
+  <div class="cs-list-body">
+    <div class="cs-opt" onclick="clSelectOpt('cl-aud','',this)">&#8212; Selecciona auditor &#8212;</div>
+      <div class="cs-opt" onclick="clSelectOpt('cl-aud','Adiel Abednego Aguayo Flores',this)">Adiel Abednego Aguayo Flores</div>
+      <div class="cs-opt" onclick="clSelectOpt('cl-aud','Alejandro Salvador Grados',this)">Alejandro Salvador Grados</div>
+      <div class="cs-opt" onclick="clSelectOpt('cl-aud','Ayrton Raphael Cotrina Esteves',this)">Ayrton Raphael Cotrina Esteves</div>
+      <div class="cs-opt" onclick="clSelectOpt('cl-aud','Carlos Joél Luyo Diaz',this)">Carlos Joél Luyo Diaz</div>
+      <div class="cs-opt" onclick="clSelectOpt('cl-aud','Cristopher William Reyes Islado',this)">Cristopher William Reyes Islado</div>
+      <div class="cs-opt" onclick="clSelectOpt('cl-aud','Darlene Cruz Donayre',this)">Darlene Cruz Donayre</div>
+      <div class="cs-opt" onclick="clSelectOpt('cl-aud','Dylan Yaret Pintado Fernandez',this)">Dylan Yaret Pintado Fernandez</div>
+      <div class="cs-opt" onclick="clSelectOpt('cl-aud','Enrique Fabricio Polo Manrique',this)">Enrique Fabricio Polo Manrique</div>
+      <div class="cs-opt" onclick="clSelectOpt('cl-aud','Fabio Caldas Antúnez',this)">Fabio Caldas Antúnez</div>
+      <div class="cs-opt" onclick="clSelectOpt('cl-aud','Héctor Arteaga Espinoza',this)">Héctor Arteaga Espinoza</div>
+      <div class="cs-opt" onclick="clSelectOpt('cl-aud','Julio Arroyo Puse',this)">Julio Arroyo Puse</div>
+      <div class="cs-opt" onclick="clSelectOpt('cl-aud','Luis Bossio Vargas',this)">Luis Bossio Vargas</div>
+      <div class="cs-opt" onclick="clSelectOpt('cl-aud','Mariluz Reynaldina Montes Laurente',this)">Mariluz Reynaldina Montes Laurente</div>
+      <div class="cs-opt" onclick="clSelectOpt('cl-aud','Nuria del Pilar Diaz Ramirez',this)">Nuria del Pilar Diaz Ramirez</div>
+      <div class="cs-opt" onclick="clSelectOpt('cl-aud','Paula Valeria Cecilia La Rosa La Rosa',this)">Paula Valeria Cecilia La Rosa La Rosa</div>
+      <div class="cs-opt" onclick="clSelectOpt('cl-aud','Roberto Carlos Medina La Rosa',this)">Roberto Carlos Medina La Rosa</div>
+      <div class="cs-opt" onclick="clSelectOpt('cl-aud','Rosa Emilia Mejia Jaimes',this)">Rosa Emilia Mejia Jaimes</div>
+      <div class="cs-opt" onclick="clSelectOpt('cl-aud','Ulises Eliseo Anselmo Carranza',this)">Ulises Eliseo Anselmo Carranza</div>
+      <div class="cs-opt" onclick="clSelectOpt('cl-aud','William Jesus Joel Rivera Ramirez',this)">William Jesus Joel Rivera Ramirez</div>
+      <div class="cs-opt" onclick="clSelectOpt('cl-aud','Ítalo Buendia Poma',this)">Ítalo Buendia Poma</div>
+  </div>
+</div>
 </body>
 </html>
+          <option value="">— Selecciona auditor —</option>
+          <option value="Adiel Abednego Aguayo Flores">Adiel Abednego Aguayo Flores</option>
+          <option value="Alejandro Salvador Grados">Alejandro Salvador Grados</option>
+          <option value="Ayrton Raphael Cotrina Esteves">Ayrton Raphael Cotrina Esteves</option>
+          <option value="Carlos Joél Luyo Diaz">Carlos Joél Luyo Diaz</option>
+          <option value="Cristopher William Reyes Islado">Cristopher William Reyes Islado</option>
+          <option value="Darlene Cruz Donayre">Darlene Cruz Donayre</option>
+          <option value="Dylan Yaret Pintado Fernandez">Dylan Yaret Pintado Fernandez</option>
+          <option value="Enrique Fabricio Polo Manrique">Enrique Fabricio Polo Manrique</option>
+          <option value="Fabio Caldas Antúnez">Fabio Caldas Antúnez</option>
+          <option value="Héctor Arteaga Espinoza">Héctor Arteaga Espinoza</option>
+          <option value="Julio Arroyo Puse">Julio Arroyo Puse</option>
+          <option value="Luis Bossio Vargas">Luis Bossio Vargas</option>
+          <option value="Mariluz Reynaldina Montes Laurente">Mariluz Reynaldina Montes Laurente</option>
+          <option value="Nuria del Pilar Diaz Ramirez">Nuria del Pilar Diaz Ramirez</option>
+          <option value="Paula Valeria Cecilia La Rosa La Rosa">Paula Valeria Cecilia La Rosa La Rosa</option>
+          <option value="Roberto Carlos Medina La Rosa">Roberto Carlos Medina La Rosa</option>
+          <option value="Rosa Emilia Mejia Jaimes">Rosa Emilia Mejia Jaimes</option>
+          <option value="Ulises Eliseo Anselmo Carranza">Ulises Eliseo Anselmo Carranza</option>
+          <option value="William Jesus Joel Rivera Ramirez">William Jesus Joel Rivera Ramirez</option>
+          <option value="Ítalo Buendia Poma">Ítalo Buendia Poma</option>
+        >

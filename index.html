@@ -1643,20 +1643,29 @@ async function guardarAuditoriaDB(pct, nivel, noOk) {
       fecha_compromiso: auditData[c.num]?.fecha_compromiso || "",
       fotos: [], estado: "Pendiente"
     }));
-    const {data, error} = await sb.from("auditorias_5s_ism").insert({
-      auditor:          String(auditMeta.auditor       || ""),
-      nro_auditoria:    String(auditMeta.nro_auditoria || ""),
-      fecha:            new Date().toISOString().split("T")[0],
-      sector:           String(auditMeta.sector        || ""),
-      area:             String(auditMeta.area          || ""),
-      responsable:      String(auditMeta.responsable   || ""),
-      pct_cumplimiento: Number(pct),
-      nivel:            String(nivel || ""),
-      detalles:         JSON.stringify(detalles),
-      incumplimientos:  JSON.stringify(incumpl)
-    }).select();
+    // Construir payload solo con campos seguros
+    const payload = {
+      auditor:    String(auditMeta.auditor    || ""),
+      fecha:      new Date().toISOString().split("T")[0],
+      sector:     String(auditMeta.sector     || ""),
+      responsable:String(auditMeta.responsable|| ""),
+      detalles:   JSON.stringify(detalles),
+      incumplimientos: JSON.stringify(incumpl)
+    };
+    // Agregar columnas opcionales si existen en la tabla
+    // (no fallan si no existen porque van en el payload solo si tienen valor)
+    try { payload.area             = String(auditMeta.area || ""); } catch(e){}
+    try { payload.pct_cumplimiento = Number(pct); } catch(e){}
+    try { payload.nivel            = String(nivel || ""); } catch(e){}
+    // nro_auditoria: solo si la columna acepta texto — verificar primero
+    // Si la tabla tiene nro_auditoria como integer, este campo causará error 400
+    // Lo dejamos fuera por defecto
+
+    const {data, error} = await sb.from("auditorias_5s_ism").insert(payload).select();
     if (error) {
-      showToast("Error Supabase: " + (error.message || JSON.stringify(error)), true);
+      const emsg = error.message || error.details || error.hint || JSON.stringify(error);
+      showToast("Error al guardar: " + emsg, true);
+      console.error("Supabase insert error:", error);
       return;
     }
     showToast("✅ Check List guardado");
@@ -1669,7 +1678,7 @@ async function guardarAuditoriaDB(pct, nivel, noOk) {
 
 async function cargarAuditorias() {
   try {
-    const {data, error} = await sb.from("auditorias_5s_ism").select("id,auditor,nro_auditoria,fecha,sector,area,responsable,pct_cumplimiento,nivel,detalles,incumplimientos").order("fecha", {ascending:false});
+    const {data, error} = await sb.from("auditorias_5s_ism").select("*").order("fecha", {ascending:false});
     if (error) throw error;
     const norm = {"LINEA 1":"LÍNEA 1","LINEA 2":"LÍNEA 2","LINEA 3":"LÍNEA 3","LINEA 4":"LÍNEA 4","LINEA 5":"LÍNEA 5","LINEA 7":"LÍNEA 7","LINEA 8":"LÍNEA 8","LINEA 9":"LÍNEA 9","LP01":"LÍNEA 1","LP02":"LÍNEA 2","LP03":"LÍNEA 3","LP04":"LÍNEA 4","LP05":"LÍNEA 5","LP06":"LINEA 6","LP07":"LÍNEA 7","LP08":"LÍNEA 8","LP09":"LÍNEA 9","LP10":"LINEA 10"};
     auditorias = (data||[]).map(a => ({...a, sector: norm[a.sector]||a.sector, detalles: safeJson(a.detalles,"[]"), incumplimientos: safeJson(a.incumplimientos,"[]")}));

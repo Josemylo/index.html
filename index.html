@@ -1259,7 +1259,13 @@ function iniciarCheckList() {
   document.getElementById("app-auditoria-nueva").style.display = "none";
   auditData = {};
   auditMeta = {};
-  // Mostrar tab nueva y cargar datos
+  // Asignar mes vigente y fecha automáticamente
+  const now = new Date();
+  const mes = now.getFullYear() + "-" + String(now.getMonth() + 1).padStart(2, "0");
+  const nroEl = document.getElementById("a-nro");
+  const fechaEl = document.getElementById("a-fecha");
+  if (nroEl) nroEl.value = mes;
+  if (fechaEl) fechaEl.value = now.toLocaleDateString("es-PE", {day:"2-digit", month:"2-digit", year:"numeric"});
   showAuditTab("nueva");
   cargarAuditorias();
 }
@@ -1513,35 +1519,35 @@ border-bottom:2px solid var(--blue)">${c.pilar}</div>`;
     const siA = d.respuesta === "SI";
     const noA = d.respuesta === "NO";
     return ph + `<div class="obs-card" id="crit-${c.num}" style="margin-bottom:8px;
-border-left:4px solid ${siA ? "var(--green)" : noA ? "var(--red)" : "var(--g200)"}">
+border-left:4px solid ${siA?"var(--green)":noA?"var(--red)":"var(--g200)"}">
       <div style="font-size:13px;font-weight:700;color:var(--g700);margin-bottom:8px">
         ${c.num}. ${c.txt}
       </div>
-      <div style="display:flex;gap:8px;margin-bottom:${noA ? "8px" : "0"}">
+      <div style="display:flex;gap:8px;margin-bottom:${noA?"8px":"0"}">
         <button onclick="setCriterio(${c.num},'SI')"
           style="flex:1;padding:10px;border-radius:8px;font-weight:700;
           font-family:'Barlow Condensed',sans-serif;font-size:16px;cursor:pointer;
-          background:${siA ? "var(--green)" : "var(--g50)"};
-          color:${siA ? "#fff" : "var(--g400)"};
-          border:2px solid ${siA ? "var(--green)" : "var(--g200)"}">✓ SI</button>
+          background:${siA?"var(--green)":"var(--g50)"};
+          color:${siA?"#fff":"var(--g400)"};
+          border:2px solid ${siA?"var(--green)":"var(--g200)"}">✓ SI</button>
         <button onclick="setCriterio(${c.num},'NO')"
           style="flex:1;padding:10px;border-radius:8px;font-weight:700;
           font-family:'Barlow Condensed',sans-serif;font-size:16px;cursor:pointer;
-          background:${noA ? "var(--red)" : "var(--g50)"};
-          color:${noA ? "#fff" : "var(--g400)"};
-          border:2px solid ${noA ? "var(--red)" : "var(--g200)"}">✗ NO</button>
+          background:${noA?"var(--red)":"var(--g50)"};
+          color:${noA?"#fff":"var(--g400)"};
+          border:2px solid ${noA?"var(--red)":"var(--g200)"}">✗ NO</button>
       </div>
       ${noA ? `
-      <input type="text" placeholder="Observación" value="${d.obs || ""}"
-        onchange="if(!auditData[${c.num}])auditData[${c.num}]={};auditData[${c.num}].obs=this.value"
+      <input type="text" id="obs-cl-${c.num}" placeholder="Observación" value="${d.obs||""}"
+        oninput="setAuditField(${c.num},'obs',this.value)"
         style="width:100%;padding:8px;border:1px solid var(--g200);border-radius:8px;
         font-size:13px;box-sizing:border-box;margin-bottom:6px">
-      <input type="text" placeholder="Responsable" value="${d.responsable || ""}"
-        onchange="if(!auditData[${c.num}])auditData[${c.num}]={};auditData[${c.num}].responsable=this.value"
+      <input type="text" id="resp-cl-${c.num}" placeholder="Responsable" value="${d.responsable||""}"
+        oninput="setAuditField(${c.num},'responsable',this.value)"
         style="width:100%;padding:8px;border:1px solid var(--g200);border-radius:8px;
         font-size:13px;box-sizing:border-box;margin-bottom:6px">
-      <input type="date" value="${d.fecha_compromiso || ""}"
-        onchange="if(!auditData[${c.num}])auditData[${c.num}]={};auditData[${c.num}].fecha_compromiso=this.value"
+      <input type="date" id="fec-cl-${c.num}" value="${d.fecha_compromiso||""}"
+        oninput="setAuditField(${c.num},'fecha_compromiso',this.value)"
         style="width:100%;padding:8px;border:1px solid var(--g200);border-radius:8px;
         font-size:13px;box-sizing:border-box">
       ` : ""}
@@ -1550,19 +1556,27 @@ border-left:4px solid ${siA ? "var(--green)" : noA ? "var(--red)" : "var(--g200)
   updateProgreso();
 }
 
+function setAuditField(num, field, val) {
+  if (!auditData[num]) auditData[num] = {};
+  auditData[num][field] = val;
+}
+
 function setCriterio(num, resp) {
   if (!auditData[num]) auditData[num] = {};
-  const prev = auditData[num].respuesta;
-  if (resp === "SI") {
-    auditData[num] = {respuesta: "SI", obs: "", responsable: "", fecha_compromiso: "", fotos: []};
-  } else {
-    auditData[num].respuesta = "NO";
-  }
+  // Preservar obs/responsable/fecha_compromiso si ya existían
+  const prev = auditData[num];
+  auditData[num] = {
+    respuesta:        resp,
+    obs:              resp === "SI" ? "" : (prev.obs              || ""),
+    responsable:      resp === "SI" ? "" : (prev.responsable      || ""),
+    fecha_compromiso: resp === "SI" ? "" : (prev.fecha_compromiso || ""),
+    fotos:            prev.fotos || []
+  };
   // Re-renderizar solo esa card
   const c    = CRITERIOS.find(x => x.num === num);
   const d    = auditData[num];
   const card = document.getElementById("crit-" + num);
-  if (!card) return;
+  if (!card || !c) return;
   const noA  = resp === "NO";
   card.style.borderLeftColor = resp === "SI" ? "var(--green)" : "var(--red)";
   card.innerHTML = `
@@ -1585,15 +1599,15 @@ function setCriterio(num, resp) {
     </div>
     ${noA ? `
     <input type="text" placeholder="Observación" value="${d.obs || ""}"
-      onchange="if(!auditData[${num}])auditData[${num}]={};auditData[${num}].obs=this.value"
+      oninput="setAuditField(${num},'obs',this.value)"
       style="width:100%;padding:8px;border:1px solid var(--g200);border-radius:8px;
       font-size:13px;box-sizing:border-box;margin-bottom:6px">
     <input type="text" placeholder="Responsable" value="${d.responsable || ""}"
-      onchange="if(!auditData[${num}])auditData[${num}]={};auditData[${num}].responsable=this.value"
+      oninput="setAuditField(${num},'responsable',this.value)"
       style="width:100%;padding:8px;border:1px solid var(--g200);border-radius:8px;
       font-size:13px;box-sizing:border-box;margin-bottom:6px">
     <input type="date" value="${d.fecha_compromiso || ""}"
-      onchange="if(!auditData[${num}])auditData[${num}]={};auditData[${num}].fecha_compromiso=this.value"
+      oninput="setAuditField(${num},'fecha_compromiso',this.value)"
       style="width:100%;padding:8px;border:1px solid var(--g200);border-radius:8px;
       font-size:13px;box-sizing:border-box">
     ` : ""}`;
@@ -1691,33 +1705,45 @@ border-radius:6px;padding:6px;margin-top:4px">${d.obs}</div>` : ""}
 // ── Guardar en Supabase ────────────────────────────────────
 async function guardarAuditoriaDB(pct, nivel, noOk) {
   try {
+    // Capturar valores actuales de los inputs visibles antes de guardar
+    CRITERIOS.forEach(c => {
+      const obsEl  = document.getElementById("obs-cl-"  + c.num);
+      const respEl = document.getElementById("resp-cl-" + c.num);
+      const fecEl  = document.getElementById("fec-cl-"  + c.num);
+      if (obsEl  && auditData[c.num]) auditData[c.num].obs              = obsEl.value;
+      if (respEl && auditData[c.num]) auditData[c.num].responsable      = respEl.value;
+      if (fecEl  && auditData[c.num]) auditData[c.num].fecha_compromiso = fecEl.value;
+    });
+
     const detalles = CRITERIOS.map(c => ({
       num:              c.num,
       pilar:            c.pilar,
       criterio:         c.txt,
-      respuesta:        auditData[c.num]?.respuesta || null,
-      obs:              auditData[c.num]?.obs || "",
-      responsable:      auditData[c.num]?.responsable || "",
+      respuesta:        auditData[c.num]?.respuesta        || null,
+      obs:              auditData[c.num]?.obs              || "",
+      responsable:      auditData[c.num]?.responsable      || "",
       fecha_compromiso: auditData[c.num]?.fecha_compromiso || "",
-      fotos:            auditData[c.num]?.fotos || []
+      fotos:            auditData[c.num]?.fotos            || []
     }));
+
     const incumpl = noOk.map(c => ({
       num:              c.num,
       pilar:            c.pilar,
       criterio:         c.txt,
-      obs:              auditData[c.num]?.obs || "",
-      responsable:      auditData[c.num]?.responsable || "",
+      obs:              auditData[c.num]?.obs              || "",
+      responsable:      auditData[c.num]?.responsable      || "",
       fecha_compromiso: auditData[c.num]?.fecha_compromiso || "",
-      fotos:            auditData[c.num]?.fotos || [],
+      fotos:            auditData[c.num]?.fotos            || [],
       estado:           "Pendiente"
     }));
+
     const {error} = await sb.from("auditorias_5s_ism").insert({
-      auditor:          auditMeta.auditor,
-      nro_auditoria:    auditMeta.nro_auditoria,
+      auditor:          auditMeta.auditor          || "",
+      nro_auditoria:    auditMeta.nro_auditoria    || "",
       fecha:            new Date().toISOString().split("T")[0],
-      sector:           auditMeta.sector,
-      area:             auditMeta.area,
-      responsable:      auditMeta.responsable,
+      sector:           auditMeta.sector           || "",
+      area:             auditMeta.area             || "",
+      responsable:      auditMeta.responsable      || "",
       pct_cumplimiento: pct,
       nivel:            nivel,
       detalles:         JSON.stringify(detalles),
@@ -1726,8 +1752,9 @@ async function guardarAuditoriaDB(pct, nivel, noOk) {
     if (error) throw error;
     showToast("✅ Check List guardado correctamente");
     await cargarAuditorias();
+    showAuditTab("historial");
   } catch(e) {
-    console.error(e);
+    console.error("Error guardar:", e);
     showToast("Error al guardar: " + e.message, true);
   }
 }
@@ -1755,7 +1782,7 @@ async function cargarAuditorias() {
     sectoresAuditados = new Set(auditorias.map(a => a.sector).filter(Boolean));
 
     // Llenar filtros dinámicamente
-    const meses   = [...new Set(auditorias.map(a => (a.nro_auditoria || a.fecha || "").substring(0, 7)).filter(v => v.length === 7))].sort().reverse();
+    const meses   = [...new Set(auditorias.map(a => String(a.nro_auditoria || a.fecha || "").substring(0, 7)).filter(v => v.length === 7))].sort().reverse();
     const sects   = [...new Set(auditorias.map(a => a.sector).filter(Boolean))].sort();
     const areas   = [...new Set(auditorias.map(a => a.area).filter(Boolean))].sort();
     const resps   = [...new Set(auditorias.flatMap(a => safeJson(a.incumplimientos,"[]").map(i=>i.responsable)).filter(Boolean))].sort();
@@ -1833,7 +1860,7 @@ function renderHistorial() {
   const G = "#1E7C34", R = "#E63329", A = "#D97706";
 
   const list = (auditorias || []).filter(a => {
-    if (fm && (a.nro_auditoria || a.fecha || "").substring(0,7) !== fm) return false;
+    if (fm && String(a.nro_auditoria || a.fecha || "").substring(0,7) !== fm) return false;
     if (fs && a.sector !== fs) return false;
     if (fa && a.area   !== fa) return false;
     if (fn2 && a.nivel !== fn2) return false;
@@ -1918,7 +1945,7 @@ function renderObsPendientes() {
   let obs = [], pend = 0, lev = 0;
 
   (auditorias || []).forEach(a => {
-    if (fm && (a.nro_auditoria || a.fecha || "").substring(0,7) !== fm) return;
+    if (fm && String(a.nro_auditoria || a.fecha || "").substring(0,7) !== fm) return;
     if (fa && a.area   !== fa) return;
     if (fs && a.sector !== fs) return;
     const incs = Array.isArray(a.incumplimientos) ? a.incumplimientos : safeJson(a.incumplimientos, "[]");
@@ -2009,7 +2036,7 @@ function renderAuditDashboard() {
 
   const lista = (auditorias || []).filter(a => {
     if (!a.sector || !a.fecha) return false;
-    if (fm && (a.nro_auditoria || a.fecha || "").substring(0,7) !== fm) return false;
+    if (fm && String(a.nro_auditoria || a.fecha || "").substring(0,7) !== fm) return false;
     if (fs && a.sector !== fs) return false;
     if (fa && a.area   !== fa) return false;
     return true;

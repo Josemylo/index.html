@@ -1337,9 +1337,9 @@ function renderCriterios() {
         <button onclick="setCriterio(${c.num},'SI')" style="flex:1;padding:10px;border-radius:8px;font-weight:700;font-family:'Barlow Condensed',sans-serif;font-size:16px;cursor:pointer;background:${siA?"var(--green)":"var(--g50)"};color:${siA?"#fff":"var(--g400)"};border:2px solid ${siA?"var(--green)":"var(--g200)"}">✓ SI</button>
         <button onclick="setCriterio(${c.num},'NO')" style="flex:1;padding:10px;border-radius:8px;font-weight:700;font-family:'Barlow Condensed',sans-serif;font-size:16px;cursor:pointer;background:${noA?"var(--red)":"var(--g50)"};color:${noA?"#fff":"var(--g400)"};border:2px solid ${noA?"var(--red)":"var(--g200)"}">✗ NO</button>
       </div>
-      ${noA ? `<input type="text" id="obs-cl-${c.num}" placeholder="Observación" value="${d.obs||""}" oninput="setAuditField(${c.num},'obs',this.value)" style="width:100%;padding:8px;border:1px solid var(--g200);border-radius:8px;font-size:13px;box-sizing:border-box;margin-bottom:6px">
+      ${noA ? `<input type="text" id="obs-cl-${c.num}" placeholder="Observación *" value="${d.obs||""}" oninput="setAuditField(${c.num},'obs',this.value)" style="width:100%;padding:8px;border:1px solid var(--g200);border-radius:8px;font-size:13px;box-sizing:border-box;margin-bottom:6px">
       <input type="text" id="resp-cl-${c.num}" placeholder="Responsable" value="${d.responsable||auditMeta.responsable||""}" oninput="setAuditField(${c.num},'responsable',this.value)" style="width:100%;padding:8px;border:1px solid var(--g200);border-radius:8px;font-size:13px;box-sizing:border-box;margin-bottom:6px">
-      <input type="date" id="fec-cl-${c.num}" value="${d.fecha_compromiso||""}" oninput="setAuditField(${c.num},'fecha_compromiso',this.value)" style="width:100%;padding:8px;border:1px solid var(--g200);border-radius:8px;font-size:13px;box-sizing:border-box">` : ""}
+      <input type="date" id="fec-cl-${c.num}" title="Fecha tentativa (opcional)" value="${d.fecha_compromiso||""}" oninput="setAuditField(${c.num},'fecha_compromiso',this.value)" style="width:100%;padding:8px;border:1px solid var(--g200);border-radius:8px;font-size:13px;box-sizing:border-box">` : ""}
     </div>`;
   }).join("");
   updateProgreso();
@@ -1369,7 +1369,7 @@ function setCriterio(num, resp) {
     </div>
     ${noA ? `<input type="text" id="obs-cl-${num}" placeholder="Observación" value="${d.obs||""}" oninput="setAuditField(${num},'obs',this.value)" style="width:100%;padding:8px;border:1px solid var(--g200);border-radius:8px;font-size:13px;box-sizing:border-box;margin-bottom:6px">
     <input type="text" id="resp-cl-${num}" placeholder="Responsable" value="${d.responsable||""}" oninput="setAuditField(${num},'responsable',this.value)" style="width:100%;padding:8px;border:1px solid var(--g200);border-radius:8px;font-size:13px;box-sizing:border-box;margin-bottom:6px">
-    <input type="date" id="fec-cl-${num}" value="${d.fecha_compromiso||""}" oninput="setAuditField(${num},'fecha_compromiso',this.value)" style="width:100%;padding:8px;border:1px solid var(--g200);border-radius:8px;font-size:13px;box-sizing:border-box">` : ""}`;
+    <input type="date" id="fec-cl-${num}" title="Fecha tentativa (opcional)" value="${d.fecha_compromiso||""}" oninput="setAuditField(${num},'fecha_compromiso',this.value)" style="width:100%;padding:8px;border:1px solid var(--g200);border-radius:8px;font-size:13px;box-sizing:border-box">` : ""}`;
   updateProgreso();
 }
 
@@ -1430,6 +1430,31 @@ async function finalizarAuditoria() {
     if (respEl) auditData[c.num].responsable      = respEl.value;
     if (fecEl)  auditData[c.num].fecha_compromiso = fecEl.value;
   });
+
+  // Validar que criterios NO tengan observación
+  const sinObs = CRITERIOS.filter(c =>
+    auditData[c.num]?.respuesta === "NO" &&
+    !(auditData[c.num]?.obs || "").trim()
+  );
+  if (sinObs.length > 0) {
+    // Resaltar los campos vacíos
+    sinObs.forEach(c => {
+      const obsEl = document.getElementById("obs-cl-" + c.num);
+      if (obsEl) {
+        obsEl.style.borderColor = "var(--red)";
+        obsEl.style.background  = "#FEF2F2";
+        obsEl.placeholder = "⚠️ Observación requerida";
+        obsEl.scrollIntoView({behavior:"smooth", block:"center"});
+      }
+    });
+    showToast(
+      sinObs.length === 1
+        ? "El criterio " + sinObs[0].num + " marcado como NO requiere una observación"
+        : "Hay " + sinObs.length + " criterios NO sin observación",
+      true
+    );
+    return;
+  }
 
   const noOk  = CRITERIOS.filter(c => auditData[c.num]?.respuesta === "NO");
   const pct   = Math.round((CRITERIOS.length - noOk.length) / CRITERIOS.length * 100);

@@ -1338,7 +1338,7 @@ function renderCriterios() {
         <button onclick="setCriterio(${c.num},'NO')" style="flex:1;padding:10px;border-radius:8px;font-weight:700;font-family:'Barlow Condensed',sans-serif;font-size:16px;cursor:pointer;background:${noA?"var(--red)":"var(--g50)"};color:${noA?"#fff":"var(--g400)"};border:2px solid ${noA?"var(--red)":"var(--g200)"}">✗ NO</button>
       </div>
       ${noA ? `<input type="text" id="obs-cl-${c.num}" placeholder="Observación" value="${d.obs||""}" oninput="setAuditField(${c.num},'obs',this.value)" style="width:100%;padding:8px;border:1px solid var(--g200);border-radius:8px;font-size:13px;box-sizing:border-box;margin-bottom:6px">
-      <input type="text" id="resp-cl-${c.num}" placeholder="Responsable" value="${d.responsable||""}" oninput="setAuditField(${c.num},'responsable',this.value)" style="width:100%;padding:8px;border:1px solid var(--g200);border-radius:8px;font-size:13px;box-sizing:border-box;margin-bottom:6px">
+      <input type="text" id="resp-cl-${c.num}" placeholder="Responsable" value="${d.responsable||auditMeta.responsable||""}" oninput="setAuditField(${c.num},'responsable',this.value)" style="width:100%;padding:8px;border:1px solid var(--g200);border-radius:8px;font-size:13px;box-sizing:border-box;margin-bottom:6px">
       <input type="date" id="fec-cl-${c.num}" value="${d.fecha_compromiso||""}" oninput="setAuditField(${c.num},'fecha_compromiso',this.value)" style="width:100%;padding:8px;border:1px solid var(--g200);border-radius:8px;font-size:13px;box-sizing:border-box">` : ""}
     </div>`;
   }).join("");
@@ -1351,7 +1351,7 @@ function setCriterio(num, resp) {
   auditData[num] = {
     respuesta:        resp,
     obs:              resp === "SI" ? "" : (prev.obs              || ""),
-    responsable:      resp === "SI" ? "" : (prev.responsable      || ""),
+    responsable:      resp === "SI" ? "" : (prev.responsable || auditMeta.responsable || ""),
     fecha_compromiso: resp === "SI" ? "" : (prev.fecha_compromiso || ""),
     fotos:            prev.fotos || []
   };
@@ -2171,7 +2171,7 @@ function exportarPDFGerencial(btn) {
       if(fs && a.sector!==fs) return false;
       if(fa && a.area!==fa)   return false;
       return true;
-    });
+    }).sort(function(a,b){ return (b.pct_cumplimiento||0)-(a.pct_cumplimiento||0); });
 
     if(!lista.length){
       if(btn){btn.disabled=false;btn.innerHTML="&#128196; PDF Gerencial";}
@@ -2486,59 +2486,68 @@ function exportarPDFGerencial(btn) {
     doc.text("OBSERVACIONES PENDIENTES POR RESPONSABLE",W/2,y+5.5,{align:"center"});
     y+=12;
 
-    var obsByResp={};
+    // Agrupar obs por ÁREA
+    var obsByArea={};
     lista.forEach(function(a){
       safeI2(a).filter(function(x){return(x.estado||"Pendiente")==="Pendiente";}).forEach(function(x){
-        var r=x.responsable||"Sin asignar";
-        if(!obsByResp[r])obsByResp[r]=[];
-        obsByResp[r].push({criterio:x.criterio||"",sector:a.sector||"",fecha:x.fecha_compromiso||""});
+        var ar=a.area||"Sin área";
+        if(!obsByArea[ar])obsByArea[ar]={sector:"",items:[]};
+        obsByArea[ar].items.push({
+          criterio: x.criterio||"",
+          sector:   a.sector||"",
+          responsable: x.responsable||a.responsable||"Sin asignar",
+          fecha:    x.fecha_compromiso||""
+        });
       });
     });
-    var respEntries=Object.entries(obsByResp).sort(function(a,b){return b[1].length-a[1].length;});
+    var areaEntries=Object.entries(obsByArea).sort(function(a,b){return b[1].items.length-a[1].items.length;});
 
-    if(respEntries.length){
-      // Header
+    if(areaEntries.length){
+      // Header tabla
       setFill(ISM_GD);doc.rect(mar,y,W-mar*2,6.5,"F");
       doc.setFont("helvetica","bold");doc.setFontSize(7.5);doc.setTextColor(255,255,255);
-      doc.text("RESPONSABLE",mar+3,y+4.5);
-      doc.text("SECTOR",mar+65,y+4.5);
-      doc.text("OBSERVACIÓN",mar+105,y+4.5);
-      doc.text("F. COMP.",W-mar-2,y+4.5,{align:"right"});
+      doc.text("ÁREA / SECTOR",mar+3,y+4.5);
+      doc.text("CRITERIO",mar+70,y+4.5);
+      doc.text("RESPONSABLE",mar+130,y+4.5);
+      doc.text("F.C.",W-mar-2,y+4.5,{align:"right"});
       y+=7.5;
 
-      respEntries.forEach(function(e){
-        var resp=e[0],items=e[1];
-        // Fila de responsable
-        checkY(8);
+      areaEntries.forEach(function(e){
+        var area=e[0], items=e[1].items;
+        checkY(9);
+        // Fila de área
         setFill(ISM_GL);doc.rect(mar,y-1,W-mar*2,7.5,"F");
-        setFill(ISM_G);doc.rect(mar,y-1,2,7.5,"F");
-        doc.setFont("helvetica","bold");doc.setFontSize(8);setColor(ISM_GD);
-        doc.text("👤 "+resp,mar+4,y+4.5);
-        setFill(ISM_R);doc.roundedRect(W-mar-16,y+0.5,16,5.5,1.5,1.5,"F");
+        setFill(ISM_G);doc.rect(mar,y-1,3,7.5,"F");
+        doc.setFont("helvetica","bold");doc.setFontSize(8.5);setColor(ISM_GD);
+        doc.text(area.toUpperCase(),mar+5,y+4.5);
+        setFill(ISM_R);doc.roundedRect(W-mar-18,y+1,18,5,2,2,"F");
         doc.setFont("helvetica","bold");doc.setFontSize(7.5);doc.setTextColor(255,255,255);
-        doc.text(items.length+" obs.",W-mar-8,y+4.5,{align:"center"});
+        doc.text(items.length+" obs.",W-mar-9,y+4.5,{align:"center"});
         setDraw(ISM_G2);doc.line(mar,y+6.5,W-mar,y+6.5);
         y+=8;
 
-        items.slice(0,4).forEach(function(it,ii){
+        // Todas las obs de esta área — SIN límite ni "X más"
+        items.forEach(function(it,ii){
           checkY(7);
-          if(ii%2===1){setFill(ISM_G1);doc.rect(mar,y-1,W-mar*2,7,"F");}
-          doc.setFont("helvetica","normal");doc.setFontSize(7);setColor([100,116,139]);
-          doc.text((it.sector||"").substring(0,22),mar+65,y+4);
-          var cTxt=doc.splitTextToSize(it.criterio||"—",55);
-          doc.text(cTxt[0]+(cTxt.length>1?"…":""),mar+105,y+4);
-          doc.setFont("helvetica","normal");doc.setFontSize(7);
+          if(ii%2===0){setFill(ISM_G1);doc.rect(mar,y-1,W-mar*2,7,"F");}
+          doc.setFont("helvetica","normal");doc.setFontSize(7);setColor(ISM_GR);
+          // Sector en cursiva
+          doc.setFont("helvetica","italic");
+          doc.text((it.sector||"").substring(0,22),mar+3,y+4);
+          // Criterio
+          doc.setFont("helvetica","normal");
+          var cTxt=it.criterio||"—";
+          if(cTxt.length>42) cTxt=cTxt.substring(0,40)+"…";
+          doc.text(cTxt,mar+70,y+4);
+          // Responsable
+          setColor([100,116,139]);
+          doc.text((it.responsable||"—").substring(0,20),mar+130,y+4);
+          // Fecha
           doc.text(it.fecha||"—",W-mar-2,y+4,{align:"right"});
-          setDraw(ISM_G2);doc.line(mar+3,y+6,W-mar,y+6);
+          setDraw(ISM_G2);doc.line(mar,y+6,W-mar,y+6);
           y+=7;
         });
-        if(items.length>4){
-          checkY(6);
-          doc.setFont("helvetica","italic");doc.setFontSize(7);setColor([100,116,139]);
-          doc.text("   ... y "+(items.length-4)+" observación(es) más",mar+4,y+4);
-          y+=6;
-        }
-        y+=3;
+        y+=4;
       });
     }else{
       doc.setFont("helvetica","italic");doc.setFontSize(9);setColor(ISM_G);

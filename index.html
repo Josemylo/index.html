@@ -530,13 +530,7 @@ textarea{resize:vertical;min-height:78px}
     <select id="d-fil-mes" onchange="renderAuditDashboard()" class="filter-small"><option value="">Todos los meses</option></select>
     <select id="d-fil-sector-a" onchange="renderAuditDashboard()" class="filter-small"><option value="">Todos los sectores</option></select>
     <select id="d-fil-area-a" onchange="renderAuditDashboard()" class="filter-small"><option value="">Todas las áreas</option></select>
-    <select id="d-fil-nro-pdf" class="filter-small" style="max-width:160px">
-      <option value="">Todos los check lists</option>
-      <option value="1">Check List N° 1</option>
-      <option value="2">Check List N° 2</option>
-      <option value="3">Check List N° 3</option>
-      <option value="4">Check List N° 4</option>
-    </select>
+
     <button onclick="const b=this;b.innerHTML='<span class=&quot;spinner&quot;></span> Generando...';b.disabled=true;setTimeout(()=>exportarPDFGerencial(b),50)" style="flex-shrink:0;background:#1565C0;color:#fff;border:none;border-radius:8px;padding:8px 14px;font-family:Barlow,sans-serif;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">&#128196; PDF Gerencial</button>
   </div>
   <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px">
@@ -591,13 +585,7 @@ textarea{resize:vertical;min-height:78px}
   <div class="dash-card">
     <div class="dash-card-title">&#9203; Pendientes por auditor</div>
     <div style="display:flex;gap:8px;margin-bottom:10px">
-      <select id="dfil-nro-pend" class="filter-small" onchange="renderPendientes()" style="max-width:180px">
-        <option value="">Todas las auditorias</option>
-        <option value="1">Check List N° 1</option>
-        <option value="2">Check List N° 2</option>
-        <option value="3">Check List N° 3</option>
-        <option value="4">Check List N° 4</option>
-      </select>
+
     </div>
     <div id="dk-pendientes"></div>
   </div>
@@ -1645,21 +1633,17 @@ async function guardarAuditoriaDB(pct, nivel, noOk) {
     }));
     // Construir payload solo con campos seguros
     const payload = {
-      auditor:    String(auditMeta.auditor    || ""),
-      fecha:      new Date().toISOString().split("T")[0],
-      sector:     String(auditMeta.sector     || ""),
-      responsable:String(auditMeta.responsable|| ""),
-      detalles:   JSON.stringify(detalles),
-      incumplimientos: JSON.stringify(incumpl)
+      auditor:          String(auditMeta.auditor       || ""),
+      nro_auditoria:    String(auditMeta.nro_auditoria || ""),
+      fecha:            new Date().toISOString().split("T")[0],
+      sector:           String(auditMeta.sector        || ""),
+      area:             String(auditMeta.area          || ""),
+      responsable:      String(auditMeta.responsable   || ""),
+      pct_cumplimiento: Number(pct),
+      nivel:            String(nivel || ""),
+      detalles:         JSON.stringify(detalles),
+      incumplimientos:  JSON.stringify(incumpl)
     };
-    // Agregar columnas opcionales si existen en la tabla
-    // (no fallan si no existen porque van en el payload solo si tienen valor)
-    try { payload.area             = String(auditMeta.area || ""); } catch(e){}
-    try { payload.pct_cumplimiento = Number(pct); } catch(e){}
-    try { payload.nivel            = String(nivel || ""); } catch(e){}
-    // nro_auditoria: solo si la columna acepta texto — verificar primero
-    // Si la tabla tiene nro_auditoria como integer, este campo causará error 400
-    // Lo dejamos fuera por defecto
 
     const {data, error} = await sb.from("auditorias_5s_ism").insert(payload).select();
     if (error) {

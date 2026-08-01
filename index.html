@@ -1259,13 +1259,12 @@ function iniciarCheckList() {
   document.getElementById("app-auditoria-nueva").style.display = "none";
   auditData = {};
   auditMeta = {};
-  // Asignar mes vigente y fecha automáticamente
   const now = new Date();
-  const mes = now.getFullYear() + "-" + String(now.getMonth() + 1).padStart(2, "0");
-  const nroEl = document.getElementById("a-nro");
+  const mes = now.getFullYear() + "-" + String(now.getMonth()+1).padStart(2,"0");
+  const nroEl   = document.getElementById("a-nro");
   const fechaEl = document.getElementById("a-fecha");
-  if (nroEl) nroEl.value = mes;
-  if (fechaEl) fechaEl.value = now.toLocaleDateString("es-PE", {day:"2-digit", month:"2-digit", year:"numeric"});
+  if (nroEl)   nroEl.value   = mes;
+  if (fechaEl) fechaEl.value = now.toLocaleDateString("es-PE",{day:"2-digit",month:"2-digit",year:"numeric"});
   showAuditTab("nueva");
   cargarAuditorias();
 }
@@ -1442,42 +1441,109 @@ function renderNuevaPendientes() {
 // ... (resto de funciones de dashboard, historial, etc.)
 
 
+
 // ============================================================
-// CHECK LIST — FUNCIONES FALTANTES
+// CHECK LIST — FUNCIONES
 // ============================================================
 
 function getNivel(pct) {
-  if (pct >= 90) return {nivel: "Excelente", color: "#1B5E20"};
-  if (pct >= 70) return {nivel: "Bueno",     color: "#1E7C34"};
-  if (pct >= 50) return {nivel: "Regular",   color: "#D97706"};
-  return              {nivel: "Deficiente", color: "#E63329"};
+  if (pct >= 90) return {nivel:"Excelente", color:"#1B5E20"};
+  if (pct >= 70) return {nivel:"Bueno",     color:"#1E7C34"};
+  if (pct >= 50) return {nivel:"Regular",   color:"#D97706"};
+  return              {nivel:"Deficiente", color:"#E63329"};
 }
 
-// ── Paso 1 → 2 ───────────────────────────────────────────
-async function irPaso2() {
-  const auditor  = document.getElementById("a-auditor").value;
-  const mes      = document.getElementById("a-nro").value;
-  const sector   = document.getElementById("a-sector").value;
-  const area     = document.getElementById("a-area").value.trim();
-  const resp     = document.getElementById("a-responsable").value.trim();
-  const fecha    = document.getElementById("a-fecha").value;
+function setAuditField(num, field, val) {
+  if (!auditData[num]) auditData[num] = {};
+  auditData[num][field] = val;
+}
 
+function updateProgreso() {
+  const total     = CRITERIOS.length;
+  const evaluados = CRITERIOS.filter(c => auditData[c.num]?.respuesta != null).length;
+  const siCount   = CRITERIOS.filter(c => auditData[c.num]?.respuesta === "SI").length;
+  const pct       = total > 0 ? Math.round(siCount / total * 100) : 0;
+  const bar  = document.getElementById("audit-prog-bar");
+  const lbl  = document.getElementById("audit-puntaje-live");
+  const prog = document.getElementById("audit-progreso");
+  if (bar)  bar.style.width  = (evaluados / total * 100) + "%";
+  if (lbl)  lbl.textContent  = pct + "/100";
+  if (prog) prog.textContent = evaluados + " / " + total + " criterios";
+}
+
+function renderCriterios() {
+  const el = document.getElementById("criterios-container");
+  if (!el) return;
+  let lastPilar = "";
+  el.innerHTML = CRITERIOS.map(c => {
+    let ph = "";
+    if (c.pilar !== lastPilar) {
+      lastPilar = c.pilar;
+      ph = `<div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;color:var(--blue);text-transform:uppercase;margin:12px 0 6px;padding-bottom:4px;border-bottom:2px solid var(--blue)">${c.pilar}</div>`;
+    }
+    const d   = auditData[c.num] || {};
+    const siA = d.respuesta === "SI";
+    const noA = d.respuesta === "NO";
+    return ph + `<div class="obs-card" id="crit-${c.num}" style="margin-bottom:8px;border-left:4px solid ${siA?"var(--green)":noA?"var(--red)":"var(--g200)"}">
+      <div style="font-size:13px;font-weight:700;color:var(--g700);margin-bottom:8px">${c.num}. ${c.txt}</div>
+      <div style="display:flex;gap:8px;margin-bottom:${noA?"8px":"0"}">
+        <button onclick="setCriterio(${c.num},'SI')" style="flex:1;padding:10px;border-radius:8px;font-weight:700;font-family:'Barlow Condensed',sans-serif;font-size:16px;cursor:pointer;background:${siA?"var(--green)":"var(--g50)"};color:${siA?"#fff":"var(--g400)"};border:2px solid ${siA?"var(--green)":"var(--g200)"}">✓ SI</button>
+        <button onclick="setCriterio(${c.num},'NO')" style="flex:1;padding:10px;border-radius:8px;font-weight:700;font-family:'Barlow Condensed',sans-serif;font-size:16px;cursor:pointer;background:${noA?"var(--red)":"var(--g50)"};color:${noA?"#fff":"var(--g400)"};border:2px solid ${noA?"var(--red)":"var(--g200)"}">✗ NO</button>
+      </div>
+      ${noA ? `<input type="text" id="obs-cl-${c.num}" placeholder="Observación" value="${d.obs||""}" oninput="setAuditField(${c.num},'obs',this.value)" style="width:100%;padding:8px;border:1px solid var(--g200);border-radius:8px;font-size:13px;box-sizing:border-box;margin-bottom:6px">
+      <input type="text" id="resp-cl-${c.num}" placeholder="Responsable" value="${d.responsable||""}" oninput="setAuditField(${c.num},'responsable',this.value)" style="width:100%;padding:8px;border:1px solid var(--g200);border-radius:8px;font-size:13px;box-sizing:border-box;margin-bottom:6px">
+      <input type="date" id="fec-cl-${c.num}" value="${d.fecha_compromiso||""}" oninput="setAuditField(${c.num},'fecha_compromiso',this.value)" style="width:100%;padding:8px;border:1px solid var(--g200);border-radius:8px;font-size:13px;box-sizing:border-box">` : ""}
+    </div>`;
+  }).join("");
+  updateProgreso();
+}
+
+function setCriterio(num, resp) {
+  if (!auditData[num]) auditData[num] = {};
+  const prev = auditData[num];
+  auditData[num] = {
+    respuesta:        resp,
+    obs:              resp === "SI" ? "" : (prev.obs              || ""),
+    responsable:      resp === "SI" ? "" : (prev.responsable      || ""),
+    fecha_compromiso: resp === "SI" ? "" : (prev.fecha_compromiso || ""),
+    fotos:            prev.fotos || []
+  };
+  const c    = CRITERIOS.find(x => x.num === num);
+  const d    = auditData[num];
+  const card = document.getElementById("crit-" + num);
+  if (!card || !c) return;
+  const noA = resp === "NO";
+  card.style.borderLeftColor = resp === "SI" ? "var(--green)" : "var(--red)";
+  card.innerHTML = `
+    <div style="font-size:13px;font-weight:700;color:var(--g700);margin-bottom:8px">${num}. ${c.txt}</div>
+    <div style="display:flex;gap:8px;margin-bottom:${noA?"8px":"0"}">
+      <button onclick="setCriterio(${num},'SI')" style="flex:1;padding:10px;border-radius:8px;font-weight:700;font-family:'Barlow Condensed',sans-serif;font-size:16px;cursor:pointer;background:${resp==="SI"?"var(--green)":"var(--g50)"};color:${resp==="SI"?"#fff":"var(--g400)"};border:2px solid ${resp==="SI"?"var(--green)":"var(--g200)"}">✓ SI</button>
+      <button onclick="setCriterio(${num},'NO')" style="flex:1;padding:10px;border-radius:8px;font-weight:700;font-family:'Barlow Condensed',sans-serif;font-size:16px;cursor:pointer;background:${resp==="NO"?"var(--red)":"var(--g50)"};color:${resp==="NO"?"#fff":"var(--g400)"};border:2px solid ${resp==="NO"?"var(--red)":"var(--g200)"}">✗ NO</button>
+    </div>
+    ${noA ? `<input type="text" id="obs-cl-${num}" placeholder="Observación" value="${d.obs||""}" oninput="setAuditField(${num},'obs',this.value)" style="width:100%;padding:8px;border:1px solid var(--g200);border-radius:8px;font-size:13px;box-sizing:border-box;margin-bottom:6px">
+    <input type="text" id="resp-cl-${num}" placeholder="Responsable" value="${d.responsable||""}" oninput="setAuditField(${num},'responsable',this.value)" style="width:100%;padding:8px;border:1px solid var(--g200);border-radius:8px;font-size:13px;box-sizing:border-box;margin-bottom:6px">
+    <input type="date" id="fec-cl-${num}" value="${d.fecha_compromiso||""}" oninput="setAuditField(${num},'fecha_compromiso',this.value)" style="width:100%;padding:8px;border:1px solid var(--g200);border-radius:8px;font-size:13px;box-sizing:border-box">` : ""}`;
+  updateProgreso();
+}
+
+async function irPaso2() {
+  const auditor = document.getElementById("a-auditor").value;
+  const mes     = document.getElementById("a-nro").value;
+  const sector  = document.getElementById("a-sector").value;
+  const area    = document.getElementById("a-area").value.trim();
+  const resp    = document.getElementById("a-responsable").value.trim();
   if (!auditor) { showToast("Selecciona el auditor", true); return; }
   if (!sector)  { showToast("Selecciona el sector",  true); return; }
   if (!area)    { showToast("El área se asigna al elegir el sector", true); return; }
-
-  // Bloquear duplicado del mes
-  const now  = new Date();
-  const mi   = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split("T")[0];
-  const mf   = new Date(now.getFullYear(), now.getMonth()+1, 0).toISOString().split("T")[0];
-  const {data: dup} = await sb.from("auditorias_5s_ism")
-    .select("auditor").eq("sector", sector).gte("fecha", mi).lte("fecha", mf);
+  const now = new Date();
+  const mi  = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split("T")[0];
+  const mf  = new Date(now.getFullYear(), now.getMonth()+1, 0).toISOString().split("T")[0];
+  const {data: dup} = await sb.from("auditorias_5s_ism").select("auditor").eq("sector", sector).gte("fecha", mi).lte("fecha", mf);
   if (dup && dup.length) {
     showToast("⚠️ " + sector + " ya fue evaluado este mes por " + dup[0].auditor, true);
     return;
   }
-
-  auditMeta = {auditor, nro_auditoria: mes, sector, area, responsable: resp, fecha};
+  auditMeta = {auditor, nro_auditoria: mes, sector, area, responsable: resp, fecha: document.getElementById("a-fecha").value};
   auditData = {};
   document.getElementById("audit-area-lbl").textContent = area + " · " + sector;
   renderCriterios();
@@ -1492,8 +1558,7 @@ function irPaso1() {
 }
 
 function nuevaAuditoria() {
-  auditData = {};
-  auditMeta = {};
+  auditData = {}; auditMeta = {};
   document.getElementById("a-auditor").value = "";
   document.getElementById("a-sector").innerHTML = '<option value="">&#8212; Elige auditor primero &#8212;</option>';
   document.getElementById("a-sector").disabled = true;
@@ -1502,143 +1567,27 @@ function nuevaAuditoria() {
   showAuditTab("nueva");
 }
 
-// ── Criterios ─────────────────────────────────────────────
-function renderCriterios() {
-  const el = document.getElementById("criterios-container");
-  if (!el) return;
-  let lastPilar = "";
-  el.innerHTML = CRITERIOS.map(c => {
-    let ph = "";
-    if (c.pilar !== lastPilar) {
-      lastPilar = c.pilar;
-      ph = `<div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;
-color:var(--blue);text-transform:uppercase;margin:12px 0 6px;padding-bottom:4px;
-border-bottom:2px solid var(--blue)">${c.pilar}</div>`;
-    }
-    const d   = auditData[c.num] || {};
-    const siA = d.respuesta === "SI";
-    const noA = d.respuesta === "NO";
-    return ph + `<div class="obs-card" id="crit-${c.num}" style="margin-bottom:8px;
-border-left:4px solid ${siA?"var(--green)":noA?"var(--red)":"var(--g200)"}">
-      <div style="font-size:13px;font-weight:700;color:var(--g700);margin-bottom:8px">
-        ${c.num}. ${c.txt}
-      </div>
-      <div style="display:flex;gap:8px;margin-bottom:${noA?"8px":"0"}">
-        <button onclick="setCriterio(${c.num},'SI')"
-          style="flex:1;padding:10px;border-radius:8px;font-weight:700;
-          font-family:'Barlow Condensed',sans-serif;font-size:16px;cursor:pointer;
-          background:${siA?"var(--green)":"var(--g50)"};
-          color:${siA?"#fff":"var(--g400)"};
-          border:2px solid ${siA?"var(--green)":"var(--g200)"}">✓ SI</button>
-        <button onclick="setCriterio(${c.num},'NO')"
-          style="flex:1;padding:10px;border-radius:8px;font-weight:700;
-          font-family:'Barlow Condensed',sans-serif;font-size:16px;cursor:pointer;
-          background:${noA?"var(--red)":"var(--g50)"};
-          color:${noA?"#fff":"var(--g400)"};
-          border:2px solid ${noA?"var(--red)":"var(--g200)"}">✗ NO</button>
-      </div>
-      ${noA ? `
-      <input type="text" id="obs-cl-${c.num}" placeholder="Observación" value="${d.obs||""}"
-        oninput="setAuditField(${c.num},'obs',this.value)"
-        style="width:100%;padding:8px;border:1px solid var(--g200);border-radius:8px;
-        font-size:13px;box-sizing:border-box;margin-bottom:6px">
-      <input type="text" id="resp-cl-${c.num}" placeholder="Responsable" value="${d.responsable||""}"
-        oninput="setAuditField(${c.num},'responsable',this.value)"
-        style="width:100%;padding:8px;border:1px solid var(--g200);border-radius:8px;
-        font-size:13px;box-sizing:border-box;margin-bottom:6px">
-      <input type="date" id="fec-cl-${c.num}" value="${d.fecha_compromiso||""}"
-        oninput="setAuditField(${c.num},'fecha_compromiso',this.value)"
-        style="width:100%;padding:8px;border:1px solid var(--g200);border-radius:8px;
-        font-size:13px;box-sizing:border-box">
-      ` : ""}
-    </div>`;
-  }).join("");
-  updateProgreso();
-}
-
-function setAuditField(num, field, val) {
-  if (!auditData[num]) auditData[num] = {};
-  auditData[num][field] = val;
-}
-
-function setCriterio(num, resp) {
-  if (!auditData[num]) auditData[num] = {};
-  // Preservar obs/responsable/fecha_compromiso si ya existían
-  const prev = auditData[num];
-  auditData[num] = {
-    respuesta:        resp,
-    obs:              resp === "SI" ? "" : (prev.obs              || ""),
-    responsable:      resp === "SI" ? "" : (prev.responsable      || ""),
-    fecha_compromiso: resp === "SI" ? "" : (prev.fecha_compromiso || ""),
-    fotos:            prev.fotos || []
-  };
-  // Re-renderizar solo esa card
-  const c    = CRITERIOS.find(x => x.num === num);
-  const d    = auditData[num];
-  const card = document.getElementById("crit-" + num);
-  if (!card || !c) return;
-  const noA  = resp === "NO";
-  card.style.borderLeftColor = resp === "SI" ? "var(--green)" : "var(--red)";
-  card.innerHTML = `
-    <div style="font-size:13px;font-weight:700;color:var(--g700);margin-bottom:8px">
-      ${num}. ${c.txt}
-    </div>
-    <div style="display:flex;gap:8px;margin-bottom:${noA ? "8px" : "0"}">
-      <button onclick="setCriterio(${num},'SI')"
-        style="flex:1;padding:10px;border-radius:8px;font-weight:700;
-        font-family:'Barlow Condensed',sans-serif;font-size:16px;cursor:pointer;
-        background:${resp==="SI"?"var(--green)":"var(--g50)"};
-        color:${resp==="SI"?"#fff":"var(--g400)"};
-        border:2px solid ${resp==="SI"?"var(--green)":"var(--g200)"}">✓ SI</button>
-      <button onclick="setCriterio(${num},'NO')"
-        style="flex:1;padding:10px;border-radius:8px;font-weight:700;
-        font-family:'Barlow Condensed',sans-serif;font-size:16px;cursor:pointer;
-        background:${resp==="NO"?"var(--red)":"var(--g50)"};
-        color:${resp==="NO"?"#fff":"var(--g400)"};
-        border:2px solid ${resp==="NO"?"var(--red)":"var(--g200)"}">✗ NO</button>
-    </div>
-    ${noA ? `
-    <input type="text" placeholder="Observación" value="${d.obs || ""}"
-      oninput="setAuditField(${num},'obs',this.value)"
-      style="width:100%;padding:8px;border:1px solid var(--g200);border-radius:8px;
-      font-size:13px;box-sizing:border-box;margin-bottom:6px">
-    <input type="text" placeholder="Responsable" value="${d.responsable || ""}"
-      oninput="setAuditField(${num},'responsable',this.value)"
-      style="width:100%;padding:8px;border:1px solid var(--g200);border-radius:8px;
-      font-size:13px;box-sizing:border-box;margin-bottom:6px">
-    <input type="date" value="${d.fecha_compromiso || ""}"
-      oninput="setAuditField(${num},'fecha_compromiso',this.value)"
-      style="width:100%;padding:8px;border:1px solid var(--g200);border-radius:8px;
-      font-size:13px;box-sizing:border-box">
-    ` : ""}`;
-  updateProgreso();
-}
-
-function updateProgreso() {
-  const total     = CRITERIOS.length;
-  const evaluados = CRITERIOS.filter(c => auditData[c.num]?.respuesta != null).length;
-  const siCount   = CRITERIOS.filter(c => auditData[c.num]?.respuesta === "SI").length;
-  const pct       = total > 0 ? Math.round(siCount / total * 100) : 0;
-  const bar       = document.getElementById("audit-prog-bar");
-  const lbl       = document.getElementById("audit-puntaje-live");
-  const prog      = document.getElementById("audit-progreso");
-  if (bar)  bar.style.width  = (evaluados / total * 100) + "%";
-  if (lbl)  lbl.textContent  = pct + "/100";
-  if (prog) prog.textContent = evaluados + " / " + total + " criterios";
-}
-
-// ── Finalizar ─────────────────────────────────────────────
 async function finalizarAuditoria() {
   const evaluados = CRITERIOS.filter(c => auditData[c.num]?.respuesta != null).length;
   if (evaluados < CRITERIOS.length) {
     showToast("Faltan " + (CRITERIOS.length - evaluados) + " criterios por evaluar", true);
     return;
   }
+  // Capturar inputs visibles antes de calcular
+  CRITERIOS.forEach(c => {
+    const obsEl  = document.getElementById("obs-cl-"  + c.num);
+    const respEl = document.getElementById("resp-cl-" + c.num);
+    const fecEl  = document.getElementById("fec-cl-"  + c.num);
+    if (!auditData[c.num]) auditData[c.num] = {};
+    if (obsEl)  auditData[c.num].obs              = obsEl.value;
+    if (respEl) auditData[c.num].responsable      = respEl.value;
+    if (fecEl)  auditData[c.num].fecha_compromiso = fecEl.value;
+  });
+
   const noOk  = CRITERIOS.filter(c => auditData[c.num]?.respuesta === "NO");
   const pct   = Math.round((CRITERIOS.length - noOk.length) / CRITERIOS.length * 100);
   const nivel = getNivel(pct);
 
-  // Mostrar paso 3
   document.getElementById("audit-paso2").style.display = "none";
   document.getElementById("audit-paso3").style.display = "block";
 
@@ -1646,37 +1595,23 @@ async function finalizarAuditoria() {
   const rNivel   = document.getElementById("result-nivel");
   const rInfo    = document.getElementById("result-info");
   if (rPuntaje) { rPuntaje.textContent = pct; rPuntaje.style.color = nivel.color; }
-  if (rNivel)   { rNivel.textContent   = nivel.nivel; rNivel.style.color = nivel.color; }
-  if (rInfo)    rInfo.textContent = pct + "% cumplimiento · " + auditMeta.area + " · " + auditMeta.sector;
+  if (rNivel)   { rNivel.textContent = nivel.nivel; rNivel.style.color = nivel.color; }
+  if (rInfo)    rInfo.textContent = pct + "% · " + auditMeta.area + " · " + auditMeta.sector;
 
   setTimeout(() => {
     const circle = document.getElementById("score-circle");
-    if (circle) {
-      circle.style.strokeDashoffset = 314 - (314 * (pct / 100));
-      circle.style.stroke = nivel.color;
-    }
+    if (circle) { circle.style.strokeDashoffset = 314-(314*(pct/100)); circle.style.stroke = nivel.color; }
   }, 200);
 
-  // Pilares
-  const pilares  = {"1S — Seleccionar":[1,2,3,4],"2S — Ordenar":[5,6,7,8],"3S — Limpiar":[9,10,11,12],"4S — Estandarizar":[13,14,15,16],"5S — Disciplinar":[17,18,19,20]};
-  const pcols    = {"1S":"#E65100","2S":"#1B5E20","3S":"#0D47A1","4S":"#4A148C","5S":"#880E4F"};
-  const rPilares = document.getElementById("result-pilares");
-  if (rPilares) {
-    rPilares.innerHTML = Object.entries(pilares).map(([p, ns]) => {
-      const si = ns.filter(n => auditData[n]?.respuesta === "SI").length;
-      const pp = Math.round(si / ns.length * 100);
-      const k  = p.substring(0, 2);
-      return `<div style="background:${pcols[k]}15;border-radius:8px;padding:8px 4px;
-text-align:center;border-top:3px solid ${pcols[k]}">
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;
-font-weight:800;color:${pcols[k]}">${si}/${ns.length}</div>
-        <div style="font-size:8px;color:${pcols[k]};font-weight:700">${k}</div>
-        <div style="font-size:9px;color:var(--g400)">${pp}%</div>
-      </div>`;
-    }).join("");
-  }
+  const pilares = {"1S — Seleccionar":[1,2,3,4],"2S — Ordenar":[5,6,7,8],"3S — Limpiar":[9,10,11,12],"4S — Estandarizar":[13,14,15,16],"5S — Disciplinar":[17,18,19,20]};
+  const pcols   = {"1S":"#E65100","2S":"#1B5E20","3S":"#0D47A1","4S":"#4A148C","5S":"#880E4F"};
+  const rPil = document.getElementById("result-pilares");
+  if (rPil) rPil.innerHTML = Object.entries(pilares).map(([p,ns]) => {
+    const si = ns.filter(n => auditData[n]?.respuesta==="SI").length;
+    const k  = p.substring(0,2);
+    return `<div style="background:${pcols[k]}15;border-radius:8px;padding:8px 4px;text-align:center;border-top:3px solid ${pcols[k]}"><div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:${pcols[k]}">${si}/${ns.length}</div><div style="font-size:8px;color:${pcols[k]};font-weight:700">${k}</div></div>`;
+  }).join("");
 
-  // Observaciones del resultado
   const cardObs = document.getElementById("card-obs-audit");
   const obsEl   = document.getElementById("obs-incumplimiento");
   if (cardObs && obsEl) {
@@ -1684,171 +1619,93 @@ font-weight:800;color:${pcols[k]}">${si}/${ns.length}</div>
       cardObs.style.display = "block";
       obsEl.innerHTML = noOk.map(c => {
         const d = auditData[c.num] || {};
-        return `<div style="padding:10px;background:var(--g50);border-radius:8px;
-border-left:3px solid var(--red);margin-bottom:8px">
-          <div style="font-size:12px;font-weight:700;color:var(--g700)">${c.num}. ${c.txt}</div>
-          <div style="font-size:10px;color:var(--g400)">Pilar: ${c.pilar}</div>
-          ${d.obs ? `<div style="font-size:12px;color:var(--g600);background:#fff;
-border-radius:6px;padding:6px;margin-top:4px">${d.obs}</div>` : ""}
-          ${d.responsable ? `<div style="font-size:10px;color:var(--g400);margin-top:3px">
-👤 ${d.responsable}${d.fecha_compromiso ? " · 📅 " + d.fecha_compromiso : ""}</div>` : ""}
-        </div>`;
+        return `<div style="padding:10px;background:var(--g50);border-radius:8px;border-left:3px solid var(--red);margin-bottom:8px"><div style="font-size:12px;font-weight:700;color:var(--g700)">${c.num}. ${c.txt}</div><div style="font-size:10px;color:var(--g400)">Pilar: ${c.pilar}</div>${d.obs?`<div style="font-size:12px;color:var(--g600);background:#fff;border-radius:6px;padding:6px;margin-top:4px">${d.obs}</div>`:""}</div>`;
       }).join("");
-    } else {
-      cardObs.style.display = "none";
-    }
+    } else cardObs.style.display = "none";
   }
-
   await guardarAuditoriaDB(pct, nivel.nivel, noOk);
 }
 
-// ── Guardar en Supabase ────────────────────────────────────
 async function guardarAuditoriaDB(pct, nivel, noOk) {
   try {
-    // Capturar valores actuales de los inputs visibles antes de guardar
-    CRITERIOS.forEach(c => {
-      const obsEl  = document.getElementById("obs-cl-"  + c.num);
-      const respEl = document.getElementById("resp-cl-" + c.num);
-      const fecEl  = document.getElementById("fec-cl-"  + c.num);
-      if (obsEl  && auditData[c.num]) auditData[c.num].obs              = obsEl.value;
-      if (respEl && auditData[c.num]) auditData[c.num].responsable      = respEl.value;
-      if (fecEl  && auditData[c.num]) auditData[c.num].fecha_compromiso = fecEl.value;
-    });
-
     const detalles = CRITERIOS.map(c => ({
-      num:              c.num,
-      pilar:            c.pilar,
-      criterio:         c.txt,
+      num: c.num, pilar: c.pilar, criterio: c.txt,
       respuesta:        auditData[c.num]?.respuesta        || null,
       obs:              auditData[c.num]?.obs              || "",
       responsable:      auditData[c.num]?.responsable      || "",
       fecha_compromiso: auditData[c.num]?.fecha_compromiso || "",
-      fotos:            auditData[c.num]?.fotos            || []
+      fotos:            []
     }));
-
     const incumpl = noOk.map(c => ({
-      num:              c.num,
-      pilar:            c.pilar,
-      criterio:         c.txt,
+      num: c.num, pilar: c.pilar, criterio: c.txt,
       obs:              auditData[c.num]?.obs              || "",
       responsable:      auditData[c.num]?.responsable      || "",
       fecha_compromiso: auditData[c.num]?.fecha_compromiso || "",
-      fotos:            auditData[c.num]?.fotos            || [],
-      estado:           "Pendiente"
+      fotos: [], estado: "Pendiente"
     }));
-
-    const {error} = await sb.from("auditorias_5s_ism").insert({
-      auditor:          auditMeta.auditor          || "",
-      nro_auditoria:    auditMeta.nro_auditoria    || "",
+    const {data, error} = await sb.from("auditorias_5s_ism").insert({
+      auditor:          String(auditMeta.auditor       || ""),
+      nro_auditoria:    String(auditMeta.nro_auditoria || ""),
       fecha:            new Date().toISOString().split("T")[0],
-      sector:           auditMeta.sector           || "",
-      area:             auditMeta.area             || "",
-      responsable:      auditMeta.responsable      || "",
-      pct_cumplimiento: pct,
-      nivel:            nivel,
+      sector:           String(auditMeta.sector        || ""),
+      area:             String(auditMeta.area          || ""),
+      responsable:      String(auditMeta.responsable   || ""),
+      pct_cumplimiento: Number(pct),
+      nivel:            String(nivel || ""),
       detalles:         JSON.stringify(detalles),
       incumplimientos:  JSON.stringify(incumpl)
-    });
-    if (error) throw error;
-    showToast("✅ Check List guardado correctamente");
+    }).select();
+    if (error) {
+      showToast("Error Supabase: " + (error.message || JSON.stringify(error)), true);
+      return;
+    }
+    showToast("✅ Check List guardado");
     await cargarAuditorias();
     showAuditTab("historial");
   } catch(e) {
-    console.error("Error guardar:", e);
-    showToast("Error al guardar: " + e.message, true);
+    showToast("Error: " + e.message, true);
   }
 }
 
-// ── Cargar auditorías de Supabase ─────────────────────────
 async function cargarAuditorias() {
   try {
-    const {data, error} = await sb.from("auditorias_5s_ism")
-      .select("*").order("fecha", {ascending: false});
+    const {data, error} = await sb.from("auditorias_5s_ism").select("*").order("fecha", {ascending:false});
     if (error) throw error;
-
-    // Normalizar sectores con nombres legacy
-    const norm = {"LINEA 1":"LÍNEA 1","LINEA 2":"LÍNEA 2","LINEA 3":"LÍNEA 3",
-      "LINEA 4":"LÍNEA 4","LINEA 5":"LÍNEA 5","LINEA 7":"LÍNEA 7","LINEA 8":"LÍNEA 8",
-      "LINEA 9":"LÍNEA 9","LP01":"LÍNEA 1","LP02":"LÍNEA 2","LP03":"LÍNEA 3",
-      "LP04":"LÍNEA 4","LP05":"LÍNEA 5","LP06":"LINEA 6","LP07":"LÍNEA 7",
-      "LP08":"LÍNEA 8","LP09":"LÍNEA 9","LP10":"LINEA 10"};
-
-    auditorias = (data || []).map(a => ({
-      ...a,
-      sector:          norm[a.sector] || a.sector,
-      detalles:        safeJson(a.detalles, "[]"),
-      incumplimientos: safeJson(a.incumplimientos, "[]")
-    }));
+    const norm = {"LINEA 1":"LÍNEA 1","LINEA 2":"LÍNEA 2","LINEA 3":"LÍNEA 3","LINEA 4":"LÍNEA 4","LINEA 5":"LÍNEA 5","LINEA 7":"LÍNEA 7","LINEA 8":"LÍNEA 8","LINEA 9":"LÍNEA 9","LP01":"LÍNEA 1","LP02":"LÍNEA 2","LP03":"LÍNEA 3","LP04":"LÍNEA 4","LP05":"LÍNEA 5","LP06":"LINEA 6","LP07":"LÍNEA 7","LP08":"LÍNEA 8","LP09":"LÍNEA 9","LP10":"LINEA 10"};
+    auditorias = (data||[]).map(a => ({...a, sector: norm[a.sector]||a.sector, detalles: safeJson(a.detalles,"[]"), incumplimientos: safeJson(a.incumplimientos,"[]")}));
     sectoresAuditados = new Set(auditorias.map(a => a.sector).filter(Boolean));
-
-    // Llenar filtros dinámicamente
-    const meses   = [...new Set(auditorias.map(a => String(a.nro_auditoria || a.fecha || "").substring(0, 7)).filter(v => v.length === 7))].sort().reverse();
-    const sects   = [...new Set(auditorias.map(a => a.sector).filter(Boolean))].sort();
-    const areas   = [...new Set(auditorias.map(a => a.area).filter(Boolean))].sort();
-    const resps   = [...new Set(auditorias.flatMap(a => safeJson(a.incumplimientos,"[]").map(i=>i.responsable)).filter(Boolean))].sort();
-    const mesLbl  = m => { const [y,mo]=m.split("-"); return new Date(+y,+mo-1,1).toLocaleDateString("es-PE",{month:"long",year:"numeric"}); };
-
+    const meses = [...new Set(auditorias.map(a => String(a.nro_auditoria||a.fecha||"").substring(0,7)).filter(v=>v.length===7))].sort().reverse();
+    const sects = [...new Set(auditorias.map(a => a.sector).filter(Boolean))].sort();
+    const areas = [...new Set(auditorias.map(a => a.area).filter(Boolean))].sort();
+    const mesLbl = m => { const [y,mo]=m.split("-"); return new Date(+y,+mo-1,1).toLocaleDateString("es-PE",{month:"long",year:"numeric"}); };
     [["hfil-mes",meses,mesLbl],["ofil-mes",meses,mesLbl],["d-fil-mes",meses,mesLbl]].forEach(([id,vs,lbl])=>{
-      const el=document.getElementById(id); if(!el) return;
-      const cur=el.value;
+      const el=document.getElementById(id); if(!el)return; const cur=el.value;
       el.innerHTML='<option value="">Todos los meses</option>';
       vs.forEach(v=>el.innerHTML+=`<option value="${v}"${v===cur?" selected":""}>${lbl(v)}</option>`);
     });
     [["hfil-sector",sects],["ofil-sector",sects],["d-fil-sector-a",sects]].forEach(([id,vs])=>{
-      const el=document.getElementById(id); if(!el) return;
-      const cur=el.value;
+      const el=document.getElementById(id); if(!el)return; const cur=el.value;
       el.innerHTML='<option value="">Todos los sectores</option>';
       vs.forEach(v=>el.innerHTML+=`<option value="${v}"${v===cur?" selected":""}>${v}</option>`);
     });
     [["hfil-area",areas],["ofil-area-obs",areas],["d-fil-area-a",areas]].forEach(([id,vs])=>{
-      const el=document.getElementById(id); if(!el) return;
-      const cur=el.value;
+      const el=document.getElementById(id); if(!el)return; const cur=el.value;
       el.innerHTML='<option value="">Todas las áreas</option>';
       vs.forEach(v=>el.innerHTML+=`<option value="${v}"${v===cur?" selected":""}>${v}</option>`);
     });
-    const rEl=document.getElementById("ofil-resp"); if(rEl){
-      const cur=rEl.value;
-      rEl.innerHTML='<option value="">Todos los responsables</option>';
-      resps.forEach(v=>rEl.innerHTML+=`<option value="${v}"${v===cur?" selected":""}>${v}</option>`);
-    }
-
-    // Barra de progreso del mes vigente
-    const now   = new Date();
-    const mi    = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split("T")[0];
-    const mf    = new Date(now.getFullYear(), now.getMonth()+1, 0).toISOString().split("T")[0];
-    const audMes= auditorias.filter(a => a.fecha >= mi && a.fecha <= mf && a.sector);
-    const todos = [...new Set(Object.values(AUDITORES_SECTORES).flat())];
-    const done  = todos.filter(s => audMes.some(a => a.sector === s)).length;
-    const pctP  = todos.length > 0 ? Math.min(100, Math.round(done / todos.length * 100)) : 0;
-    const colP  = pctP >= 100 ? "#1B5E20" : pctP >= 50 ? "#D97706" : "#E63329";
-
+    const now = new Date();
+    const mi  = new Date(now.getFullYear(),now.getMonth(),1).toISOString().split("T")[0];
+    const mf  = new Date(now.getFullYear(),now.getMonth()+1,0).toISOString().split("T")[0];
+    const audMes = auditorias.filter(a => a.fecha>=mi && a.fecha<=mf && a.sector);
+    const todos  = [...new Set(Object.values(AUDITORES_SECTORES).flat())];
+    const done   = todos.filter(s => audMes.some(a => a.sector===s)).length;
+    const pctP   = todos.length>0 ? Math.min(100,Math.round(done/todos.length*100)) : 0;
+    const colP   = pctP>=100?"#1B5E20":pctP>=50?"#D97706":"#E63329";
     const progEl = document.getElementById("progreso-sectores");
-    if (progEl) progEl.innerHTML = `
-      <div style="background:#fff;border-radius:12px;padding:14px;box-shadow:var(--sh)">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:800;color:var(--g700)">
-            Progreso Check Lists
-          </div>
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:900;color:${colP}">
-            ${pctP}% <span style="font-size:12px;color:var(--g400)">${done}/${todos.length}</span>
-          </div>
-        </div>
-        <div style="height:10px;background:var(--g100);border-radius:20px;overflow:hidden">
-          <div style="height:100%;width:${pctP}%;background:${colP};border-radius:20px;transition:width .8s"></div>
-        </div>
-        <div style="font-size:11px;color:var(--g400);margin-top:5px">
-          ${done} de ${todos.length} sectores completados este mes
-          ${pctP >= 100 ? " · ✅ Todos completados" : ""}
-        </div>
-      </div>`;
-
-  } catch(e) {
-    console.error("Error cargarAuditorias:", e);
-    showToast("Error cargando datos: " + e.message, true);
-  }
+    if (progEl) progEl.innerHTML = `<div style="background:#fff;border-radius:12px;padding:14px;box-shadow:var(--sh)"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><div style="font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:800;color:var(--g700)">Progreso Check Lists</div><div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:900;color:${colP}">${pctP}% <span style="font-size:12px;color:var(--g400)">${done}/${todos.length}</span></div></div><div style="height:10px;background:var(--g100);border-radius:20px;overflow:hidden"><div style="height:100%;width:${pctP}%;background:${colP};border-radius:20px;transition:width .8s"></div></div><div style="font-size:11px;color:var(--g400);margin-top:5px">${done} de ${todos.length} sectores completados este mes${pctP>=100?" · ✅ Todos completados":""}</div></div>`;
+  } catch(e) { showToast("Error cargando datos: "+e.message, true); }
 }
 
-// ── Historial ─────────────────────────────────────────────
 function renderHistorial() {
   const fm  = document.getElementById("hfil-mes")?.value    || "";
   const fs  = document.getElementById("hfil-sector")?.value || "";
@@ -1856,82 +1713,27 @@ function renderHistorial() {
   const fn2 = document.getElementById("hfil-nivel")?.value  || "";
   const el  = document.getElementById("historial-list");
   if (!el) return;
-
-  const G = "#1E7C34", R = "#E63329", A = "#D97706";
-
-  const list = (auditorias || []).filter(a => {
-    if (fm && String(a.nro_auditoria || a.fecha || "").substring(0,7) !== fm) return false;
-    if (fs && a.sector !== fs) return false;
-    if (fa && a.area   !== fa) return false;
-    if (fn2 && a.nivel !== fn2) return false;
+  const G="#1E7C34", R="#E63329", A="#D97706";
+  const list = (auditorias||[]).filter(a => {
+    if (fm && String(a.nro_auditoria||a.fecha||"").substring(0,7)!==fm) return false;
+    if (fs && a.sector!==fs) return false;
+    if (fa && a.area!==fa)   return false;
+    if (fn2 && a.nivel!==fn2) return false;
     return true;
   });
-
-  if (!list.length) {
-    el.innerHTML = '<div class="empty"><div class="empty-ico">📋</div><p>Sin check lists registrados.</p></div>';
-    return;
-  }
-
+  if (!list.length) { el.innerHTML='<div class="empty"><div class="empty-ico">📋</div><p>Sin check lists registrados.</p></div>'; return; }
   el.innerHTML = list.map(a => {
-    const uid    = "h" + a.id;
-    const pct    = a.pct_cumplimiento || 0;
-    const col    = pct >= 90 ? "#1B5E20" : pct >= 70 ? G : pct >= 50 ? A : R;
-    const dets   = Array.isArray(a.detalles) ? a.detalles : safeJson(a.detalles, "[]");
-    const noOk   = dets.filter(d => d.respuesta === "NO" || (d.puntaje > 0 && d.puntaje <= 3));
-    const siOk   = dets.filter(d => d.respuesta === "SI" || (d.puntaje >= 4));
-    const noHtml = noOk.map(d => `
-      <div style="padding:8px 10px;background:#FEF2F2;border-radius:8px;
-border-left:3px solid ${R};margin-bottom:6px">
-        <div style="font-size:12px;font-weight:700;color:var(--g700)">${d.num}. ${d.criterio||d.txt||""}</div>
-        <div style="font-size:10px;color:var(--g400)">Pilar: ${d.pilar||""}</div>
-        ${d.obs ? `<div style="font-size:12px;color:var(--g600);background:#fff;border-radius:5px;
-padding:5px 7px;margin-top:4px">${d.obs}</div>` : ""}
-        ${d.responsable ? `<div style="font-size:10px;color:var(--g400);margin-top:3px">
-👤 ${d.responsable}${d.fecha_compromiso ? " · 📅 " + d.fecha_compromiso : ""}</div>` : ""}
-        ${(d.fotos||[]).length ? `<div style="display:flex;gap:4px;margin-top:6px">
-${d.fotos.map(f=>`<img src="${f}" onclick="window.open('${f}','_blank')" style="width:52px;height:52px;object-fit:cover;border-radius:6px;cursor:pointer">`).join("")}</div>` : ""}
-      </div>`).join("");
-
-    return `<div class="obs-card" style="border-left:4px solid ${col};margin-bottom:12px">
-      <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:8px">
-        <div>
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:800;
-color:var(--g700)">${a.sector||""}</div>
-          <div style="font-size:11px;color:var(--g400)">${a.area||""} · ${a.fecha||""} · ${a.auditor||""}</div>
-        </div>
-        <div style="text-align:right;flex-shrink:0;margin-left:8px">
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:26px;
-font-weight:900;color:${col}">${pct}%</div>
-          <div style="font-size:11px;color:${col};font-weight:700">${a.nivel||"—"}</div>
-        </div>
-      </div>
-      <div style="height:6px;background:var(--g100);border-radius:20px;overflow:hidden;margin-bottom:10px">
-        <div style="height:100%;width:${pct}%;background:${col};border-radius:20px"></div>
-      </div>
-      <div style="display:flex;gap:8px;margin-bottom:10px">
-        <div style="flex:1;background:#FEF2F2;border-radius:8px;padding:8px;text-align:center">
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:900;color:${R}">${noOk.length}</div>
-          <div style="font-size:10px;color:var(--g400)">Observaciones</div>
-        </div>
-        <div style="flex:1;background:#F0FDF4;border-radius:8px;padding:8px;text-align:center">
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:900;color:${G}">${siOk.length}</div>
-          <div style="font-size:10px;color:var(--g400)">Cumplidos</div>
-        </div>
-      </div>
-      <button onclick="const d=document.getElementById('det-${uid}');
-const o=d.style.display!=='none';d.style.display=o?'none':'block';
-this.textContent=o?'Ver detalle ▾':'Ocultar ▴'"
-        style="width:100%;background:var(--g50);border:1px solid var(--g200);
-border-radius:8px;padding:8px;font-family:'Barlow Condensed',sans-serif;
-font-size:14px;font-weight:700;cursor:pointer;color:var(--g600)">Ver detalle ▾</button>
-      <div id="det-${uid}" style="display:none;margin-top:10px">
-        ${noHtml || '<p style="font-size:12px;color:var(--g400);text-align:center;padding:12px">✅ Sin observaciones</p>'}
-      </div>
-    </div>`;
+    const uid  = "h"+a.id;
+    const pct  = a.pct_cumplimiento||0;
+    const col  = pct>=90?"#1B5E20":pct>=70?G:pct>=50?A:R;
+    const dets = Array.isArray(a.detalles)?a.detalles:safeJson(a.detalles,"[]");
+    const noOk = dets.filter(d=>d.respuesta==="NO"||(d.puntaje>0&&d.puntaje<=3));
+    const siOk = dets.filter(d=>d.respuesta==="SI"||(d.puntaje>=4));
+    const noHtml = noOk.map(d=>`<div style="padding:8px 10px;background:#FEF2F2;border-radius:8px;border-left:3px solid ${R};margin-bottom:6px"><div style="font-size:12px;font-weight:700;color:var(--g700)">${d.num}. ${d.criterio||d.txt||""}</div><div style="font-size:10px;color:var(--g400)">Pilar: ${d.pilar||""}</div>${d.obs?`<div style="font-size:12px;color:var(--g600);background:#fff;border-radius:5px;padding:5px 7px;margin-top:4px">${d.obs}</div>`:""} ${d.responsable?`<div style="font-size:10px;color:var(--g400);margin-top:3px">👤 ${d.responsable}${d.fecha_compromiso?" · 📅 "+d.fecha_compromiso:""}</div>`:""}</div>`).join("");
+    return `<div class="obs-card" style="border-left:4px solid ${col};margin-bottom:12px"><div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:8px"><div><div style="font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:800;color:var(--g700)">${a.sector||""}</div><div style="font-size:11px;color:var(--g400)">${a.area||""} · ${a.fecha||""} · ${a.auditor||""}</div></div><div style="text-align:right;flex-shrink:0;margin-left:8px"><div style="font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:900;color:${col}">${pct}%</div><div style="font-size:11px;color:${col};font-weight:700">${a.nivel||"—"}</div></div></div><div style="height:6px;background:var(--g100);border-radius:20px;overflow:hidden;margin-bottom:10px"><div style="height:100%;width:${pct}%;background:${col};border-radius:20px"></div></div><div style="display:flex;gap:8px;margin-bottom:10px"><div style="flex:1;background:#FEF2F2;border-radius:8px;padding:8px;text-align:center"><div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:900;color:${R}">${noOk.length}</div><div style="font-size:10px;color:var(--g400)">Observaciones</div></div><div style="flex:1;background:#F0FDF4;border-radius:8px;padding:8px;text-align:center"><div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:900;color:${G}">${siOk.length}</div><div style="font-size:10px;color:var(--g400)">Cumplidos</div></div></div><button onclick="const d=document.getElementById('det-${uid}');const o=d.style.display!=='none';d.style.display=o?'none':'block';this.textContent=o?'Ver detalle ▾':'Ocultar ▴'" style="width:100%;background:var(--g50);border:1px solid var(--g200);border-radius:8px;padding:8px;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;cursor:pointer;color:var(--g600)">Ver detalle ▾</button><div id="det-${uid}" style="display:none;margin-top:10px">${noHtml||'<p style="font-size:12px;color:var(--g400);text-align:center;padding:12px">✅ Sin observaciones</p>'}</div></div>`;
   }).join("");
 }
 
-// ── Observaciones pendientes ───────────────────────────────
 function renderObsPendientes() {
   const fm  = document.getElementById("ofil-mes")?.value      || "";
   const fa  = document.getElementById("ofil-area-obs")?.value || "";
@@ -1940,185 +1742,76 @@ function renderObsPendientes() {
   const fst = document.getElementById("ofil-status")?.value   ?? "pendiente";
   const el  = document.getElementById("obs-audit-list");
   if (!el) return;
-
-  const G = "#1E7C34", R = "#E63329";
-  let obs = [], pend = 0, lev = 0;
-
-  (auditorias || []).forEach(a => {
-    if (fm && String(a.nro_auditoria || a.fecha || "").substring(0,7) !== fm) return;
-    if (fa && a.area   !== fa) return;
-    if (fs && a.sector !== fs) return;
-    const incs = Array.isArray(a.incumplimientos) ? a.incumplimientos : safeJson(a.incumplimientos, "[]");
+  const G="#1E7C34", R="#E63329";
+  let obs=[], pend=0, lev=0;
+  (auditorias||[]).forEach(a => {
+    if (fm && String(a.nro_auditoria||a.fecha||"").substring(0,7)!==fm) return;
+    if (fa && a.area!==fa) return;
+    if (fs && a.sector!==fs) return;
+    const incs = Array.isArray(a.incumplimientos)?a.incumplimientos:safeJson(a.incumplimientos,"[]");
     incs.forEach(d => {
-      const est = (d.estado || "Pendiente");
-      const lv  = est === "Levantada";
+      const lv = (d.estado||"Pendiente")==="Levantada";
       if (lv) lev++; else pend++;
-      if (fst === "pendiente" && lv)  return;
-      if (fst === "levantada" && !lv) return;
-      if (fr && !(d.responsable || "").toLowerCase().includes(fr.toLowerCase())) return;
-      obs.push({...d, _id: a.id, _sector: a.sector, _area: a.area,
-                _fecha: a.fecha, _auditor: a.auditor});
+      if (fst==="pendiente"&&lv) return;
+      if (fst==="levantada"&&!lv) return;
+      if (fr && !(d.responsable||"").toLowerCase().includes(fr.toLowerCase())) return;
+      obs.push({...d, _id:a.id, _sector:a.sector, _area:a.area, _fecha:a.fecha, _auditor:a.auditor});
     });
   });
-
-  // KPIs
-  const total = pend + lev;
-  const elP = document.getElementById("ok-pendientes");
-  const elL = document.getElementById("ok-levantadas");
-  const elPct = document.getElementById("ok-pct");
-  if (elP)   elP.textContent   = pend;
-  if (elL)   elL.textContent   = lev;
-  if (elPct) elPct.textContent = total > 0 ? Math.round(lev/total*100) + "%" : "0%";
-
-  if (!obs.length) {
-    el.innerHTML = `<div class="empty"><div class="empty-ico">✅</div>
-<p>Sin observaciones ${fst==="pendiente"?"pendientes":"levantadas"}.</p></div>`;
-    return;
-  }
-
+  const total=pend+lev;
+  const elP=document.getElementById("ok-pendientes"); if(elP) elP.textContent=pend;
+  const elL=document.getElementById("ok-levantadas"); if(elL) elL.textContent=lev;
+  const elPct=document.getElementById("ok-pct"); if(elPct) elPct.textContent=total>0?Math.round(lev/total*100)+"%":"0%";
+  if (!obs.length) { el.innerHTML=`<div class="empty"><div class="empty-ico">✅</div><p>Sin observaciones ${fst==="pendiente"?"pendientes":"levantadas"}.</p></div>`; return; }
   el.innerHTML = obs.map(d => {
-    const est = d.estado || "Pendiente";
-    const lv  = est === "Levantada";
-    const col = lv ? G : R;
-    return `<div class="obs-card" style="border-left:4px solid ${col};margin-bottom:10px">
-      <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:6px">
-        <div style="flex:1;min-width:0">
-          <div style="font-size:10px;color:var(--g400);font-weight:600">
-            ${d._area} · ${d._sector} · ${d._fecha}</div>
-          <div style="font-size:13px;font-weight:700;color:var(--g700);margin-top:2px">
-            ${d.num}. ${d.criterio||""}</div>
-          <div style="font-size:10px;color:var(--g500)">Pilar: ${d.pilar||""}</div>
-        </div>
-        <span style="background:${col};color:#fff;border-radius:6px;padding:2px 8px;
-font-size:11px;font-weight:700;flex-shrink:0;margin-left:8px">${est}</span>
-      </div>
-      ${d.obs ? `<div style="font-size:12px;color:var(--g700);background:var(--g50);
-border-radius:6px;padding:8px;margin-bottom:6px">${d.obs}</div>` : ""}
-      <div style="font-size:11px;color:var(--g400);margin-bottom:6px">
-        ${d.responsable ? `👤 <strong>${d.responsable}</strong> ` : ""}
-        ${d.fecha_compromiso ? "📅 " + d.fecha_compromiso : ""}
-      </div>
-      ${(d.fotos||[]).length ? `<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px">
-${d.fotos.map(f=>`<img src="${f}" onclick="window.open('${f}','_blank')" style="width:52px;height:52px;object-fit:cover;border-radius:6px;cursor:pointer">`).join("")}</div>` : ""}
-      ${!lv ? `<button onclick="levantarObs(${d._id},${d.num},this)"
-        style="width:100%;padding:9px;background:${G};color:#fff;border:none;border-radius:8px;
-cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700">
-        ✓ Marcar como Levantada</button>` : ""}
-    </div>`;
+    const lv=(d.estado||"Pendiente")==="Levantada"; const col=lv?G:R;
+    return `<div class="obs-card" style="border-left:4px solid ${col};margin-bottom:10px"><div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:6px"><div style="flex:1;min-width:0"><div style="font-size:10px;color:var(--g400);font-weight:600">${d._area} · ${d._sector} · ${d._fecha}</div><div style="font-size:13px;font-weight:700;color:var(--g700);margin-top:2px">${d.num}. ${d.criterio||""}</div><div style="font-size:10px;color:var(--g500)">Pilar: ${d.pilar||""}</div></div><span style="background:${col};color:#fff;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700;flex-shrink:0;margin-left:8px">${lv?"Levantada":"Pendiente"}</span></div>${d.obs?`<div style="font-size:12px;color:var(--g700);background:var(--g50);border-radius:6px;padding:8px;margin-bottom:6px">${d.obs}</div>`:""}<div style="font-size:11px;color:var(--g400);margin-bottom:6px">${d.responsable?"👤 "+d.responsable+" ":""}${d.fecha_compromiso?"📅 "+d.fecha_compromiso:""}</div>${!lv?`<button onclick="levantarObs(${d._id},${d.num},this)" style="width:100%;padding:9px;background:${G};color:#fff;border:none;border-radius:8px;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700">✓ Marcar como Levantada</button>`:""}</div>`;
   }).join("");
 }
 
 async function levantarObs(auditId, numCrit, btn) {
-  if (btn) { btn.disabled = true; btn.textContent = "Guardando..."; }
+  if (btn) { btn.disabled=true; btn.textContent="Guardando..."; }
   try {
-    const {data: a} = await sb.from("auditorias_5s_ism")
-      .select("incumplimientos").eq("id", auditId).single();
-    const incs = safeJson(a.incumplimientos, "[]");
-    const i    = incs.findIndex(x => x.num === numCrit);
-    if (i > -1) incs[i].estado = "Levantada";
-    const {error} = await sb.from("auditorias_5s_ism")
-      .update({incumplimientos: JSON.stringify(incs)}).eq("id", auditId);
+    const {data:a} = await sb.from("auditorias_5s_ism").select("incumplimientos").eq("id",auditId).single();
+    const incs = safeJson(a.incumplimientos,"[]");
+    const i = incs.findIndex(x=>x.num===numCrit);
+    if (i>-1) incs[i].estado="Levantada";
+    const {error} = await sb.from("auditorias_5s_ism").update({incumplimientos:JSON.stringify(incs)}).eq("id",auditId);
     if (error) throw error;
     showToast("✅ Observación levantada");
     await cargarAuditorias();
     renderObsPendientes();
-  } catch(e) {
-    showToast("Error: " + e.message, true);
-    if (btn) { btn.disabled = false; btn.textContent = "✓ Marcar como Levantada"; }
-  }
+  } catch(e) { showToast("Error: "+e.message,true); if(btn){btn.disabled=false;btn.textContent="✓ Marcar como Levantada";} }
 }
 
-// ── Dashboard ─────────────────────────────────────────────
 function renderAuditDashboard() {
-  const fm = document.getElementById("d-fil-mes")?.value      || "";
-  const fs = document.getElementById("d-fil-sector-a")?.value || "";
-  const fa = document.getElementById("d-fil-area-a")?.value   || "";
-
-  const lista = (auditorias || []).filter(a => {
-    if (!a.sector || !a.fecha) return false;
-    if (fm && String(a.nro_auditoria || a.fecha || "").substring(0,7) !== fm) return false;
-    if (fs && a.sector !== fs) return false;
-    if (fa && a.area   !== fa) return false;
+  const fm=document.getElementById("d-fil-mes")?.value||"";
+  const fs=document.getElementById("d-fil-sector-a")?.value||"";
+  const fa=document.getElementById("d-fil-area-a")?.value||"";
+  const lista=(auditorias||[]).filter(a=>{
+    if(!a.sector||!a.fecha) return false;
+    if(fm&&String(a.nro_auditoria||a.fecha||"").substring(0,7)!==fm) return false;
+    if(fs&&a.sector!==fs) return false;
+    if(fa&&a.area!==fa) return false;
     return true;
   });
-
-  const G = "#1E7C34", R = "#E63329", A = "#D97706";
-  const tkEl  = document.getElementById("dk-total");
-  const pkEl  = document.getElementById("dk-prom");
-  const okEl  = document.getElementById("dk-obs");
-  const pctEl = document.getElementById("dk-pct");
-  const cmpEl = document.getElementById("dk-comparativo-areas");
-  const criEl = document.getElementById("dk-criterios-criticos");
-
-  if (!lista.length) {
-    if (tkEl)  tkEl.textContent  = "0";
-    if (pkEl)  pkEl.textContent  = "0";
-    if (okEl)  okEl.textContent  = "0";
-    if (pctEl) pctEl.textContent = "0%";
-    if (cmpEl) cmpEl.innerHTML   = '<p style="font-size:13px;color:var(--g400);padding:12px">Sin datos.</p>';
-    return;
-  }
-
-  const avg    = Math.round(lista.reduce((s,a) => s + (a.pct_cumplimiento||0), 0) / lista.length);
-  const colAvg = avg >= 90 ? "#1B5E20" : avg >= 70 ? G : avg >= 50 ? A : R;
-  const nivel  = getNivel(avg);
-  const obsT   = lista.reduce((s,a) => {
-    const incs = Array.isArray(a.incumplimientos) ? a.incumplimientos : safeJson(a.incumplimientos,"[]");
-    return s + incs.filter(x => (x.estado||"Pendiente") === "Pendiente").length;
-  }, 0);
-
-  if (tkEl)  tkEl.textContent  = lista.length;
-  if (pkEl)  { pkEl.textContent = avg + "%"; pkEl.style.color = colAvg; }
-  if (okEl)  okEl.textContent  = obsT;
-  if (pctEl) pctEl.textContent = avg + "%";
-
-  // Nivel badge
-  const nbEl = document.getElementById("dk-nivel-badge");
-  if (nbEl) nbEl.innerHTML = `<span style="background:${colAvg};color:#fff;border-radius:8px;
-padding:4px 12px;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700">
-${nivel.nivel}</span>`;
-
-  // Barra promedio
-  const bpEl = document.getElementById("dk-barra-prom");
-  if (bpEl) { bpEl.style.width = avg + "%"; bpEl.style.background = colAvg; }
-
-  // Tabla comparativa
-  if (cmpEl) {
-    cmpEl.innerHTML = lista.map(a => {
-      const pct = a.pct_cumplimiento || 0;
-      const col = pct >= 90 ? "#1B5E20" : pct >= 70 ? G : pct >= 50 ? A : R;
-      return `<div style="display:flex;align-items:center;gap:8px;padding:8px 0;
-border-bottom:1px solid var(--g100)">
-        <div style="flex:1;min-width:0">
-          <div style="font-size:12px;font-weight:700;color:var(--g700)">${a.sector||""}</div>
-          <div style="font-size:10px;color:var(--g400)">${a.area||""} · ${a.fecha||""}</div>
-        </div>
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;
-font-weight:800;color:${col};flex-shrink:0">${pct}%</div>
-      </div>`;
-    }).join("");
-  }
-
-  // Criterios críticos
-  if (criEl) {
-    const criticos = {};
-    lista.forEach(a => {
-      const dets = Array.isArray(a.detalles) ? a.detalles : safeJson(a.detalles,"[]");
-      dets.filter(d => d.respuesta === "NO" || (d.puntaje > 0 && d.puntaje <= 3)).forEach(d => {
-        const key = d.num + ". " + (d.criterio||d.txt||"");
-        criticos[key] = (criticos[key]||0) + 1;
-      });
-    });
-    const sorted = Object.entries(criticos).sort((a,b) => b[1]-a[1]).slice(0,5);
-    criEl.innerHTML = sorted.length ? sorted.map(([k,v]) =>
-      `<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-        <div style="flex:1;font-size:12px;color:var(--g700)">${k}</div>
-        <div style="background:${R};color:#fff;border-radius:20px;padding:2px 10px;
-font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700">${v}x</div>
-      </div>`).join("") : '<p style="font-size:12px;color:var(--g400)">Sin incumplimientos.</p>';
-  }
+  const G="#1E7C34",R="#E63329",A="#D97706";
+  const tkEl=document.getElementById("dk-total"); if(tkEl) tkEl.textContent=lista.length;
+  if(!lista.length) { const cmp=document.getElementById("dk-comparativo-areas"); if(cmp) cmp.innerHTML='<p style="font-size:13px;color:var(--g400);padding:12px">Sin datos.</p>'; return; }
+  const avg=Math.round(lista.reduce((s,a)=>s+(a.pct_cumplimiento||0),0)/lista.length);
+  const colAvg=avg>=90?"#1B5E20":avg>=70?G:avg>=50?A:R;
+  const nivel=getNivel(avg);
+  const obsT=lista.reduce((s,a)=>{const i=Array.isArray(a.incumplimientos)?a.incumplimientos:safeJson(a.incumplimientos,"[]");return s+i.filter(x=>(x.estado||"Pendiente")==="Pendiente").length;},0);
+  const pkEl=document.getElementById("dk-prom"); if(pkEl){pkEl.textContent=avg+"%";pkEl.style.color=colAvg;}
+  const okEl=document.getElementById("dk-obs"); if(okEl) okEl.textContent=obsT;
+  const pctEl=document.getElementById("dk-pct"); if(pctEl) pctEl.textContent=avg+"%";
+  const nbEl=document.getElementById("dk-nivel-badge"); if(nbEl) nbEl.innerHTML=`<span style="background:${colAvg};color:#fff;border-radius:8px;padding:4px 12px;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700">${nivel.nivel}</span>`;
+  const bpEl=document.getElementById("dk-barra-prom"); if(bpEl){bpEl.style.width=avg+"%";bpEl.style.background=colAvg;}
+  const cmpEl=document.getElementById("dk-comparativo-areas");
+  if(cmpEl) cmpEl.innerHTML=lista.map(a=>{const pct=a.pct_cumplimiento||0;const col=pct>=90?"#1B5E20":pct>=70?G:pct>=50?A:R;return `<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--g100)"><div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:700;color:var(--g700)">${a.sector||""}</div><div style="font-size:10px;color:var(--g400)">${a.area||""} · ${a.fecha||""}</div></div><div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;color:${col};flex-shrink:0">${pct}%</div></div>`;}).join("");
+  const criEl=document.getElementById("dk-criterios-criticos");
+  if(criEl){const cr={};lista.forEach(a=>{const d=Array.isArray(a.detalles)?a.detalles:safeJson(a.detalles,"[]");d.filter(x=>x.respuesta==="NO"||(x.puntaje>0&&x.puntaje<=3)).forEach(x=>{const k=x.num+". "+(x.criterio||x.txt||"");cr[k]=(cr[k]||0)+1;});});const s=Object.entries(cr).sort((a,b)=>b[1]-a[1]).slice(0,5);criEl.innerHTML=s.length?s.map(([k,v])=>`<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><div style="flex:1;font-size:12px;color:var(--g700)">${k}</div><div style="background:${R};color:#fff;border-radius:20px;padding:2px 10px;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700">${v}x</div></div>`).join(""):'<p style="font-size:12px;color:var(--g400)">Sin incumplimientos.</p>';}
 }
-
 
 // ============================================================
 // INICIALIZACIÓN

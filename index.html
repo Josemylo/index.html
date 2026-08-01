@@ -1677,7 +1677,7 @@ async function cargarAuditorias() {
     const meses = [...new Set(auditorias.map(a => String(a.nro_auditoria||a.fecha||"").substring(0,7)).filter(v=>v.length===7))].sort().reverse();
     const sects = [...new Set(auditorias.map(a => a.sector).filter(Boolean))].sort();
     const areas = [...new Set(auditorias.map(a => a.area).filter(Boolean))].sort();
-    const mesLbl = m => { const [y,mo]=m.split("-"); return new Date(+y,+mo-1,1).toLocaleDateString("es-PE",{month:"long",year:"numeric"}); };
+    const mesLbl = m => { var pts=m.split("-"); return new Date(+pts[0],+pts[1]-1,1).toLocaleDateString("es-PE",{month:"long",year:"numeric"}); };
     [["hfil-mes",meses,mesLbl],["ofil-mes",meses,mesLbl],["d-fil-mes",meses,mesLbl]].forEach(([id,vs,lbl])=>{
       const el=document.getElementById(id); if(!el)return; const cur=el.value;
       el.innerHTML='<option value="">Todos los meses</option>';
@@ -1856,7 +1856,7 @@ function exportarPDFAuditoria() {
 
     // Resultado
     y += 4;
-    const [cr,cg,cb] = pct>=70?[30,124,52]:pct>=50?[217,119,6]:[230,51,41];
+    var cr=pct>=70?30:pct>=50?217:230, cg=pct>=70?124:pct>=50?119:51, cb=pct>=70?52:pct>=50?6:41;
     doc.setFillColor(cr,cg,cb);
     doc.roundedRect(14, y, 80, 20, 4, 4, "F");
     doc.setTextColor(255,255,255);

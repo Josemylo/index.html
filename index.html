@@ -2142,6 +2142,435 @@ function togglePendientes(el) {
   }
 }
 
+
+function exportarPDFGerencial(btn) {
+  try {
+    // ── Colores ISM ──────────────────────────────────────
+    var ISM_G  = [30,124,52];   // Verde ISM principal
+    var ISM_GD = [21,90,37];    // Verde oscuro
+    var ISM_GL = [232,245,233]; // Verde muy claro fondo
+    var ISM_R  = [230,51,41];   // Rojo
+    var ISM_A  = [217,119,6];   // Ámbar
+    var ISM_GR = [58,63,55];    // Gris oscuro texto
+    var ISM_G1 = [247,248,246]; // Gris muy claro fondo fila
+    var ISM_G2 = [238,240,236]; // Gris claro borde
+    var ISM_W  = [255,255,255]; // Blanco
+
+    function colArr(p){ return p>=90?ISM_GD:p>=70?ISM_G:p>=50?ISM_A:ISM_R; }
+    function safeD(a){ return Array.isArray(a.detalles)?a.detalles:safeJson(a.detalles,"[]"); }
+    function safeI2(a){ return Array.isArray(a.incumplimientos)?a.incumplimientos:safeJson(a.incumplimientos,"[]"); }
+
+    // ── Datos ─────────────────────────────────────────────
+    var fm = document.getElementById("d-fil-mes")?.value      || "";
+    var fs = document.getElementById("d-fil-sector-a")?.value || "";
+    var fa = document.getElementById("d-fil-area-a")?.value   || "";
+
+    var lista = (auditorias||[]).filter(function(a){
+      if(!a.sector||!a.fecha) return false;
+      if(fm && String(a.nro_auditoria||a.fecha||"").substring(0,7)!==fm) return false;
+      if(fs && a.sector!==fs) return false;
+      if(fa && a.area!==fa)   return false;
+      return true;
+    });
+
+    if(!lista.length){
+      if(btn){btn.disabled=false;btn.innerHTML="&#128196; PDF Gerencial";}
+      showToast("Sin datos para generar el PDF", true); return;
+    }
+
+    var mesLbl = fm
+      ? (function(){var p=fm.split("-");return new Date(+p[0],+p[1]-1,1).toLocaleDateString("es-PE",{month:"long",year:"numeric"});})()
+      : "Todos los períodos";
+    var avg   = Math.round(lista.reduce(function(s,a){return s+(a.pct_cumplimiento||0);},0)/lista.length);
+    var nivel = getNivel(avg);
+    var obsT  = lista.reduce(function(s,a){return s+safeI2(a).filter(function(x){return(x.estado||"Pendiente")==="Pendiente";}).length;},0);
+    var todos = [...new Set(Object.values(AUDITORES_SECTORES).flat())];
+    var hechos= new Set(lista.map(function(a){return a.sector;}));
+    var done2 = todos.filter(function(s){return hechos.has(s);}).length;
+    var pctP  = todos.length>0?Math.min(100,Math.round(done2/todos.length*100)):0;
+
+    // ── jsPDF ────────────────────────────────────────────
+    var jsPDF2 = window.jspdf.jsPDF;
+    var doc = new jsPDF2({orientation:"portrait",unit:"mm",format:"a4"});
+    var W=210, mar=12, y=0;
+
+    // Helpers
+    function newPage(){doc.addPage();dibujarPie();y=22;}
+    function checkY(n){if(y+n>272)newPage();}
+    function setColor(arr){doc.setTextColor(arr[0],arr[1],arr[2]);}
+    function setFill(arr){doc.setFillColor(arr[0],arr[1],arr[2]);}
+    function setDraw(arr){doc.setDrawColor(arr[0],arr[1],arr[2]);}
+
+    function dibujarPie(){
+      var pg=doc.internal.getCurrentPageInfo().pageNumber;
+      var tot=doc.internal.getNumberOfPages();
+      doc.setFillColor(ISM_G[0],ISM_G[1],ISM_G[2]);
+      doc.rect(0,286,W,11,"F");
+      doc.setFont("helvetica","normal");doc.setFontSize(7);
+      doc.setTextColor(255,255,255);
+      doc.text("ISM · Reporte Gerencial Check List 5S · "+mesLbl,mar,292);
+      doc.text("Confidencial · Planta Huaura",W/2,292,{align:"center"});
+      doc.text("Página "+pg,W-mar,292,{align:"right"});
+      doc.setTextColor(0,0,0);
+    }
+
+    // ════════════════════════════════════════════════════
+    // PÁGINA 1 — PORTADA
+    // ════════════════════════════════════════════════════
+
+    // Franja superior verde
+    setFill(ISM_GD);
+    doc.rect(0,0,W,8,"F");
+
+    // Bloque header
+    setFill(ISM_G);
+    doc.rect(0,8,W,52,"F");
+
+    // Línea decorativa
+    setFill(ISM_A);
+    doc.rect(0,60,W,2,"F");
+
+    // Título
+    doc.setFont("helvetica","bold");doc.setFontSize(26);
+    doc.setTextColor(255,255,255);
+    doc.text("REPORTE GERENCIAL",W/2,28,{align:"center"});
+    doc.setFontSize(16);doc.setFont("helvetica","normal");
+    doc.text("Check List 5S · Industrias San Miguel",W/2,38,{align:"center"});
+    doc.setFontSize(11);
+    doc.text("Planta Huaura  ·  "+mesLbl,W/2,50,{align:"center"});
+
+    // Rectángulo blanco de datos
+    y=70;
+    setFill(ISM_W);setDraw(ISM_G2);
+    doc.roundedRect(mar,y,W-mar*2,50,3,3,"FD");
+
+    // KPIs dentro del rectángulo
+    var kpis=[
+      {lbl:"Check Lists\nrealizados",val:String(lista.length),col:ISM_G},
+      {lbl:"Promedio de\ncumplimiento",val:avg+"%",col:colArr(avg)},
+      {lbl:"Sectores\ncompletados",val:done2+"/"+todos.length,col:colArr(pctP)},
+      {lbl:"Obs.\npendientes",val:String(obsT),col:obsT>0?ISM_R:ISM_G},
+    ];
+    var kw=(W-mar*2)/4;
+    kpis.forEach(function(k,i){
+      var x=mar+i*kw;
+      if(i>0){setDraw(ISM_G2);doc.line(x,y+6,x,y+44);}
+      setColor(k.col);
+      doc.setFont("helvetica","bold");doc.setFontSize(24);
+      doc.text(k.val,x+kw/2,y+24,{align:"center"});
+      doc.setFont("helvetica","normal");doc.setFontSize(8);
+      setColor(ISM_GR);
+      k.lbl.split("\n").forEach(function(l,li){
+        doc.text(l,x+kw/2,y+34+li*5,{align:"center"});
+      });
+    });
+
+    // Nivel general
+    y=130;
+    var cN=colArr(avg);
+    setFill(cN);
+    doc.roundedRect(mar,y,W-mar*2,16,3,3,"F");
+    doc.setFont("helvetica","bold");doc.setFontSize(13);
+    doc.setTextColor(255,255,255);
+    doc.text("NIVEL GENERAL: "+nivel.nivel.toUpperCase()+"  ·  "+avg+"% de cumplimiento promedio",W/2,y+10,{align:"center"});
+
+    // Barra de progreso mensual
+    y=155;
+    doc.setFont("helvetica","bold");doc.setFontSize(9);setColor(ISM_GR);
+    doc.text("PROGRESO MENSUAL DE EVALUACIONES",mar,y);
+    doc.setFont("helvetica","normal");doc.setFontSize(8);setColor(colArr(pctP));
+    doc.text(pctP+"% completado  ("+done2+" de "+todos.length+" sectores)",W-mar,y,{align:"right"});
+    y+=5;
+    setFill(ISM_G2);doc.roundedRect(mar,y,W-mar*2,6,3,3,"F");
+    setFill(colArr(pctP));doc.roundedRect(mar,y,(W-mar*2)*pctP/100,6,3,3,"F");
+    y+=12;
+
+    // Info del reporte
+    setFill(ISM_G1);setDraw(ISM_G2);
+    doc.roundedRect(mar,y,W-mar*2,28,3,3,"FD");
+    doc.setFont("helvetica","bold");doc.setFontSize(9);setColor(ISM_G);
+    doc.text("INFORMACIÓN DEL REPORTE",mar+5,y+7);
+    doc.setFont("helvetica","normal");doc.setFontSize(8);setColor(ISM_GR);
+    var col1=mar+5, col2=W/2+5;
+    doc.text("Período:",col1,y+14);doc.setFont("helvetica","bold");doc.text(mesLbl,col1+22,y+14);
+    doc.setFont("helvetica","normal");
+    doc.text("Sectores evaluados:",col2,y+14);doc.setFont("helvetica","bold");doc.text(String(lista.length),col2+38,y+14);
+    doc.setFont("helvetica","normal");
+    doc.text("Fecha de generación:",col1,y+21);doc.setFont("helvetica","bold");
+    doc.text(new Date().toLocaleDateString("es-PE",{day:"2-digit",month:"long",year:"numeric"}),col1+38,y+21);
+    doc.setFont("helvetica","normal");
+    doc.text("Obs. pendientes:",col2,y+21);doc.setFont("helvetica","bold");
+    doc.setTextColor(obsT>0?ISM_R[0]:ISM_G[0],obsT>0?ISM_R[1]:ISM_G[1],obsT>0?ISM_R[2]:ISM_G[2]);
+    doc.text(String(obsT),col2+35,y+21);
+
+    dibujarPie();
+
+    // ════════════════════════════════════════════════════
+    // PÁGINA 2 — TABLA POR SECTOR
+    // ════════════════════════════════════════════════════
+    doc.addPage();dibujarPie();y=14;
+
+    // Título sección
+    setFill(ISM_G);doc.rect(mar,y,W-mar*2,8,"F");
+    doc.setFont("helvetica","bold");doc.setFontSize(11);
+    doc.setTextColor(255,255,255);
+    doc.text("RESULTADO POR SECTOR",W/2,y+5.5,{align:"center"});
+    y+=10;
+
+    // Header tabla
+    var cols={sector:mar,area:mar+50,auditor:mar+95,pct:mar+143,nivel:mar+155,obs:W-mar};
+    setFill(ISM_GD);
+    doc.rect(mar,y,W-mar*2,7,"F");
+    doc.setFont("helvetica","bold");doc.setFontSize(7.5);
+    doc.setTextColor(255,255,255);
+    doc.text("SECTOR",cols.sector+2,y+5);
+    doc.text("ÁREA",cols.area+2,y+5);
+    doc.text("AUDITOR",cols.auditor+2,y+5);
+    doc.text("%",cols.pct+3,y+5,{align:"center"});
+    doc.text("NIVEL",cols.nivel+2,y+5);
+    doc.text("OBS.",cols.obs,y+5,{align:"right"});
+    y+=8;
+
+    lista.forEach(function(a,i){
+      checkY(8);
+      var pct=a.pct_cumplimiento||0;
+      var cRow=colArr(pct);
+      var obs=safeI2(a).filter(function(x){return(x.estado||"Pendiente")==="Pendiente";}).length;
+
+      // Fila alternada
+      if(i%2===0){setFill(ISM_G1);doc.rect(mar,y-1,W-mar*2,7.5,"F");}
+
+      // Borde izquierdo coloreado
+      setFill(cRow);doc.rect(mar,y-1,2,7.5,"F");
+
+      doc.setFont("helvetica","bold");doc.setFontSize(7.5);setColor(ISM_GR);
+      doc.text((a.sector||"").substring(0,24),cols.sector+4,y+4);
+      doc.setFont("helvetica","normal");doc.setFontSize(7);setColor([100,116,139]);
+      doc.text((a.area||"").substring(0,19),cols.area+2,y+4);
+      doc.text((a.auditor||"").split(" ").slice(0,2).join(" "),cols.auditor+2,y+4);
+
+      // % con fondo de color
+      setFill(cRow);doc.roundedRect(cols.pct,y,13,6,1.5,1.5,"F");
+      doc.setFont("helvetica","bold");doc.setFontSize(7);
+      doc.setTextColor(255,255,255);
+      doc.text(pct+"%",cols.pct+6.5,y+4.2,{align:"center"});
+
+      setColor(cRow);doc.setFont("helvetica","normal");doc.setFontSize(7);
+      doc.text(getNivel(pct).nivel,cols.nivel+2,y+4);
+
+      // Obs con círculo
+      if(obs>0){
+        setFill(ISM_R);doc.circle(cols.obs-3,y+3,3,"F");
+        doc.setFont("helvetica","bold");doc.setFontSize(6.5);
+        doc.setTextColor(255,255,255);
+        doc.text(String(obs),cols.obs-3,y+3.8,{align:"center"});
+      }else{
+        setFill(ISM_G);doc.circle(cols.obs-3,y+3,3,"F");
+        doc.setFont("helvetica","bold");doc.setFontSize(7);
+        doc.setTextColor(255,255,255);
+        doc.text("✓",cols.obs-3,y+3.8,{align:"center"});
+      }
+
+      setDraw(ISM_G2);doc.line(mar,y+6.5,W-mar,y+6.5);
+      setColor(ISM_GR);y+=7.5;
+    });
+
+    // ════════════════════════════════════════════════════
+    // PÁGINA 3 — PILARES + CRITERIOS + OBS
+    // ════════════════════════════════════════════════════
+    doc.addPage();dibujarPie();y=14;
+
+    // ── Pilares 5S ──
+    setFill(ISM_G);doc.rect(mar,y,W-mar*2,8,"F");
+    doc.setFont("helvetica","bold");doc.setFontSize(11);doc.setTextColor(255,255,255);
+    doc.text("DESEMPEÑO POR PILAR 5S",W/2,y+5.5,{align:"center"});
+    y+=12;
+
+    var pilDef=[
+      {key:"1S",label:"Seleccionar",nums:[1,2,3,4],col:[230,81,0]},
+      {key:"2S",label:"Ordenar",nums:[5,6,7,8],col:[27,94,32]},
+      {key:"3S",label:"Limpiar",nums:[9,10,11,12],col:[13,71,161]},
+      {key:"4S",label:"Estandarizar",nums:[13,14,15,16],col:[74,20,140]},
+      {key:"5S",label:"Disciplinar",nums:[17,18,19,20],col:[136,14,79]},
+    ];
+    var pw=(W-mar*2-8)/5;
+    var maxH=32;
+    pilDef.forEach(function(p,i){
+      var total=0,si=0;
+      lista.forEach(function(a){
+        safeD(a).forEach(function(d){
+          if(p.nums.indexOf(d.num)>-1){total++;if(d.respuesta==="SI"||(d.puntaje>=4))si++;}
+        });
+      });
+      var pp=total>0?Math.round(si/total*100):0;
+      var px=mar+i*(pw+2);
+      // Fondo
+      doc.setFillColor(240,240,240);doc.roundedRect(px,y,pw,maxH+8,2,2,"F");
+      // Barra proporcional
+      var bh=Math.round((maxH)*pp/100);
+      doc.setFillColor(p.col[0],p.col[1],p.col[2]);
+      if(bh>0)doc.roundedRect(px,y+(maxH-bh),pw,bh+2,2,2,"F");
+      // Porcentaje
+      doc.setFont("helvetica","bold");doc.setFontSize(12);
+      doc.setTextColor(pp<20?p.col[0]:255,pp<20?p.col[1]:255,pp<20?p.col[2]:255);
+      if(bh>=10)doc.text(pp+"%",px+pw/2,y+maxH-bh+7,{align:"center"});
+      else{doc.setTextColor(p.col[0],p.col[1],p.col[2]);doc.text(pp+"%",px+pw/2,y+maxH+5,{align:"center"});}
+      // Etiquetas
+      doc.setFont("helvetica","bold");doc.setFontSize(9);
+      doc.setTextColor(p.col[0],p.col[1],p.col[2]);
+      doc.text(p.key,px+pw/2,y+maxH+14,{align:"center"});
+      doc.setFont("helvetica","normal");doc.setFontSize(6.5);doc.setTextColor(100,116,139);
+      doc.text(p.label,px+pw/2,y+maxH+19,{align:"center"});
+      doc.text(si+"/"+total+" SI",px+pw/2,y+maxH+24,{align:"center"});
+    });
+    y+=maxH+28;
+
+    // ── Top 5 criterios ──
+    checkY(50);
+    setFill(ISM_G);doc.rect(mar,y,W-mar*2,8,"F");
+    doc.setFont("helvetica","bold");doc.setFontSize(11);doc.setTextColor(255,255,255);
+    doc.text("TOP 5 CRITERIOS MÁS INCUMPLIDOS",W/2,y+5.5,{align:"center"});
+    y+=12;
+
+    var criMap={};
+    lista.forEach(function(a){
+      safeD(a).filter(function(d){return d.respuesta==="NO"||(d.puntaje>0&&d.puntaje<=3);}).forEach(function(d){
+        var k=d.criterio||d.txt||"";
+        var pk=d.pilar||"";
+        var key=d.num+"|"+k+"|"+pk;
+        criMap[key]=(criMap[key]||0)+1;
+      });
+    });
+    var top5=Object.entries(criMap).sort(function(a,b){return b[1]-a[1];}).slice(0,5);
+
+    if(top5.length){
+      // Header
+      setFill(ISM_GD);doc.rect(mar,y,W-mar*2,6.5,"F");
+      doc.setFont("helvetica","bold");doc.setFontSize(7.5);doc.setTextColor(255,255,255);
+      doc.text("N°",mar+3,y+4.5);
+      doc.text("CRITERIO",mar+12,y+4.5);
+      doc.text("PILAR",mar+120,y+4.5);
+      doc.text("INCUMPL.",W-mar-2,y+4.5,{align:"right"});
+      y+=7.5;
+
+      top5.forEach(function(e,i){
+        checkY(9);
+        var parts=e[0].split("|");
+        var num=parts[0],crit=parts[1],pilar=parts[2];
+        var v=e[1];
+        if(i%2===0){setFill(ISM_G1);doc.rect(mar,y-1,W-mar*2,8.5,"F");}
+        setFill(ISM_R);doc.rect(mar,y-1,2,8.5,"F");
+        doc.setFont("helvetica","bold");doc.setFontSize(8);setColor(ISM_GR);
+        doc.text(num+".",mar+3,y+4.5);
+        doc.setFont("helvetica","normal");doc.setFontSize(7.5);
+        var critTxt=doc.splitTextToSize(crit,100);
+        doc.text(critTxt[0]+(critTxt.length>1?"…":""),mar+12,y+4.5);
+        doc.setFont("helvetica","normal");doc.setFontSize(7);setColor([100,116,139]);
+        doc.text((pilar||"").substring(0,20),mar+120,y+4.5);
+        setFill(ISM_R);doc.roundedRect(W-mar-12,y,12,6.5,1.5,1.5,"F");
+        doc.setFont("helvetica","bold");doc.setFontSize(8);doc.setTextColor(255,255,255);
+        doc.text(v+"x",W-mar-6,y+4.5,{align:"center"});
+        setDraw(ISM_G2);doc.line(mar,y+7.5,W-mar,y+7.5);
+        setColor(ISM_GR);y+=8.5;
+      });
+    }else{
+      doc.setFont("helvetica","italic");doc.setFontSize(9);setColor(ISM_G);
+      doc.text("Sin incumplimientos registrados ✅",mar,y+6);y+=12;
+    }
+    y+=8;
+
+    // ── Obs pendientes por responsable ──
+    checkY(20);
+    setFill(ISM_G);doc.rect(mar,y,W-mar*2,8,"F");
+    doc.setFont("helvetica","bold");doc.setFontSize(11);doc.setTextColor(255,255,255);
+    doc.text("OBSERVACIONES PENDIENTES POR RESPONSABLE",W/2,y+5.5,{align:"center"});
+    y+=12;
+
+    var obsByResp={};
+    lista.forEach(function(a){
+      safeI2(a).filter(function(x){return(x.estado||"Pendiente")==="Pendiente";}).forEach(function(x){
+        var r=x.responsable||"Sin asignar";
+        if(!obsByResp[r])obsByResp[r]=[];
+        obsByResp[r].push({criterio:x.criterio||"",sector:a.sector||"",fecha:x.fecha_compromiso||""});
+      });
+    });
+    var respEntries=Object.entries(obsByResp).sort(function(a,b){return b[1].length-a[1].length;});
+
+    if(respEntries.length){
+      // Header
+      setFill(ISM_GD);doc.rect(mar,y,W-mar*2,6.5,"F");
+      doc.setFont("helvetica","bold");doc.setFontSize(7.5);doc.setTextColor(255,255,255);
+      doc.text("RESPONSABLE",mar+3,y+4.5);
+      doc.text("SECTOR",mar+65,y+4.5);
+      doc.text("OBSERVACIÓN",mar+105,y+4.5);
+      doc.text("F. COMP.",W-mar-2,y+4.5,{align:"right"});
+      y+=7.5;
+
+      respEntries.forEach(function(e){
+        var resp=e[0],items=e[1];
+        // Fila de responsable
+        checkY(8);
+        setFill(ISM_GL);doc.rect(mar,y-1,W-mar*2,7.5,"F");
+        setFill(ISM_G);doc.rect(mar,y-1,2,7.5,"F");
+        doc.setFont("helvetica","bold");doc.setFontSize(8);setColor(ISM_GD);
+        doc.text("👤 "+resp,mar+4,y+4.5);
+        setFill(ISM_R);doc.roundedRect(W-mar-16,y+0.5,16,5.5,1.5,1.5,"F");
+        doc.setFont("helvetica","bold");doc.setFontSize(7.5);doc.setTextColor(255,255,255);
+        doc.text(items.length+" obs.",W-mar-8,y+4.5,{align:"center"});
+        setDraw(ISM_G2);doc.line(mar,y+6.5,W-mar,y+6.5);
+        y+=8;
+
+        items.slice(0,4).forEach(function(it,ii){
+          checkY(7);
+          if(ii%2===1){setFill(ISM_G1);doc.rect(mar,y-1,W-mar*2,7,"F");}
+          doc.setFont("helvetica","normal");doc.setFontSize(7);setColor([100,116,139]);
+          doc.text((it.sector||"").substring(0,22),mar+65,y+4);
+          var cTxt=doc.splitTextToSize(it.criterio||"—",55);
+          doc.text(cTxt[0]+(cTxt.length>1?"…":""),mar+105,y+4);
+          doc.setFont("helvetica","normal");doc.setFontSize(7);
+          doc.text(it.fecha||"—",W-mar-2,y+4,{align:"right"});
+          setDraw(ISM_G2);doc.line(mar+3,y+6,W-mar,y+6);
+          y+=7;
+        });
+        if(items.length>4){
+          checkY(6);
+          doc.setFont("helvetica","italic");doc.setFontSize(7);setColor([100,116,139]);
+          doc.text("   ... y "+(items.length-4)+" observación(es) más",mar+4,y+4);
+          y+=6;
+        }
+        y+=3;
+      });
+    }else{
+      doc.setFont("helvetica","italic");doc.setFontSize(9);setColor(ISM_G);
+      doc.text("Sin observaciones pendientes ✅",mar,y+6);y+=12;
+    }
+
+    // Actualizar pie en todas las páginas
+    var totalPgs=doc.internal.getNumberOfPages();
+    for(var pg=1;pg<=totalPgs;pg++){
+      doc.setPage(pg);
+      var info=doc.internal.getPageInfo(pg);
+      doc.setFillColor(ISM_G[0],ISM_G[1],ISM_G[2]);
+      doc.rect(0,286,W,11,"F");
+      doc.setFont("helvetica","normal");doc.setFontSize(7);
+      doc.setTextColor(255,255,255);
+      doc.text("ISM · Reporte Gerencial Check List 5S · "+mesLbl,mar,292);
+      doc.text("Confidencial · Planta Huaura",W/2,292,{align:"center"});
+      doc.text("Pág. "+pg+" / "+totalPgs,W-mar,292,{align:"right"});
+    }
+
+    var fname="ReporteGerencial_ISM_5S_"+(fm||"todos").replace(/-/g,"")+".pdf";
+    doc.save(fname);
+    if(btn){btn.disabled=false;btn.innerHTML="&#128196; PDF Gerencial";}
+    showToast("✅ PDF Gerencial generado");
+
+  }catch(e){
+    console.error("PDF Gerencial error:",e);
+    if(btn){btn.disabled=false;btn.innerHTML="&#128196; PDF Gerencial";}
+    showToast("Error PDF: "+e.message,true);
+  }
+}
+
 // ============================================================
 // INICIALIZACIÓN
 // ============================================================

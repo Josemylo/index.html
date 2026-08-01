@@ -1824,7 +1824,7 @@ function exportarPDFAuditoria() {
     const niv  = document.getElementById("result-nivel")?.textContent || "";
 
     // Header
-    doc.setFillColor(...B);
+    doc.setFillColor(21,101,192);
     doc.rect(0, 0, 210, 28, "F");
     doc.setTextColor(255,255,255);
     doc.setFont("helvetica","bold");
@@ -1856,10 +1856,8 @@ function exportarPDFAuditoria() {
 
     // Resultado
     y += 4;
-    doc.setFillColor(pct>=90?...G:pct>=70?...G:pct>=50?[217,119,6]:...R);
-    doc.setFillColor(pct>=90?30:pct>=70?30:pct>=50?217:230,
-                    pct>=90?124:pct>=70?124:pct>=50?119:51,
-                    pct>=90?52:pct>=70?52:pct>=50?6:41);
+    const [cr,cg,cb] = pct>=70?[30,124,52]:pct>=50?[217,119,6]:[230,51,41];
+    doc.setFillColor(cr,cg,cb);
     doc.roundedRect(14, y, 80, 20, 4, 4, "F");
     doc.setTextColor(255,255,255);
     doc.setFont("helvetica","bold");
@@ -1888,7 +1886,7 @@ function exportarPDFAuditoria() {
     dets.forEach(d => {
       if (y > 270) { doc.addPage(); y = 20; }
       const col = d.resp === "SI" ? G : d.resp === "NO" ? R : [150,150,150];
-      doc.setFillColor(...col);
+      doc.setFillColor(col[0],col[1],col[2]);
       doc.circle(17, y+1.5, 2, "F");
       doc.setFont("helvetica","bold");
       doc.setTextColor(0,0,0);
@@ -1897,7 +1895,7 @@ function exportarPDFAuditoria() {
       const lines = doc.splitTextToSize(d.criterio, 140);
       doc.text(lines, 21, y+8);
       doc.setFont("helvetica","bold");
-      doc.setTextColor(...col);
+      doc.setTextColor(col[0],col[1],col[2]);
       doc.text(d.resp, 175, y+3, {align:"right"});
       doc.setTextColor(0,0,0);
       y += 8 + (lines.length * 4);

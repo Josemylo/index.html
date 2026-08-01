@@ -419,26 +419,26 @@ textarea{resize:vertical;min-height:78px}
     <div class="fg"><label>Auditor <span class="req">*</span></label>
       <select id="a-auditor" onchange="onAuditorChange()">
         <option value="">&#8212; Selecciona auditor &#8212;</option>
-        <option value="Fabio Caldas Antúnez">Fabio Caldas Antúnez</option>
-        <option value="Ítalo Buendia Poma">Ítalo Buendia Poma</option>
-        <option value="Héctor Arteaga Espinoza">Héctor Arteaga Espinoza</option>
-        <option value="Carlos Joél Luyo Diaz">Carlos Joél Luyo Diaz</option>
-        <option value="Enrique Fabricio Polo Manrique">Enrique Fabricio Polo Manrique</option>
-        <option value="Ayrton Raphael Cotrina Esteves">Ayrton Raphael Cotrina Esteves</option>
-        <option value="William Jesus Joel Rivera Ramirez">William Jesus Joel Rivera Ramirez</option>
-        <option value="Nuria del Pilar Diaz Ramirez">Nuria del Pilar Diaz Ramirez</option>
-        <option value="Alejandro Salvador Grados">Alejandro Salvador Grados</option>
         <option value="Adiel Abednego Aguayo Flores">Adiel Abednego Aguayo Flores</option>
-        <option value="Roberto Carlos Medina La Rosa">Roberto Carlos Medina La Rosa</option>
-        <option value="Ulises Eliseo Anselmo Carranza">Ulises Eliseo Anselmo Carranza</option>
-        <option value="Dylan Yaret Pintado Fernandez">Dylan Yaret Pintado Fernandez</option>
-        <option value="Mariluz Reynaldina Montes Laurente">Mariluz Reynaldina Montes Laurente</option>
-        <option value="Paula Valeria Cecilia La Rosa La Rosa">Paula Valeria Cecilia La Rosa La Rosa</option>
+        <option value="Alejandro Salvador Grados">Alejandro Salvador Grados</option>
+        <option value="Ayrton Raphael Cotrina Esteves">Ayrton Raphael Cotrina Esteves</option>
+        <option value="Carlos Joél Luyo Diaz">Carlos Joél Luyo Diaz</option>
         <option value="Cristopher William Reyes Islado">Cristopher William Reyes Islado</option>
-        <option value="Rosa Emilia Mejia Jaimes">Rosa Emilia Mejia Jaimes</option>
+        <option value="Darlene Cruz Donayre">Darlene Cruz Donayre</option>
+        <option value="Dylan Yaret Pintado Fernandez">Dylan Yaret Pintado Fernandez</option>
+        <option value="Enrique Fabricio Polo Manrique">Enrique Fabricio Polo Manrique</option>
+        <option value="Fabio Caldas Antúnez">Fabio Caldas Antúnez</option>
+        <option value="Héctor Arteaga Espinoza">Héctor Arteaga Espinoza</option>
         <option value="Julio Arroyo Puse">Julio Arroyo Puse</option>
         <option value="Luis Bossio Vargas">Luis Bossio Vargas</option>
-        <option value="Darlene Cruz Donayre">Darlene Cruz Donayre</option>
+        <option value="Mariluz Reynaldina Montes Laurente">Mariluz Reynaldina Montes Laurente</option>
+        <option value="Nuria del Pilar Diaz Ramirez">Nuria del Pilar Diaz Ramirez</option>
+        <option value="Paula Valeria Cecilia La Rosa La Rosa">Paula Valeria Cecilia La Rosa La Rosa</option>
+        <option value="Roberto Carlos Medina La Rosa">Roberto Carlos Medina La Rosa</option>
+        <option value="Rosa Emilia Mejia Jaimes">Rosa Emilia Mejia Jaimes</option>
+        <option value="Ulises Eliseo Anselmo Carranza">Ulises Eliseo Anselmo Carranza</option>
+        <option value="William Jesus Joel Rivera Ramirez">William Jesus Joel Rivera Ramirez</option>
+        <option value="Ítalo Buendia Poma">Ítalo Buendia Poma</option>
       </select>
     </div>
     <div class="fg"><label>Mes <span class="req">*</span></label>
@@ -997,154 +997,13 @@ const ISM_LOGO = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gKgSUNDX1B
 // ============================================================
 
 // Mapa de sector a área (basado en el Excel)
-const SECTOR_AREA_MAP = {
-  "ALM. TEMPORAL MP": "LOGISTICA",
-  "ALM. DE INSUMOS": "LOGISTICA",
-  "ALM. DE REPUESTOS": "LOGISTICA",
-  "ALM. DE INSUMOS GENERALES": "LOGISTICA",
-  "ALM. DE INSUMOS QUÍMICOS": "LOGISTICA",
-  "ALM. DE PT 1": "LOGISTICA",
-  "ALM. TEMPORAL PT": "LOGISTICA",
-  "ALM. PT HANGAR 8": "LOGISTICA",
-  "ALM. PT HANGAR 10": "LOGISTICA",
-  "ALM. DE ENVASES Y EMBALAJES": "LOGISTICA",
-  "OFIC. ALM. DE REPUESTOS": "LOGISTICA",
-  "OFIC. DE LOGÍSTICA": "LOGISTICA",
-  "OFIC. DE APT": "LOGISTICA",
-  "OFIC. DE JEF. DE PRODUCCIÓN": "PRODUCCIÓN",
-  "OFIC. DE PLANEAMIENTO": "PRODUCCIÓN",
-  "OFIC. DE MEJORA CONTINUA": "PRODUCCIÓN",
-  "SALA DE REUNIONES MC": "PRODUCCIÓN",
-  "LÍNEA 1": "PRODUCCIÓN",
-  "LÍNEA 2": "PRODUCCIÓN",
-  "LÍNEA 3": "PRODUCCIÓN",
-  "LÍNEA 4": "PRODUCCIÓN",
-  "LÍNEA 5": "PRODUCCIÓN",
-  "LINEA 6": "PRODUCCIÓN",
-  "LÍNEA 7": "PRODUCCIÓN",
-  "LÍNEA 8": "PRODUCCIÓN",
-  "LÍNEA 9": "PRODUCCIÓN",
-  "LINEA 10": "PRODUCCIÓN",
-  "SALA DE JARABE": "PRODUCCIÓN",
-  "TRATAMIENTO DE AGUAS": "PRODUCCIÓN",
-  "OFICINA DE PRODUCCIÓN": "PRODUCCIÓN",
-  "SALA DE CALDERO": "PRODUCCIÓN",
-  "SALA DE MANEJOS": "PRODUCCIÓN",
-  "LABORATORIO DE SOPLADO": "PRODUCCIÓN",
-  "OFIC. DE JEFATURA DE PLANTA": "GERENCIA",
-  "SECRETARIA GENERAL": "GERENCIA",
-  "OFIC. DE GESTION HUMANA": "GESTION HUMANA",
-  "AUDITORIO DE PLANTA": "GESTION HUMANA",
-  "COMEDOR": "GESTION HUMANA",
-  "SSHH Y VESTUARIOS": "GESTION HUMANA",
-  "OFIC. DE SEGURIDAD CIVIL / GARITA": "SEGURIDAD CIVIL",
-  "OFIC. DE SEG. INDUSTRIAL": "SEGURIDAD",
-  "TÓPICO": "SEGURIDAD",
-  "OFIC. DE CONTROL INTERNO": "CONTROL INTERNO",
-  "OFIC. DE FINANZAS": "FINANZAS",
-  "OFIC. DE SISTEMAS": "SISTEMAS",
-  "OFIC. DE CONTABILIDAD": "CONTABILIDAD",
-  "OFIC. DE COMUNICACIONES": "COMUNICACIONES",
-  "OFIC. DE COSTOS": "COSTOS",
-  "OFIC. DE PROYECTOS": "PROYECTOS",
-  "SALA DE FUERZAS": "MANTENIMIENTO",
-  "TALLER DE MANT. MECÁNICO": "MANTENIMIENTO",
-  "TALLER DE MANT. ELÉCTRICO": "MANTENIMIENTO",
-  "SUB-ESTACIÓN": "MANTENIMIENTO",
-  "OFICINA DE MANTENIMIENTO": "MANTENIMIENTO",
-  "OFIC. SOSTENIBILIDAD Y SGI": "CALIDAD",
-  "SALA DE MUESTRAS": "CALIDAD",
-  "LAB. FISICOQUÍMICO": "CALIDAD",
-  "LAB. MICROBIOLÓGICO": "CALIDAD",
-  "OFIC. SUPERVISORES SOS": "CALIDAD"
-};
+const SECTOR_AREA_MAP = {"ALM. TEMPORAL MP": "LOGISTICA", "ALM. DE INSUMOS": "LOGISTICA", "ALM. DE REPUESTOS": "LOGISTICA", "ALM. DE INSUMOS GENERALES": "LOGISTICA", "ALM. DE INSUMOS QUÍMICOS": "LOGISTICA", "ALM. DE PT 1": "LOGISTICA", "ALM. TEMPORAL PT": "LOGISTICA", "ALM. PT HANGAR 8": "LOGISTICA", "ALM. PT HANGAR 10": "LOGISTICA", "ALM. DE ENVASES Y EMBALAJES": "LOGISTICA", "OFIC. DE JEF. DE PRODUCCIÓN": "PRODUCCIÓN", "OFIC. DE PLANEAMIENTO": "PRODUCCIÓN", "OFIC. DE MEJORA CONTINUA": "EXCELENCIA OPERACIONAL", "SALA DE REUNIONES MC": "PRODUCCIÓN", "OFIC. DE JEFATURA DE PLANTA": "GERENCIA", "OFIC. DE GESTION HUMANA": "GESTION HUMANA", "OFIC. DE SEGURIDAD CIVIL / GARITA": "SEGURIDAD CIVIL", "OFIC. DE SEG. INDUSTRIAL": "SEGURIDAD", "OFIC. DE LOGÍSTICA": "LOGISTICA", "OFIC. DE APT": "LOGISTICA", "OFIC. DE CONTROL INTERNO": "CONTROL INTERNO", "OFIC. DE FINANZAS": "FINANZAS", "OFIC. DE SISTEMAS": "SISTEMAS", "OFIC. DE CONTABILIDAD": "CONTABILIDAD", "OFIC. DE COMUNICACIONES": "COMUNICACIONES", "OFIC. DE COSTOS": "COSTOS", "OFIC. DE PROYECTOS": "PROYECTOS", "AUDITORIO DE PLANTA": "GESTION HUMANA", "TÓPICO": "SEGURIDAD", "COMEDOR": "GESTION HUMANA", "SSHH Y VESTUARIOS": "GESTION HUMANA", "LÍNEA 1": "PRODUCCIÓN", "LÍNEA 2": "PRODUCCIÓN", "LÍNEA 3": "PRODUCCIÓN", "LÍNEA 4": "PRODUCCIÓN", "LÍNEA 5": "PRODUCCIÓN", "LINEA 6": "PRODUCCIÓN", "LÍNEA 7": "PRODUCCIÓN", "LÍNEA 8": "PRODUCCIÓN", "LÍNEA 9": "PRODUCCIÓN", "SALA DE JARABE": "PRODUCCIÓN", "TRATAMIENTO DE AGUAS": "PRODUCCIÓN", "OFICINA DE PRODUCCIÓN": "PRODUCCIÓN", "SALA DE CALDERO": "PRODUCCIÓN", "SALA DE MANEJOS": "PRODUCCIÓN", "SALA DE FUERZAS": "MANTENIMIENTO", "TALLER DE MANT. MECÁNICO": "MANTENIMIENTO", "TALLER DE MANT. ELÉCTRICO": "MANTENIMIENTO", "SUB-ESTACIÓN": "MANTENIMIENTO", "OFIC. SOSTENIBILIDAD Y SGI": "CALIDAD", "SALA DE MUESTRAS": "CALIDAD", "LAB. FISICOQUÍMICO": "CALIDAD", "OFIC. ALM. DE REPUESTOS": "LOGISTICA", "OFICINA DE MANTENIMIENTO": "MANTENIMIENTO", "LAB. MICROBIOLÓGICO": "CALIDAD", "OFIC. SUPERVISORES SOS": "CALIDAD", "LINEA 10": "PRODUCCIÓN", "LABORATORIO DE SOPLADO": "PRODUCCIÓN", "SECRETARIA GENERAL": "GERENCIA"};;
 
 // Responsable por sector (del Excel)
-const RESP_SECTOR = {
-  "ALM. TEMPORAL MP": "Claudio Escobedo Chávez",
-  "ALM. DE INSUMOS": "Claudio Escobedo Chávez",
-  "ALM. DE REPUESTOS": "Claudio Escobedo Chávez",
-  "ALM. DE INSUMOS GENERALES": "Claudio Escobedo Chávez",
-  "ALM. DE INSUMOS QUÍMICOS": "Claudio Escobedo Chávez",
-  "ALM. DE PT 1": "Claudio Escobedo Chávez",
-  "ALM. TEMPORAL PT": "Claudio Escobedo Chávez",
-  "ALM. PT HANGAR 8": "Claudio Escobedo Chávez",
-  "ALM. PT HANGAR 10": "Claudio Escobedo Chávez",
-  "ALM. DE ENVASES Y EMBALAJES": "Claudio Escobedo Chávez",
-  "OFIC. ALM. DE REPUESTOS": "Claudio Escobedo Chávez",
-  "OFIC. DE LOGÍSTICA": "Claudio Escobedo Chávez",
-  "OFIC. DE APT": "Claudio Escobedo Chávez",
-  "OFIC. DE JEF. DE PRODUCCIÓN": "Henry Treviños Torres",
-  "OFIC. DE PLANEAMIENTO": "Henry Treviños Torres",
-  "OFIC. DE MEJORA CONTINUA": "Henry Treviños Torres",
-  "SALA DE REUNIONES MC": "Henry Treviños Torres",
-  "LÍNEA 1": "Henry Treviños Torres",
-  "LÍNEA 2": "Henry Treviños Torres",
-  "LÍNEA 3": "Henry Treviños Torres",
-  "LÍNEA 4": "Henry Treviños Torres",
-  "LÍNEA 5": "Henry Treviños Torres",
-  "LINEA 6": "Henry Treviños Torres",
-  "LÍNEA 7": "Henry Treviños Torres",
-  "LÍNEA 8": "Henry Treviños Torres",
-  "LÍNEA 9": "Henry Treviños Torres",
-  "LINEA 10": "Henry Treviños Torres",
-  "SALA DE JARABE": "Henry Treviños Torres",
-  "TRATAMIENTO DE AGUAS": "Henry Treviños Torres",
-  "OFICINA DE PRODUCCIÓN": "Henry Treviños Torres",
-  "SALA DE CALDERO": "Henry Treviños Torres",
-  "SALA DE MANEJOS": "Henry Treviños Torres",
-  "LABORATORIO DE SOPLADO": "Henry Treviños Torres",
-  "OFIC. DE JEFATURA DE PLANTA": "Fabio Caldas Antúnez",
-  "SECRETARIA GENERAL": "Fabio Caldas Antúnez",
-  "OFIC. DE GESTION HUMANA": "Álvaro Sotomayor Checa",
-  "AUDITORIO DE PLANTA": "Álvaro Sotomayor Checa",
-  "COMEDOR": "Álvaro Sotomayor Checa",
-  "SSHH Y VESTUARIOS": "Álvaro Sotomayor Checa",
-  "OFIC. DE SEGURIDAD CIVIL / GARITA": "Fabio Caldas Antúnez",
-  "OFIC. DE SEG. INDUSTRIAL": "Ubaldo Llacho Alhuirca",
-  "TÓPICO": "Ubaldo Llacho Alhuirca",
-  "OFIC. DE CONTROL INTERNO": "Fabio Caldas Antúnez",
-  "OFIC. DE FINANZAS": "Fabio Caldas Antúnez",
-  "OFIC. DE SISTEMAS": "Fabio Caldas Antúnez",
-  "OFIC. DE CONTABILIDAD": "Fabio Caldas Antúnez",
-  "OFIC. DE COMUNICACIONES": "Fabio Caldas Antúnez",
-  "OFIC. DE COSTOS": "Eber Valdez Nolasco",
-  "OFIC. DE PROYECTOS": "Fabio Caldas Antúnez",
-  "SALA DE FUERZAS": "Roberto Cárdenas Arias",
-  "TALLER DE MANT. MECÁNICO": "Roberto Cárdenas Arias",
-  "TALLER DE MANT. ELÉCTRICO": "Roberto Cárdenas Arias",
-  "SUB-ESTACIÓN": "Roberto Cárdenas Arias",
-  "OFICINA DE MANTENIMIENTO": "Roberto Cárdenas Arias",
-  "OFIC. SOSTENIBILIDAD Y SGI": "Martin Castillo Guerra",
-  "SALA DE MUESTRAS": "Martin Castillo Guerra",
-  "LAB. FISICOQUÍMICO": "Martin Castillo Guerra",
-  "LAB. MICROBIOLÓGICO": "Martin Castillo Guerra",
-  "OFIC. SUPERVISORES SOS": "Martin Castillo Guerra"
-};
+const RESP_SECTOR = {"ALM. TEMPORAL MP": "Claudio Escobedo Chávez", "ALM. DE INSUMOS": "Claudio Escobedo Chávez", "ALM. DE REPUESTOS": "Claudio Escobedo Chávez", "ALM. DE INSUMOS GENERALES": "Claudio Escobedo Chávez", "ALM. DE INSUMOS QUÍMICOS": "Claudio Escobedo Chávez", "ALM. DE PT 1": "Claudio Escobedo Chávez", "ALM. TEMPORAL PT": "Claudio Escobedo Chávez", "ALM. PT HANGAR 8": "Claudio Escobedo Chávez", "ALM. PT HANGAR 10": "Claudio Escobedo Chávez", "ALM. DE ENVASES Y EMBALAJES": "Claudio Escobedo Chávez", "OFIC. DE JEF. DE PRODUCCIÓN": "Henry Treviños Torres", "OFIC. DE PLANEAMIENTO": "Freddy Pacherres", "OFIC. DE MEJORA CONTINUA": "Darlene Cruz Donayre", "SALA DE REUNIONES MC": "Carlos Luyo", "OFIC. DE JEFATURA DE PLANTA": "Fabio Caldas Antúnez", "OFIC. DE GESTION HUMANA": "Álvaro Sotomayor Checa", "OFIC. DE SEGURIDAD CIVIL / GARITA": "Fabio Caldas Antúnez", "OFIC. DE SEG. INDUSTRIAL": "Ubaldo Llacho Alhuirca", "OFIC. DE LOGÍSTICA": "Claudio Escobedo Chávez", "OFIC. DE APT": "Claudio Escobedo Chávez", "OFIC. DE CONTROL INTERNO": "Fabio Caldas Antúnez", "OFIC. DE FINANZAS": "Fabio Caldas Antúnez", "OFIC. DE SISTEMAS": "Fabio Caldas Antúnez", "OFIC. DE CONTABILIDAD": "Fabio Caldas Antúnez", "OFIC. DE COMUNICACIONES": "Fabio Caldas Antúnez", "OFIC. DE COSTOS": "Eber Valdez Nolasco", "OFIC. DE PROYECTOS": "Fabio Caldas Antúnez", "AUDITORIO DE PLANTA": "Álvaro Sotomayor Checa", "TÓPICO": "Ubaldo Llacho Alhuirca", "COMEDOR": "Álvaro Sotomayor Checa", "SSHH Y VESTUARIOS": "Álvaro Sotomayor Checa", "LÍNEA 1": "Henry Treviños Torres", "LÍNEA 2": "Junior Gervacio", "LÍNEA 3": "Daniel Taboada", "LÍNEA 4": "Juan Gordillo", "LÍNEA 5": "Yoner Angulo", "LINEA 6": "Fabricio Polo", "LÍNEA 7": "William Arhuiz", "LÍNEA 8": "Yoner Angulo", "LÍNEA 9": "Junior Gervacio", "SALA DE JARABE": "Juan Gordillo", "TRATAMIENTO DE AGUAS": "William Arhuiz", "OFICINA DE PRODUCCIÓN": "Henry Treviños Torres", "SALA DE CALDERO": "Daniel Taboada", "SALA DE MANEJOS": "Carlos Luyo", "SALA DE FUERZAS": "Roberto Cárdenas Arias", "TALLER DE MANT. MECÁNICO": "Roberto Cárdenas Arias", "TALLER DE MANT. ELÉCTRICO": "Roberto Cárdenas Arias", "SUB-ESTACIÓN": "Roberto Cárdenas Arias", "OFIC. SOSTENIBILIDAD Y SGI": "Martin Castillo Guerra", "SALA DE MUESTRAS": "Martin Castillo Guerra", "LAB. FISICOQUÍMICO": "Martin Castillo Guerra", "OFIC. ALM. DE REPUESTOS": "Claudio Escobedo Chávez", "OFICINA DE MANTENIMIENTO": "Roberto Cárdenas Arias", "LAB. MICROBIOLÓGICO": "Martin Castillo Guerra", "OFIC. SUPERVISORES SOS": "Martin Castillo Guerra", "LINEA 10": "Fabricio Polo", "LABORATORIO DE SOPLADO": "Fabricio Polo", "SECRETARIA GENERAL": "Fabio Caldas Antúnez"};;
 
 // Auditor y sus sectores asignados (del Excel)
-const AUDITORES_SECTORES = {
-  "Fabio Caldas Antúnez": ["LÍNEA 1", "OFIC. DE COSTOS", "AUDITORIO DE PLANTA"],
-  "Ítalo Buendia Poma": ["ALM. DE ENVASES Y EMBALAJES", "OFICINA DE PRODUCCIÓN", "OFIC. DE LOGÍSTICA"],
-  "Héctor Arteaga Espinoza": ["SUB-ESTACIÓN", "OFIC. DE COMUNICACIONES", "LÍNEA 4"],
-  "Carlos Joél Luyo Diaz": ["TÓPICO", "ALM. DE PT 1", "OFIC. DE FINANZAS"],
-  "Enrique Fabricio Polo Manrique": ["ALM. PT HANGAR 8", "SECRETARIA GENERAL", "SALA DE FUERZAS"],
-  "Ayrton Raphael Cotrina Esteves": ["LÍNEA 9", "OFIC. DE CONTROL INTERNO", "OFIC. DE SEG. INDUSTRIAL"],
-  "William Jesus Joel Rivera Ramirez": ["LABORATORIO DE SOPLADO", "LÍNEA 7", "OFIC. DE SEGURIDAD CIVIL / GARITA"],
-  "Nuria del Pilar Diaz Ramirez": ["OFIC. DE JEFATURA DE PLANTA", "COMEDOR", "OFICINA DE MANTENIMIENTO"],
-  "Alejandro Salvador Grados": ["OFIC. DE APT", "ALM. DE INSUMOS", "LÍNEA 2"],
-  "Adiel Abednego Aguayo Flores": ["OFIC. ALM. DE REPUESTOS", "TALLER DE MANT. ELÉCTRICO", "LÍNEA 3"],
-  "Roberto Carlos Medina La Rosa": ["SSHH Y VESTUARIOS", "OFIC. DE CONTABILIDAD", "LÍNEA 5"],
-  "Ulises Eliseo Anselmo Carranza": ["OFIC. DE GESTION HUMANA", "OFIC. DE JEF. DE PRODUCCIÓN", "SALA DE MUESTRAS"],
-  "Dylan Yaret Pintado Fernandez": ["ALM. TEMPORAL MP", "OFIC. SUPERVISORES SOS", "LINEA 6"],
-  "Mariluz Reynaldina Montes Laurente": ["SALA DE CALDERO", "LINEA 10", "ALM. DE REPUESTOS"],
-  "Paula Valeria Cecilia La Rosa La Rosa": ["OFIC. DE MEJORA CONTINUA", "ALM. DE INSUMOS GENERALES", "LAB. FISICOQUÍMICO"],
-  "Cristopher William Reyes Islado": ["LÍNEA 8", "TALLER DE MANT. MECÁNICO", "TRATAMIENTO DE AGUAS"],
-  "Rosa Emilia Mejia Jaimes": ["OFIC. DE SISTEMAS", "ALM. PT HANGAR 10"],
-  "Julio Arroyo Puse": ["ALM. DE INSUMOS QUÍMICOS", "ALM. TEMPORAL PT"],
-  "Luis Bossio Vargas": ["SALA DE REUNIONES MC", "SALA DE JARABE", "OFIC. DE PROYECTOS"],
-  "Darlene Cruz Donayre": ["SALA DE MANEJOS", "LAB. MICROBIOLÓGICO", "OFIC. DE PLANEAMIENTO", "OFIC. SOSTENIBILIDAD Y SGI"]
-};
+const AUDITORES_SECTORES = {"Fabio Caldas Antúnez": ["LÍNEA 1", "OFIC. DE COSTOS", "AUDITORIO DE PLANTA"], "Ítalo Buendia Poma": ["ALM. DE ENVASES Y EMBALAJES", "OFICINA DE PRODUCCIÓN", "OFIC. DE LOGÍSTICA"], "Héctor Arteaga Espinoza": ["SUB-ESTACIÓN", "OFIC. DE COMUNICACIONES", "LÍNEA 4"], "Carlos Joél Luyo Diaz": ["TÓPICO", "ALM. DE PT 1", "OFIC. DE FINANZAS"], "Enrique Fabricio Polo Manrique": ["ALM. PT HANGAR 8", "SECRETARIA GENERAL", "SALA DE FUERZAS"], "Ayrton Raphael Cotrina Esteves": ["LÍNEA 9", "OFIC. DE CONTROL INTERNO", "OFIC. DE SEG. INDUSTRIAL"], "William Jesus Joel Rivera Ramirez": ["LABORATORIO DE SOPLADO", "LÍNEA 7", "OFIC. DE SEGURIDAD CIVIL / GARITA"], "Nuria del Pilar Diaz Ramirez": ["OFIC. DE JEFATURA DE PLANTA", "COMEDOR", "OFICINA DE MANTENIMIENTO"], "Alejandro Salvador Grados": ["OFIC. DE APT", "ALM. DE INSUMOS", "LÍNEA 2"], "Adiel Abednego Aguayo Flores": ["OFIC. ALM. DE REPUESTOS", "TALLER DE MANT. ELÉCTRICO", "LÍNEA 3"], "Roberto Carlos Medina La Rosa": ["SSHH Y VESTUARIOS", "OFIC. DE CONTABILIDAD", "LÍNEA 5"], "Ulises Eliseo Anselmo Carranza": ["OFIC. DE GESTION HUMANA", "OFIC. DE JEF. DE PRODUCCIÓN", "SALA DE MUESTRAS"], "Dylan Yaret Pintado Fernandez": ["ALM. TEMPORAL MP", "OFIC. SUPERVISORES SOS", "LINEA 6"], "Mariluz Reynaldina Montes Laurente": ["SALA DE CALDERO", "LINEA 10", "ALM. DE REPUESTOS"], "Paula Valeria Cecilia La Rosa La Rosa": ["OFIC. DE MEJORA CONTINUA", "ALM. DE INSUMOS GENERALES", "LAB. FISICOQUÍMICO"], "Cristopher William Reyes Islado": ["LÍNEA 8", "TALLER DE MANT. MECÁNICO", "TRATAMIENTO DE AGUAS"], "Rosa Emilia Mejia Jaimes": ["OFIC. DE SISTEMAS", "ALM. PT HANGAR 10"], "Julio Arroyo Puse": ["ALM. DE INSUMOS QUÍMICOS", "ALM. TEMPORAL PT"], "Luis Bossio Vargas": ["SALA DE REUNIONES MC", "SALA DE JARABE", "OFIC. DE PROYECTOS"], "Darlene Cruz Donayre": ["SALA DE MANEJOS", "LAB. MICROBIOLÓGICO", "OFIC. DE PLANEAMIENTO", "OFIC. SOSTENIBILIDAD Y SGI"]};;
 
 // ============================================================
 // ESTADO GLOBAL
@@ -1696,6 +1555,7 @@ async function cargarAuditorias() {
     const colP   = pctP>=100?"#1B5E20":pctP>=50?"#D97706":"#E63329";
     const progEl = document.getElementById("progreso-sectores");
     if (progEl) progEl.innerHTML = `<div style="background:#fff;border-radius:12px;padding:14px;box-shadow:var(--sh)"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><div style="font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:800;color:var(--g700)">Progreso Check Lists</div><div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:900;color:${colP}">${pctP}% <span style="font-size:12px;color:var(--g400)">${done}/${todos.length}</span></div></div><div style="height:10px;background:var(--g100);border-radius:20px;overflow:hidden"><div style="height:100%;width:${pctP}%;background:${colP};border-radius:20px;transition:width .8s"></div></div><div style="font-size:11px;color:var(--g400);margin-top:5px">${done} de ${todos.length} sectores completados este mes${pctP>=100?" · ✅ Todos completados":""}</div></div>`;
+    renderProgresoBarra();
   } catch(e) { showToast("Error cargando datos: "+e.message, true); }
 }
 
@@ -1937,41 +1797,7 @@ function renderAuditDashboard() {
   }
 
   // ── 6. DONA — Progreso sectores completados ──────────
-  var now=new Date();
-  var mi=new Date(now.getFullYear(),now.getMonth(),1).toISOString().split("T")[0];
-  var mf=new Date(now.getFullYear(),now.getMonth()+1,0).toISOString().split("T")[0];
-  var audMes=(auditorias||[]).filter(a=>a.fecha>=mi&&a.fecha<=mf&&a.sector);
-  var todos=[...new Set(Object.values(AUDITORES_SECTORES).flat())];
-  var done=todos.filter(s=>audMes.some(a=>a.sector===s)).length;
-  var pend=todos.length-done;
-  var pctP=todos.length>0?Math.min(100,Math.round(done/todos.length*100)):0;
-  var progEl=document.getElementById("progreso-sectores");
-  if(progEl) progEl.innerHTML=`
-    <div class="dash-card" style="margin-bottom:0">
-      <div class="dash-card-title">&#128200; Progreso mensual — Sectores completados</div>
-      <div style="display:flex;align-items:center;gap:16px">
-        <div style="position:relative;width:90px;height:90px;flex-shrink:0">
-          <canvas id="chart-progreso-dona"></canvas>
-        </div>
-        <div style="flex:1">
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:32px;font-weight:900;color:${pctP>=100?"#1B5E20":pctP>=50?A:R}">${pctP}%</div>
-          <div style="font-size:12px;color:var(--g600);font-weight:600">${done} de ${todos.length} sectores</div>
-          <div style="height:8px;background:var(--g100);border-radius:20px;overflow:hidden;margin-top:8px">
-            <div style="height:100%;width:${pctP}%;background:${pctP>=100?"#1B5E20":pctP>=50?A:R};border-radius:20px;transition:width .8s"></div>
-          </div>
-          <div style="font-size:10px;color:var(--g400);margin-top:4px">${pend} sector${pend!==1?"es":""} pendiente${pend!==1?"s":""}</div>
-        </div>
-      </div>
-    </div>`;
-  setTimeout(()=>{
-    var ctxPD=document.getElementById("chart-progreso-dona");
-    if(ctxPD) new Chart(ctxPD,{
-      type:"doughnut",
-      data:{labels:["Completados","Pendientes"],
-        datasets:[{data:[done,pend],backgroundColor:["#1B5E20","#E2E8F0"],borderWidth:0}]},
-      options:{responsive:true,maintainAspectRatio:false,cutout:"70%",plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${ctx.raw}`}}}}
-    });
-  },100);
+  renderProgresoBarra();
 
   // ── 7. OBS PENDIENTES POR RESPONSABLE ────────────────
   var obsByResp={};
@@ -2210,6 +2036,109 @@ function exportarPDFAuditoria() {
   } catch(e) {
     console.error("PDF error:",e);
     showToast("Error PDF: "+e.message,true);
+  }
+}
+
+
+function renderProgresoBarra() {
+  var progEl = document.getElementById("progreso-sectores");
+  if (!progEl) return;
+
+  // Leer filtro de mes del dashboard (si existe) o usar mes vigente
+  var filtroMes = document.getElementById("d-fil-mes")?.value || "";
+  var now = new Date();
+  var mesFiltro = filtroMes || (now.getFullYear()+"-"+String(now.getMonth()+1).padStart(2,"0"));
+  var mi = mesFiltro+"-01";
+  var mf = mesFiltro+"-"+new Date(+mesFiltro.split("-")[0], +mesFiltro.split("-")[1], 0).getDate();
+
+  // Sectores únicos asignados
+  var todos = [...new Set(Object.values(AUDITORES_SECTORES).flat())];
+  // Sectores ya auditados en el mes filtrado
+  var audMes = (auditorias||[]).filter(a => a.fecha >= mi && a.fecha <= mf && a.sector);
+  var hechos  = new Set(audMes.map(a => a.sector));
+  var done    = todos.filter(s => hechos.has(s)).length;
+  var pend    = todos.length - done;
+  var pctP    = todos.length > 0 ? Math.min(100, Math.round(done/todos.length*100)) : 0;
+  var colP    = pctP >= 100 ? "#1B5E20" : pctP >= 50 ? "#D97706" : "#E63329";
+
+  // Sectores pendientes — agrupados por auditor
+  var pendSects = todos.filter(s => !hechos.has(s));
+  var pendByAud = {};
+  Object.entries(AUDITORES_SECTORES).forEach(function(e) {
+    var aud = e[0], sects = e[1];
+    sects.forEach(function(s) {
+      if (pendSects.indexOf(s) > -1) {
+        if (!pendByAud[aud]) pendByAud[aud] = [];
+        pendByAud[aud].push(s);
+      }
+    });
+  });
+
+  // Mes en formato legible
+  var mesLbl = (function(){
+    var p = mesFiltro.split("-");
+    return new Date(+p[0],+p[1]-1,1).toLocaleDateString("es-PE",{month:"long",year:"numeric"});
+  })();
+
+  progEl.innerHTML = `
+    <div style="background:#fff;border-radius:12px;padding:14px;box-shadow:var(--sh);margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:800;color:var(--g700)">
+            Progreso Check Lists — ${mesLbl}
+          </div>
+          <div style="font-size:11px;color:var(--g400);margin-top:2px">
+            ${done} de ${todos.length} sectores evaluados
+          </div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:900;color:${colP}">${pctP}%</div>
+          ${pctP>=100?'<div style="font-size:10px;color:#1B5E20;font-weight:700">✅ Todos completados</div>':''}
+        </div>
+      </div>
+      <div style="height:12px;background:var(--g100);border-radius:20px;overflow:hidden;margin-bottom:10px;cursor:pointer"
+           onclick="togglePendientes(this)"
+           title="Clic para ver sectores pendientes">
+        <div style="height:100%;width:${pctP}%;background:${colP};border-radius:20px;transition:width .8s"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div style="display:flex;gap:12px;font-size:11px">
+          <span style="color:#1B5E20;font-weight:700">✅ ${done} completados</span>
+          <span style="color:${pctP>=100?"#1B5E20":"#E63329"};font-weight:700">⏳ ${pend} pendientes</span>
+        </div>
+        ${pend>0?`<button onclick="togglePendientes(document.getElementById('progreso-sectores').querySelector('.pendientes-list'))"
+          style="font-size:11px;color:var(--g500);background:none;border:none;cursor:pointer;padding:0;font-weight:600">
+          Ver pendientes ▾
+        </button>`:''}
+      </div>
+      ${pend>0?`<div class="pendientes-list" style="display:none;margin-top:12px;border-top:1px solid var(--g100);padding-top:10px">
+        ${Object.entries(pendByAud).map(function(e){
+          var aud=e[0], ss=e[1];
+          return '<div style="margin-bottom:8px">'
+            +'<div style="font-size:11px;font-weight:700;color:var(--g600);margin-bottom:4px">👤 '+aud+'</div>'
+            +ss.map(function(s){return '<div style="font-size:11px;color:var(--g500);padding:3px 8px;background:var(--g50);border-radius:6px;margin-bottom:3px;border-left:3px solid #E63329">⏳ '+s+'</div>';}).join("")
+            +'</div>';
+        }).join("")}
+      </div>`:''}
+    </div>`;
+}
+
+function togglePendientes(el) {
+  if (!el) return;
+  var list = el.classList && el.classList.contains("pendientes-list")
+    ? el
+    : el.closest ? el.closest("[style]")?.querySelector(".pendientes-list")
+    : null;
+  if (!list) {
+    // buscar en el contenedor padre
+    var cont = document.getElementById("progreso-sectores");
+    if (cont) list = cont.querySelector(".pendientes-list");
+  }
+  if (list) {
+    list.style.display = list.style.display === "none" ? "block" : "none";
+    // Actualizar texto del botón
+    var btn = document.getElementById("progreso-sectores")?.querySelector("button");
+    if (btn) btn.textContent = list.style.display === "none" ? "Ver pendientes ▾" : "Ocultar ▴";
   }
 }
 

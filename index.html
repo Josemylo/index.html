@@ -2170,512 +2170,464 @@ function togglePendientes(el) {
 
 function exportarPDFGerencial(btn) {
   try {
-    // ── Colores ISM ─────────────────────────────────────
-    var G  = [30,124,52];    // Verde ISM
-    var GD = [21,90,37];     // Verde oscuro
-    var GL = [232,245,233];  // Verde claro fondo
-    var R  = [230,51,41];    // Rojo
-    var A  = [217,119,6];    // Ámbar
-    var GR = [58,63,55];     // Gris texto
-    var G1 = [247,248,246];  // Gris fondo fila
-    var G2 = [226,232,240];  // Gris borde
-    var W  = [255,255,255];  // Blanco
+    // Colores ISM en RGB
+    var cVerde  = [30, 124, 52];
+    var cVerdeD = [21,  90, 37];
+    var cVerdeL = [232,245,233];
+    var cRojo   = [230, 51, 41];
+    var cAmbar  = [217,119,  6];
+    var cGrisT  = [ 58, 63, 55];
+    var cGrisF  = [247,248,246];
+    var cGrisB  = [226,232,240];
+    var cBlanco = [255,255,255];
 
-    function cArr(p){ return p>=90?GD:p>=70?G:p>=50?A:R; }
-    function sD(a){ return Array.isArray(a.detalles)?a.detalles:safeJson(a.detalles,"[]"); }
-    function sI(a){ return Array.isArray(a.incumplimientos)?a.incumplimientos:safeJson(a.incumplimientos,"[]"); }
-    function sf(arr){ doc.setFillColor(arr[0],arr[1],arr[2]); }
-    function st(arr){ doc.setTextColor(arr[0],arr[1],arr[2]); }
-    function sd(arr){ doc.setDrawColor(arr[0],arr[1],arr[2]); }
+    function colPct(p) { return p>=90?cVerdeD:p>=70?cVerde:p>=50?cAmbar:cRojo; }
+    function hexPct(p) { return p>=90?"#155A25":p>=70?"#1E7C34":p>=50?"#D97706":"#E63329"; }
+    function nivPct(p) { return p>=90?"Excelente":p>=70?"Bueno":p>=50?"Regular":"Deficiente"; }
+    function sD(a) { return Array.isArray(a.detalles)?a.detalles:safeJson(a.detalles,"[]"); }
+    function sI(a) { return Array.isArray(a.incumplimientos)?a.incumplimientos:safeJson(a.incumplimientos,"[]"); }
+    // Eliminar caracteres no ASCII para jsPDF
+    function safe(s) {
+      if (!s) return "";
+      return String(s)
+        .replace(/á/g,"a").replace(/é/g,"e").replace(/í/g,"i")
+        .replace(/ó/g,"o").replace(/ú/g,"u").replace(/ü/g,"u")
+        .replace(/Á/g,"A").replace(/É/g,"E").replace(/Í/g,"I")
+        .replace(/Ó/g,"O").replace(/Ú/g,"U").replace(/Ü/g,"U")
+        .replace(/ñ/g,"n").replace(/Ñ/g,"N")
+        .replace(/[^\x00-\x7F]/g,"");
+    }
 
-    // ── Datos ────────────────────────────────────────────
+    // Filtros activos
     var fm = document.getElementById("d-fil-mes")?.value      || "";
     var fs = document.getElementById("d-fil-sector-a")?.value || "";
     var fa = document.getElementById("d-fil-area-a")?.value   || "";
 
     var lista = (auditorias||[]).filter(function(a){
-      if(!a.sector||!a.fecha) return false;
-      if(fm && String(a.nro_auditoria||a.fecha||"").substring(0,7)!==fm) return false;
-      if(fs && a.sector!==fs) return false;
-      if(fa && a.area!==fa)   return false;
+      if (!a.sector||!a.fecha) return false;
+      if (fm && String(a.nro_auditoria||a.fecha||"").substring(0,7)!==fm) return false;
+      if (fs && a.sector!==fs) return false;
+      if (fa && a.area!==fa)   return false;
       return true;
     }).sort(function(a,b){ return (b.pct_cumplimiento||0)-(a.pct_cumplimiento||0); });
 
-    if(!lista.length){
-      if(btn){btn.disabled=false;btn.innerHTML="&#128196; PDF Gerencial";}
-      showToast("Sin datos para generar el PDF",true); return;
+    if (!lista.length) {
+      if (btn){btn.disabled=false;btn.innerHTML="&#128196; PDF Gerencial";}
+      showToast("Sin datos para generar el PDF", true); return;
     }
 
     var mesLbl = fm
-      ? (function(){var p=fm.split("-");return new Date(+p[0],+p[1]-1,1).toLocaleDateString("es-PE",{month:"long",year:"numeric"});})()
-      : "Todos los períodos";
+      ? safe((function(){var p=fm.split("-");return new Date(+p[0],+p[1]-1,1).toLocaleDateString("es-PE",{month:"long",year:"numeric"});})())
+      : "Todos los periodos";
     var avg   = Math.round(lista.reduce(function(s,a){return s+(a.pct_cumplimiento||0);},0)/lista.length);
-    var nivel = getNivel(avg);
     var obsT  = lista.reduce(function(s,a){return s+sI(a).filter(function(x){return(x.estado||"Pendiente")==="Pendiente";}).length;},0);
     var todos = [...new Set(Object.values(AUDITORES_SECTORES).flat())];
-    var hechos= new Set(lista.map(function(a){return a.sector;}));
-    var done2 = todos.filter(function(s){return hechos.has(s);}).length;
+    var done2 = todos.filter(function(s){return lista.some(function(a){return a.sector===s;});}).length;
     var pctP  = todos.length>0?Math.min(100,Math.round(done2/todos.length*100)):0;
-    var cA    = cArr(avg);
+    var cA    = colPct(avg);
+    var cP    = colPct(pctP);
+    var PW=210, mar=14;
 
     var jsPDF2 = window.jspdf.jsPDF;
     var doc = new jsPDF2({orientation:"portrait",unit:"mm",format:"a4"});
-    var PW=210, mar=14;
 
-    // ── Helper: pie de página ────────────────────────────
-    function pie(pg,tot){
-      sf(GD); doc.rect(0,287,PW,10,"F");
-      sf(A);  doc.rect(0,287,4,10,"F");
-      doc.setFont("helvetica","normal");doc.setFontSize(7);st(W);
-      doc.text("INDUSTRIAS SAN MIGUEL · Check List 5S · "+mesLbl,mar,293);
-      doc.text("CONFIDENCIAL",PW/2,293,{align:"center"});
-      doc.text("Pág. "+pg+" / "+tot,PW-mar,293,{align:"right"});
+    // ── Funciones helper ─────────────────────────────────
+    function sf(c){ doc.setFillColor(c[0],c[1],c[2]); }
+    function st(c){ doc.setTextColor(c[0],c[1],c[2]); }
+    function sd(c){ doc.setDrawColor(c[0],c[1],c[2]); }
+
+    function headerPagina(titulo) {
+      sf(cVerdeD); doc.rect(0,0,PW,5,"F");
+      sf(cVerde);  doc.rect(0,5,PW,10,"F");
+      sf(cAmbar);  doc.rect(0,15,PW,1,"F");
+      doc.setFont("helvetica","bold"); doc.setFontSize(10); st(cBlanco);
+      doc.text(safe(titulo), PW/2, 11.5, {align:"center"});
+      doc.setFont("helvetica","normal"); doc.setFontSize(7); st(cBlanco);
+      doc.text("ISM - Planta Huaura  |  "+mesLbl, PW/2, 14, {align:"center"});
     }
 
-    // ── Helper: título de sección ────────────────────────
-    function titSec(txt,y){
-      sf(G); doc.rect(mar,y,PW-mar*2,7,"F");
-      sf(A); doc.rect(mar,y,3,7,"F");
-      doc.setFont("helvetica","bold");doc.setFontSize(9);st(W);
-      doc.text(txt,mar+6,y+4.8);
-      st(GR);
-      return y+10;
+    function piePagina() {
+      var pg  = doc.internal.getCurrentPageInfo().pageNumber;
+      var tot = doc.internal.getNumberOfPages();
+      sf(cVerdeD); doc.rect(0,287,PW,10,"F");
+      doc.setFont("helvetica","normal"); doc.setFontSize(7); st(cBlanco);
+      doc.text("ISM - Reporte Gerencial Check List 5S - "+mesLbl, mar, 293);
+      doc.text("Pag. "+pg+" / "+tot, PW-mar, 293, {align:"right"});
     }
 
-    // ══════════════════════════════════════════════════════
-    // PÁGINA 1 — PORTADA EJECUTIVA
-    // ══════════════════════════════════════════════════════
+    function titSeccion(y, txt) {
+      sf(cVerde); doc.rect(mar, y, PW-mar*2, 7, "F");
+      sf(cAmbar); doc.rect(mar, y, 3, 7, "F");
+      doc.setFont("helvetica","bold"); doc.setFontSize(9); st(cBlanco);
+      doc.text(safe(txt), mar+6, y+5);
+      sd(cGrisB); doc.setLineWidth(0.3);
+      return y+9;
+    }
 
-    // Franja verde oscuro superior
-    sf(GD); doc.rect(0,0,PW,6,"F");
-    // Bloque principal verde
-    sf(G);  doc.rect(0,6,PW,46,"F");
-    // Franja ámbar inferior del header
-    sf(A);  doc.rect(0,52,PW,1.5,"F");
+    // Barra horizontal simple con valor
+    function barraH(x, y, w, h, pct, col) {
+      sf(cGrisB); doc.roundedRect(x, y, w, h, 1, 1, "F");
+      sf(col);    doc.roundedRect(x, y, w*pct/100, h, 1, 1, "F");
+    }
 
-    // Título
-    doc.setFont("helvetica","bold");doc.setFontSize(22);st(W);
-    doc.text("REPORTE GERENCIAL 5S",PW/2,22,{align:"center"});
-    doc.setFont("helvetica","normal");doc.setFontSize(12);
-    doc.text("Industrias San Miguel  ·  Planta Huaura",PW/2,32,{align:"center"});
-    doc.setFont("helvetica","bold");doc.setFontSize(10);
-    doc.setTextColor(255,230,150);
-    doc.text(mesLbl.toUpperCase(),PW/2,44,{align:"center"});
+    // ════════════════════════════════════════════════════
+    // PAGINA 1 — PORTADA EJECUTIVA
+    // ════════════════════════════════════════════════════
+    headerPagina("REPORTE GERENCIAL CHECK LIST 5S");
+    var y = 22;
 
-    // ── Bloque KPIs ──────────────────────────────────────
-    var ky = 60;
-    // 4 tarjetas KPI
-    var kpis=[
-      {l:"Check Lists",v:String(lista.length),c:G},
-      {l:"% Promedio",v:avg+"%",c:cA},
-      {l:"Obs. Pendientes",v:String(obsT),c:obsT>0?R:G},
-      {l:"Sectores Completos",v:done2+"/"+todos.length,c:cArr(pctP)},
+    // Título grande
+    sf(cVerde); doc.roundedRect(mar, y, PW-mar*2, 18, 2, 2, "F");
+    doc.setFont("helvetica","bold"); doc.setFontSize(20); st(cBlanco);
+    doc.text("CHECK LIST 5S", PW/2, y+8, {align:"center"});
+    doc.setFont("helvetica","normal"); doc.setFontSize(9);
+    doc.text("Industrias San Miguel  |  Planta Huaura  |  "+mesLbl, PW/2, y+15, {align:"center"});
+    y += 22;
+
+    // ── 4 KPIs ───────────────────────────────────────────
+    var kw = (PW-mar*2-6)/4;
+    var kpis = [
+      {l:"Check Lists",  v:String(lista.length), c:cVerde},
+      {l:"% Promedio",   v:avg+"%",              c:cA},
+      {l:"Obs. Pend.",   v:String(obsT),          c:obsT>0?cRojo:cVerde},
+      {l:"Completados",  v:done2+"/"+todos.length,c:cP},
     ];
-    var kw=(PW-mar*2-6)/4;
     kpis.forEach(function(k,i){
-      var kx=mar+i*(kw+2);
-      sf(W); sd(k.c);
-      doc.roundedRect(kx,ky,kw,22,2,2,"FD");
-      // Franja color arriba
-      sf(k.c); doc.roundedRect(kx,ky,kw,4,2,2,"F");
-      doc.rect(kx,ky+2,kw,2,"F");
-      // Valor
-      doc.setFont("helvetica","bold");doc.setFontSize(18);st(k.c);
-      doc.text(k.v,kx+kw/2,ky+15,{align:"center"});
-      // Label
-      doc.setFont("helvetica","normal");doc.setFontSize(7);st(GR);
-      doc.text(k.l,kx+kw/2,ky+20,{align:"center"});
+      var kx = mar + i*(kw+2);
+      sf(cBlanco); sd(k.c); doc.setLineWidth(0.4);
+      doc.roundedRect(kx, y, kw, 20, 2, 2, "FD");
+      sf(k.c); doc.roundedRect(kx, y, kw, 4, 2, 2, "F");
+      doc.rect(kx, y+2, kw, 2, "F");
+      doc.setFont("helvetica","bold"); doc.setFontSize(16); st(k.c);
+      doc.text(k.v, kx+kw/2, y+14, {align:"center"});
+      doc.setFont("helvetica","normal"); doc.setFontSize(6.5); st(cGrisT);
+      doc.text(k.l, kx+kw/2, y+19, {align:"center"});
     });
+    y += 24;
 
     // ── Nivel general ─────────────────────────────────────
-    var ny = ky+28;
-    sf(cA); doc.roundedRect(mar,ny,PW-mar*2,14,3,3,"F");
-    doc.setFont("helvetica","bold");doc.setFontSize(14);st(W);
-    doc.text("NIVEL GENERAL: "+nivel.nivel.toUpperCase(),PW/2,ny+6,{align:"center"});
-    doc.setFont("helvetica","normal");doc.setFontSize(9);
-    doc.text(avg+"% de cumplimiento promedio en "+lista.length+" sectores evaluados",PW/2,ny+11.5,{align:"center"});
+    sf(cA); doc.roundedRect(mar, y, PW-mar*2, 1.5, 1, 1, "F");
+    y += 4;
+    sf(cA); doc.roundedRect(mar, y, PW-mar*2, 12, 2, 2, "F");
+    doc.setFont("helvetica","bold"); doc.setFontSize(12); st(cBlanco);
+    doc.text("NIVEL GENERAL: "+safe(nivPct(avg))+"  |  "+avg+"% cumplimiento promedio en "+lista.length+" sectores", PW/2, y+8, {align:"center"});
+    y += 16;
 
-    // ── Barra de progreso mensual ─────────────────────────
-    var py = ny+22;
-    doc.setFont("helvetica","bold");doc.setFontSize(8.5);st(GR);
-    doc.text("PROGRESO MENSUAL — SECTORES COMPLETADOS",mar,py);
-    doc.setFont("helvetica","bold");doc.setFontSize(8.5);st(cArr(pctP));
-    doc.text(pctP+"%",PW-mar,py,{align:"right"});
-    py+=4;
-    sf(G2); doc.roundedRect(mar,py,PW-mar*2,6,3,3,"F");
-    sf(cArr(pctP)); doc.roundedRect(mar,py,(PW-mar*2)*pctP/100,6,3,3,"F");
-    py+=9;
-    doc.setFont("helvetica","normal");doc.setFontSize(7.5);st(GR);
-    doc.text("✅ "+done2+" sectores completados     ⏳ "+(todos.length-done2)+" pendientes     📋 Total: "+todos.length+" sectores",PW/2,py,{align:"center"});
+    // ── Progreso mensual ──────────────────────────────────
+    y = titSeccion(y, "PROGRESO MENSUAL - SECTORES COMPLETADOS");
+    doc.setFont("helvetica","normal"); doc.setFontSize(8); st(cGrisT);
+    doc.text(done2+" de "+todos.length+" sectores  ("+pctP+"%)", PW-mar, y, {align:"right"});
+    barraH(mar, y+1, PW-mar*2, 7, pctP, cP);
+    doc.setFont("helvetica","bold"); doc.setFontSize(7); st(cBlanco);
+    if(pctP>=15) doc.text(pctP+"%", mar+4, y+5.5);
+    y += 12;
 
-    // ── Distribución por nivel (barras simples) ───────────
-    var ly = py+10;
-    sf(GL); sd(G2);
-    doc.roundedRect(mar,ly,PW-mar*2,48,3,3,"FD");
-    doc.setFont("helvetica","bold");doc.setFontSize(8);st(GD);
-    doc.text("DISTRIBUCIÓN POR NIVEL DE CUMPLIMIENTO",mar+5,ly+6);
-
-    var niveles=[
-      {l:"Excelente (≥90%)",c:GD, cnt:lista.filter(function(a){return(a.pct_cumplimiento||0)>=90;}).length},
-      {l:"Bueno (70–89%)",  c:G,  cnt:lista.filter(function(a){var p=a.pct_cumplimiento||0;return p>=70&&p<90;}).length},
-      {l:"Regular (50–69%)",c:A,  cnt:lista.filter(function(a){var p=a.pct_cumplimiento||0;return p>=50&&p<70;}).length},
-      {l:"Deficiente (<50%)",c:R, cnt:lista.filter(function(a){return(a.pct_cumplimiento||0)<50;}).length},
+    // ── Distribucion por nivel ─────────────────────────────
+    y = titSeccion(y, "DISTRIBUCION POR NIVEL DE CUMPLIMIENTO");
+    var niveles = [
+      {l:"Excelente (>=90%)", c:cVerdeD, cnt:lista.filter(function(a){return(a.pct_cumplimiento||0)>=90;}).length},
+      {l:"Bueno (70-89%)",    c:cVerde,  cnt:lista.filter(function(a){var p=a.pct_cumplimiento||0;return p>=70&&p<90;}).length},
+      {l:"Regular (50-69%)",  c:cAmbar,  cnt:lista.filter(function(a){var p=a.pct_cumplimiento||0;return p>=50&&p<70;}).length},
+      {l:"Deficiente (<50%)", c:cRojo,   cnt:lista.filter(function(a){return(a.pct_cumplimiento||0)<50;}).length},
     ];
-    var bx=mar+5, bw2=(PW-mar*2-10)/4, barMaxH=22;
+    var maxCnt = Math.max.apply(null, niveles.map(function(n){return n.cnt;})) || 1;
+    var bw2 = (PW-mar*2-9)/4;
+    var bMaxH = 28;
     niveles.forEach(function(n,i){
-      var nx=bx+i*(bw2+2);
-      var barH=lista.length>0?Math.max(2,Math.round(barMaxH*n.cnt/lista.length)):0;
-      // Fondo barra
-      sf(G2); doc.roundedRect(nx,ly+10,bw2,barMaxH,2,2,"F");
-      // Barra valor
-      if(barH>0){sf(n.c);doc.roundedRect(nx,ly+10+(barMaxH-barH),bw2,barH,2,2,"F");}
-      // Número encima
-      doc.setFont("helvetica","bold");doc.setFontSize(13);st(n.c);
-      doc.text(String(n.cnt),nx+bw2/2,ly+36,{align:"center"});
+      var nx = mar + i*(bw2+3);
+      var bH = Math.max(2, Math.round(bMaxH * n.cnt / maxCnt));
+      // Fondo
+      sf(cGrisF); doc.roundedRect(nx, y, bw2, bMaxH, 1,1,"F");
+      // Barra
+      sf(n.c); doc.roundedRect(nx, y+bMaxH-bH, bw2, bH, 1,1,"F");
+      // Numero
+      doc.setFont("helvetica","bold"); doc.setFontSize(14); st(n.c);
+      doc.text(String(n.cnt), nx+bw2/2, y+bMaxH+7, {align:"center"});
       // Label
-      doc.setFont("helvetica","normal");doc.setFontSize(6.5);st(GR);
-      doc.text(n.l,nx+bw2/2,ly+42,{align:"center"});
+      doc.setFont("helvetica","normal"); doc.setFontSize(6); st(cGrisT);
+      doc.text(safe(n.l), nx+bw2/2, y+bMaxH+12, {align:"center"});
     });
+    y += bMaxH + 16;
 
     // Fecha generación
-    var fg = ly+52;
-    doc.setFont("helvetica","italic");doc.setFontSize(7.5);st([150,150,150]);
-    doc.text("Generado el "+new Date().toLocaleDateString("es-PE",{day:"2-digit",month:"long",year:"numeric"}),PW-mar,fg,{align:"right"});
+    doc.setFont("helvetica","italic"); doc.setFontSize(7); st([160,160,160]);
+    doc.text("Generado: "+new Date().toLocaleDateString("es-PE",{day:"2-digit",month:"2-digit",year:"numeric"}), PW-mar, y, {align:"right"});
 
-    pie(1,3);
+    piePagina();
 
-    // ══════════════════════════════════════════════════════
-    // PÁGINA 2 — GRÁFICOS
-    // ══════════════════════════════════════════════════════
+    // ════════════════════════════════════════════════════
+    // PAGINA 2 — GRAFICOS
+    // ════════════════════════════════════════════════════
     doc.addPage();
-    sf(GD);doc.rect(0,0,PW,6,"F");
-    sf(A); doc.rect(0,6,PW,1.5,"F");
-    var y2=14;
+    headerPagina("GRAFICOS DE CUMPLIMIENTO");
+    y = 22;
 
-    // ── Gráfico 1: Barras horizontales por sector ─────────
-    y2 = titSec("% CUMPLIMIENTO POR SECTOR (ordenado mayor → menor)",y2);
+    // ── Grafico 1: Barras horizontales por sector ─────────
+    y = titSeccion(y, "% CUMPLIMIENTO POR SECTOR (mayor a menor)");
 
-    var barData = lista.slice(0,Math.min(lista.length,25));
-    var rowH    = Math.min(7, Math.floor((110)/barData.length));
-    var chartW  = PW-mar*2-30;
-    var lblW    = 46;
+    var rowH   = 6;
+    var lblW   = 44;
+    var chartW = PW - mar*2 - lblW - 14;
+    var maxRows = Math.min(lista.length, 20);
 
-    // Eje — líneas de referencia
+    // Líneas guía verticales
     [25,50,75,100].forEach(function(v){
-      var xv=mar+lblW+(chartW*v/100);
-      sd(G2);doc.setLineDashPattern([1,1],0);
-      doc.line(xv,y2,xv,y2+barData.length*rowH);
+      var xv = mar+lblW + chartW*v/100;
+      sd(cGrisB); doc.setLineDashPattern([1,1],0);
+      doc.line(xv, y, xv, y+maxRows*rowH);
       doc.setLineDashPattern([],0);
-      doc.setFont("helvetica","normal");doc.setFontSize(6);st([180,180,180]);
-      doc.text(v+"%",xv,y2-1,{align:"center"});
+      doc.setFont("helvetica","normal"); doc.setFontSize(5.5); st([180,180,180]);
+      doc.text(v+"%", xv, y-1, {align:"center"});
     });
 
-    barData.forEach(function(a,i){
-      var pct=a.pct_cumplimiento||0;
-      var c=cArr(pct);
-      var by=y2+i*rowH;
-      // Label sector
-      doc.setFont("helvetica","normal");doc.setFontSize(6.5);st(GR);
-      var lbl=(a.sector||"").length>22?(a.sector||"").substring(0,20)+"…":(a.sector||"");
-      doc.text(lbl,mar+lblW-2,by+rowH*0.65,{align:"right"});
+    lista.slice(0,maxRows).forEach(function(a,i){
+      var pct = a.pct_cumplimiento||0;
+      var c   = colPct(pct);
+      var by  = y + i*rowH;
+      var lbl = safe(a.sector||"");
+      if(lbl.length>20) lbl=lbl.substring(0,18)+"..";
+      // Label
+      doc.setFont("helvetica","normal"); doc.setFontSize(6); st(cGrisT);
+      doc.text(lbl, mar+lblW-2, by+rowH*0.72, {align:"right"});
       // Fondo barra
-      sf(G1);doc.roundedRect(mar+lblW,by+1,chartW,rowH-2,1,1,"F");
+      sf(cGrisF); doc.roundedRect(mar+lblW, by+1, chartW, rowH-2, 1,1,"F");
       // Barra valor
-      sf(c);doc.roundedRect(mar+lblW,by+1,chartW*pct/100,rowH-2,1,1,"F");
-      // % al final
-      doc.setFont("helvetica","bold");doc.setFontSize(6.5);st(c);
-      doc.text(pct+"%",mar+lblW+chartW+2,by+rowH*0.65);
+      sf(c); doc.roundedRect(mar+lblW, by+1, chartW*pct/100, rowH-2, 1,1,"F");
+      // Valor %
+      doc.setFont("helvetica","bold"); doc.setFontSize(5.5); st(cBlanco);
+      if(pct>=18) doc.text(pct+"%", mar+lblW+chartW*pct/100-2, by+rowH*0.72, {align:"right"});
+      else { st(c); doc.text(pct+"%", mar+lblW+chartW*pct/100+3, by+rowH*0.72); }
     });
-    y2 += barData.length*rowH + 10;
+    if(lista.length>20){
+      doc.setFont("helvetica","italic"); doc.setFontSize(7); st([150,150,150]);
+      doc.text("(+)  "+(lista.length-20)+" sectores adicionales", mar+lblW, y+maxRows*rowH+4);
+    }
+    y += maxRows*rowH + 14;
 
-    // ── Gráfico 2: Radar 5S dibujado con polígono ─────────
-    y2 = titSec("DESEMPEÑO POR PILAR 5S",y2);
+    // ── Grafico 2: Pilares 5S como barras horizontales ────
+    y = titSeccion(y, "DESEMPENO POR PILAR 5S");
 
-    var pilDef=[
-      {key:"1S",label:"Seleccionar",nums:[1,2,3,4],c:[230,81,0]},
-      {key:"2S",label:"Ordenar",    nums:[5,6,7,8],c:[27,94,32]},
-      {key:"3S",label:"Limpiar",    nums:[9,10,11,12],c:[13,71,161]},
-      {key:"4S",label:"Estandarizar",nums:[13,14,15,16],c:[74,20,140]},
-      {key:"5S",label:"Disciplinar",nums:[17,18,19,20],c:[136,14,79]},
+    var pilDef = [
+      {key:"1S - Seleccionar", nums:[1,2,3,4],   c:[230,81,0]},
+      {key:"2S - Ordenar",     nums:[5,6,7,8],   c:[27,94,32]},
+      {key:"3S - Limpiar",     nums:[9,10,11,12],c:[13,71,161]},
+      {key:"4S - Estandarizar",nums:[13,14,15,16],c:[74,20,140]},
+      {key:"5S - Disciplinar", nums:[17,18,19,20],c:[136,14,79]},
     ];
 
-    // Calcular % por pilar
-    var pilPct = pilDef.map(function(p){
-      var total=0,si=0;
+    var pilH = 9, pilLW = 46, pilCW = PW-mar*2-pilLW-20;
+    pilDef.forEach(function(p,i){
+      var total=0, si=0;
       lista.forEach(function(a){
         sD(a).forEach(function(d){
           if(p.nums.indexOf(d.num)>-1){total++;if(d.respuesta==="SI"||(d.puntaje>=4))si++;}
         });
       });
-      return {pct:total>0?Math.round(si/total*100):0, total:total, si:si, p:p};
+      var pp = total>0?Math.round(si/total*100):0;
+      var py2 = y + i*(pilH+3);
+      // Label pilar
+      doc.setFont("helvetica","bold"); doc.setFontSize(7.5);
+      doc.setTextColor(p.c[0],p.c[1],p.c[2]);
+      doc.text(p.key, mar+pilLW-2, py2+pilH*0.72, {align:"right"});
+      // Fondo
+      sf(cGrisF); doc.roundedRect(mar+pilLW, py2, pilCW, pilH, 2,2,"F");
+      // Barra
+      doc.setFillColor(p.c[0],p.c[1],p.c[2]);
+      doc.roundedRect(mar+pilLW, py2, pilCW*pp/100, pilH, 2,2,"F");
+      // % dentro barra
+      doc.setFont("helvetica","bold"); doc.setFontSize(7.5); st(cBlanco);
+      if(pp>=15) doc.text(pp+"%", mar+pilLW+pilCW*pp/100-3, py2+pilH*0.72, {align:"right"});
+      else { doc.setTextColor(p.c[0],p.c[1],p.c[2]); doc.text(pp+"%", mar+pilLW+pilCW*pp/100+4, py2+pilH*0.72); }
+      // Conteo a la derecha
+      doc.setFont("helvetica","normal"); doc.setFontSize(6.5); st(cGrisT);
+      doc.text(si+"/"+total+" SI", mar+pilLW+pilCW+4, py2+pilH*0.72);
+      // Línea base
+      sd(cGrisB); doc.line(mar+pilLW, py2+pilH+1, mar+pilLW+pilCW, py2+pilH+1);
+    });
+    y += pilDef.length*(pilH+3) + 6;
+
+    // Resumen pilares en tabla compacta
+    doc.autoTable({
+      startY: y,
+      margin: {left:mar, right:mar},
+      head: [["PILAR","SI","NO","TOTAL","% CUMPL.","NIVEL"]],
+      body: pilDef.map(function(p){
+        var total=0,si=0;
+        lista.forEach(function(a){
+          sD(a).forEach(function(d){
+            if(p.nums.indexOf(d.num)>-1){total++;if(d.respuesta==="SI"||(d.puntaje>=4))si++;}
+          });
+        });
+        var pp=total>0?Math.round(si/total*100):0;
+        return [p.key,String(si),String(total-si),String(total),pp+"%",safe(nivPct(pp))];
+      }),
+      headStyles:{fillColor:cVerdeD,textColor:cBlanco,fontStyle:"bold",fontSize:7,halign:"center"},
+      bodyStyles:{fontSize:7,textColor:cGrisT,halign:"center"},
+      columnStyles:{0:{halign:"left",cellWidth:52}},
+      alternateRowStyles:{fillColor:cGrisF},
+      theme:"plain",
+      styles:{cellPadding:2,lineColor:cGrisB,lineWidth:0.2},
     });
 
-    // Radar manual como pentágono
-    var cx=PW/2, cy=y2+36, r=30;
-    var angles=pilPct.map(function(_,i){return -Math.PI/2+i*2*Math.PI/5;});
+    piePagina();
 
-    // Círculos de fondo (20%, 40%, 60%, 80%, 100%)
-    [20,40,60,80,100].forEach(function(v){
-      var pts=angles.map(function(a){return {x:cx+r*v/100*Math.cos(a),y:cy+r*v/100*Math.sin(a)};});
-      sd(G2);doc.setLineDashPattern(v===100?[]:[0.5,0.5],0);
-      for(var i=0;i<pts.length;i++){
-        var n=(i+1)%pts.length;
-        doc.line(pts[i].x,pts[i].y,pts[n].x,pts[n].y);
-      }
-      doc.setLineDashPattern([],0);
-      if(v===100||v===50){
-        doc.setFont("helvetica","normal");doc.setFontSize(5.5);st([180,180,180]);
-        doc.text(v+"%",cx+r*v/100*Math.cos(-Math.PI/2)+1,cy+r*v/100*Math.sin(-Math.PI/2)-1);
-      }
-    });
-    // Ejes
-    angles.forEach(function(a){sd(G2);doc.line(cx,cy,cx+r*Math.cos(a),cy+r*Math.sin(a));});
-
-    // Polígono de datos
-    var dataPts=pilPct.map(function(pp,i){
-      var rv=r*pp.pct/100;
-      return {x:cx+rv*Math.cos(angles[i]),y:cy+rv*Math.sin(angles[i])};
-    });
-    // Fill
-    doc.setFillColor(G[0],G[1],G[2],0.3);
-    doc.setGState && doc.setGState(new doc.GState({opacity:0.3}));
-    sf(G);
-    // Dibujar polígono relleno con líneas
-    doc.setDrawColor(G[0],G[1],G[2]);
-    doc.setLineWidth(0.8);
-    for(var i=0;i<dataPts.length;i++){
-      var n=(i+1)%dataPts.length;
-      doc.line(dataPts[i].x,dataPts[i].y,dataPts[n].x,dataPts[n].y);
-    }
-    doc.setLineWidth(0.2);
-
-    // Puntos y etiquetas
-    pilPct.forEach(function(pp,i){
-      var px2=dataPts[i].x, py2=dataPts[i].y;
-      sf(pp.p.c);doc.circle(px2,py2,1.5,"F");
-      doc.setTextColor(255,255,255);doc.setFont("helvetica","bold");doc.setFontSize(5.5);
-      doc.text(pp.pct+"%",px2,py2+0.8,{align:"center"});
-      // Label exterior
-      var lx=cx+(r+10)*Math.cos(angles[i]), ly=cy+(r+10)*Math.sin(angles[i]);
-      doc.setFont("helvetica","bold");doc.setFontSize(7.5);
-      doc.setTextColor(pp.p.c[0],pp.p.c[1],pp.p.c[2]);
-      doc.text(pp.p.key+" "+pp.pct+"%",lx,ly,{align:"center"});
-      doc.setFont("helvetica","normal");doc.setFontSize(6);st(GR);
-      doc.text(pp.p.label,lx,ly+4,{align:"center"});
-    });
-
-    // Barras de pilar al lado del radar
-    var pbx=cx+r+20, pby=y2+6, pbw=30, pbRowH=13;
-    pilPct.forEach(function(pp,i){
-      var py3=pby+i*pbRowH;
-      sf(G1);doc.roundedRect(pbx,py3,pbw,pbRowH-2,1,1,"F");
-      sf(pp.p.c);doc.roundedRect(pbx,py3,pbw*pp.pct/100,pbRowH-2,1,1,"F");
-      doc.setFont("helvetica","bold");doc.setFontSize(7.5);
-      doc.setTextColor(pp.p.c[0],pp.p.c[1],pp.p.c[2]);
-      doc.text(pp.p.key,pbx-2,py3+pbRowH*0.65,{align:"right"});
-      doc.setFont("helvetica","bold");doc.setFontSize(7);st(W);
-      if(pp.pct>=20)doc.text(pp.pct+"%",pbx+pbw*pp.pct/100-2,py3+pbRowH*0.65,{align:"right"});
-      else{st(pp.p.c);doc.text(pp.pct+"%",pbx+pbw*pp.pct/100+3,py3+pbRowH*0.65);}
-      doc.setFont("helvetica","normal");doc.setFontSize(6);st(GR);
-      doc.text(pp.si+"/"+pp.total+" SI",pbx+pbw+2,py3+pbRowH*0.65);
-    });
-
-    pie(2,3);
-
-    // ══════════════════════════════════════════════════════
-    // PÁGINA 3 — TABLA + TOP 5 + OBS POR ÁREA
-    // ══════════════════════════════════════════════════════
+    // ════════════════════════════════════════════════════
+    // PAGINA 3 — TABLAS DETALLE
+    // ════════════════════════════════════════════════════
     doc.addPage();
-    sf(GD);doc.rect(0,0,PW,6,"F");
-    sf(A); doc.rect(0,6,PW,1.5,"F");
-    var y3=14;
+    headerPagina("TABLAS DE DETALLE");
 
-    // ── Tabla por sector ──────────────────────────────────
-    y3 = titSec("RESULTADO POR SECTOR — Mayor a menor cumplimiento",y3);
-
-    // Columnas: sector, área, auditor, %, nivel, obs
-    var cols={s:mar,a:mar+48,au:mar+92,pc:mar+138,nv:mar+150,ob:PW-mar};
-
-    // Header
-    sf(GD);doc.rect(mar,y3,PW-mar*2,6.5,"F");
-    doc.setFont("helvetica","bold");doc.setFontSize(7);st(W);
-    doc.text("SECTOR",cols.s+2,y3+4.5);
-    doc.text("ÁREA",cols.a+2,y3+4.5);
-    doc.text("AUDITOR",cols.au+2,y3+4.5);
-    doc.text("%",cols.pc+4,y3+4.5,{align:"center"});
-    doc.text("NIVEL",cols.nv+2,y3+4.5);
-    doc.text("OBS",cols.ob,y3+4.5,{align:"right"});
-    y3+=7;
-
-    lista.forEach(function(a,i){
-      if(y3>185){
-        // Si no cabe todo en esta página, continuar en la misma (tabla puede crecer)
-        // Solo cortar si realmente no hay espacio
-      }
-      var pct=a.pct_cumplimiento||0;
-      var c=cArr(pct);
-      var obs=sI(a).filter(function(x){return(x.estado||"Pendiente")==="Pendiente";}).length;
-      if(i%2===0){sf(G1);doc.rect(mar,y3-1,PW-mar*2,7,"F");}
-      // Borde izquierdo
-      sf(c);doc.rect(mar,y3-1,2,7,"F");
-      doc.setFont("helvetica","bold");doc.setFontSize(7);st(GR);
-      doc.text((a.sector||"").substring(0,20),cols.s+4,y3+4);
-      doc.setFont("helvetica","normal");doc.setFontSize(6.5);st([100,116,139]);
-      doc.text((a.area||"").substring(0,16),cols.a+2,y3+4);
-      doc.text(((a.auditor||"").split(" ").slice(0,2).join(" ")).substring(0,16),cols.au+2,y3+4);
-      // Badge %
-      sf(c);doc.roundedRect(cols.pc,y3+0.5,12,5.5,1.5,1.5,"F");
-      doc.setFont("helvetica","bold");doc.setFontSize(7);st(W);
-      doc.text(pct+"%",cols.pc+6,y3+4.2,{align:"center"});
-      // Nivel
-      st(c);doc.setFont("helvetica","normal");doc.setFontSize(6.5);
-      doc.text(getNivel(pct).nivel,cols.nv+2,y3+4);
-      // Obs círculo
-      sf(obs>0?R:G);doc.circle(cols.ob-3,y3+3,3,"F");
-      doc.setFont("helvetica","bold");doc.setFontSize(6.5);st(W);
-      doc.text(String(obs),cols.ob-3,y3+3.8,{align:"center"});
-      sd(G2);doc.line(mar,y3+6,PW-mar,y3+6);
-      st(GR);y3+=7;
+    // ── Tabla resumen por sector ──────────────────────────
+    doc.autoTable({
+      startY: 22,
+      margin: {left:mar, right:mar},
+      head: [["#","SECTOR","AREA","AUDITOR","% CUMPL.","NIVEL","OBS. PEND."]],
+      body: lista.map(function(a,i){
+        var pct = a.pct_cumplimiento||0;
+        var obs = sI(a).filter(function(x){return(x.estado||"Pendiente")==="Pendiente";}).length;
+        return [
+          String(i+1),
+          safe(a.sector||""),
+          safe(a.area||""),
+          safe((a.auditor||"").split(" ").slice(0,2).join(" ")),
+          pct+"%",
+          safe(nivPct(pct)),
+          String(obs)
+        ];
+      }),
+      headStyles:{fillColor:cVerdeD,textColor:cBlanco,fontStyle:"bold",fontSize:7,halign:"center"},
+      bodyStyles:{fontSize:6.5,textColor:cGrisT},
+      columnStyles:{
+        0:{halign:"center",cellWidth:8},
+        1:{cellWidth:38},
+        2:{cellWidth:30},
+        3:{cellWidth:32},
+        4:{halign:"center",cellWidth:16},
+        5:{halign:"center",cellWidth:20},
+        6:{halign:"center",cellWidth:16},
+      },
+      alternateRowStyles:{fillColor:cGrisF},
+      theme:"plain",
+      styles:{cellPadding:1.8,lineColor:cGrisB,lineWidth:0.2},
+      didParseCell: function(data){
+        if(data.section==="body" && data.column.index===4){
+          var v=parseInt(data.cell.raw)||0;
+          data.cell.styles.textColor=hexPct(v);
+          data.cell.styles.fontStyle="bold";
+        }
+        if(data.section==="body" && data.column.index===6){
+          var v2=parseInt(data.cell.raw)||0;
+          data.cell.styles.textColor=v2>0?"#E63329":"#1E7C34";
+          data.cell.styles.fontStyle="bold";
+        }
+      },
+      willDrawPage: function(){ headerPagina("TABLAS DE DETALLE"); },
     });
-    y3+=6;
+
+    var y3 = doc.lastAutoTable.finalY + 8;
 
     // ── Top 5 criterios ───────────────────────────────────
-    if(y3>220){doc.addPage();sf(GD);doc.rect(0,0,PW,6,"F");sf(A);doc.rect(0,6,PW,1.5,"F");y3=14;}
-    y3 = titSec("TOP 5 CRITERIOS MÁS INCUMPLIDOS",y3);
-
     var criMap={};
     lista.forEach(function(a){
       sD(a).filter(function(d){return d.respuesta==="NO"||(d.puntaje>0&&d.puntaje<=3);}).forEach(function(d){
-        var k=String(d.num)+"|"+(d.criterio||d.txt||"")+"|"+(d.pilar||"");
+        var k = String(d.num)+"|"+safe(d.criterio||d.txt||"")+"|"+safe(d.pilar||"");
         criMap[k]=(criMap[k]||0)+1;
       });
     });
-    var top5=Object.entries(criMap).sort(function(a,b){return b[1]-a[1];}).slice(0,5);
+    var top5 = Object.entries(criMap).sort(function(a,b){return b[1]-a[1];}).slice(0,5);
 
     if(top5.length){
-      sf(GD);doc.rect(mar,y3,PW-mar*2,6,"F");
-      doc.setFont("helvetica","bold");doc.setFontSize(7);st(W);
-      doc.text("CRITERIO",mar+8,y3+4);
-      doc.text("PILAR",mar+120,y3+4);
-      doc.text("VECES",PW-mar-2,y3+4,{align:"right"});
-      y3+=7;
-      top5.forEach(function(e,i){
-        var pts=e[0].split("|"),v=e[1];
-        var pctB=Math.round(v/lista.length*100);
-        if(i%2===0){sf(G1);doc.rect(mar,y3-1,PW-mar*2,14,"F");}
-        sf(R);doc.rect(mar,y3-1,2,14,"F");
-        // Número
-        sf(R);doc.circle(mar+7,y3+5,4,"F");
-        doc.setFont("helvetica","bold");doc.setFontSize(9);st(W);
-        doc.text(String(i+1),mar+7,y3+5.8,{align:"center"});
-        // Criterio
-        doc.setFont("helvetica","bold");doc.setFontSize(7.5);st(GR);
-        var ct=doc.splitTextToSize(pts[1]||"",95);
-        doc.text(ct[0]+(ct.length>1?"…":""),mar+14,y3+4);
-        // Pilar
-        doc.setFont("helvetica","normal");doc.setFontSize(6.5);st([100,116,139]);
-        doc.text((pts[2]||"").substring(0,22),mar+120,y3+4);
-        // Barra proporcional
-        sf(G2);doc.roundedRect(mar+14,y3+6,95,3,1,1,"F");
-        sf(R);doc.roundedRect(mar+14,y3+6,95*pctB/100,3,1,1,"F");
-        // Contador
-        sf(R);doc.roundedRect(PW-mar-12,y3+1,12,11,2,2,"F");
-        doc.setFont("helvetica","bold");doc.setFontSize(9);st(W);
-        doc.text(v+"x",PW-mar-6,y3+7.5,{align:"center"});
-        sd(G2);doc.line(mar,y3+13,PW-mar,y3+13);
-        st(GR);y3+=14;
+      doc.autoTable({
+        startY: y3,
+        margin: {left:mar, right:mar},
+        head: [["#","CRITERIO INCUMPLIDO","PILAR","VECES","% SECTORES"]],
+        body: top5.map(function(e,i){
+          var pts=e[0].split("|"), v=e[1];
+          return [String(i+1), pts[1]||"", pts[2]||"", String(v), Math.round(v/lista.length*100)+"%"];
+        }),
+        headStyles:{fillColor:cRojo,textColor:cBlanco,fontStyle:"bold",fontSize:7,halign:"center"},
+        bodyStyles:{fontSize:6.5,textColor:cGrisT},
+        columnStyles:{
+          0:{halign:"center",cellWidth:8},
+          1:{cellWidth:90},
+          2:{cellWidth:40},
+          3:{halign:"center",cellWidth:16},
+          4:{halign:"center",cellWidth:16},
+        },
+        alternateRowStyles:{fillColor:[255,245,245]},
+        theme:"plain",
+        styles:{cellPadding:2,lineColor:cGrisB,lineWidth:0.2},
+        willDrawPage: function(){ headerPagina("TABLAS DE DETALLE"); },
       });
-    }else{
-      doc.setFont("helvetica","italic");doc.setFontSize(9);st(G);
-      doc.text("Sin incumplimientos registrados ✅",mar+5,y3+6);y3+=12;
+      y3 = doc.lastAutoTable.finalY + 8;
     }
-    y3+=8;
 
-    // ── Obs por área ──────────────────────────────────────
-    if(y3>230){doc.addPage();sf(GD);doc.rect(0,0,PW,6,"F");sf(A);doc.rect(0,6,PW,1.5,"F");y3=14;}
-    y3 = titSec("OBSERVACIONES PENDIENTES POR ÁREA",y3);
-
+    // ── Obs pendientes por area ───────────────────────────
     var obsByArea={};
     lista.forEach(function(a){
       sI(a).filter(function(x){return(x.estado||"Pendiente")==="Pendiente";}).forEach(function(x){
-        var ar=a.area||"Sin área";
-        if(!obsByArea[ar])obsByArea[ar]=[];
+        var ar = safe(a.area||"Sin area");
+        if(!obsByArea[ar]) obsByArea[ar]=[];
         obsByArea[ar].push({
-          criterio:    x.criterio||"",
-          sector:      a.sector||"",
-          responsable: x.responsable||a.responsable||"Sin asignar",
-          fecha:       x.fecha_compromiso||""
+          sector:      safe(a.sector||""),
+          criterio:    safe(x.criterio||""),
+          responsable: safe(x.responsable||a.responsable||"Sin asignar"),
+          fecha:       safe(x.fecha_compromiso||""),
         });
       });
     });
-    var areaEntries=Object.entries(obsByArea).sort(function(a,b){return b[1].length-a[1].length;});
+    var areaEntries = Object.entries(obsByArea).sort(function(a,b){return b[1].length-a[1].length;});
 
     if(areaEntries.length){
-      sf(GD);doc.rect(mar,y3,PW-mar*2,6,"F");
-      doc.setFont("helvetica","bold");doc.setFontSize(7);st(W);
-      doc.text("ÁREA / SECTOR",mar+3,y3+4);
-      doc.text("CRITERIO INCUMPLIDO",mar+72,y3+4);
-      doc.text("RESPONSABLE",mar+135,y3+4);
-      doc.text("F.C.",PW-mar-2,y3+4,{align:"right"});
-      y3+=7;
-
+      var obsBody=[];
       areaEntries.forEach(function(e){
-        var area=e[0],items=e[1];
-        if(y3>268){doc.addPage();sf(GD);doc.rect(0,0,PW,6,"F");sf(A);doc.rect(0,6,PW,1.5,"F");y3=14;
-          sf(GD);doc.rect(mar,y3,PW-mar*2,6,"F");
-          doc.setFont("helvetica","bold");doc.setFontSize(7);st(W);
-          doc.text("ÁREA / SECTOR",mar+3,y3+4);doc.text("CRITERIO INCUMPLIDO",mar+72,y3+4);
-          doc.text("RESPONSABLE",mar+135,y3+4);doc.text("F.C.",PW-mar-2,y3+4,{align:"right"});
-          y3+=7;
-        }
-        // Fila encabezado de área
-        sf(GL);doc.rect(mar,y3-1,PW-mar*2,7.5,"F");
-        sf(G);doc.rect(mar,y3-1,3,7.5,"F");
-        doc.setFont("helvetica","bold");doc.setFontSize(8);st(GD);
-        doc.text(area.toUpperCase(),mar+5,y3+4.5);
-        sf(R);doc.roundedRect(PW-mar-18,y3+1,18,5,2,2,"F");
-        doc.setFont("helvetica","bold");doc.setFontSize(7);st(W);
-        doc.text(items.length+" obs.",PW-mar-9,y3+4.5,{align:"center"});
-        sd(G2);doc.line(mar,y3+6.5,PW-mar,y3+6.5);
-        y3+=8;
-
-        items.forEach(function(it,ii){
-          if(y3>270){doc.addPage();sf(GD);doc.rect(0,0,PW,6,"F");sf(A);doc.rect(0,6,PW,1.5,"F");y3=14;}
-          if(ii%2===0){sf(G1);doc.rect(mar,y3-1,PW-mar*2,7,"F");}
-          doc.setFont("helvetica","italic");doc.setFontSize(6.5);st([100,116,139]);
-          doc.text((it.sector||"").substring(0,22),mar+3,y3+4);
-          doc.setFont("helvetica","normal");doc.setFontSize(7);st(GR);
-          var ct=it.criterio||"—";if(ct.length>38)ct=ct.substring(0,36)+"…";
-          doc.text(ct,mar+72,y3+4);
-          doc.setFont("helvetica","normal");doc.setFontSize(6.5);st([100,116,139]);
-          doc.text((it.responsable||"—").substring(0,22),mar+135,y3+4);
-          doc.text(it.fecha||"—",PW-mar-2,y3+4,{align:"right"});
-          sd(G2);doc.line(mar,y3+6,PW-mar,y3+6);
-          y3+=7;
+        var area=e[0], items=e[1];
+        obsBody.push([{content:area.toUpperCase()+" ("+items.length+" obs.)",colSpan:4,styles:{fillColor:cVerdeL,textColor:cVerdeD,fontStyle:"bold",fontSize:7.5}}]);
+        items.forEach(function(it){
+          obsBody.push([it.sector, it.criterio, it.responsable, it.fecha||"Tentativa"]);
         });
-        y3+=4;
+      });
+
+      doc.autoTable({
+        startY: y3,
+        margin: {left:mar, right:mar},
+        head: [["SECTOR","CRITERIO INCUMPLIDO","RESPONSABLE","FECHA COMP."]],
+        body: obsBody,
+        headStyles:{fillColor:cVerdeD,textColor:cBlanco,fontStyle:"bold",fontSize:7,halign:"center"},
+        bodyStyles:{fontSize:6.5,textColor:cGrisT},
+        columnStyles:{
+          0:{cellWidth:36},
+          1:{cellWidth:72},
+          2:{cellWidth:40},
+          3:{cellWidth:22,halign:"center"},
+        },
+        alternateRowStyles:{fillColor:cGrisF},
+        theme:"plain",
+        styles:{cellPadding:1.8,lineColor:cGrisB,lineWidth:0.2},
+        willDrawPage: function(){ headerPagina("TABLAS DE DETALLE"); },
       });
     }else{
-      doc.setFont("helvetica","italic");doc.setFontSize(9);st(G);
-      doc.text("Sin observaciones pendientes ✅",mar+5,y3+6);y3+=12;
+      doc.setFont("helvetica","italic"); doc.setFontSize(9);
+      doc.setTextColor(cVerde[0],cVerde[1],cVerde[2]);
+      doc.text("Sin observaciones pendientes.", mar, y3+6);
     }
 
-    // Pie en todas las páginas
-    var tot=doc.internal.getNumberOfPages();
-    for(var pg=1;pg<=tot;pg++){
+    // Pie en todas las paginas
+    var totPgs = doc.internal.getNumberOfPages();
+    for(var pg=1;pg<=totPgs;pg++){
       doc.setPage(pg);
-      pie(pg,tot);
+      piePagina();
     }
 
-    var fname="ReporteGerencial_ISM_5S_"+(fm||"todos").replace(/-/g,"")+".pdf";
+    var fname = "ReporteGerencial_ISM_5S_"+(fm||"todos").replace(/-/g,"")+".pdf";
     doc.save(fname);
     if(btn){btn.disabled=false;btn.innerHTML="&#128196; PDF Gerencial";}
-    showToast("✅ PDF Gerencial generado");
+    showToast("PDF Gerencial generado");
 
-  }catch(e){
-    console.error("PDF Gerencial error:",e);
+  } catch(e) {
+    console.error("PDF error:",e);
     if(btn){btn.disabled=false;btn.innerHTML="&#128196; PDF Gerencial";}
-    showToast("Error PDF: "+e.message,true);
+    showToast("Error PDF: "+e.message, true);
   }
 }
 

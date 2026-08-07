@@ -209,7 +209,6 @@ textarea{resize:vertical;min-height:78px}
 <div id="app-recorrido" style="display:none">
 <header>
   <div class="hdr">
-    <div class="logo-box"><img id="ism-logo-recorrido" src="" alt="ISM"></div>
     <div class="hdr-brand"><h1>Recorrido 5S</h1><span>Industrias San Miguel</span></div>
     <button class="hdr-sync" onclick="cargarTodo()">&#8635;</button>
     <button class="hdr-sync" onclick="volverBienvenida()" style="background:rgba(255,255,255,.12)">&#8592; Inicio</button>
@@ -238,7 +237,7 @@ textarea{resize:vertical;min-height:78px}
       <div class="fg"><label>Area</label>
         <input type="text" id="f-sector" readonly style="background:var(--g50);color:var(--green);font-weight:700" placeholder="Se asigna automaticamente">
       </div>
-      <div class="fg"><label>Zona / Equipo <span class="req">*</span></label>
+      <div class="fg" id="f-zona-wrap"><label>Zona / Equipo <span class="req">*</span></label>
         <select id="f-zona"><option value="">- Selecciona zona -</option></select>
       </div>
     </div>
@@ -673,7 +672,7 @@ textarea{resize:vertical;min-height:78px}
       </div>
       <div class="fg">
         <label>Sector auditado <span class="req">*</span></label>
-        <select id="audn-sector"><option value="">- Selecciona sector -</option></select>
+        <select id="audn-sector" onchange="audn_onSectorChange()"><option value="">- Selecciona sector -</option></select>
       </div>
       <div class="fg">
         <label>Área</label>
@@ -980,6 +979,7 @@ textarea{resize:vertical;min-height:78px}
 <div id="toast"></div>
 
 <script>
+// ============================================================
 // ============================================================
 // CONFIGURACIÓN Y DATOS
 // ============================================================
@@ -1326,7 +1326,7 @@ function renderCriterios() {
     let ph = "";
     if (c.pilar !== lastPilar) {
       lastPilar = c.pilar;
-      ph = `<div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;color:var(--blue);text-transform:uppercase;margin:12px 0 6px;padding-bottom:4px;border-bottom:2px solid var(--blue)">${c.pilar}</div>`;
+      ph = `<div style="font-family:var(--font-bc),sans-serif;font-size:13px;font-weight:800;color:var(--blue);text-transform:uppercase;margin:12px 0 6px;padding-bottom:4px;border-bottom:2px solid var(--blue)">${c.pilar}</div>`;
     }
     const d   = auditData[c.num] || {};
     const siA = d.respuesta === "SI";
@@ -1334,8 +1334,8 @@ function renderCriterios() {
     return ph + `<div class="obs-card" id="crit-${c.num}" style="margin-bottom:8px;border-left:4px solid ${siA?"var(--green)":noA?"var(--red)":"var(--g200)"}">
       <div style="font-size:13px;font-weight:700;color:var(--g700);margin-bottom:8px">${c.num}. ${c.txt}</div>
       <div style="display:flex;gap:8px;margin-bottom:${noA?"8px":"0"}">
-        <button onclick="setCriterio(${c.num},'SI')" style="flex:1;padding:10px;border-radius:8px;font-weight:700;font-family:'Barlow Condensed',sans-serif;font-size:16px;cursor:pointer;background:${siA?"var(--green)":"var(--g50)"};color:${siA?"#fff":"var(--g400)"};border:2px solid ${siA?"var(--green)":"var(--g200)"}">✓ SI</button>
-        <button onclick="setCriterio(${c.num},'NO')" style="flex:1;padding:10px;border-radius:8px;font-weight:700;font-family:'Barlow Condensed',sans-serif;font-size:16px;cursor:pointer;background:${noA?"var(--red)":"var(--g50)"};color:${noA?"#fff":"var(--g400)"};border:2px solid ${noA?"var(--red)":"var(--g200)"}">✗ NO</button>
+        <button onclick="setCriterio(${c.num},'SI')" style="flex:1;padding:10px;border-radius:8px;font-weight:700;font-family:var(--font-bc),sans-serif;font-size:16px;cursor:pointer;background:${siA?"var(--green)":"var(--g50)"};color:${siA?"#fff":"var(--g400)"};border:2px solid ${siA?"var(--green)":"var(--g200)"}">✓ SI</button>
+        <button onclick="setCriterio(${c.num},'NO')" style="flex:1;padding:10px;border-radius:8px;font-weight:700;font-family:var(--font-bc),sans-serif;font-size:16px;cursor:pointer;background:${noA?"var(--red)":"var(--g50)"};color:${noA?"#fff":"var(--g400)"};border:2px solid ${noA?"var(--red)":"var(--g200)"}">✗ NO</button>
       </div>
       ${noA ? `<input type="text" id="obs-cl-${c.num}" placeholder="Observación *" value="${d.obs||""}" oninput="setAuditField(${c.num},'obs',this.value)" style="width:100%;padding:8px;border:1px solid var(--g200);border-radius:8px;font-size:13px;box-sizing:border-box;margin-bottom:6px">
       <input type="text" id="resp-cl-${c.num}" placeholder="Responsable" value="${d.responsable||auditMeta.responsable||""}" oninput="setAuditField(${c.num},'responsable',this.value)" style="width:100%;padding:8px;border:1px solid var(--g200);border-radius:8px;font-size:13px;box-sizing:border-box;margin-bottom:6px">
@@ -1364,8 +1364,8 @@ function setCriterio(num, resp) {
   card.innerHTML = `
     <div style="font-size:13px;font-weight:700;color:var(--g700);margin-bottom:8px">${num}. ${c.txt}</div>
     <div style="display:flex;gap:8px;margin-bottom:${noA?"8px":"0"}">
-      <button onclick="setCriterio(${num},'SI')" style="flex:1;padding:10px;border-radius:8px;font-weight:700;font-family:'Barlow Condensed',sans-serif;font-size:16px;cursor:pointer;background:${resp==="SI"?"var(--green)":"var(--g50)"};color:${resp==="SI"?"#fff":"var(--g400)"};border:2px solid ${resp==="SI"?"var(--green)":"var(--g200)"}">✓ SI</button>
-      <button onclick="setCriterio(${num},'NO')" style="flex:1;padding:10px;border-radius:8px;font-weight:700;font-family:'Barlow Condensed',sans-serif;font-size:16px;cursor:pointer;background:${resp==="NO"?"var(--red)":"var(--g50)"};color:${resp==="NO"?"#fff":"var(--g400)"};border:2px solid ${resp==="NO"?"var(--red)":"var(--g200)"}">✗ NO</button>
+      <button onclick="setCriterio(${num},'SI')" style="flex:1;padding:10px;border-radius:8px;font-weight:700;font-family:var(--font-bc),sans-serif;font-size:16px;cursor:pointer;background:${resp==="SI"?"var(--green)":"var(--g50)"};color:${resp==="SI"?"#fff":"var(--g400)"};border:2px solid ${resp==="SI"?"var(--green)":"var(--g200)"}">✓ SI</button>
+      <button onclick="setCriterio(${num},'NO')" style="flex:1;padding:10px;border-radius:8px;font-weight:700;font-family:var(--font-bc),sans-serif;font-size:16px;cursor:pointer;background:${resp==="NO"?"var(--red)":"var(--g50)"};color:${resp==="NO"?"#fff":"var(--g400)"};border:2px solid ${resp==="NO"?"var(--red)":"var(--g200)"}">✗ NO</button>
     </div>
     ${noA ? `<input type="text" id="obs-cl-${num}" placeholder="Observación" value="${d.obs||""}" oninput="setAuditField(${num},'obs',this.value)" style="width:100%;padding:8px;border:1px solid var(--g200);border-radius:8px;font-size:13px;box-sizing:border-box;margin-bottom:6px">
     <input type="text" id="resp-cl-${num}" placeholder="Responsable" value="${d.responsable||""}" oninput="setAuditField(${num},'responsable',this.value)" style="width:100%;padding:8px;border:1px solid var(--g200);border-radius:8px;font-size:13px;box-sizing:border-box;margin-bottom:6px">
@@ -1481,7 +1481,7 @@ async function finalizarAuditoria() {
   if (rPil) rPil.innerHTML = Object.entries(pilares).map(([p,ns]) => {
     const si = ns.filter(n => auditData[n]?.respuesta==="SI").length;
     const k  = p.substring(0,2);
-    return `<div style="background:${pcols[k]}15;border-radius:8px;padding:8px 4px;text-align:center;border-top:3px solid ${pcols[k]}"><div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:${pcols[k]}">${si}/${ns.length}</div><div style="font-size:8px;color:${pcols[k]};font-weight:700">${k}</div></div>`;
+    return `<div style="background:${pcols[k]}15;border-radius:8px;padding:8px 4px;text-align:center;border-top:3px solid ${pcols[k]}"><div style="font-family:var(--font-bc),sans-serif;font-size:20px;font-weight:800;color:${pcols[k]}">${si}/${ns.length}</div><div style="font-size:8px;color:${pcols[k]};font-weight:700">${k}</div></div>`;
   }).join("");
 
   const cardObs = document.getElementById("card-obs-audit");
@@ -1579,7 +1579,7 @@ async function cargarAuditorias() {
     const pctP   = todos.length>0 ? Math.min(100,Math.round(done/todos.length*100)) : 0;
     const colP   = pctP>=100?"#1B5E20":pctP>=50?"#D97706":"#E63329";
     const progEl = document.getElementById("progreso-sectores");
-    if (progEl) progEl.innerHTML = `<div style="background:#fff;border-radius:12px;padding:14px;box-shadow:var(--sh)"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><div style="font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:800;color:var(--g700)">Progreso Check Lists</div><div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:900;color:${colP}">${pctP}% <span style="font-size:12px;color:var(--g400)">${done}/${todos.length}</span></div></div><div style="height:10px;background:var(--g100);border-radius:20px;overflow:hidden"><div style="height:100%;width:${pctP}%;background:${colP};border-radius:20px;transition:width .8s"></div></div><div style="font-size:11px;color:var(--g400);margin-top:5px">${done} de ${todos.length} sectores completados este mes${pctP>=100?" · ✅ Todos completados":""}</div></div>`;
+    if (progEl) progEl.innerHTML = `<div style="background:#fff;border-radius:12px;padding:14px;box-shadow:var(--sh)"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><div style="font-family:var(--font-bc),sans-serif;font-size:15px;font-weight:800;color:var(--g700)">Progreso Check Lists</div><div style="font-family:var(--font-bc),sans-serif;font-size:20px;font-weight:900;color:${colP}">${pctP}% <span style="font-size:12px;color:var(--g400)">${done}/${todos.length}</span></div></div><div style="height:10px;background:var(--g100);border-radius:20px;overflow:hidden"><div style="height:100%;width:${pctP}%;background:${colP};border-radius:20px;transition:width .8s"></div></div><div style="font-size:11px;color:var(--g400);margin-top:5px">${done} de ${todos.length} sectores completados este mes${pctP>=100?" · ✅ Todos completados":""}</div></div>`;
     renderProgresoBarra();
   } catch(e) { showToast("Error cargando datos: "+e.message, true); }
 }
@@ -1608,42 +1608,94 @@ function renderHistorial() {
     const noOk = dets.filter(d=>d.respuesta==="NO"||(d.puntaje>0&&d.puntaje<=3));
     const siOk = dets.filter(d=>d.respuesta==="SI"||(d.puntaje>=4));
     const noHtml = noOk.map(d=>`<div style="padding:8px 10px;background:#FEF2F2;border-radius:8px;border-left:3px solid ${R};margin-bottom:6px"><div style="font-size:12px;font-weight:700;color:var(--g700)">${d.num}. ${d.criterio||d.txt||""}</div><div style="font-size:10px;color:var(--g400)">Pilar: ${d.pilar||""}</div>${d.obs?`<div style="font-size:12px;color:var(--g600);background:#fff;border-radius:5px;padding:5px 7px;margin-top:4px">${d.obs}</div>`:""} ${d.responsable?`<div style="font-size:10px;color:var(--g400);margin-top:3px">👤 ${d.responsable}${d.fecha_compromiso?" · 📅 "+d.fecha_compromiso:""}</div>`:""}</div>`).join("");
-    return `<div class="obs-card" style="border-left:4px solid ${col};margin-bottom:12px"><div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:8px"><div><div style="font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:800;color:var(--g700)">${a.sector||""}</div><div style="font-size:11px;color:var(--g400)">${a.area||""} · ${a.fecha||""} · ${a.auditor||""}</div></div><div style="text-align:right;flex-shrink:0;margin-left:8px"><div style="font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:900;color:${col}">${pct}%</div><div style="font-size:11px;color:${col};font-weight:700">${a.nivel||"—"}</div></div></div><div style="height:6px;background:var(--g100);border-radius:20px;overflow:hidden;margin-bottom:10px"><div style="height:100%;width:${pct}%;background:${col};border-radius:20px"></div></div><div style="display:flex;gap:8px;margin-bottom:10px"><div style="flex:1;background:#FEF2F2;border-radius:8px;padding:8px;text-align:center"><div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:900;color:${R}">${noOk.length}</div><div style="font-size:10px;color:var(--g400)">Observaciones</div></div><div style="flex:1;background:#F0FDF4;border-radius:8px;padding:8px;text-align:center"><div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:900;color:${G}">${siOk.length}</div><div style="font-size:10px;color:var(--g400)">Cumplidos</div></div></div><button onclick="const d=document.getElementById('det-${uid}');const o=d.style.display!=='none';d.style.display=o?'none':'block';this.textContent=o?'Ver detalle ▾':'Ocultar ▴'" style="width:100%;background:var(--g50);border:1px solid var(--g200);border-radius:8px;padding:8px;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;cursor:pointer;color:var(--g600)">Ver detalle ▾</button><div id="det-${uid}" style="display:none;margin-top:10px">${noHtml||'<p style="font-size:12px;color:var(--g400);text-align:center;padding:12px">✅ Sin observaciones</p>'}</div></div>`;
+    return `<div class="obs-card" style="border-left:4px solid ${col};margin-bottom:12px"><div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:8px"><div><div style="font-family:var(--font-bc),sans-serif;font-size:17px;font-weight:800;color:var(--g700)">${a.sector||""}</div><div style="font-size:11px;color:var(--g400)">${a.area||""} · ${a.fecha||""} · ${a.auditor||""}</div></div><div style="text-align:right;flex-shrink:0;margin-left:8px"><div style="font-family:var(--font-bc),sans-serif;font-size:26px;font-weight:900;color:${col}">${pct}%</div><div style="font-size:11px;color:${col};font-weight:700">${a.nivel||"—"}</div></div></div><div style="height:6px;background:var(--g100);border-radius:20px;overflow:hidden;margin-bottom:10px"><div style="height:100%;width:${pct}%;background:${col};border-radius:20px"></div></div><div style="display:flex;gap:8px;margin-bottom:10px"><div style="flex:1;background:#FEF2F2;border-radius:8px;padding:8px;text-align:center"><div style="font-family:var(--font-bc),sans-serif;font-size:22px;font-weight:900;color:${R}">${noOk.length}</div><div style="font-size:10px;color:var(--g400)">Observaciones</div></div><div style="flex:1;background:#F0FDF4;border-radius:8px;padding:8px;text-align:center"><div style="font-family:var(--font-bc),sans-serif;font-size:22px;font-weight:900;color:${G}">${siOk.length}</div><div style="font-size:10px;color:var(--g400)">Cumplidos</div></div></div><button onclick="const d=document.getElementById('det-${uid}');const o=d.style.display!=='none';d.style.display=o?'none':'block';this.textContent=o?'Ver detalle ▾':'Ocultar ▴'" style="width:100%;background:var(--g50);border:1px solid var(--g200);border-radius:8px;padding:8px;font-family:var(--font-bc),sans-serif;font-size:14px;font-weight:700;cursor:pointer;color:var(--g600)">Ver detalle ▾</button><div id="det-${uid}" style="display:none;margin-top:10px">${noHtml||'<p style="font-size:12px;color:var(--g400);text-align:center;padding:12px">✅ Sin observaciones</p>'}</div></div>`;
   }).join("");
 }
 
 function renderObsPendientes() {
-  const fm  = document.getElementById("ofil-mes")?.value      || "";
-  const fa  = document.getElementById("ofil-area-obs")?.value || "";
-  const fs  = document.getElementById("ofil-sector")?.value   || "";
-  const fr  = document.getElementById("ofil-resp")?.value     || "";
-  const fst = document.getElementById("ofil-status")?.value   ?? "pendiente";
-  const el  = document.getElementById("obs-audit-list");
+  var fm  = document.getElementById("ofil-mes")?.value      || "";
+  var fa  = document.getElementById("ofil-area-obs")?.value || "";
+  var fs  = document.getElementById("ofil-sector")?.value   || "";
+  var fr  = document.getElementById("ofil-resp")?.value     || "";
+  var fst = document.getElementById("ofil-status")?.value   || "pendiente";
+  var el  = document.getElementById("obs-audit-list");
   if (!el) return;
-  const G="#1E7C34", R="#E63329";
-  let obs=[], pend=0, lev=0;
-  (auditorias||[]).forEach(a => {
-    if (fm && String(a.nro_auditoria||a.fecha||"").substring(0,7)!==fm) return;
-    if (fa && a.area!==fa) return;
-    if (fs && a.sector!==fs) return;
-    const incs = Array.isArray(a.incumplimientos)?a.incumplimientos:safeJson(a.incumplimientos,"[]");
-    incs.forEach(d => {
-      const lv = (d.estado||"Pendiente")==="Levantada";
+  var G = "#1E7C34", R = "#E63329";
+  var obs = [], pend = 0, lev = 0;
+
+  (auditorias||[]).forEach(function(a) {
+    if (fm && String(a.nro_auditoria||a.fecha||"").substring(0,7) !== fm) return;
+    if (fa && a.area   !== fa) return;
+    if (fs && a.sector !== fs) return;
+    var incs = Array.isArray(a.incumplimientos) ? a.incumplimientos : safeJson(a.incumplimientos,"[]");
+    incs.forEach(function(d) {
+      var lv = (d.estado||"Pendiente") === "Levantada";
       if (lv) lev++; else pend++;
-      if (fst==="pendiente"&&lv) return;
-      if (fst==="levantada"&&!lv) return;
+      if (fst === "pendiente" && lv)  return;
+      if (fst === "levantada" && !lv) return;
       if (fr && !(d.responsable||"").toLowerCase().includes(fr.toLowerCase())) return;
-      obs.push({...d, _id:a.id, _sector:a.sector, _area:a.area, _fecha:a.fecha, _auditor:a.auditor});
+      obs.push(Object.assign({}, d, {
+        _id: a.id, _sector: a.sector, _area: a.area,
+        _fecha: a.fecha, _auditor: a.auditor
+      }));
     });
   });
-  const total=pend+lev;
-  const elP=document.getElementById("ok-pendientes"); if(elP) elP.textContent=pend;
-  const elL=document.getElementById("ok-levantadas"); if(elL) elL.textContent=lev;
-  const elPct=document.getElementById("ok-pct"); if(elPct) elPct.textContent=total>0?Math.round(lev/total*100)+"%":"0%";
-  if (!obs.length) { el.innerHTML=`<div class="empty"><div class="empty-ico">✅</div><p>Sin observaciones ${fst==="pendiente"?"pendientes":"levantadas"}.</p></div>`; return; }
-  el.innerHTML = obs.map(d => {
-    const lv=(d.estado||"Pendiente")==="Levantada"; const col=lv?G:R;
-    return `<div class="obs-card" style="border-left:4px solid ${col};margin-bottom:10px"><div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:6px"><div style="flex:1;min-width:0"><div style="font-size:10px;color:var(--g400);font-weight:600">${d._area} · ${d._sector} · ${d._fecha}</div><div style="font-size:13px;font-weight:700;color:var(--g700);margin-top:2px">${d.num}. ${d.criterio||""}</div><div style="font-size:10px;color:var(--g500)">Pilar: ${d.pilar||""}</div></div><span style="background:${col};color:#fff;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700;flex-shrink:0;margin-left:8px">${lv?"Levantada":"Pendiente"}</span></div>${d.obs?`<div style="font-size:12px;color:var(--g700);background:var(--g50);border-radius:6px;padding:8px;margin-bottom:6px">${d.obs}</div>`:""}<div style="font-size:11px;color:var(--g400);margin-bottom:6px">${d.responsable?"👤 "+d.responsable+" ":""}${d.fecha_compromiso?"📅 "+d.fecha_compromiso:""}</div>${!lv?`<button onclick="levantarObs(${d._id},${d.num},this)" style="width:100%;padding:9px;background:${G};color:#fff;border:none;border-radius:8px;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700">✓ Marcar como Levantada</button>`:""}</div>`;
+
+  var total = pend + lev;
+  var elP   = document.getElementById("ok-pendientes"); if (elP) elP.textContent = pend;
+  var elL   = document.getElementById("ok-levantadas"); if (elL) elL.textContent = lev;
+  var elPct = document.getElementById("ok-pct");        if (elPct) elPct.textContent = total > 0 ? Math.round(lev/total*100)+"%" : "0%";
+
+  if (!obs.length) {
+    el.innerHTML = '<div class="empty"><div class="empty-ico">✅</div><p>Sin observaciones ' + (fst==="pendiente"?"pendientes":"levantadas") + '.</p></div>';
+    return;
+  }
+
+  el.innerHTML = obs.map(function(d) {
+    var lv  = (d.estado||"Pendiente") === "Levantada";
+    var col = lv ? G : R;
+    var html = '<div class="obs-card" style="border-left:4px solid ' + col + ';margin-bottom:10px">';
+    // Header
+    html += '<div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:6px">';
+    html += '<div style="flex:1;min-width:0">';
+    html += '<div style="font-size:10px;color:var(--g400);font-weight:600">' + d._area + ' · ' + d._sector + ' · ' + d._fecha + '</div>';
+    html += '<div style="font-size:13px;font-weight:700;color:var(--g700);margin-top:2px">' + d.num + '. ' + (d.criterio||"") + '</div>';
+    html += '<div style="font-size:10px;color:var(--g500)">Pilar: ' + (d.pilar||"") + '</div>';
+    html += '</div>';
+    html += '<span style="background:' + col + ';color:#fff;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700;flex-shrink:0;margin-left:8px">' + (lv?"Levantada":"Pendiente") + '</span>';
+    html += '</div>';
+    // Observación
+    if (d.obs) html += '<div style="font-size:12px;color:var(--g700);background:var(--g50);border-radius:6px;padding:8px;margin-bottom:6px">' + d.obs + '</div>';
+    // Responsable y fecha compromiso
+    if (d.responsable || d.fecha_compromiso) {
+      html += '<div style="font-size:11px;color:var(--g400);margin-bottom:6px">';
+      if (d.responsable)      html += '👤 <strong>' + d.responsable + '</strong> ';
+      if (d.fecha_compromiso) html += '📅 ' + d.fecha_compromiso;
+      html += '</div>';
+    }
+    // Fotos originales
+    if (d.fotos && d.fotos.length) {
+      html += '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px">';
+      d.fotos.forEach(function(f) {
+        html += '<img src="' + f + '" onclick="abrirFoto(this.src)" style="width:52px;height:52px;object-fit:cover;border-radius:6px;cursor:pointer">';
+      });
+      html += '</div>';
+    }
+    // Estado levantada — mostrar cierre
+    if (lv) {
+      html += '<div style="background:#F0FDF4;border-radius:8px;padding:8px;margin-top:4px">';
+      html += '<div style="font-size:11px;font-weight:700;color:#155A25">✅ Levantada';
+      if (d.fecha_cierre) html += ' · ' + d.fecha_cierre;
+      html += '</div>';
+      if (d.comentario_cierre) html += '<div style="font-size:11px;color:#3A3F37;margin-top:3px">' + d.comentario_cierre + '</div>';
+      if (d.foto_cierre) html += '<img src="' + d.foto_cierre + '" onclick="abrirFoto(this.src)" style="width:60px;height:60px;object-fit:cover;border-radius:6px;margin-top:4px;cursor:pointer">';
+      html += '</div>';
+    } else {
+      // Botón cerrar
+      html += '<button onclick="abrirModalCierre(' + d._id + ',' + d.num + ')" style="width:100%;padding:9px;background:' + G + ';color:#fff;border:none;border-radius:8px;cursor:pointer;font-family:var(--font-bc),sans-serif;font-size:14px;font-weight:700">✓ Cerrar Observación</button>';
+    }
+    html += '</div>';
+    return html;
   }).join("");
 }
 
@@ -1692,7 +1744,7 @@ function renderAuditDashboard() {
   var okEl = document.getElementById("dk-obs");    if(okEl)  okEl.textContent = obsT;
   var pEl  = document.getElementById("dk-pct");    if(pEl)   pEl.textContent  = avg+"%";
   var nbEl = document.getElementById("dk-nivel-badge");
-  if(nbEl) nbEl.innerHTML = `<span style="background:${cA};color:#fff;border-radius:8px;padding:4px 12px;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700">${nivel.nivel}</span>`;
+  if(nbEl) nbEl.innerHTML = `<span style="background:${cA};color:#fff;border-radius:8px;padding:4px 12px;font-family:var(--font-bc),sans-serif;font-size:16px;font-weight:700">${nivel.nivel}</span>`;
   var bpEl = document.getElementById("dk-barra-prom");
   if(bpEl){ bpEl.style.width=avg+"%"; bpEl.style.background=cA; }
 
@@ -1838,7 +1890,7 @@ function renderAuditDashboard() {
     pendEl.innerHTML=sorted3.length?sorted3.map(([r,v])=>`
       <div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--g100)">
         <div style="flex:1;font-size:12px;font-weight:600;color:var(--g700)">👤 ${r}</div>
-        <div style="background:${R};color:#fff;border-radius:20px;padding:2px 10px;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700">${v}</div>
+        <div style="background:${R};color:#fff;border-radius:20px;padding:2px 10px;font-family:var(--font-bc),sans-serif;font-size:14px;font-weight:700">${v}</div>
       </div>`).join("")
     :'<p style="font-size:12px;color:var(--g400)">Sin observaciones pendientes ✅</p>';
   }
@@ -1877,7 +1929,7 @@ function renderAuditDashboard() {
         <div style="font-size:12px;font-weight:700;color:var(--g700)">${a.sector||""}</div>
         <div style="font-size:10px;color:var(--g400)">${a.area||""} · ${a.auditor||""} · ${a.fecha||""}</div>
       </div>
-      <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;color:${c};flex-shrink:0">${pct}%</div>
+      <div style="font-family:var(--font-bc),sans-serif;font-size:18px;font-weight:800;color:${c};flex-shrink:0">${pct}%</div>
       <div style="font-size:10px;font-weight:700;color:${c};flex-shrink:0">${getNivel(pct).nivel}</div>
     </div>`;
   }).join("");
@@ -1897,750 +1949,1146 @@ function renderAuditDashboard() {
 }
 
 
-function exportarPDFAuditoria() {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// ── Modal cierre de observación ──────────────────────────
+var _cierreAuditId  = null;
+var _cierreNumCrit  = null;
+var _cierreFotoBlob = null;
+
+function abrirModalCierre(auditId, numCrit) {
+  _cierreAuditId  = auditId;
+  _cierreNumCrit  = numCrit;
+  _cierreFotoBlob = null;
+
+  // Prellenar fecha con hoy
+  var hoy = new Date().toISOString().split("T")[0];
+  document.getElementById("cierre-fecha").value       = hoy;
+  document.getElementById("cierre-comentario").value  = "";
+  document.getElementById("cierre-foto-preview").style.display = "none";
+  document.getElementById("cierre-foto-input").value  = "";
+
+  // Descripción del criterio
+  var desc = "Auditoría #" + auditId + " · Criterio " + numCrit;
+  document.getElementById("modal-cierre-desc").textContent = desc;
+
+  // Resetear bordes
+  document.getElementById("cierre-fecha").style.borderColor       = "#1E7C34";
+  document.getElementById("cierre-comentario").style.borderColor  = "#D5DAD3";
+
+  var modal = document.getElementById("modal-cierre-obs");
+  modal.style.display = "flex";
+  document.body.style.overflow = "hidden";
+}
+
+function cerrarModalCierre() {
+  document.getElementById("modal-cierre-obs").style.display = "none";
+  document.body.style.overflow = "";
+  _cierreAuditId  = null;
+  _cierreNumCrit  = null;
+  _cierreFotoBlob = null;
+}
+
+function previewFotoCierre(input) {
+  var file = input.files[0];
+  if (!file) return;
+  _cierreFotoBlob = file;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    document.getElementById("cierre-foto-img").src = e.target.result;
+    document.getElementById("cierre-foto-preview").style.display = "block";
+  };
+  reader.readAsDataURL(file);
+}
+
+async function guardarCierreObs() {
+  var fecha      = document.getElementById("cierre-fecha").value;
+  var comentario = document.getElementById("cierre-comentario").value.trim();
+  var fechaEl    = document.getElementById("cierre-fecha");
+  var comEl      = document.getElementById("cierre-comentario");
+
+  // Validar obligatorios
+  var valid = true;
+  if (!fecha) {
+    fechaEl.style.borderColor = "#E63329";
+    valid = false;
+  }
+  if (!comentario) {
+    comEl.style.borderColor = "#E63329";
+    valid = false;
+  }
+  if (!valid) {
+    showToast("Completa la fecha y el comentario de cierre", true);
+    return;
+  }
+
+  var btn = document.getElementById("cierre-btn-guardar");
+  btn.disabled = true;
+  btn.textContent = "Guardando...";
+
   try {
-    var jsPDF2 = window.jspdf.jsPDF;
-    var doc = new jsPDF2({orientation:"portrait",unit:"mm",format:"a4"});
-    var meta = auditMeta || {};
-    var pct  = Number(document.getElementById("result-puntaje")?.textContent || 0);
-    var niv  = document.getElementById("result-nivel")?.textContent || "";
-    var W = 210, mar = 14;
-
-    // ── PORTADA ──────────────────────────────────────────
-    // Header azul
-    doc.setFillColor(21,101,192);
-    doc.rect(0,0,W,32,"F");
-    // Logo ISM (si existe)
-    try { doc.addImage(ISM_LOGO,"JPEG",mar,4,24,24); } catch(e){}
-    doc.setTextColor(255,255,255);
-    doc.setFont("helvetica","bold");
-    doc.setFontSize(18);
-    doc.text("CHECK LIST 5S",W/2,13,{align:"center"});
-    doc.setFontSize(10);
-    doc.setFont("helvetica","normal");
-    doc.text("Industrias San Miguel · Planta Huaura",W/2,20,{align:"center"});
-    doc.setFontSize(9);
-    doc.text("Evaluación mensual de cumplimiento 5S",W/2,27,{align:"center"});
-
-    // Datos del check list
-    var y = 42;
-    doc.setTextColor(0,0,0);
-    var datos=[
-      ["Auditor",     meta.auditor     || "—"],
-      ["Sector",      meta.sector      || "—"],
-      ["Área",        meta.area        || "—"],
-      ["Responsable", meta.responsable || "—"],
-      ["Mes",         meta.nro_auditoria || "—"],
-      ["Fecha",       meta.fecha       || "—"],
-    ];
-    // Caja de datos
-    doc.setFillColor(248,250,252);
-    doc.roundedRect(mar,y-4,W-mar*2,datos.length*8+8,3,3,"F");
-    doc.setDrawColor(226,232,240);
-    doc.roundedRect(mar,y-4,W-mar*2,datos.length*8+8,3,3,"S");
-    datos.forEach(function(d){
-      doc.setFont("helvetica","bold"); doc.setFontSize(9);
-      doc.setTextColor(100,116,139); doc.text(d[0]+":",mar+4,y+3);
-      doc.setFont("helvetica","normal"); doc.setFontSize(10);
-      doc.setTextColor(15,23,42); doc.text(String(d[1]),mar+40,y+3);
-      y+=8;
-    });
-
-    // ── RESULTADO ─────────────────────────────────────────
-    y += 10;
-    var rCol = pct>=90?[27,94,32]:pct>=70?[30,124,52]:pct>=50?[217,119,6]:[230,51,41];
-    doc.setFillColor(rCol[0],rCol[1],rCol[2]);
-    doc.roundedRect(mar,y,W-mar*2,24,4,4,"F");
-    doc.setTextColor(255,255,255);
-    doc.setFont("helvetica","bold");
-    doc.setFontSize(28);
-    doc.text(pct+"%",W/2-15,y+16,{align:"center"});
-    doc.setFontSize(12);
-    doc.text(niv,W/2+10,y+16,{align:"left"});
-    doc.setFontSize(9);
-    doc.setFont("helvetica","normal");
-    doc.text("% de cumplimiento",W/2-15,y+22,{align:"center"});
-
-    // ── PILARES ───────────────────────────────────────────
-    y += 34;
-    doc.setTextColor(0,0,0);
-    doc.setFont("helvetica","bold"); doc.setFontSize(10);
-    doc.text("DESEMPEÑO POR PILAR 5S",mar,y);
-    y += 6;
-    var pilDef=[
-      {key:"1S",label:"1S — Seleccionar",nums:[1,2,3,4],col:[230,81,0]},
-      {key:"2S",label:"2S — Ordenar",nums:[5,6,7,8],col:[27,94,32]},
-      {key:"3S",label:"3S — Limpiar",nums:[9,10,11,12],col:[13,71,161]},
-      {key:"4S",label:"4S — Estandarizar",nums:[13,14,15,16],col:[74,20,140]},
-      {key:"5S",label:"5S — Disciplinar",nums:[17,18,19,20],col:[136,14,79]},
-    ];
-    var bw=(W-mar*2-8)/5;
-    pilDef.forEach(function(p,i){
-      var si=p.nums.filter(function(n){return auditData[n]?.respuesta==="SI";}).length;
-      var pp=Math.round(si/p.nums.length*100);
-      var x=mar+i*(bw+2);
-      doc.setFillColor(p.col[0],p.col[1],p.col[2],20);
-      doc.roundedRect(x,y,bw,20,2,2,"F");
-      doc.setFillColor(p.col[0],p.col[1],p.col[2]);
-      doc.rect(x,y,bw,2,"F");
-      doc.setTextColor(p.col[0],p.col[1],p.col[2]);
-      doc.setFont("helvetica","bold"); doc.setFontSize(14);
-      doc.text(si+"/"+p.nums.length,x+bw/2,y+11,{align:"center"});
-      doc.setFontSize(7);
-      doc.text(p.key,x+bw/2,y+17,{align:"center"});
-    });
-    doc.setTextColor(0,0,0);
-
-    // ── CRITERIOS — todos los 20 ──────────────────────────
-    y += 30;
-    if (y > 240) { doc.addPage(); y = 20; }
-    doc.setFont("helvetica","bold"); doc.setFontSize(10);
-    doc.text("EVALUACIÓN DE CRITERIOS",mar,y);
-    y += 6;
-
-    var lastPilar="";
-    CRITERIOS.forEach(function(c){
-      if (y > 270) { doc.addPage(); y = 20; }
-      var d    = auditData[c.num] || {};
-      var resp = d.respuesta || "—";
-      var rC   = resp==="SI"?[27,94,32]:resp==="NO"?[230,51,41]:[150,150,150];
-
-      // Encabezado de pilar
-      if (c.pilar !== lastPilar) {
-        if (y > 265) { doc.addPage(); y = 20; }
-        lastPilar = c.pilar;
-        doc.setFillColor(240,244,255);
-        doc.rect(mar,y-1,W-mar*2,7,"F");
-        doc.setFont("helvetica","bold"); doc.setFontSize(9);
-        doc.setTextColor(21,101,192);
-        doc.text(c.pilar.toUpperCase(),mar+2,y+4);
-        doc.setTextColor(0,0,0);
-        y += 9;
-      }
-
-      // Criterio
-      doc.setFillColor(rC[0],rC[1],rC[2]);
-      doc.circle(mar+2,y+1.5,2,"F");
-      doc.setFont("helvetica","normal"); doc.setFontSize(8);
-      doc.setTextColor(30,41,59);
-      var critLines = doc.splitTextToSize(c.num+". "+c.txt, W-mar*2-30);
-      doc.text(critLines,mar+6,y+3);
-      doc.setFont("helvetica","bold"); doc.setFontSize(9);
-      doc.setTextColor(rC[0],rC[1],rC[2]);
-      doc.text(resp,W-mar,y+3,{align:"right"});
-      doc.setTextColor(0,0,0);
-      y += critLines.length*4 + 2;
-
-      // Observación si NO
-      if (resp==="NO" && d.obs) {
-        if (y > 268) { doc.addPage(); y = 20; }
-        doc.setFont("helvetica","italic"); doc.setFontSize(7);
-        doc.setTextColor(100,116,139);
-        var obsLines=doc.splitTextToSize("  Obs: "+d.obs, W-mar*2-10);
-        doc.text(obsLines,mar+6,y);
-        y += obsLines.length*3.5+1;
-        doc.setTextColor(0,0,0);
-      }
-    });
-
-    // ── PIE DE PÁGINA ─────────────────────────────────────
-    var totalPages = doc.internal.getNumberOfPages();
-    for (var pg=1; pg<=totalPages; pg++) {
-      doc.setPage(pg);
-      doc.setFillColor(248,250,252);
-      doc.rect(0,285,W,12,"F");
-      doc.setFont("helvetica","normal"); doc.setFontSize(8);
-      doc.setTextColor(148,163,184);
-      doc.text("ISM Check List 5S · "+String(meta.nro_auditoria||meta.fecha||""),mar,291);
-      doc.text("Pág. "+pg+" / "+totalPages,W-mar,291,{align:"right"});
+    // Subir foto si hay
+    var foto_cierre = "";
+    if (_cierreFotoBlob) {
+      showToast("Subiendo foto de evidencia...");
+      foto_cierre = await subirIMGBB(_cierreFotoBlob);
     }
 
-    var fname="CheckList5S_"+(meta.sector||"sector").replace(/[^a-zA-Z0-9]/g,"_")+"_"+(meta.nro_auditoria||meta.fecha||"").replace(/-/g,"")+"pdf";
-    doc.save(fname);
-    showToast("✅ PDF descargado");
+    // Actualizar incumplimiento en Supabase
+    var {data: a} = await sb.from("auditorias_5s_ism")
+      .select("incumplimientos").eq("id", _cierreAuditId).single();
+    var incs = safeJson(a.incumplimientos, "[]");
+    var idx  = incs.findIndex(function(x){ return x.num === _cierreNumCrit; });
+    if (idx > -1) {
+      incs[idx].estado            = "Levantada";
+      incs[idx].fecha_cierre      = fecha;
+      incs[idx].comentario_cierre = comentario;
+      if (foto_cierre) incs[idx].foto_cierre = foto_cierre;
+    }
+
+    var {error} = await sb.from("auditorias_5s_ism")
+      .update({incumplimientos: JSON.stringify(incs)})
+      .eq("id", _cierreAuditId);
+    if (error) throw error;
+
+    cerrarModalCierre();
+    showToast("✅ Observación cerrada correctamente");
+    await cargarAuditorias();
+    renderObsPendientes();
+
   } catch(e) {
-    console.error("PDF error:",e);
-    showToast("Error PDF: "+e.message,true);
+    console.error("Error cierre obs:", e);
+    showToast("Error: " + e.message, true);
+    btn.disabled = false;
+    btn.textContent = "✓ Confirmar Cierre";
   }
 }
 
-
-function renderProgresoBarra() {
-  var progEl = document.getElementById("progreso-sectores");
-  if (!progEl) return;
-
-  // Leer filtro de mes del dashboard (si existe) o usar mes vigente
-  var filtroMes = document.getElementById("d-fil-mes")?.value || "";
-  var now = new Date();
-  var mesFiltro = filtroMes || (now.getFullYear()+"-"+String(now.getMonth()+1).padStart(2,"0"));
-  var mi = mesFiltro+"-01";
-  var mf = mesFiltro+"-"+new Date(+mesFiltro.split("-")[0], +mesFiltro.split("-")[1], 0).getDate();
-
-  // Sectores únicos asignados
-  var todos = [...new Set(Object.values(AUDITORES_SECTORES).flat())];
-  // Sectores ya auditados en el mes filtrado
-  var audMes = (auditorias||[]).filter(a => a.fecha >= mi && a.fecha <= mf && a.sector);
-  var hechos  = new Set(audMes.map(a => a.sector));
-  var done    = todos.filter(s => hechos.has(s)).length;
-  var pend    = todos.length - done;
-  var pctP    = todos.length > 0 ? Math.min(100, Math.round(done/todos.length*100)) : 0;
-  var colP    = pctP >= 100 ? "#1B5E20" : pctP >= 50 ? "#D97706" : "#E63329";
-
-  // Sectores pendientes — agrupados por auditor
-  var pendSects = todos.filter(s => !hechos.has(s));
-  var pendByAud = {};
-  Object.entries(AUDITORES_SECTORES).forEach(function(e) {
-    var aud = e[0], sects = e[1];
-    sects.forEach(function(s) {
-      if (pendSects.indexOf(s) > -1) {
-        if (!pendByAud[aud]) pendByAud[aud] = [];
-        pendByAud[aud].push(s);
-      }
-    });
+// Subir foto a IMGBB
+async function subirIMGBB(blob) {
+  return new Promise(function(resolve, reject) {
+    var reader = new FileReader();
+    reader.onload = async function(e) {
+      try {
+        var b64  = e.target.result.split(",")[1];
+        var form = new FormData();
+        form.append("image", b64);
+        var res  = await fetch("https://api.imgbb.com/1/upload?key=" + IMGBB_KEY, {method:"POST", body:form});
+        var data = await res.json();
+        if (data.success) resolve(data.data.url);
+        else reject(new Error("IMGBB error"));
+      } catch(err) { reject(err); }
+    };
+    reader.readAsDataURL(blob);
   });
-
-  // Mes en formato legible
-  var mesLbl = (function(){
-    var p = mesFiltro.split("-");
-    return new Date(+p[0],+p[1]-1,1).toLocaleDateString("es-PE",{month:"long",year:"numeric"});
-  })();
-
-  progEl.innerHTML = `
-    <div style="background:#fff;border-radius:12px;padding:14px;box-shadow:var(--sh);margin-bottom:12px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-        <div>
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:800;color:var(--g700)">
-            Progreso Check Lists — ${mesLbl}
-          </div>
-          <div style="font-size:11px;color:var(--g400);margin-top:2px">
-            ${done} de ${todos.length} sectores evaluados
-          </div>
-        </div>
-        <div style="text-align:right">
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:900;color:${colP}">${pctP}%</div>
-          ${pctP>=100?'<div style="font-size:10px;color:#1B5E20;font-weight:700">✅ Todos completados</div>':''}
-        </div>
-      </div>
-      <div style="height:12px;background:var(--g100);border-radius:20px;overflow:hidden;margin-bottom:10px;cursor:pointer"
-           onclick="togglePendientes(this)"
-           title="Clic para ver sectores pendientes">
-        <div style="height:100%;width:${pctP}%;background:${colP};border-radius:20px;transition:width .8s"></div>
-      </div>
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <div style="display:flex;gap:12px;font-size:11px">
-          <span style="color:#1B5E20;font-weight:700">✅ ${done} completados</span>
-          <span style="color:${pctP>=100?"#1B5E20":"#E63329"};font-weight:700">⏳ ${pend} pendientes</span>
-        </div>
-        ${pend>0?`<button onclick="togglePendientes(document.getElementById('progreso-sectores').querySelector('.pendientes-list'))"
-          style="font-size:11px;color:var(--g500);background:none;border:none;cursor:pointer;padding:0;font-weight:600">
-          Ver pendientes ▾
-        </button>`:''}
-      </div>
-      ${pend>0?`<div class="pendientes-list" style="display:none;margin-top:12px;border-top:1px solid var(--g100);padding-top:10px">
-        ${Object.entries(pendByAud).map(function(e){
-          var aud=e[0], ss=e[1];
-          return '<div style="margin-bottom:8px">'
-            +'<div style="font-size:11px;font-weight:700;color:var(--g600);margin-bottom:4px">👤 '+aud+'</div>'
-            +ss.map(function(s){return '<div style="font-size:11px;color:var(--g500);padding:3px 8px;background:var(--g50);border-radius:6px;margin-bottom:3px;border-left:3px solid #E63329">⏳ '+s+'</div>';}).join("")
-            +'</div>';
-        }).join("")}
-      </div>`:''}
-    </div>`;
 }
 
-function togglePendientes(el) {
-  if (!el) return;
-  var list = el.classList && el.classList.contains("pendientes-list")
-    ? el
-    : el.closest ? el.closest("[style]")?.querySelector(".pendientes-list")
-    : null;
-  if (!list) {
-    // buscar en el contenedor padre
-    var cont = document.getElementById("progreso-sectores");
-    if (cont) list = cont.querySelector(".pendientes-list");
-  }
-  if (list) {
-    list.style.display = list.style.display === "none" ? "block" : "none";
-    // Actualizar texto del botón
-    var btn = document.getElementById("progreso-sectores")?.querySelector("button");
-    if (btn) btn.textContent = list.style.display === "none" ? "Ver pendientes ▾" : "Ocultar ▴";
+// ============================================================
+// RECORRIDO DIARIO — FUNCIONES
+// ============================================================
+
+async function cargarTodo(){
+  try{
+    const {data,error}=await sb.from("observaciones").select("*").order("created_at",{ascending:false});
+    if(error)throw error;
+    observations=data||[];
+    filtrar();
+    renderDashboard();
+  }catch(e){
+    console.error(e);
+    showToast("Error: "+(e.message||JSON.stringify(e)),true);
   }
 }
 
+function showTab(name){
+  document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
+  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+  document.getElementById("tab-"+name).classList.add("active");
+  ["nuevo","lista","dashboard"].forEach((t,i)=>{if(t===name)document.querySelectorAll(".tab")[i].classList.add("active");});
+  if(name==="lista")filtrar();
+  if(name==="dashboard")renderDashboard();
+}
 
-function exportarPDFGerencial(btn) {
-  try {
-    // Colores ISM en RGB
-    var cVerde  = [30, 124, 52];
-    var cVerdeD = [21,  90, 37];
-    var cVerdeL = [232,245,233];
-    var cRojo   = [230, 51, 41];
-    var cAmbar  = [217,119,  6];
-    var cGrisT  = [ 58, 63, 55];
-    var cGrisF  = [247,248,246];
-    var cGrisB  = [226,232,240];
-    var cBlanco = [255,255,255];
-
-    function colPct(p) { return p>=90?cVerdeD:p>=70?cVerde:p>=50?cAmbar:cRojo; }
-    function hexPct(p) { return p>=90?"#155A25":p>=70?"#1E7C34":p>=50?"#D97706":"#E63329"; }
-    function nivPct(p) { return p>=90?"Excelente":p>=70?"Bueno":p>=50?"Regular":"Deficiente"; }
-    function sD(a) { return Array.isArray(a.detalles)?a.detalles:safeJson(a.detalles,"[]"); }
-    function sI(a) { return Array.isArray(a.incumplimientos)?a.incumplimientos:safeJson(a.incumplimientos,"[]"); }
-    // Eliminar caracteres no ASCII para jsPDF
-    function safe(s) {
-      if (!s) return "";
-      return String(s)
-        .replace(/á/g,"a").replace(/é/g,"e").replace(/í/g,"i")
-        .replace(/ó/g,"o").replace(/ú/g,"u").replace(/ü/g,"u")
-        .replace(/Á/g,"A").replace(/É/g,"E").replace(/Í/g,"I")
-        .replace(/Ó/g,"O").replace(/Ú/g,"U").replace(/Ü/g,"U")
-        .replace(/ñ/g,"n").replace(/Ñ/g,"N")
-        .replace(/[^\x00-\x7F]/g,"");
-    }
-
-    // Filtros activos
-    var fm = document.getElementById("d-fil-mes")?.value      || "";
-    var fs = document.getElementById("d-fil-sector-a")?.value || "";
-    var fa = document.getElementById("d-fil-area-a")?.value   || "";
-
-    var lista = (auditorias||[]).filter(function(a){
-      if (!a.sector||!a.fecha) return false;
-      if (fm && String(a.nro_auditoria||a.fecha||"").substring(0,7)!==fm) return false;
-      if (fs && a.sector!==fs) return false;
-      if (fa && a.area!==fa)   return false;
-      return true;
-    }).sort(function(a,b){ return (b.pct_cumplimiento||0)-(a.pct_cumplimiento||0); });
-
-    if (!lista.length) {
-      if (btn){btn.disabled=false;btn.innerHTML="&#128196; PDF Gerencial";}
-      showToast("Sin datos para generar el PDF", true); return;
-    }
-
-    var mesLbl = fm
-      ? safe((function(){var p=fm.split("-");return new Date(+p[0],+p[1]-1,1).toLocaleDateString("es-PE",{month:"long",year:"numeric"});})())
-      : "Todos los periodos";
-    var avg   = Math.round(lista.reduce(function(s,a){return s+(a.pct_cumplimiento||0);},0)/lista.length);
-    var obsT  = lista.reduce(function(s,a){return s+sI(a).filter(function(x){return(x.estado||"Pendiente")==="Pendiente";}).length;},0);
-    var todos = [...new Set(Object.values(AUDITORES_SECTORES).flat())];
-    var done2 = todos.filter(function(s){return lista.some(function(a){return a.sector===s;});}).length;
-    var pctP  = todos.length>0?Math.min(100,Math.round(done2/todos.length*100)):0;
-    var cA    = colPct(avg);
-    var cP    = colPct(pctP);
-    var PW=210, mar=14;
-
-    var jsPDF2 = window.jspdf.jsPDF;
-    var doc = new jsPDF2({orientation:"portrait",unit:"mm",format:"a4"});
-
-    // ── Funciones helper ─────────────────────────────────
-    function sf(c){ doc.setFillColor(c[0],c[1],c[2]); }
-    function st(c){ doc.setTextColor(c[0],c[1],c[2]); }
-    function sd(c){ doc.setDrawColor(c[0],c[1],c[2]); }
-
-    function headerPagina(titulo) {
-      sf(cVerdeD); doc.rect(0,0,PW,5,"F");
-      sf(cVerde);  doc.rect(0,5,PW,10,"F");
-      sf(cAmbar);  doc.rect(0,15,PW,1,"F");
-      doc.setFont("helvetica","bold"); doc.setFontSize(10); st(cBlanco);
-      doc.text(safe(titulo), PW/2, 11.5, {align:"center"});
-      doc.setFont("helvetica","normal"); doc.setFontSize(7); st(cBlanco);
-      doc.text("ISM - Planta Huaura  |  "+mesLbl, PW/2, 14, {align:"center"});
-    }
-
-    function piePagina() {
-      var pg  = doc.internal.getCurrentPageInfo().pageNumber;
-      var tot = doc.internal.getNumberOfPages();
-      sf(cVerdeD); doc.rect(0,287,PW,10,"F");
-      doc.setFont("helvetica","normal"); doc.setFontSize(7); st(cBlanco);
-      doc.text("ISM - Reporte Gerencial Check List 5S - "+mesLbl, mar, 293);
-      doc.text("Pag. "+pg+" / "+tot, PW-mar, 293, {align:"right"});
-    }
-
-    function titSeccion(y, txt) {
-      sf(cVerde); doc.rect(mar, y, PW-mar*2, 7, "F");
-      sf(cAmbar); doc.rect(mar, y, 3, 7, "F");
-      doc.setFont("helvetica","bold"); doc.setFontSize(9); st(cBlanco);
-      doc.text(safe(txt), mar+6, y+5);
-      sd(cGrisB); doc.setLineWidth(0.3);
-      return y+9;
-    }
-
-    // Barra horizontal simple con valor
-    function barraH(x, y, w, h, pct, col) {
-      sf(cGrisB); doc.roundedRect(x, y, w, h, 1, 1, "F");
-      sf(col);    doc.roundedRect(x, y, w*pct/100, h, 1, 1, "F");
-    }
-
-    // ════════════════════════════════════════════════════
-    // PAGINA 1 — PORTADA EJECUTIVA
-    // ════════════════════════════════════════════════════
-    headerPagina("REPORTE GERENCIAL CHECK LIST 5S");
-    var y = 22;
-
-    // Título grande
-    sf(cVerde); doc.roundedRect(mar, y, PW-mar*2, 18, 2, 2, "F");
-    doc.setFont("helvetica","bold"); doc.setFontSize(20); st(cBlanco);
-    doc.text("CHECK LIST 5S", PW/2, y+8, {align:"center"});
-    doc.setFont("helvetica","normal"); doc.setFontSize(9);
-    doc.text("Industrias San Miguel  |  Planta Huaura  |  "+mesLbl, PW/2, y+15, {align:"center"});
-    y += 22;
-
-    // ── 4 KPIs ───────────────────────────────────────────
-    var kw = (PW-mar*2-6)/4;
-    var kpis = [
-      {l:"Check Lists",  v:String(lista.length), c:cVerde},
-      {l:"% Promedio",   v:avg+"%",              c:cA},
-      {l:"Obs. Pend.",   v:String(obsT),          c:obsT>0?cRojo:cVerde},
-      {l:"Completados",  v:done2+"/"+todos.length,c:cP},
-    ];
-    kpis.forEach(function(k,i){
-      var kx = mar + i*(kw+2);
-      sf(cBlanco); sd(k.c); doc.setLineWidth(0.4);
-      doc.roundedRect(kx, y, kw, 20, 2, 2, "FD");
-      sf(k.c); doc.roundedRect(kx, y, kw, 4, 2, 2, "F");
-      doc.rect(kx, y+2, kw, 2, "F");
-      doc.setFont("helvetica","bold"); doc.setFontSize(16); st(k.c);
-      doc.text(k.v, kx+kw/2, y+14, {align:"center"});
-      doc.setFont("helvetica","normal"); doc.setFontSize(6.5); st(cGrisT);
-      doc.text(k.l, kx+kw/2, y+19, {align:"center"});
+async function guardarObservacion(){
+  const area=document.getElementById("f-area").value;
+  const tipo=document.getElementById("f-tipo").value;
+  const obs=document.getElementById("f-obs").value.trim();
+  const auditor=document.getElementById("f-auditor").value.trim();
+  const zona=document.getElementById("f-zona").value;
+  if(!auditor){showToast("Escribe el nombre del responsable de registro",true);document.getElementById("f-auditor").style.borderColor="var(--red)";return;}
+  if(!area){showToast("Selecciona el \u00e1rea",true);return;}
+  if(!zona||zona.includes("\u2014")){showToast("Selecciona la zona / equipo",true);return;}
+  if(!tipo){showToast("Selecciona el tipo de observaci\u00f3n",true);return;}
+  if(!obs){showToast("Escribe la descripci\u00f3n de la observaci\u00f3n",true);document.getElementById("f-obs").style.borderColor="var(--red)";return;}
+  if(photosNuevo.length===0){showToast("La foto de evidencia (antes) es obligatoria",true);document.getElementById("drop-nuevo").style.borderColor="var(--red)";return;}
+  const btn=document.getElementById("btn-guardar");
+  btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Guardando...';
+  try{
+    const fotosUrls=[];
+    const pb=document.getElementById("prog-nuevo"),pf=document.getElementById("prog-nuevo-fill");
+    for(let i=0;i<photosNuevo.length;i++){showToast(`Subiendo foto ${i+1}/${photosNuevo.length}...`);fotosUrls.push(await subirCloudinary(photosNuevo[i],pb,pf));}
+    // Obtener el siguiente n\u00famero correlativo desde Supabase
+    const {data:maxData}=await sb.from("observaciones").select("num").order("num",{ascending:false}).limit(1);
+    const nextNum = maxData&&maxData.length>0?(maxData[0].num||0)+1:1;
+    const {data,error}=await sb.from("observaciones").insert({
+      num:nextNum,sem:document.getElementById("f-sem").value,fecha:window._fecha,auditor,
+      area:AREA_PADRE[area]||area.replace(/_/g," "),sector:area.replace(/_/g," "),zona:document.getElementById("f-zona").value,
+      tipo,s:selectedS||"\u2014",obs,responsable:document.getElementById("f-responsable").value.trim(),status:"NO CORREGIDO",fotos:fotosUrls
+    }).select().single();
+    if(error)throw error;
+    observations.unshift(data);
+    ["f-area","f-sector","f-zona","f-tipo","f-obs","f-responsable","f-auditor"].forEach(id=>{
+      const el=document.getElementById(id);
+      if(el.tagName==="SELECT"&&id!=="f-area"&&id!=="f-tipo")el.disabled=true;
+      el.value="";
     });
-    y += 24;
+    document.getElementById("prev-nuevo").innerHTML="";
+    document.querySelectorAll(".s-btn").forEach(b=>b.classList.remove("active"));
+    selectedS="";photosNuevo=[];
+    const dropN=document.getElementById("drop-nuevo");
+    if(dropN){dropN.style.borderColor="var(--red)";}
+    showToast("Observacion guardada");
+    filtrar();renderDashboard();
+  }catch(e){console.error(e);showToast("Error: "+(e.message||JSON.stringify(e)),true);}
+  btn.disabled=false;btn.innerHTML="Guardar observaci\u00f3n";
+}
 
-    // ── Nivel general ─────────────────────────────────────
-    sf(cA); doc.roundedRect(mar, y, PW-mar*2, 1.5, 1, 1, "F");
-    y += 4;
-    sf(cA); doc.roundedRect(mar, y, PW-mar*2, 12, 2, 2, "F");
-    doc.setFont("helvetica","bold"); doc.setFontSize(12); st(cBlanco);
-    doc.text("NIVEL GENERAL: "+safe(nivPct(avg))+"  |  "+avg+"% cumplimiento promedio en "+lista.length+" sectores", PW/2, y+8, {align:"center"});
-    y += 16;
+async function cerrarObservacion(){
+  const id=parseInt(document.getElementById("mo-id").value);
+  const comentario=document.getElementById("mo-comentario").value.trim();
+  if(!photoCierre){showToast("La foto del despu\u00e9s es obligatoria para cerrar",true);document.getElementById("drop-cierre").style.borderColor="var(--red)";return;}
+  const btn=document.getElementById("btn-cerrar-obs");
+  btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Guardando...';
+  try{
+    let foto_despues=null;
+    if(photoCierre){showToast("Subiendo foto...");foto_despues=await subirCloudinary(photoCierre,document.getElementById("prog-cierre"),document.getElementById("prog-cierre-fill"));}
+    const fecha_cierre=new Date().toISOString().split("T")[0];
+    const {error}=await sb.from("observaciones").update({status:"CORREGIDO",comentario_cierre:comentario,foto_despues,fecha_cierre}).eq("id",id);
+    if(error)throw error;
+    const idx=observations.findIndex(o=>o.id===id);
+    if(idx>-1)Object.assign(observations[idx],{status:"CORREGIDO",comentario_cierre:comentario,foto_despues,fecha_cierre});
+    closeModal("modal-obs");showToast("Observacion corregida");
+    filtrar();renderDashboard();
+  }catch(e){console.error(e);showToast("Error: "+(e.message||JSON.stringify(e)),true);}
+  btn.disabled=false;btn.innerHTML="Marcar como CORREGIDO";
+}
 
-    // ── Progreso mensual ──────────────────────────────────
-    y = titSeccion(y, "PROGRESO MENSUAL - SECTORES COMPLETADOS");
-    doc.setFont("helvetica","normal"); doc.setFontSize(8); st(cGrisT);
-    doc.text(done2+" de "+todos.length+" sectores  ("+pctP+"%)", PW-mar, y, {align:"right"});
-    barraH(mar, y+1, PW-mar*2, 7, pctP, cP);
-    doc.setFont("helvetica","bold"); doc.setFontSize(7); st(cBlanco);
-    if(pctP>=15) doc.text(pctP+"%", mar+4, y+5.5);
-    y += 12;
-
-    // ── Distribucion por nivel ─────────────────────────────
-    y = titSeccion(y, "DISTRIBUCION POR NIVEL DE CUMPLIMIENTO");
-    var niveles = [
-      {l:"Excelente (>=90%)", c:cVerdeD, cnt:lista.filter(function(a){return(a.pct_cumplimiento||0)>=90;}).length},
-      {l:"Bueno (70-89%)",    c:cVerde,  cnt:lista.filter(function(a){var p=a.pct_cumplimiento||0;return p>=70&&p<90;}).length},
-      {l:"Regular (50-69%)",  c:cAmbar,  cnt:lista.filter(function(a){var p=a.pct_cumplimiento||0;return p>=50&&p<70;}).length},
-      {l:"Deficiente (<50%)", c:cRojo,   cnt:lista.filter(function(a){return(a.pct_cumplimiento||0)<50;}).length},
-    ];
-    var maxCnt = Math.max.apply(null, niveles.map(function(n){return n.cnt;})) || 1;
-    var bw2 = (PW-mar*2-9)/4;
-    var bMaxH = 28;
-    niveles.forEach(function(n,i){
-      var nx = mar + i*(bw2+3);
-      var bH = Math.max(2, Math.round(bMaxH * n.cnt / maxCnt));
-      // Fondo
-      sf(cGrisF); doc.roundedRect(nx, y, bw2, bMaxH, 1,1,"F");
-      // Barra
-      sf(n.c); doc.roundedRect(nx, y+bMaxH-bH, bw2, bH, 1,1,"F");
-      // Numero
-      doc.setFont("helvetica","bold"); doc.setFontSize(14); st(n.c);
-      doc.text(String(n.cnt), nx+bw2/2, y+bMaxH+7, {align:"center"});
-      // Label
-      doc.setFont("helvetica","normal"); doc.setFontSize(6); st(cGrisT);
-      doc.text(safe(n.l), nx+bw2/2, y+bMaxH+12, {align:"center"});
+function exportarPDF(){
+  const btn=document.querySelector('[onclick="exportarPDF()"]');
+  if(btn){btn.textContent="...";btn.disabled=true;}
+  try{
+    const {jsPDF}=window.jspdf;
+    const doc=new jsPDF({orientation:"portrait",unit:"mm",format:"a4"});
+    const PW=210,M=14,CW=182;
+    const obsF=getObsFiltradas();
+    const total=obsF.length,corr=obsF.filter(o=>o.status==="CORREGIDO").length,noCorr=obsF.filter(o=>o.status==="NO CORREGIDO").length;
+    const pct=total?Math.round(corr/total*100):0;
+    const fecha=new Date().toLocaleDateString("es-PE",{day:"2-digit",month:"long",year:"numeric"});
+    const G=[30,124,52],R=[230,51,41],A=[217,119,6],GD=[21,90,37],W=[255,255,255];
+    // Header
+    doc.setFillColor(...G);doc.rect(0,0,PW,32,"F");
+    doc.setFillColor(...A);doc.rect(0,32,PW,1.5,"F");
+    // Logo ISM
+    const logoB64=ISM_LOGO;
+    doc.addImage(logoB64,"JPEG",M,3,24,24);
+    // T\u00edtulo centrado
+    doc.setTextColor(...W);doc.setFont("helvetica","bold");doc.setFontSize(20);doc.text("REPORTE 5S",PW/2+10,13,{align:"center"});
+    doc.setFontSize(9);doc.setFont("helvetica","normal");doc.text("Industrias San Miguel",PW/2+10,20,{align:"center"});
+    doc.setFontSize(7.5);doc.text(fecha,PW/2+10,27,{align:"center"});
+    let y=38;
+    // KPIs
+    const kW=(CW-8)/3;
+    [{label:"TOTAL OBS.",val:String(total),col:G},{label:"CORREGIDAS",val:String(corr),col:G},{label:"NO CORREGIDAS",val:String(noCorr),col:R}].forEach((k,i)=>{
+      const x=M+i*(kW+4);
+      doc.setFillColor(247,248,246);doc.setDrawColor(213,218,211);doc.roundedRect(x,y,kW,18,2,2,"FD");
+      doc.setFillColor(...k.col);doc.rect(x,y,kW,1.8,"F");
+      doc.setTextColor(...k.col);doc.setFont("helvetica","bold");doc.setFontSize(20);doc.text(k.val,x+kW/2,y+11,{align:"center"});
+      doc.setTextColor(100,100,100);doc.setFont("helvetica","normal");doc.setFontSize(7);doc.text(k.label,x+kW/2,y+16,{align:"center"});
     });
-    y += bMaxH + 16;
-
-    // Fecha generación
-    doc.setFont("helvetica","italic"); doc.setFontSize(7); st([160,160,160]);
-    doc.text("Generado: "+new Date().toLocaleDateString("es-PE",{day:"2-digit",month:"2-digit",year:"numeric"}), PW-mar, y, {align:"right"});
-
-    piePagina();
-
-    // ════════════════════════════════════════════════════
-    // PAGINA 2 — GRAFICOS
-    // ════════════════════════════════════════════════════
-    doc.addPage();
-    headerPagina("GRAFICOS DE CUMPLIMIENTO");
-    y = 22;
-
-    // ── Grafico 1: Barras horizontales por sector ─────────
-    y = titSeccion(y, "% CUMPLIMIENTO POR SECTOR (mayor a menor)");
-
-    var rowH   = 6;
-    var lblW   = 44;
-    var chartW = PW - mar*2 - lblW - 14;
-    var maxRows = Math.min(lista.length, 20);
-
-    // Líneas guía verticales
-    [25,50,75,100].forEach(function(v){
-      var xv = mar+lblW + chartW*v/100;
-      sd(cGrisB); doc.setLineDashPattern([1,1],0);
-      doc.line(xv, y, xv, y+maxRows*rowH);
-      doc.setLineDashPattern([],0);
-      doc.setFont("helvetica","normal"); doc.setFontSize(5.5); st([180,180,180]);
-      doc.text(v+"%", xv, y-1, {align:"center"});
-    });
-
-    lista.slice(0,maxRows).forEach(function(a,i){
-      var pct = a.pct_cumplimiento||0;
-      var c   = colPct(pct);
-      var by  = y + i*rowH;
-      var lbl = safe(a.sector||"");
-      if(lbl.length>20) lbl=lbl.substring(0,18)+"..";
-      // Label
-      doc.setFont("helvetica","normal"); doc.setFontSize(6); st(cGrisT);
-      doc.text(lbl, mar+lblW-2, by+rowH*0.72, {align:"right"});
-      // Fondo barra
-      sf(cGrisF); doc.roundedRect(mar+lblW, by+1, chartW, rowH-2, 1,1,"F");
-      // Barra valor
-      sf(c); doc.roundedRect(mar+lblW, by+1, chartW*pct/100, rowH-2, 1,1,"F");
-      // Valor %
-      doc.setFont("helvetica","bold"); doc.setFontSize(5.5); st(cBlanco);
-      if(pct>=18) doc.text(pct+"%", mar+lblW+chartW*pct/100-2, by+rowH*0.72, {align:"right"});
-      else { st(c); doc.text(pct+"%", mar+lblW+chartW*pct/100+3, by+rowH*0.72); }
-    });
-    if(lista.length>20){
-      doc.setFont("helvetica","italic"); doc.setFontSize(7); st([150,150,150]);
-      doc.text("(+)  "+(lista.length-20)+" sectores adicionales", mar+lblW, y+maxRows*rowH+4);
+    y+=22;
+    // Barra cumplimiento
+    const pctCol=pct>=80?G:pct>=50?A:R;
+    doc.setFillColor(232,240,232);doc.roundedRect(M,y,CW,10,2,2,"F");
+    doc.setFillColor(...pctCol);doc.roundedRect(M,y,CW*(pct/100),10,2,2,"F");
+    doc.setTextColor(...W);doc.setFont("helvetica","bold");doc.setFontSize(9);
+    doc.text(`% CUMPLIMIENTO: ${pct}%  (${corr} corregidas de ${total} observaciones)`,PW/2,y+6.5,{align:"center"});
+    y+=15;
+    // Analisis ejecutivo
+    const byArea={};obsF.forEach(o=>{if(!byArea[o.area])byArea[o.area]={t:0,ok:0,no:0};byArea[o.area].t++;if(o.status==="CORREGIDO")byArea[o.area].ok++;else if(o.status==="NO CORREGIDO")byArea[o.area].no++;});
+    const topArea=Object.entries(byArea).sort((a,b)=>b[1].t-a[1].t)[0];
+    const mejorArea=Object.entries(byArea).filter(([,v])=>v.t>=2).sort((a,b)=>(b[1].ok/b[1].t)-(a[1].ok/a[1].t))[0];
+    const peorArea=Object.entries(byArea).filter(([,v])=>v.t>=2).sort((a,b)=>(a[1].ok/a[1].t)-(b[1].ok/b[1].t))[0];
+    const byS={};obsF.forEach(o=>{const k=o.s||"\u2014";byS[k]=(byS[k]||0)+1;});
+    const topS=Object.entries(byS).sort((a,b)=>b[1]-a[1])[0];
+    const sems=[...new Set(obsF.map(o=>String(o.sem)).filter(Boolean))].sort((a,b)=>Number(b)-Number(a));
+    let tendTxt="";
+    if(sems.length>=2){
+      const ult=obsF.filter(o=>String(o.sem)===sems[0]);const ant=obsF.filter(o=>String(o.sem)===sems[1]);
+      const pU=ult.length?Math.round(ult.filter(o=>o.status==="CORREGIDO").length/ult.length*100):0;
+      const pA=ant.length?Math.round(ant.filter(o=>o.status==="CORREGIDO").length/ant.length*100):0;
+      const diff=pU-pA;
+      tendTxt=diff>0?`Tendencia positiva: semana ${sems[0]} subio ${diff}% vs semana ${sems[1]}.`:diff<0?`Tendencia negativa: semana ${sems[0]} bajo ${Math.abs(diff)}% vs semana ${sems[1]}.`:`Sin variacion entre semana ${sems[0]} y ${sems[1]}.`;
     }
-    y += maxRows*rowH + 14;
-
-    // ── Grafico 2: Pilares 5S como barras horizontales ────
-    y = titSeccion(y, "DESEMPENO POR PILAR 5S");
-
-    var pilDef = [
-      {key:"1S - Seleccionar", nums:[1,2,3,4],   c:[230,81,0]},
-      {key:"2S - Ordenar",     nums:[5,6,7,8],   c:[27,94,32]},
-      {key:"3S - Limpiar",     nums:[9,10,11,12],c:[13,71,161]},
-      {key:"4S - Estandarizar",nums:[13,14,15,16],c:[74,20,140]},
-      {key:"5S - Disciplinar", nums:[17,18,19,20],c:[136,14,79]},
-    ];
-
-    var pilH = 9, pilLW = 46, pilCW = PW-mar*2-pilLW-20;
-    pilDef.forEach(function(p,i){
-      var total=0, si=0;
-      lista.forEach(function(a){
-        sD(a).forEach(function(d){
-          if(p.nums.indexOf(d.num)>-1){total++;if(d.respuesta==="SI"||(d.puntaje>=4))si++;}
-        });
-      });
-      var pp = total>0?Math.round(si/total*100):0;
-      var py2 = y + i*(pilH+3);
-      // Label pilar
-      doc.setFont("helvetica","bold"); doc.setFontSize(7.5);
-      doc.setTextColor(p.c[0],p.c[1],p.c[2]);
-      doc.text(p.key, mar+pilLW-2, py2+pilH*0.72, {align:"right"});
-      // Fondo
-      sf(cGrisF); doc.roundedRect(mar+pilLW, py2, pilCW, pilH, 2,2,"F");
-      // Barra
-      doc.setFillColor(p.c[0],p.c[1],p.c[2]);
-      doc.roundedRect(mar+pilLW, py2, pilCW*pp/100, pilH, 2,2,"F");
-      // % dentro barra
-      doc.setFont("helvetica","bold"); doc.setFontSize(7.5); st(cBlanco);
-      if(pp>=15) doc.text(pp+"%", mar+pilLW+pilCW*pp/100-3, py2+pilH*0.72, {align:"right"});
-      else { doc.setTextColor(p.c[0],p.c[1],p.c[2]); doc.text(pp+"%", mar+pilLW+pilCW*pp/100+4, py2+pilH*0.72); }
-      // Conteo a la derecha
-      doc.setFont("helvetica","normal"); doc.setFontSize(6.5); st(cGrisT);
-      doc.text(si+"/"+total+" SI", mar+pilLW+pilCW+4, py2+pilH*0.72);
-      // Línea base
-      sd(cGrisB); doc.line(mar+pilLW, py2+pilH+1, mar+pilLW+pilCW, py2+pilH+1);
-    });
-    y += pilDef.length*(pilH+3) + 6;
-
-    // Resumen pilares en tabla compacta
-    doc.autoTable({
-      startY: y,
-      margin: {left:mar, right:mar},
-      head: [["PILAR","SI","NO","TOTAL","% CUMPL.","NIVEL"]],
-      body: pilDef.map(function(p){
-        var total=0,si=0;
-        lista.forEach(function(a){
-          sD(a).forEach(function(d){
-            if(p.nums.indexOf(d.num)>-1){total++;if(d.respuesta==="SI"||(d.puntaje>=4))si++;}
-          });
-        });
-        var pp=total>0?Math.round(si/total*100):0;
-        return [p.key,String(si),String(total-si),String(total),pp+"%",safe(nivPct(pp))];
-      }),
-      headStyles:{fillColor:cVerdeD,textColor:cBlanco,fontStyle:"bold",fontSize:7,halign:"center"},
-      bodyStyles:{fontSize:7,textColor:cGrisT,halign:"center"},
-      columnStyles:{0:{halign:"left",cellWidth:52}},
-      alternateRowStyles:{fillColor:cGrisF},
-      theme:"plain",
-      styles:{cellPadding:2,lineColor:cGrisB,lineWidth:0.2},
-    });
-
-    piePagina();
-
-    // ════════════════════════════════════════════════════
-    // PAGINA 3 — TABLAS DETALLE
-    // ════════════════════════════════════════════════════
-    doc.addPage();
-    headerPagina("TABLAS DE DETALLE");
-
-    // ── Tabla resumen por sector ──────────────────────────
-    doc.autoTable({
-      startY: 22,
-      margin: {left:mar, right:mar},
-      head: [["#","SECTOR","AREA","AUDITOR","% CUMPL.","NIVEL","OBS. PEND."]],
-      body: lista.map(function(a,i){
-        var pct = a.pct_cumplimiento||0;
-        var obs = sI(a).filter(function(x){return(x.estado||"Pendiente")==="Pendiente";}).length;
-        return [
-          String(i+1),
-          safe(a.sector||""),
-          safe(a.area||""),
-          safe((a.auditor||"").split(" ").slice(0,2).join(" ")),
-          pct+"%",
-          safe(nivPct(pct)),
-          String(obs)
-        ];
-      }),
-      headStyles:{fillColor:cVerdeD,textColor:cBlanco,fontStyle:"bold",fontSize:7,halign:"center"},
-      bodyStyles:{fontSize:6.5,textColor:cGrisT},
-      columnStyles:{
-        0:{halign:"center",cellWidth:8},
-        1:{cellWidth:38},
-        2:{cellWidth:30},
-        3:{cellWidth:32},
-        4:{halign:"center",cellWidth:16},
-        5:{halign:"center",cellWidth:20},
-        6:{halign:"center",cellWidth:16},
-      },
-      alternateRowStyles:{fillColor:cGrisF},
-      theme:"plain",
-      styles:{cellPadding:1.8,lineColor:cGrisB,lineWidth:0.2},
-      didParseCell: function(data){
-        if(data.section==="body" && data.column.index===4){
-          var v=parseInt(data.cell.raw)||0;
-          data.cell.styles.textColor=hexPct(v);
-          data.cell.styles.fontStyle="bold";
-        }
-        if(data.section==="body" && data.column.index===6){
-          var v2=parseInt(data.cell.raw)||0;
-          data.cell.styles.textColor=v2>0?"#E63329":"#1E7C34";
-          data.cell.styles.fontStyle="bold";
-        }
-      },
-      willDrawPage: function(){ headerPagina("TABLAS DE DETALLE"); },
-    });
-
-    var y3 = doc.lastAutoTable.finalY + 8;
-
-    // ── Top 5 criterios ───────────────────────────────────
-    var criMap={};
-    lista.forEach(function(a){
-      sD(a).filter(function(d){return d.respuesta==="NO"||(d.puntaje>0&&d.puntaje<=3);}).forEach(function(d){
-        var k = String(d.num)+"|"+safe(d.criterio||d.txt||"")+"|"+safe(d.pilar||"");
-        criMap[k]=(criMap[k]||0)+1;
-      });
-    });
-    var top5 = Object.entries(criMap).sort(function(a,b){return b[1]-a[1];}).slice(0,5);
-
-    if(top5.length){
-      doc.autoTable({
-        startY: y3,
-        margin: {left:mar, right:mar},
-        head: [["#","CRITERIO INCUMPLIDO","PILAR","VECES","% SECTORES"]],
-        body: top5.map(function(e,i){
-          var pts=e[0].split("|"), v=e[1];
-          return [String(i+1), pts[1]||"", pts[2]||"", String(v), Math.round(v/lista.length*100)+"%"];
-        }),
-        headStyles:{fillColor:cRojo,textColor:cBlanco,fontStyle:"bold",fontSize:7,halign:"center"},
-        bodyStyles:{fontSize:6.5,textColor:cGrisT},
-        columnStyles:{
-          0:{halign:"center",cellWidth:8},
-          1:{cellWidth:90},
-          2:{cellWidth:40},
-          3:{halign:"center",cellWidth:16},
-          4:{halign:"center",cellWidth:16},
-        },
-        alternateRowStyles:{fillColor:[255,245,245]},
-        theme:"plain",
-        styles:{cellPadding:2,lineColor:cGrisB,lineWidth:0.2},
-        willDrawPage: function(){ headerPagina("TABLAS DE DETALLE"); },
-      });
-      y3 = doc.lastAutoTable.finalY + 8;
+    const lineas=[
+      `Se registraron ${total} observaciones: ${corr} corregidas (${pct}%) y ${noCorr} no corregidas.`,
+      topArea?`Area con mas observaciones: ${topArea[0]} (${topArea[1].t} casos).`:"",
+      mejorArea?`Mejor cumplimiento: ${mejorArea[0]} con ${Math.round(mejorArea[1].ok/mejorArea[1].t*100)}% corregido.`:"",
+      peorArea&&peorArea[0]!==mejorArea?.[0]?`Area critica: ${peorArea[0]} con ${Math.round(peorArea[1].ok/peorArea[1].t*100)}% corregido.`:"",
+      topS?`Falla mas frecuente: ${topS[0]} con ${topS[1]} observaciones (${total?Math.round(topS[1]/total*100):0}%).`:"",
+      tendTxt
+    ].filter(Boolean);
+    const rH=lineas.length*6+10;
+    doc.setFillColor(248,252,248);doc.setDrawColor(...G);doc.setLineWidth(0.5);doc.roundedRect(M,y,CW,rH,2,2,"FD");
+    doc.setFillColor(...G);doc.rect(M,y,3,rH,"F");
+    doc.setTextColor(...GD);doc.setFont("helvetica","bold");doc.setFontSize(8);doc.text("ANALISIS EJECUTIVO",M+6,y+5);
+    doc.setFont("helvetica","normal");doc.setTextColor(50,63,50);doc.setFontSize(7.5);
+    lineas.forEach((l,i)=>{const lines=doc.splitTextToSize("\u2022 "+l,CW-10);doc.text(lines,M+6,y+10+i*6);});
+    y+=rH+6;
+    // Tabla pivot sector
+    const sects={};
+    obsF.forEach(o=>{const s=o.sector||"C";if(!sects[s])sects[s]={corr:0,no:0,total:0};sects[s].total++;if(o.status==="CORREGIDO")sects[s].corr++;else if(o.status==="NO CORREGIDO")sects[s].no++;});
+    const totR={corr:0,no:0,total:0};Object.values(sects).forEach(v=>{totR.corr+=v.corr;totR.no+=v.no;totR.total+=v.total;});
+    const pivotBody=Object.entries(sects).sort().map(([k,v])=>["Sector "+k,v.corr,v.no,v.total,(v.total?Math.round(v.corr/v.total*100):0)+"%"]);
+    pivotBody.push(["TOTAL GENERAL",totR.corr,totR.no,totR.total,(totR.total?Math.round(totR.corr/totR.total*100):0)+"%"]);
+    doc.setFont("helvetica","bold");doc.setFontSize(8);doc.setTextColor(...G);doc.text("RESUMEN POR SECTOR",M,y);y+=3;
+    doc.autoTable({startY:y,head:[["Sector","Corregidas","No Corregidas","Total","% Cumpl."]],body:pivotBody,theme:"grid",headStyles:{fillColor:G,textColor:W,fontSize:7.5,fontStyle:"bold",halign:"center",cellPadding:2},bodyStyles:{fontSize:7.5,halign:"center",cellPadding:2},columnStyles:{0:{halign:"left",fontStyle:"bold",cellWidth:35}},didDrawCell:(d)=>{if(d.section==="body"){if(d.column.index===4){const v=parseInt(d.cell.text[0]);if(!isNaN(v))d.cell.styles.textColor=v>=80?G:v>=50?A:R;d.cell.styles.fontStyle="bold";}if(d.row.index===pivotBody.length-1){d.cell.styles.fillColor=[220,240,220];d.cell.styles.fontStyle="bold";}}},margin:{left:M,right:M}});
+    y=doc.lastAutoTable.finalY+6;
+    // Tabla area
+    const areaBody=Object.entries(byArea).sort((a,b)=>b[1].t-a[1].t).map(([area,v])=>[area.length>22?area.substring(0,20)+"...":area,v.ok,v.no,v.t,(v.t?Math.round(v.ok/v.t*100):0)+"%"]);
+    doc.setFont("helvetica","bold");doc.setFontSize(8);doc.setTextColor(...G);doc.text("% CUMPLIMIENTO POR AREA",M,y);y+=3;
+    doc.autoTable({startY:y,head:[["Area","Corregidas","No Corregidas","Total","% Cumpl."]],body:areaBody,theme:"striped",headStyles:{fillColor:GD,textColor:W,fontSize:7.5,fontStyle:"bold",halign:"center",cellPadding:2},bodyStyles:{fontSize:7,halign:"center",cellPadding:2},alternateRowStyles:{fillColor:[245,250,245]},columnStyles:{0:{halign:"left",cellWidth:48}},didDrawCell:(d)=>{if(d.section==="body"&&d.column.index===4){const v=parseInt(d.cell.text[0]);if(!isNaN(v))d.cell.styles.textColor=v>=80?G:v>=50?A:R;d.cell.styles.fontStyle="bold";}},margin:{left:M,right:M}});
+    y=doc.lastAutoTable.finalY+6;
+    // Tendencia semanal
+    if(sems.length>0&&y<250){
+      const semData=sems.slice(0,6).reverse().map(s=>{const obs=obsF.filter(o=>String(o.sem)===s);const c=obs.filter(o=>o.status==="CORREGIDO").length;const n=obs.filter(o=>o.status==="NO CORREGIDO").length;const t=obs.length;return ["Sem. "+s,c,n,t,(t?Math.round(c/t*100):0)+"%"];});
+      doc.setFont("helvetica","bold");doc.setFontSize(8);doc.setTextColor(...G);doc.text("TENDENCIA SEMANAL",M,y);y+=3;
+      doc.autoTable({startY:y,head:[["Semana","Corregidas","No Corregidas","Total","% Cumpl."]],body:semData,theme:"plain",headStyles:{fillColor:GD,textColor:W,fontSize:7,fontStyle:"bold",halign:"center",cellPadding:2},bodyStyles:{fontSize:7,halign:"center",cellPadding:2},columnStyles:{0:{halign:"left",fontStyle:"bold",cellWidth:25}},didDrawCell:(d)=>{if(d.section==="body"&&d.column.index===4){const v=parseInt(d.cell.text[0]);if(!isNaN(v))d.cell.styles.textColor=v>=80?G:v>=50?A:R;d.cell.styles.fontStyle="bold";}},margin:{left:M,right:M}});
     }
+    // Footer
+    doc.setFillColor(...G);doc.rect(0,285,PW,12,"F");
+    doc.setTextColor(...W);doc.setFont("helvetica","normal");doc.setFontSize(7);
+    doc.text("Industrias San Miguel - Programa 5S",M,291);doc.text(fecha,PW/2,291,{align:"center"});doc.text("Pagina 1 de 1",PW-M,291,{align:"right"});
+    const semLabel=sems[0]?"_Sem"+sems[0]:"";
+    doc.save(`Reporte5S_ISM${semLabel}_${new Date().toISOString().split("T")[0]}.pdf`);
+    showToast("PDF generado");
+  }catch(e){console.error(e);showToast("Error PDF: "+e.message,true);}
+  if(btn){btn.textContent="PDF";btn.disabled=false;}
+}
 
-    // ── Obs pendientes por area ───────────────────────────
-    var obsByArea={};
-    lista.forEach(function(a){
-      sI(a).filter(function(x){return(x.estado||"Pendiente")==="Pendiente";}).forEach(function(x){
-        var ar = safe(a.area||"Sin area");
-        if(!obsByArea[ar]) obsByArea[ar]=[];
-        obsByArea[ar].push({
-          sector:      safe(a.sector||""),
-          criterio:    safe(x.criterio||""),
-          responsable: safe(x.responsable||a.responsable||"Sin asignar"),
-          fecha:       safe(x.fecha_compromiso||""),
-        });
-      });
-    });
-    var areaEntries = Object.entries(obsByArea).sort(function(a,b){return b[1].length-a[1].length;});
 
-    if(areaEntries.length){
-      var obsBody=[];
-      areaEntries.forEach(function(e){
-        var area=e[0], items=e[1];
-        obsBody.push([{content:area.toUpperCase()+" ("+items.length+" obs.)",colSpan:4,styles:{fillColor:cVerdeL,textColor:cVerdeD,fontStyle:"bold",fontSize:7.5}}]);
-        items.forEach(function(it){
-          obsBody.push([it.sector, it.criterio, it.responsable, it.fecha||"Tentativa"]);
-        });
-      });
+// ── Zonas por sector (del Excel ZONAS.xlsx) ────────────────
+const ZONAS_SECTOR = {
+  "LÍNEA 1": ["CAPSULADOR ALCOA B242", "CODIFICADOR VIDEOJET EXCEL 2000 02CWD", "CONJTO PROPORCIONADOR MOJONNIER FE", "EMPACADORA PACKERS VITZ", "ETIQUETADORA TRINE 4600 6364", "LLENADORA CROWN 50-10", "TRANSPORTADOR A TABLILLAS CONVEYOR LP01", "CALDERO PIROTUBULAR INTESA 50 BHP", "POSICIONADOR BOTELLA POSIMAT MASTER 20", "AREA DE SOPLADO", "AREAS COMUNES", "AREA DE PALETIZADO MANUAL"],
+  "LÍNEA 2": ["CODIFICAD IMAJE 1000 S8 CLASIC 4490004U", "CONJTO PROPORCIONADOR MESAL MIX-50", "DOSIFICADOR DE NITROGENO SC-350", "ELEVADOR DE TAPAS TIPO JET FLOW MESAL", "ENVOLVEDORA TECMI EV 850-50 J0.EV50.011", "ETIQUETADORA TRINE 4500FS", "LLEN MESAL ISOBARICA E50-60-15IA S-0790", "PASTEURIZADOR HUHTAMAKI 15000LH", "TRANSPORTADOR A TABLILLAS CONVEYOR LP02", "TRANSPORTADOR NEUMATICO PNEUMATIC LP02", "OZONIZADOR INTERIN 40 m3", "SOPLADORA SIDEL SBO MATRIX 12/20", "ETIQUETADORA NEWTEC GIOTTO 720 F15 CY S1 E1", "LLENADORA CROWN", "CHILLER CTA IPC 252 SIDEL - LP02", "AREAS COMUNES", "AREA DE PALETIZADO MANUAL", "PREDILUBIO LLENADORA", "PREDILUBIO SALIDA LLENADORA"],
+  "LÍNEA 3": ["CODIFICADOR IMAJE 1000 S8 IP-65 2420242A", "CONJTO PROPORCIONADOR MOJONNIER 22-48", "ELEVADOR DE TAPAS TIPO JET FLOW ZEFP", "ENVOLVEDORA TECMI EV 750,50 J0.EV50.024", "ETIQUETADORA TRINE 4600 6364", "GENERADORES DE OXIGENO P P TITAN", "LLENAD MESAL ISOB E80-100-25IA2 S-09021", "OZONIZADOR INTERIN 20m3", "SEPARAD LIQ HORIZONTAL MEBRAFE SLT 900-3", "TRANSPORTADOR A TABLILLAS MESAL LP03", "TRANSPORTADOR NEUMATICO PNEUMATIC LP03", "PALETIZADOR AUTOMATICO TMG-SIRIO S2S", "ETIQUETADORA VERTICAL XYL-450AJ", "ETIQUETADORA ROTATIVA OPERA PRO 300", "SOPLADORA SIDEL SBO UNIVERSAL2 16/20", "CHILLER CTA IPC 702 SIDEL - LP03", "CAPSULADOR MONOCABEZAL ASTECH CATA 140", "CODIFICADOR VIDEOJET EXCEL 2000 19CWD", "AREAS COMUNES"],
+  "LÍNEA 4": ["LLENADORA LINEAL DE BIDONES MESAL", "TRANSPORTADOR A TABLILLAS CONVEY LP04", "LLENADORA 20 LITROS RERCPAC SA", "EMPACADORA EVOPACK T452", "ETIQUETADORA TRINE 5500_LP04", "RINSER DE 7 LITROS", "SOPLADORA CHINA DE BIDONES", "SOPLADORA CHINA DE BIDONES 2 MOLDES", "APLICADOR DE ADHESIVO DURABLUE", "AREAS COMUNES", "AREA DE PALETIZADO MANUAL"],
+  "LÍNEA 5": ["ALIMENTADOR D TAPAS UNIMAC GHERRI GG/900", "APLICADOR D PRECINTOS DASE SEAL XYL-450S", "CAPSULADOR UNIMAC GHERRI GG/300", "CODIFICADOR VIDEOJET EXCEL 2000 16CWD", "CUCHILLA DE AIRE SONIC 70", "DETECTOR DE VACIO GHERRI GG/670", "ENJUAGADOR DE AIRE MESAL ER50PM", "ENVOLVEDORA TECMI EV 750,50 EQ.AÑO1.043", "ESTERILIZADOR DE TAPAS BEVCO ZPPI-31", "ETIQUETADORA B&H 8000S", "LLEN MESAL GRAVEDAD E50-60-15G2 S-10138", "MESA ELEVADORA HIDRAULICA", "PASTEURIZADOR HUHTAMAKI 8000L", "SIST CALENTAM AGUA P11-014RP P/ENJ BOT", "SIST ENFRIAM AGUA P11-007bMV P/ENFR BOT", "TRANSPORTADOR A TABLILLLAS MESAL LP05", "TUNEL CONTRACC DE PRECINTOS MITRI LP15D", "TUNEL DE ENFRIAMIENTO J. BEHNKE E-500", "TUNEL DE VAPOR J.BEHNKE C500", "POSICIONADOR", "AREAS COMUNES"],
+  "LINEA 6": ["MÁQUINA SOPLADORA ROTATIVA MODELO SBF 410 HERO", "LLENADORA AWF", "TAPONADORA DE TAPA EN PLÁSTICO PRE-ROSCADO FLAT DIÁM. 29/25 MM", "CHILLER PARA LA SOPLADORA ROTATIVA MODELO SBF 410 HERO", "DOSIFICADOR DE NITRÓGENO LÍQUIDO 75.000 BPH", "ELEVADOR DE TAPAS MECÁNICO LINEA 06", "ETIQUETADORA ROTATIVA OPERA 300 RF 24T/R 2/4/265 S1/E1", "CODIFICADOR LASER VIDEOJET 1620", "EMPACADORA SMI - MODELO SK 800 F", "PALETIZADORA ARES 2 CP/P", "OZONIZADOR INTERIN 20m3", "PASTEURIZADOR ALFA LAVAL", "TRANSPORTADOR A TABLILLAS MESAL LP06", "AREAS COMUNES"],
+  "LÍNEA 7": ["ETIQUETADORA SIDEL EVODECO SL100", "LLENADORA SIDEL SF300", "EMPACADORA SIDEL EVO FILM ACCESS", "PALETIZADOR SIDEL PALKOMBI", "ALIMENTADOR DE TAPAS GEBO OPTIFEED", "TAPONADORA DE TAPA EN PLÁSTICO PRE-ROSCADO", "TRANSPORTADOR A TABLILLLAS SIDEL LP07", "SOPLADORA SIDEL MATRIX SBO 16", "MIXER SIDEL SF300", "CHILLER PARA LA SOPLADORA ROTATIVA MODELO MATRIX SBO 16", "SECADOR DE BOTELLA SIDEL GEBO OPTYDRY", "CODIFICADOR VIDEOJET EXCEL 3340 LP07", "AREAS COMUNES"],
+  "LÍNEA 8": ["POSICIONADOR POSIMAT ACCESS N-40", "TRANSPORTADOR NEUMATICO PNEUMATIC LP08", "APLICADOR D PRECINTOS SCALIGERA ULISSE 40000", "LLENADORA SACMI AHF+EPD 50.20.50.15", "PASTEURIZADOR DE ALOE VERA HRS", "EMPACADORA TECMI TT70.45X3C LP08", "TUNEL DE VAPOR SCALIGERA PACKAGING", "CODIFICADOR VIDEOJET EXCEL 2000 LP08", "TRANSPORTADOR A TABLILLLAS LP08", "AREAS COMUNES", "TUNEL DE ENFRIAMIENTO", "ETIQUETADORA B&H"],
+  "LÍNEA 9": ["CODIFICADOR LASER VIDEOJET - LP09", "CHILLER TERMALCARE Q37.5 - LP09", "CHILLER TERMALCARE Q37.6 - LP09", "SOPLADORA TECHLONG CPX16A - LP09", "LLENADORA TECHLONG CPX16A - LP09", "ALIMENTADOR DE TAPAS TECHLONG - LP09", "OZONIZADOR AGUAMUNDO - LP09", "INSPECTOR DE NIVEL DE LLENADO - LP09", "TRANSP TABLILLA LLENA-ETIQ - LP09", "TRANSP TABLILLA ETIQ-EMPAC - LP09", "TRANSP TABLILLA EMPAC-PALET - LP09", "SECADOR DE BOTELLA TECHLONG - LP09", "ETIQUETADORA TECHLONG 1440-31 - LP09", "INSPECTOR DE ETIQUETA HS700 - LP09", "EMPACADORA TECHLONG DBZ-MB63", "PALETIZADORA TECHLONG BMD61", "AREAS COMUNES"],
+  "SALA DE MANEJOS": ["ALREDEDORES", "SALA DE MANEJOS"],
+  "SALA DE FUERZAS": ["ALREDORES", "SALA DE FUERZA"],
+  "SALA DE CALDERO": ["AREAS COMUNES", "SALA DE CALDEROS"],
+  "TRATAMIENTO DE AGUAS": ["AREAS COMUNES", "TRATAMIENTO DE AGUA"],
+  "SALA DE JARABE": ["ALREDEDORES", "SALA DE JARABE"],
+};
 
-      doc.autoTable({
-        startY: y3,
-        margin: {left:mar, right:mar},
-        head: [["SECTOR","CRITERIO INCUMPLIDO","RESPONSABLE","FECHA COMP."]],
-        body: obsBody,
-        headStyles:{fillColor:cVerdeD,textColor:cBlanco,fontStyle:"bold",fontSize:7,halign:"center"},
-        bodyStyles:{fontSize:6.5,textColor:cGrisT},
-        columnStyles:{
-          0:{cellWidth:36},
-          1:{cellWidth:72},
-          2:{cellWidth:40},
-          3:{cellWidth:22,halign:"center"},
-        },
-        alternateRowStyles:{fillColor:cGrisF},
-        theme:"plain",
-        styles:{cellPadding:1.8,lineColor:cGrisB,lineWidth:0.2},
-        willDrawPage: function(){ headerPagina("TABLAS DE DETALLE"); },
-      });
-    }else{
-      doc.setFont("helvetica","italic"); doc.setFontSize(9);
-      doc.setTextColor(cVerde[0],cVerde[1],cVerde[2]);
-      doc.text("Sin observaciones pendientes.", mar, y3+6);
-    }
 
-    // Pie en todas las paginas
-    var totPgs = doc.internal.getNumberOfPages();
-    for(var pg=1;pg<=totPgs;pg++){
-      doc.setPage(pg);
-      piePagina();
-    }
+function updateZonas() {
+  var sector = document.getElementById("f-area").value;
+  var areaEl = document.getElementById("f-sector");
+  var zEl    = document.getElementById("f-zona");
+  var zWrap  = document.getElementById("f-zona-wrap");
 
-    var fname = "ReporteGerencial_ISM_5S_"+(fm||"todos").replace(/-/g,"")+".pdf";
-    doc.save(fname);
-    if(btn){btn.disabled=false;btn.innerHTML="&#128196; PDF Gerencial";}
-    showToast("PDF Gerencial generado");
+  areaEl.value = "";
+  zEl.innerHTML = "<option value=''>- Selecciona zona -</option>";
+  zEl.disabled  = true;
+  document.getElementById("f-responsable").value = "";
 
-  } catch(e) {
-    console.error("PDF error:",e);
-    if(btn){btn.disabled=false;btn.innerHTML="&#128196; PDF Gerencial";}
-    showToast("Error PDF: "+e.message, true);
+  if (!sector) {
+    if (zWrap) zWrap.style.display = "none";
+    return;
   }
+
+  // Área automática desde SECTOR_AREA_MAP
+  areaEl.value = SECTOR_AREA_MAP[sector] || "";
+
+  // Responsable automático desde RESP_SECTOR
+  document.getElementById("f-responsable").value = RESP_SECTOR[sector] || "";
+
+  // Zonas si aplica
+  var zonas = ZONAS_SECTOR[sector] || [];
+  if (zonas.length > 0) {
+    zonas.forEach(function(z) {
+      zEl.innerHTML += "<option value='" + z + "'>" + z + "</option>";
+    });
+    zEl.disabled = false;
+    if (zWrap) zWrap.style.display = "block";
+  } else {
+    if (zWrap) zWrap.style.display = "none";
+  }
+}
+
+function autoS(){
+  const found=TIPOS.find(t=>t.tipo===document.getElementById("f-tipo").value);
+  if(found)selectS(found.s);
+  else{selectedS="";document.querySelectorAll(".s-btn").forEach(b=>b.classList.remove("active"));}
+}
+
+function abrirEditar(){
+  if(!obsActual)return;closeModal("modal-obs");
+  document.getElementById("me-id").value=obsActual.id;
+  document.getElementById("me-obs").value=obsActual.obs;
+  document.getElementById("me-resp").value=obsActual.responsable||"";
+  document.getElementById("me-status").value=obsActual.status;
+  openModal("modal-editar");
+}
+
+async function confirmarEditar(){
+  const id=parseInt(document.getElementById("me-id").value);
+  const obsText=document.getElementById("me-obs").value.trim();
+  const resp=document.getElementById("me-resp").value.trim();
+  const status=document.getElementById("me-status").value;
+  if(!obsText){showToast("La descripcion no puede estar vacia",true);return;}
+  try{
+    const {error}=await sb.from("observaciones").update({obs:obsText,responsable:resp,status}).eq("id",id);
+    if(error)throw error;
+    const idx=observations.findIndex(o=>o.id===id);
+    if(idx>-1)Object.assign(observations[idx],{obs:obsText,responsable:resp,status});
+    closeModal("modal-editar");showToast("Actualizado");
+    filtrar();renderDashboard();
+  }catch(e){showToast("Error: "+(e.message||JSON.stringify(e)),true);}
+}
+
+function setPeriod(p){periodoEvol=p;document.getElementById("btn-sem").classList.toggle("active",p==="sem");document.getElementById("btn-mes").classList.toggle("active",p==="mes");renderEvolucion();}
+
+function setPeriodArea(p){periodoArea=p;document.getElementById("btn-area-sem").classList.toggle("active",p==="sem");document.getElementById("btn-area-mes").classList.toggle("active",p==="mes");renderEvolArea();}
+
+async function audn_guardar(){
+  const num=document.getElementById("audn-num").value;
+  const fecha=document.getElementById("audn-fecha").value;
+  const sectorEl=document.getElementById("audn-sector");
+  const sector=sectorEl.value;
+  const opt=sectorEl.options[sectorEl.selectedIndex];
+  const area=opt?opt.getAttribute("data-area"):"";
+  const auditor=document.getElementById("audn-auditor").value.trim();
+  const lider=document.getElementById("audn-lider").value.trim();
+  if(!num||!fecha||!sectorKey||!auditor){showToast("Completa todos los campos obligatorios",true);return;}
+  const btn=document.getElementById("audn-btn-guardar");
+  btn.disabled=true;btn.textContent="Guardando...";
+  // Calcular puntaje
+  let descuento=0;
+  const criterios=[];
+  let numObs=1;
+  Object.entries(audn_state).forEach(([key,v])=>{
+    var parts_cc=key.split("||"); var cat=parts_cc[0]; var crit=parts_cc[1];
+    descuento+=v.puntaje||0;
+    criterios.push({num:numObs++,categoria:cat,criterio:crit,...v});
+  });
+  const puntajeTotal=1000+descuento;
+  const pct=Math.max(0,Math.round(puntajeTotal/10));
+  const nivel=pct>=90?"EXCELENTE":pct>=80?"BUENO":pct>=60?"REGULAR":"DEFICIENTE";
+  try{
+    const {data,error}=await sb.from("auditorias_nuevas_5s").insert({
+      num_auditoria:parseInt(num),
+      fecha,area,sector,auditor,lider,
+      puntaje_total:puntajeTotal,
+      pct_cumplimiento:pct,
+      nivel,
+      criterios:JSON.stringify(criterios),
+      total_incumplimientos:criterios.filter(c=>c.puntaje<0).length,
+      status:"Activo",
+      created_at:new Date().toISOString()
+    }).select().single();
+    if(error) throw error;
+    showToast(`Auditor\u00eda guardada \u2014 ${puntajeTotal} pts (${pct}%) \u2713`);
+    audn_state={};
+    document.getElementById("audn-eval-container").style.display="none";
+    document.getElementById("audn-form-datos").style.opacity="1";
+    audn_checkReady();
+    auditNuevaTab("historial");
+  }catch(e){
+    showToast("Error al guardar: "+e.message,true);
+  }finally{
+    btn.disabled=false;btn.textContent="\u2713 Guardar Auditor\u00eda";
+  }
+}
+
+function auditNuevaTab(tab){
+  ["nueva","historial","dashboard","acciones"].forEach(t=>{
+    const cont=document.getElementById("audn-content-"+t);
+    const btn=document.getElementById("audn-tab-"+t);
+    if(cont) cont.style.display=t===tab?"block":"none";
+    if(btn){btn.style.color=t===tab?"var(--amber)":"var(--g400)";btn.style.borderBottom=t===tab?"3px solid var(--amber)":"3px solid transparent";}
+  });
+  if(tab==="historial") audn_cargarHistorial();
+  if(tab==="dashboard") audn_renderDashboard();
+  if(tab==="acciones") audn_cargarAcciones();
+}
+
+function audn_iniciarEvaluacion(){
+  audn_state={};
+  audn_renderCriterios();
+  document.getElementById("audn-eval-container").style.display="block";
+  document.getElementById("audn-btn-iniciar").style.display="none";
+  document.getElementById("audn-form-datos").style.opacity="0.65";
+  document.getElementById("audn-badge-ronda").style.display="block";
+  const num=document.getElementById("audn-num").value;
+  document.getElementById("audn-badge-ronda").textContent=["","A1","A2","A3","A4"][num]||"";
+  document.getElementById("audn-eval-container").scrollIntoView({behavior:"smooth"});
+}
+
+function audn_selPuntaje(pts, updateUI=true){
+  if(updateUI){
+    document.querySelectorAll(".audn-pts-btn").forEach(b=>{
+      const bpts=parseInt(b.dataset.pts);
+      b.style.opacity=bpts===pts?"1":"0.45";
+      b.style.transform=bpts===pts?"scale(1.04)":"scale(1)";
+      b.style.boxShadow=bpts===pts?"0 0 0 3px rgba(0,0,0,.25)":"none";
+    });
+  }
+  document.getElementById("audn-modal-incump").style.display=pts<0?"block":"none";
+  document.getElementById("audn-modal-destacable").style.display=pts>0?"block":"none";
+  audn_criterioActual._pts=pts;
+}
+
+async function audn_guardarCriterio(){
+  const pts=audn_criterioActual._pts;
+  if(pts===undefined||pts===null){showToast("Selecciona un puntaje",true);return;}
+  const key=audn_criterioActual.cat+"||"+audn_criterioActual.crit;
+  let fotoAntesUrl=audn_state[key]?.fotoAntesUrl||"";
+  if(pts<0){
+    const obs=document.getElementById("audn-modal-obs").value.trim();
+    const s=document.getElementById("audn-modal-s").value;
+    const resp=document.getElementById("audn-modal-resp").value.trim();
+    if(!obs){showToast("Escribe la observaci\u00f3n",true);return;}
+    if(!s){showToast("Selecciona la S afectada",true);return;}
+    if(!resp){showToast("Escribe el responsable",true);return;}
+    if(!audn_fotoAntesBlob&&!fotoAntesUrl){showToast("La foto de evidencia es obligatoria",true);return;}
+    if(audn_fotoAntesBlob){
+      showToast("Subiendo foto...");
+      try{fotoAntesUrl=await subirCloudinary(audn_fotoAntesBlob,null,null);}
+      catch(e){showToast("Error subiendo foto",true);return;}
+    }
+    audn_state[key]={
+      puntaje:pts,obs,s,resp,fi:document.getElementById("audn-modal-fi").value,
+      ff:document.getElementById("audn-modal-ff").value,fotoAntesUrl,fotoDesUrl:""
+    };
+  } else {
+    const coment=document.getElementById("audn-modal-coment").value.trim();
+    audn_state[key]={puntaje:pts,obs:"",s:"",resp:"",coment,fotoAntesUrl:"",fotoDesUrl:""};
+  }
+  audn_cerrarModal();
+  audn_renderCriterios();
+  showToast("Criterio guardado \u2713");
+}
+
+async function audn_guardarAccion(){
+  const resp=document.getElementById("audn-accion-responsable").value.trim();
+  const fi=document.getElementById("audn-accion-fecha-inicio").value;
+  const ff=document.getElementById("audn-accion-fecha-fin").value;
+  const avance=parseInt(document.getElementById("audn-accion-avance").value||"0");
+  const avancePlan=parseInt(document.getElementById("audn-accion-avance-plan").value||"100");
+  const estado=document.getElementById("audn-accion-estado").value;
+  if(!resp||!fi||!ff){showToast("Completa responsable y fechas",true);return;}
+  let fotoDespuesUrl="";
+  if(audn_fotoDespuesBlob){
+    showToast("Subiendo foto...");
+    try{fotoDespuesUrl=await subirCloudinary(audn_fotoDespuesBlob,null,null);}
+    catch(e){showToast("Error subiendo foto",true);return;}
+  }
+  const id=document.getElementById("audn-accion-id").value;
+  const payload={
+    auditoria_id:parseInt(document.getElementById("audn-accion-auditoria-id").value),
+    responsable:resp,fecha_inicio:fi,fecha_fin:ff,
+    avance_real:avance,avance_planificado:avancePlan,
+    estado,foto_despues:fotoDespuesUrl,
+    created_at:new Date().toISOString()
+  };
+  let error;
+  if(id){const r=await sb.from("acciones_auditoria").update(payload).eq("id",id);error=r.error;}
+  else{const r=await sb.from("acciones_auditoria").insert(payload);error=r.error;}
+  if(error){showToast("Error: "+error.message,true);return;}
+  document.getElementById("modal-audn-accion").style.display="none";
+  showToast("Acci\u00f3n guardada \u2713");
+  audn_cargarAcciones();
+}
+
+function audn_cerrarModal(){
+  document.getElementById("modal-audn-criterio").style.display="none";
+}
+
+async function confirmarCierreAudit(){
+  if(!fotoCierreAudit){
+    showToast("La foto de evidencia es obligatoria",true);
+    document.getElementById("drop-cierre-audit").style.borderColor="var(--red)";
+    return;
+  }
+  const auditId = parseInt(document.getElementById("mca-audit-id").value);
+  const numCriterio = parseInt(document.getElementById("mca-criterio-num").value);
+  const comentario = document.getElementById("mca-comentario").value.trim();
+  const btn = document.querySelector('#modal-cierre-audit .btn-primary');
+  if(btn){btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Guardando...';}
+  try{
+    showToast("Subiendo foto...");
+    const fotoUrl = await subirCloudinary(fotoCierreAudit, null, null);
+    // Obtener auditor\u00eda actual
+    const auditoria = auditorias.find(a => a.id === auditId);
+    if(!auditoria) throw new Error("Auditoria no encontrada");
+    // Actualizar cierre_criterios
+    let cierres = (typeof auditoria.cierre_criterios==='object'&&auditoria.cierre_criterios)?auditoria.cierre_criterios:safeJson(auditoria.cierre_criterios,"{}");
+    cierres[numCriterio] = {
+      cerrado: true,
+      foto_cierre: fotoUrl,
+      comentario,
+      fecha_cierre: new Date().toISOString().split("T")[0]
+    };
+    const {error} = await sb.from("auditorias_5s_ism")
+      .update({cierre_criterios: JSON.stringify(cierres)})
+      .eq("id", auditId);
+    if(error) throw error;
+    // Actualizar local como objeto (igual que cargarAuditorias)
+    auditoria.cierre_criterios = cierres;
+    closeModal("modal-cierre-audit");
+    showToast("Observacion levantada correctamente");
+    renderHistorial();
+    renderObsPendientes();
+    renderPendientesCierre();
+  }catch(e){
+    showToast("Error: " + e.message, true);
+  }
+  if(btn){btn.disabled=false;btn.innerHTML='&#10003; Marcar como LEVANTADA';}
+}
+
+
+function audn_onSectorChange() {
+  var sector  = document.getElementById("audn-sector").value;
+  var areaEl  = document.getElementById("audn-area-auto");
+  var liderEl = document.getElementById("audn-lider");
+  if (!sector) {
+    if (areaEl)  areaEl.value  = "";
+    if (liderEl) liderEl.value = "";
+    return;
+  }
+  if (areaEl)  areaEl.value  = SECTOR_AREA_MAP[sector]  || "";
+  if (liderEl) liderEl.value = RESP_SECTOR[sector] || "";
 }
 
 // ============================================================
 // INICIALIZACIÓN
 // ============================================================
 
+
+
+function audn_fotoAntes(input) {
+  var file = input.files[0];
+  if (!file) return;
+  window.audn_fotoAntesBlob = file;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var el = document.getElementById("audn-foto-antes-preview");
+    if (el) { el.src = e.target.result; el.style.display = "block"; }
+  };
+  reader.readAsDataURL(file);
+}
+
+function audn_fotoDespues(input) {
+  var file = input.files[0];
+  if (!file) return;
+  window.audn_fotoDespuesBlob = file;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var el = document.getElementById("audn-foto-despues-preview");
+    if (el) { el.src = e.target.result; el.style.display = "block"; }
+  };
+  reader.readAsDataURL(file);
+}
+
+
+function abrirFoto(src) {
+  window.open(src, "_blank");
+}
+
+// ── Funciones faltantes (recorrido + auditoría) ────────────
+
+function filtrar() {
+  var area    = document.getElementById("fil-area")?.value    || "";
+  var status  = document.getElementById("fil-status")?.value  || "";
+  var semana  = document.getElementById("fil-sem-h")?.value   || "";
+  var filtered = (observations||[]).filter(function(o){
+    if (area   && o.area   !== area)   return false;
+    if (status && o.status !== status) return false;
+    if (semana && o.semana !== semana) return false;
+    return true;
+  });
+  renderLista(filtered);
+}
+
+function renderDashboard() {
+  if (typeof renderAuditDashboard === "function") {
+    renderAuditDashboard();
+  }
+}
+
+function handlePhotos(input) {
+  window._photosNuevo = window._photosNuevo || [];
+  var files = Array.from(input.files);
+  files.forEach(function(f){ window._photosNuevo.push(f); });
+  var preview = document.getElementById("photos-preview");
+  if (preview) {
+    files.forEach(function(f){
+      var reader = new FileReader();
+      reader.onload = function(e){
+        var img = document.createElement("img");
+        img.src = e.target.result;
+        img.style.cssText = "width:60px;height:60px;object-fit:cover;border-radius:6px;margin:2px;cursor:pointer";
+        preview.appendChild(img);
+      };
+      reader.readAsDataURL(f);
+    });
+  }
+}
+
+function handleFotoCierre(input) {
+  var file = input.files[0];
+  if (!file) return;
+  window._fotoCierreBlob = file;
+  var reader = new FileReader();
+  reader.onload = function(e){
+    var el = document.getElementById("foto-cierre-preview");
+    if (el) { el.src = e.target.result; el.style.display = "block"; }
+  };
+  reader.readAsDataURL(file);
+}
+
+function handleFotoCierreAudit(input) {
+  var file = input.files[0];
+  if (!file) return;
+  window._fotoCierreAuditBlob = file;
+  var reader = new FileReader();
+  reader.onload = function(e){
+    var el = document.getElementById("foto-cierre-audit-preview");
+    if (el) { el.src = e.target.result; el.style.display = "block"; }
+  };
+  reader.readAsDataURL(file);
+}
+
+async function audn_cargarHistorial() {
+  var ronda = document.getElementById("audn-fil-ronda")?.value || "";
+  var area  = document.getElementById("audn-fil-area")?.value  || "";
+  var el    = document.getElementById("audn-historial-body");
+  if (!el) return;
+  try {
+    var q = sb.from("auditorias_nuevas_5s").select("*").order("created_at",{ascending:false});
+    if (ronda) q = q.eq("num_auditoria", ronda);
+    if (area)  q = q.eq("area", area);
+    var {data, error} = await q;
+    if (error) throw error;
+    if (!data||!data.length){ el.innerHTML='<div class="empty"><p>Sin auditorías registradas.</p></div>'; return; }
+    el.innerHTML = data.map(function(a){
+      var pct = a.pct_cumplimiento || 0;
+      var col = pct>=90?"#1B5E20":pct>=70?"#1E7C34":pct>=50?"#D97706":"#E63329";
+      return '<div class="obs-card" style="border-left:4px solid '+col+';margin-bottom:10px">'
+        +'<div style="font-family:var(--font-bc),sans-serif;font-size:16px;font-weight:800;color:var(--g700)">'+a.sector+'</div>'
+        +'<div style="font-size:11px;color:var(--g400)">'+a.area+' · '+(a.fecha||'')+'</div>'
+        +'<div style="font-family:var(--font-bc),sans-serif;font-size:24px;font-weight:900;color:'+col+'">'+pct+'%</div>'
+        +'</div>';
+    }).join("");
+  } catch(e){ showToast("Error: "+e.message,true); }
+}
+
+async function audn_cargarAcciones() {
+  var el = document.getElementById("audn-acciones-body");
+  if (!el) return;
+  el.innerHTML = '<p style="color:var(--g400);font-size:13px;text-align:center;padding:20px">Cargando...</p>';
+  try {
+    var {data,error} = await sb.from("auditorias_nuevas_5s")
+      .select("sector,area,criterios,fecha")
+      .order("created_at",{ascending:false});
+    if (error) throw error;
+    var acciones = [];
+    (data||[]).forEach(function(a){
+      var crits = typeof a.criterios==="string"?JSON.parse(a.criterios):a.criterios||[];
+      crits.filter(function(c){return c.puntaje<4&&c.puntaje>0;}).forEach(function(c){
+        acciones.push({sector:a.sector,area:a.area,fecha:a.fecha,criterio:c.criterio,puntaje:c.puntaje,accion:c.accion||""});
+      });
+    });
+    if (!acciones.length){ el.innerHTML='<div class="empty"><p>Sin acciones pendientes.</p></div>'; return; }
+    el.innerHTML = acciones.map(function(a){
+      return '<div class="obs-card" style="border-left:4px solid var(--red);margin-bottom:8px">'
+        +'<div style="font-size:12px;font-weight:700;color:var(--g700)">'+a.criterio+'</div>'
+        +'<div style="font-size:10px;color:var(--g400)">'+a.sector+' · '+a.area+' · '+a.fecha+'</div>'
+        +(a.accion?'<div style="font-size:11px;color:var(--g600);margin-top:4px">'+a.accion+'</div>':"")
+        +'</div>';
+    }).join("");
+  } catch(e){ showToast("Error: "+e.message,true); }
+}
+
+async function audn_renderDashboard() {
+  var ronda = document.getElementById("audn-dash-ronda")?.value || "";
+  var kpis  = document.getElementById("audn-dash-kpis");
+  if (!kpis) return;
+  try {
+    var q = sb.from("auditorias_nuevas_5s").select("*").order("created_at",{ascending:false});
+    if (ronda) q = q.eq("num_auditoria", ronda);
+    var {data,error} = await q;
+    if (error) throw error;
+    var lista = data||[];
+    var avg   = lista.length?Math.round(lista.reduce(function(s,a){return s+(a.pct_cumplimiento||0);},0)/lista.length):0;
+    var col   = avg>=90?"#1B5E20":avg>=70?"#1E7C34":avg>=50?"#D97706":"#E63329";
+    kpis.innerHTML =
+      '<div class="obs-card" style="text-align:center"><div style="font-family:var(--font-bc),sans-serif;font-size:28px;font-weight:900;color:'+col+'">'+avg+'%</div><div style="font-size:11px;color:var(--g400)">Promedio</div></div>'
+      +'<div class="obs-card" style="text-align:center"><div style="font-family:var(--font-bc),sans-serif;font-size:28px;font-weight:900;color:var(--green)">'+lista.length+'</div><div style="font-size:11px;color:var(--g400)">Auditorías</div></div>';
+  } catch(e){ showToast("Error: "+e.message,true); }
+}
+
+function renderLista(data) {
+  var el = document.getElementById("obs-list");
+  if (!el) return;
+  var list = data || observations || [];
+  if (!list.length){ el.innerHTML='<div class="empty"><div class="empty-ico">📋</div><p>Sin observaciones.</p></div>'; return; }
+  var G="#1E7C34",R="#E63329";
+  el.innerHTML = list.map(function(o){
+    var lv = o.status==="CORREGIDO";
+    var col = lv?G:R;
+    return '<div class="obs-card" style="border-left:4px solid '+col+';margin-bottom:10px">'
+      +'<div style="display:flex;justify-content:space-between;align-items:start">'
+      +'<div><div style="font-family:var(--font-bc),sans-serif;font-size:15px;font-weight:800;color:var(--g700)">'+o.area+'</div>'
+      +'<div style="font-size:10px;color:var(--g400)">'+o.zona+' · '+o.semana+'</div></div>'
+      +'<span style="background:'+col+';color:#fff;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700">'+(lv?"Corregido":"Pendiente")+'</span>'
+      +'</div>'
+      +(o.obs?'<div style="font-size:12px;color:var(--g700);margin-top:6px">'+o.obs+'</div>':"")
+      +(o.responsable?'<div style="font-size:11px;color:var(--g400);margin-top:3px">👤 '+o.responsable+'</div>':"")
+      +'</div>';
+  }).join("");
+}
+
+function exportarPDFAuditoria() {
+  try {
+    var jsPDF2 = window.jspdf.jsPDF;
+    var doc    = new jsPDF2({orientation:"portrait",unit:"mm",format:"a4"});
+    var meta   = auditMeta || {};
+    var W      = 210, mar = 14;
+    var pct    = Number(document.getElementById("result-puntaje")?.textContent || 0);
+    var niv    = document.getElementById("result-nivel")?.textContent || "";
+    var rCol   = pct>=90?[27,94,32]:pct>=70?[30,124,52]:pct>=50?[217,119,6]:[230,51,41];
+
+    function safe(s){ return String(s||"").replace(/[áÁ]/g,"a").replace(/[éÉ]/g,"e").replace(/[íÍ]/g,"i").replace(/[óÓ]/g,"o").replace(/[úÚüÜ]/g,"u").replace(/[ñÑ]/g,"n").replace(/[^\x00-\x7F]/g,""); }
+
+    // Header
+    doc.setFillColor(21,90,37); doc.rect(0,0,W,6,"F");
+    doc.setFillColor(30,124,52); doc.rect(0,6,W,26,"F");
+    doc.setFont("helvetica","bold"); doc.setFontSize(16); doc.setTextColor(255,255,255);
+    doc.text("CHECK LIST 5S - INDUSTRIAS SAN MIGUEL",W/2,18,{align:"center"});
+    doc.setFont("helvetica","normal"); doc.setFontSize(9);
+    doc.text("Planta Huaura",W/2,27,{align:"center"});
+    doc.setFillColor(217,119,6); doc.rect(0,32,W,1.5,"F");
+
+    // Datos
+    var y = 40;
+    doc.setTextColor(0,0,0);
+    var datos = [["Auditor",safe(meta.auditor||"")],["Sector",safe(meta.sector||"")],
+      ["Area",safe(meta.area||"")],["Responsable",safe(meta.responsable||"")],
+      ["Mes",safe(meta.nro_auditoria||"")],["Fecha",safe(meta.fecha||"")]];
+    doc.setFillColor(247,248,246); doc.roundedRect(mar,y-3,W-mar*2,datos.length*8+6,2,2,"F");
+    datos.forEach(function(d){
+      doc.setFont("helvetica","bold"); doc.setFontSize(8); doc.setTextColor(100,116,139);
+      doc.text(d[0]+":",mar+3,y+3);
+      doc.setFont("helvetica","normal"); doc.setFontSize(9); doc.setTextColor(0,0,0);
+      doc.text(d[1],mar+40,y+3); y+=8;
+    });
+    y += 6;
+
+    // Resultado
+    doc.setFillColor(rCol[0],rCol[1],rCol[2]); doc.roundedRect(mar,y,W-mar*2,14,3,3,"F");
+    doc.setFont("helvetica","bold"); doc.setFontSize(14); doc.setTextColor(255,255,255);
+    doc.text(pct+"% - "+safe(niv),W/2,y+9,{align:"center"});
+    y += 20;
+
+    // Pilares
+    var pilDef=[{key:"1S",label:"Seleccionar",nums:[1,2,3,4],c:[230,81,0]},{key:"2S",label:"Ordenar",nums:[5,6,7,8],c:[27,94,32]},{key:"3S",label:"Limpiar",nums:[9,10,11,12],c:[13,71,161]},{key:"4S",label:"Estandarizar",nums:[13,14,15,16],c:[74,20,140]},{key:"5S",label:"Disciplinar",nums:[17,18,19,20],c:[136,14,79]}];
+    doc.setFont("helvetica","bold"); doc.setFontSize(9); doc.setTextColor(0,0,0);
+    doc.text("DESEMPENO POR PILAR",mar,y); y+=6;
+    var bw=(W-mar*2-8)/5;
+    pilDef.forEach(function(p,i){
+      var si=p.nums.filter(function(n){return auditData[n]&&auditData[n].respuesta==="SI";}).length;
+      var pp=Math.round(si/p.nums.length*100);
+      var x=mar+i*(bw+2);
+      doc.setFillColor(240,240,240); doc.roundedRect(x,y,bw,16,2,2,"F");
+      doc.setFillColor(p.c[0],p.c[1],p.c[2]);
+      if(pp>0) doc.roundedRect(x,y+16-Math.round(16*pp/100),bw,Math.round(16*pp/100),2,2,"F");
+      doc.setFont("helvetica","bold"); doc.setFontSize(8);
+      doc.setTextColor(p.c[0],p.c[1],p.c[2]);
+      doc.text(p.key,x+bw/2,y+22,{align:"center"});
+      doc.setFont("helvetica","normal"); doc.setFontSize(7); doc.setTextColor(100,116,139);
+      doc.text(si+"/"+p.nums.length,x+bw/2,y+27,{align:"center"});
+    });
+    y += 34;
+
+    // Criterios
+    doc.setFont("helvetica","bold"); doc.setFontSize(9); doc.setTextColor(0,0,0);
+    doc.text("EVALUACION DE CRITERIOS",mar,y); y+=6;
+    var lastPilar="";
+    CRITERIOS.forEach(function(c){
+      if(y>272){doc.addPage();y=20;}
+      var d=auditData[c.num]||{};
+      var resp=d.respuesta||"-";
+      if(c.pilar!==lastPilar){
+        lastPilar=c.pilar;
+        if(y>268){doc.addPage();y=20;}
+        doc.setFillColor(226,232,240); doc.rect(mar,y-1,W-mar*2,6,"F");
+        doc.setFont("helvetica","bold"); doc.setFontSize(7.5); doc.setTextColor(21,90,37);
+        doc.text(safe(c.pilar).toUpperCase(),mar+2,y+3.5); y+=8;
+      }
+      var rc=resp==="SI"?[27,94,32]:resp==="NO"?[230,51,41]:[150,150,150];
+      doc.setFillColor(rc[0],rc[1],rc[2]); doc.circle(mar+2,y+2,1.8,"F");
+      doc.setFont("helvetica","normal"); doc.setFontSize(7.5); doc.setTextColor(0,0,0);
+      var ct=doc.splitTextToSize(c.num+". "+safe(c.txt),W-mar*2-18);
+      doc.text(ct[0]+(ct.length>1?"...":""),mar+5,y+3.5);
+      doc.setFont("helvetica","bold"); doc.setTextColor(rc[0],rc[1],rc[2]);
+      doc.text(resp,W-mar,y+3.5,{align:"right"});
+      doc.setTextColor(0,0,0); y+=7;
+      if(resp==="NO"&&d.obs){
+        doc.setFont("helvetica","italic"); doc.setFontSize(7); doc.setTextColor(100,116,139);
+        var ol=doc.splitTextToSize("Obs: "+safe(d.obs),W-mar*2-10);
+        doc.text(ol[0],mar+5,y); y+=4;
+        doc.setTextColor(0,0,0);
+      }
+    });
+
+    // Pie
+    var tot=doc.internal.getNumberOfPages();
+    for(var pg=1;pg<=tot;pg++){
+      doc.setPage(pg);
+      doc.setFillColor(30,124,52); doc.rect(0,287,W,10,"F");
+      doc.setFont("helvetica","normal"); doc.setFontSize(7); doc.setTextColor(255,255,255);
+      doc.text("ISM Check List 5S - "+safe(meta.nro_auditoria||""),mar,293);
+      doc.text("Pag. "+pg+" / "+tot,W-mar,293,{align:"right"});
+    }
+
+    doc.save("CheckList5S_"+safe(meta.sector||"sector").replace(/[^a-zA-Z0-9]/g,"_")+".pdf");
+    showToast("PDF descargado");
+  } catch(e){ console.error(e); showToast("Error PDF: "+e.message,true); }
+}
+
+
+function renderProgresoBarra() {
+  var progEl = document.getElementById("progreso-sectores");
+  if (!progEl) return;
+  var filtroMes = document.getElementById("d-fil-mes") ? document.getElementById("d-fil-mes").value : "";
+  var now = new Date();
+  var mesFiltro = filtroMes || (now.getFullYear()+"-"+String(now.getMonth()+1).padStart(2,"0"));
+  var p = mesFiltro.split("-");
+  var mi = mesFiltro+"-01";
+  var mf = mesFiltro+"-"+new Date(+p[0],+p[1],0).getDate();
+  var todos = [];
+  Object.values(AUDITORES_SECTORES).forEach(function(arr){
+    arr.forEach(function(s){ if(todos.indexOf(s)<0) todos.push(s); });
+  });
+  var audMes = (auditorias||[]).filter(function(a){return a.fecha>=mi&&a.fecha<=mf&&a.sector;});
+  var hechosSet = {};
+  audMes.forEach(function(a){ hechosSet[a.sector]=true; });
+  var done = todos.filter(function(s){return hechosSet[s];}).length;
+  var pend = todos.length-done;
+  var pctP = todos.length>0?Math.min(100,Math.round(done/todos.length*100)):0;
+  var colP = pctP>=100?"#1B5E20":pctP>=50?"#D97706":"#E63329";
+  var mesLbl = new Date(+p[0],+p[1]-1,1).toLocaleDateString("es-PE",{month:"long",year:"numeric"});
+  var pendSects = todos.filter(function(s){return !hechosSet[s];});
+  var pendByAud = {};
+  Object.keys(AUDITORES_SECTORES).forEach(function(aud){
+    AUDITORES_SECTORES[aud].forEach(function(s){
+      if(pendSects.indexOf(s)>-1){
+        if(!pendByAud[aud]) pendByAud[aud]=[];
+        pendByAud[aud].push(s);
+      }
+    });
+  });
+  var pendHTML = "";
+  Object.keys(pendByAud).forEach(function(aud){
+    pendHTML += '<div style="margin-bottom:6px"><div style="font-size:11px;font-weight:700;color:var(--g600)">'+aud+'</div>';
+    pendByAud[aud].forEach(function(s){
+      pendHTML += '<div style="font-size:11px;color:var(--g500);padding:2px 6px;background:var(--g50);border-radius:4px;margin-top:2px;border-left:2px solid #E63329">'+s+'</div>';
+    });
+    pendHTML += '</div>';
+  });
+  var h = '<div style="background:#fff;border-radius:12px;padding:14px;box-shadow:var(--sh)">';
+  h += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">';
+  h += '<div style="font-size:15px;font-weight:800;color:var(--g700)">Progreso Check Lists - '+mesLbl+'</div>';
+  h += '<div style="font-size:22px;font-weight:900;color:'+colP+'">'+pctP+'% <span style="font-size:12px;color:var(--g400)">'+done+'/'+todos.length+'</span></div>';
+  h += '</div>';
+  h += '<div style="height:10px;background:var(--g100);border-radius:20px;overflow:hidden;cursor:pointer" onclick="togglePendientes()">';
+  h += '<div style="height:100%;width:'+pctP+'%;background:'+colP+';border-radius:20px;transition:width .8s"></div>';
+  h += '</div>';
+  h += '<div style="font-size:11px;color:var(--g400);margin-top:5px;display:flex;justify-content:space-between">';
+  h += '<span>'+done+' completados - '+pend+' pendientes</span>';
+  if(pend>0) h += '<span style="cursor:pointer;color:var(--g500)" onclick="togglePendientes()">Ver pendientes</span>';
+  h += '</div>';
+  if(pend>0) h += '<div id="prog-pend-list" style="display:none;margin-top:10px;border-top:1px solid var(--g100);padding-top:8px">'+pendHTML+'</div>';
+  h += '</div>';
+  progEl.innerHTML = h;
+}
+
+function togglePendientes() {
+  var el = document.getElementById("prog-pend-list");
+  if (el) el.style.display = el.style.display==="none" ? "block" : "none";
+}
+
+function togglePendientes(el) {
+  if (!el) return;
+  var cont = document.getElementById("progreso-sectores");
+  if (!cont) return;
+  var list = cont.querySelector(".pendientes-list");
+  if (!list) return;
+  list.style.display = list.style.display==="none" ? "block" : "none";
+}
+
+
+function exportarPDFGerencial(btn) {
+  try {
+    if(btn){btn.disabled=true;btn.innerHTML="Generando...";}
+    var jsPDF2=window.jspdf.jsPDF;
+    var doc=new jsPDF2({orientation:"portrait",unit:"mm",format:"a4"});
+    var W=210,mar=14;
+    function ss(x){return String(x||"").replace(/[^\x00-\x7F]/g,"");}
+    function cA(p){return p>=90?[27,94,32]:p>=70?[30,124,52]:p>=50?[217,119,6]:[230,51,41];}
+    function sI2(a){return Array.isArray(a.incumplimientos)?a.incumplimientos:safeJson(a.incumplimientos,"[]");}
+    function sD2(a){return Array.isArray(a.detalles)?a.detalles:safeJson(a.detalles,"[]");}
+    var fm=document.getElementById("d-fil-mes")?document.getElementById("d-fil-mes").value:"";
+    var lista=(auditorias||[]).filter(function(a){
+      if(!a.sector||!a.fecha) return false;
+      if(fm&&String(a.nro_auditoria||a.fecha||"").substring(0,7)!==fm) return false;
+      return true;
+    }).sort(function(a,b){return (b.pct_cumplimiento||0)-(a.pct_cumplimiento||0);});
+    if(!lista.length){if(btn){btn.disabled=false;btn.innerHTML="PDF Gerencial";}showToast("Sin datos",true);return;}
+    var mesLbl=fm?(function(){var p=fm.split("-");return new Date(+p[0],+p[1]-1,1).toLocaleDateString("es-PE",{month:"long",year:"numeric"});})():"Todos";
+    var avg=Math.round(lista.reduce(function(s,a){return s+(a.pct_cumplimiento||0);},0)/lista.length);
+    var obsT=lista.reduce(function(s,a){return s+sI2(a).filter(function(x){return(x.estado||"Pendiente")==="Pendiente";}).length;},0);
+    // Header
+    doc.setFillColor(21,90,37);doc.rect(0,0,W,5,"F");
+    doc.setFillColor(30,124,52);doc.rect(0,5,W,30,"F");
+    doc.setFont("helvetica","bold");doc.setFontSize(18);doc.setTextColor(255,255,255);
+    doc.text("REPORTE GERENCIAL 5S",W/2,18,{align:"center"});
+    doc.setFontSize(9);doc.setFont("helvetica","normal");
+    doc.text("ISM Planta Huaura - "+mesLbl,W/2,27,{align:"center"});
+    // KPIs
+    var y=42;
+    doc.autoTable({
+      startY:y,margin:{left:mar,right:mar},
+      head:[["CHECK LISTS","% PROMEDIO","OBS. PENDIENTES","NIVEL"]],
+      body:[[String(lista.length),avg+"%",String(obsT),ss(getNivel(avg).nivel)]],
+      headStyles:{fillColor:[21,90,37],textColor:[255,255,255],fontStyle:"bold",fontSize:9,halign:"center"},
+      bodyStyles:{fontSize:14,textColor:[30,124,52],fontStyle:"bold",halign:"center"},
+      theme:"plain",styles:{cellPadding:4,lineColor:[226,232,240],lineWidth:0.2},
+    });
+    y=doc.lastAutoTable.finalY+10;
+    // Tabla sectores
+    doc.autoTable({
+      startY:y,margin:{left:mar,right:mar},
+      head:[["#","SECTOR","AREA","AUDITOR","% CUMPL.","NIVEL","OBS"]],
+      body:lista.map(function(a,i){
+        var pct=a.pct_cumplimiento||0;
+        var obs=sI2(a).filter(function(x){return(x.estado||"Pendiente")==="Pendiente";}).length;
+        return[String(i+1),ss(a.sector||""),ss(a.area||""),ss((a.auditor||"").split(" ").slice(0,2).join(" ")),pct+"%",ss(getNivel(pct).nivel),String(obs)];
+      }),
+      headStyles:{fillColor:[21,90,37],textColor:[255,255,255],fontStyle:"bold",fontSize:7,halign:"center"},
+      bodyStyles:{fontSize:6.5,textColor:[58,63,55]},
+      columnStyles:{0:{halign:"center",cellWidth:8},1:{cellWidth:38},2:{cellWidth:28},3:{cellWidth:30},4:{halign:"center",cellWidth:16},5:{halign:"center",cellWidth:18},6:{halign:"center",cellWidth:14}},
+      alternateRowStyles:{fillColor:[247,248,246]},theme:"plain",
+      styles:{cellPadding:2,lineColor:[226,232,240],lineWidth:0.2},
+      didParseCell:function(d){
+        if(d.section==="body"&&d.column.index===4){var v=parseInt(d.cell.raw)||0;d.cell.styles.textColor=v>=70?"#1E7C34":v>=50?"#D97706":"#E63329";d.cell.styles.fontStyle="bold";}
+        if(d.section==="body"&&d.column.index===6){var v2=parseInt(d.cell.raw)||0;d.cell.styles.textColor=v2>0?"#E63329":"#1E7C34";d.cell.styles.fontStyle="bold";}
+      },
+    });
+    // Obs por area (nueva pagina)
+    doc.addPage();
+    var obsBody=[];
+    var obsArea={};
+    lista.forEach(function(a){
+      sI2(a).filter(function(x){return(x.estado||"Pendiente")==="Pendiente";}).forEach(function(x){
+        var ar=ss(a.area||"Sin area");
+        if(!obsArea[ar])obsArea[ar]=[];
+        obsArea[ar].push({sector:ss(a.sector||""),criterio:ss(x.criterio||""),responsable:ss(x.responsable||""),fecha:ss(x.fecha_compromiso||"")});
+      });
+    });
+    Object.entries(obsArea).sort(function(a,b){return b[1].length-a[1].length;}).forEach(function(e){
+      obsBody.push([{content:e[0].toUpperCase()+" ("+e[1].length+" obs.)",colSpan:4,styles:{fillColor:[232,245,233],textColor:[21,90,37],fontStyle:"bold",fontSize:8}}]);
+      e[1].forEach(function(it){obsBody.push([it.sector,it.criterio,it.responsable,it.fecha||"Pendiente"]);});
+    });
+    if(obsBody.length){
+      doc.autoTable({
+        startY:14,margin:{left:mar,right:mar},
+        head:[["SECTOR","CRITERIO","RESPONSABLE","FECHA"]],
+        body:obsBody,
+        headStyles:{fillColor:[21,90,37],textColor:[255,255,255],fontStyle:"bold",fontSize:7},
+        bodyStyles:{fontSize:6.5,textColor:[58,63,55]},
+        columnStyles:{0:{cellWidth:36},1:{cellWidth:72},2:{cellWidth:40},3:{cellWidth:22,halign:"center"}},
+        alternateRowStyles:{fillColor:[247,248,246]},theme:"plain",
+        styles:{cellPadding:2,lineColor:[226,232,240],lineWidth:0.2},
+      });
+    }
+    var tot=doc.internal.getNumberOfPages();
+    for(var pg=1;pg<=tot;pg++){
+      doc.setPage(pg);
+      doc.setFillColor(21,90,37);doc.rect(0,287,W,10,"F");
+      doc.setFont("helvetica","normal");doc.setFontSize(7);doc.setTextColor(255,255,255);
+      doc.text("ISM Check List 5S - "+mesLbl,mar,293);
+      doc.text("Pag "+pg+"/"+tot,W-mar,293,{align:"right"});
+    }
+    doc.save("ReporteGerencial_ISM_"+(fm||"todos").replace(/-/g,"")+".pdf");
+    if(btn){btn.disabled=false;btn.innerHTML="PDF Gerencial";}
+    showToast("PDF Gerencial generado");
+  } catch(e){
+    console.error(e);
+    if(btn){btn.disabled=false;btn.innerHTML="PDF Gerencial";}
+    showToast("Error: "+e.message,true);
+  }
+}
 (function init() {
   // Asignar logos
-  ['ism-logo-bienvenida','ism-logo-recorrido'].forEach(function(id) {
-    var el = document.getElementById(id);
-    if (el) el.src = ISM_LOGO;
-  });
+  var logoEl = document.getElementById('ism-logo-bienvenida');
+  if (logoEl) logoEl.src = ISM_LOGO;
   
   const today = new Date();
   document.getElementById("f-sem").value = getWeek(today);
@@ -2681,9 +3129,86 @@ function exportarPDFGerencial(btn) {
     });
   }
   
+  // Poblar select de sectores en auditoría
+  var audnSector = document.getElementById("audn-sector");
+  if (audnSector) {
+    audnSector.innerHTML = '<option value="">- Selecciona sector -</option>';
+    Object.keys(SECTOR_AREA_MAP).forEach(function(sector) {
+      audnSector.innerHTML += '<option value="' + sector + '">' + sector + '</option>';
+    });
+  }
+
+  // Poblar select de sectores en auditoría nueva
+  var audnSect = document.getElementById("audn-sector");
+  if (audnSect) {
+    Object.keys(SECTOR_AREA_MAP).forEach(function(s) {
+      audnSect.innerHTML += '<option value="' + s + '">' + s + '</option>';
+    });
+  }
+
   if (typeof cargarTodo === "function") cargarTodo();
 })();
-
 </script>
+
+<!-- Modal Cierre de Observación -->
+<div id="modal-cierre-obs" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;align-items:center;justify-content:center;padding:16px">
+  <div style="background:#fff;border-radius:16px;width:100%;max-width:420px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.3)">
+    <!-- Header -->
+    <div style="background:#1E7C34;padding:16px 20px;display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:900;color:#fff">Cerrar Observación</div>
+        <div style="font-size:11px;color:rgba(255,255,255,.8)" id="modal-cierre-desc"></div>
+      </div>
+      <button onclick="cerrarModalCierre()" style="background:rgba(255,255,255,.15);border:none;color:#fff;border-radius:8px;padding:6px 10px;cursor:pointer;font-size:16px">✕</button>
+    </div>
+    <!-- Body -->
+    <div style="padding:16px">
+      <!-- Fecha de cierre OBLIGATORIA -->
+      <div style="margin-bottom:12px">
+        <label style="font-size:12px;font-weight:700;color:#3A3F37;display:block;margin-bottom:4px">
+          Fecha de Cierre <span style="color:#E63329">*</span>
+        </label>
+        <input type="date" id="cierre-fecha"
+          style="width:100%;padding:10px;border:2px solid #D5DAD3;border-radius:8px;font-size:14px;box-sizing:border-box"
+          oninput="this.style.borderColor=this.value?'#1E7C34':'#E63329'">
+      </div>
+      <!-- Comentario OBLIGATORIO -->
+      <div style="margin-bottom:12px">
+        <label style="font-size:12px;font-weight:700;color:#3A3F37;display:block;margin-bottom:4px">
+          Comentario de Cierre <span style="color:#E63329">*</span>
+        </label>
+        <textarea id="cierre-comentario" rows="3" placeholder="Describe cómo se resolvió la observación..."
+          style="width:100%;padding:10px;border:2px solid #D5DAD3;border-radius:8px;font-size:13px;box-sizing:border-box;resize:vertical"
+          oninput="this.style.borderColor=this.value.trim()?'#1E7C34':'#E63329'"></textarea>
+      </div>
+      <!-- Foto evidencia OPCIONAL -->
+      <div style="margin-bottom:16px">
+        <label style="font-size:12px;font-weight:700;color:#3A3F37;display:block;margin-bottom:4px">
+          Foto de Evidencia <span style="font-size:11px;color:#8F9B8A;font-weight:400">(opcional)</span>
+        </label>
+        <div id="cierre-foto-preview" style="display:none;margin-bottom:8px">
+          <img id="cierre-foto-img" style="width:100%;height:160px;object-fit:cover;border-radius:8px;border:2px solid #1E7C34">
+        </div>
+        <label style="display:flex;align-items:center;gap:8px;padding:10px;background:#F7F8F6;border:2px dashed #D5DAD3;border-radius:8px;cursor:pointer">
+          <span style="font-size:20px">📷</span>
+          <span style="font-size:13px;color:#8F9B8A">Tomar foto o seleccionar archivo</span>
+          <input type="file" id="cierre-foto-input" accept="image/*" capture="environment"
+            style="display:none" onchange="previewFotoCierre(this)">
+        </label>
+      </div>
+      <!-- Botones -->
+      <div style="display:flex;gap:8px">
+        <button onclick="cerrarModalCierre()" style="flex:1;padding:12px;background:#F7F8F6;border:1px solid #D5DAD3;border-radius:8px;font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;color:#8F9B8A;cursor:pointer">
+          Cancelar
+        </button>
+        <button id="cierre-btn-guardar" onclick="guardarCierreObs()"
+          style="flex:2;padding:12px;background:#1E7C34;color:#fff;border:none;border-radius:8px;font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;cursor:pointer">
+          ✓ Confirmar Cierre
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>

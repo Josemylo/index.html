@@ -296,7 +296,8 @@ textarea{resize:vertical;min-height:78px}
 </div>
 <!-- TAB DASHBOARD -->
 <div id="tab-dashboard" class="section">
-  <div style="display:flex;gap:8px;margin-bottom:12px;align-items:center">
+  <div style="display:flex;gap:8px;margin-bottom:12px;align-items:center;flex-wrap:wrap">
+    <select id="d-fil-mes" onchange="renderDashboard()" class="filter-small"><option value="">Todos los meses</option></select>
     <select id="d-fil-sector" onchange="renderDashboard()" class="filter-small"><option value="">Todos los sectores</option></select>
     <select id="d-fil-area" onchange="renderDashboard()" class="filter-small"><option value="">Todas las areas</option></select>
     <button onclick="exportarPDF()" style="flex-shrink:0;background:var(--red);color:#fff;border:none;border-radius:8px;padding:8px 12px;font-family:Barlow,sans-serif;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">&#128196; PDF</button>
@@ -970,16 +971,14 @@ textarea{resize:vertical;min-height:78px}
     </div>
     <div style="display:flex;gap:10px;margin-top:4px">
       <button class="btn-primary" onclick="confirmarCierreAudit()" style="flex:1">&#10003; Marcar como LEVANTADA</button>
-      <button class="btn-ghost" onclick="closeModal('modal-cierre-audit')">Cancelar</button>
+      <button class="btn-      <button class="btn-secondary" onclick="audn_cerrarModal()" style="flex:1">Cancelar</button>
     </div>
   </div>
 </div>
 
-<!-- Toast -->
-<div id="toast"></div>
 
 <script>
-// ============================================================
+
 // ============================================================
 // CONFIGURACIÓN Y DATOS
 // ============================================================
@@ -1319,57 +1318,65 @@ function updateProgreso() {
 }
 
 function renderCriterios() {
-  const el = document.getElementById("criterios-container");
+  var el = document.getElementById('criterios-container');
   if (!el) return;
-  let lastPilar = "";
-  el.innerHTML = CRITERIOS.map(c => {
-    let ph = "";
+  var lastPilar = '';
+  el.innerHTML = CRITERIOS.map(function(c) {
+    var ph = '';
     if (c.pilar !== lastPilar) {
       lastPilar = c.pilar;
-      ph = `<div style="font-family:var(--font-bc),sans-serif;font-size:13px;font-weight:800;color:var(--blue);text-transform:uppercase;margin:12px 0 6px;padding-bottom:4px;border-bottom:2px solid var(--blue)">${c.pilar}</div>`;
+      ph = '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:13px;font-weight:800;color:var(--blue);text-transform:uppercase;margin:12px 0 6px;padding-bottom:4px;border-bottom:2px solid var(--blue)">' + c.pilar + '</div>';
     }
-    const d   = auditData[c.num] || {};
-    const siA = d.respuesta === "SI";
-    const noA = d.respuesta === "NO";
-    return ph + `<div class="obs-card" id="crit-${c.num}" style="margin-bottom:8px;border-left:4px solid ${siA?"var(--green)":noA?"var(--red)":"var(--g200)"}">
-      <div style="font-size:13px;font-weight:700;color:var(--g700);margin-bottom:8px">${c.num}. ${c.txt}</div>
-      <div style="display:flex;gap:8px;margin-bottom:${noA?"8px":"0"}">
-        <button onclick="setCriterio(${c.num},'SI')" style="flex:1;padding:10px;border-radius:8px;font-weight:700;font-family:var(--font-bc),sans-serif;font-size:16px;cursor:pointer;background:${siA?"var(--green)":"var(--g50)"};color:${siA?"#fff":"var(--g400)"};border:2px solid ${siA?"var(--green)":"var(--g200)"}">✓ SI</button>
-        <button onclick="setCriterio(${c.num},'NO')" style="flex:1;padding:10px;border-radius:8px;font-weight:700;font-family:var(--font-bc),sans-serif;font-size:16px;cursor:pointer;background:${noA?"var(--red)":"var(--g50)"};color:${noA?"#fff":"var(--g400)"};border:2px solid ${noA?"var(--red)":"var(--g200)"}">✗ NO</button>
-      </div>
-      ${noA ? `<input type="text" id="obs-cl-${c.num}" placeholder="Observación *" value="${d.obs||""}" oninput="setAuditField(${c.num},'obs',this.value)" style="width:100%;padding:8px;border:1px solid var(--g200);border-radius:8px;font-size:13px;box-sizing:border-box;margin-bottom:6px">
-      <input type="text" id="resp-cl-${c.num}" placeholder="Responsable" value="${d.responsable||auditMeta.responsable||""}" oninput="setAuditField(${c.num},'responsable',this.value)" style="width:100%;padding:8px;border:1px solid var(--g200);border-radius:8px;font-size:13px;box-sizing:border-box;margin-bottom:6px">
-      <input type="date" id="fec-cl-${c.num}" title="Fecha tentativa (opcional)" value="${d.fecha_compromiso||""}" oninput="setAuditField(${c.num},'fecha_compromiso',this.value)" style="width:100%;padding:8px;border:1px solid var(--g200);border-radius:8px;font-size:13px;box-sizing:border-box">` : ""}
-    </div>`;
-  }).join("");
+    var d   = auditData[c.num] || {};
+    var siA = d.respuesta === 'SI';
+    var noA = d.respuesta === 'NO';
+    var brdColor = siA ? 'var(--green)' : noA ? 'var(--red)' : 'var(--g200)';
+    var h = ph;
+    h += '<div class="obs-card" id="crit-' + c.num + '" style="margin-bottom:8px;border-left:4px solid ' + brdColor + '">';
+    h += '<div style="font-size:13px;font-weight:700;color:var(--g700);margin-bottom:8px">' + c.num + '. ' + c.txt + '</div>';
+    h += '<div style="display:flex;gap:8px;margin-bottom:' + (noA ? '8px' : '0') + '">';
+    h += '<button onclick="setCriterio(' + c.num + ',\'SI\')" style="flex:1;padding:10px;border-radius:8px;font-weight:700;font-size:16px;cursor:pointer;background:' + (siA ? 'var(--green)' : 'var(--g50)') + ';color:' + (siA ? '#fff' : 'var(--g400)') + ';border:2px solid ' + (siA ? 'var(--green)' : 'var(--g200)') + '">\u2713 SI</button>';
+    h += '<button onclick="setCriterio(' + c.num + ',\'NO\')" style="flex:1;padding:10px;border-radius:8px;font-weight:700;font-size:16px;cursor:pointer;background:' + (noA ? 'var(--red)' : 'var(--g50)') + ';color:' + (noA ? '#fff' : 'var(--g400)') + ';border:2px solid ' + (noA ? 'var(--red)' : 'var(--g200)') + '">\u2717 NO</button>';
+    h += '</div>';
+    if (noA) {
+      h += '<input type="text" id="obs-cl-' + c.num + '" placeholder="Observacion *" value="' + (d.obs||'') + '" oninput="setAuditField(' + c.num + ',\'obs\',this.value);this.style.borderColor=this.value.trim()?\'var(--g200)\':\'var(--red)\'" style="width:100%;padding:8px;border:1px solid var(--g200);border-radius:8px;font-size:13px;box-sizing:border-box;margin-bottom:6px">';
+      h += '<input type="text" id="resp-cl-' + c.num + '" placeholder="Responsable" value="' + (d.responsable||auditMeta.responsable||'') + '" oninput="setAuditField(' + c.num + ',\'responsable\',this.value)" style="width:100%;padding:8px;border:1px solid var(--g200);border-radius:8px;font-size:13px;box-sizing:border-box;margin-bottom:6px">';
+      h += '<input type="date" id="fec-cl-' + c.num + '" title="Fecha tentativa (opcional)" value="' + (d.fecha_compromiso||'') + '" oninput="setAuditField(' + c.num + ',\'fecha_compromiso\',this.value)" style="width:100%;padding:8px;border:1px solid var(--g200);border-radius:8px;font-size:13px;box-sizing:border-box">';
+    }
+    h += '</div>';
+    return h;
+  }).join('');
   updateProgreso();
 }
 
 function setCriterio(num, resp) {
   if (!auditData[num]) auditData[num] = {};
-  const prev = auditData[num];
+  var prev = auditData[num];
   auditData[num] = {
     respuesta:        resp,
-    obs:              resp === "SI" ? "" : (prev.obs              || ""),
-    responsable:      resp === "SI" ? "" : (prev.responsable || auditMeta.responsable || ""),
-    fecha_compromiso: resp === "SI" ? "" : (prev.fecha_compromiso || ""),
+    obs:              resp === 'SI' ? '' : (prev.obs              || ''),
+    responsable:      resp === 'SI' ? '' : (prev.responsable      || auditMeta.responsable || ''),
+    fecha_compromiso: resp === 'SI' ? '' : (prev.fecha_compromiso || ''),
     fotos:            prev.fotos || []
   };
-  const c    = CRITERIOS.find(x => x.num === num);
-  const d    = auditData[num];
-  const card = document.getElementById("crit-" + num);
+  var c    = CRITERIOS.find(function(x){ return x.num === num; });
+  var d    = auditData[num];
+  var card = document.getElementById('crit-' + num);
   if (!card || !c) return;
-  const noA = resp === "NO";
-  card.style.borderLeftColor = resp === "SI" ? "var(--green)" : "var(--red)";
-  card.innerHTML = `
-    <div style="font-size:13px;font-weight:700;color:var(--g700);margin-bottom:8px">${num}. ${c.txt}</div>
-    <div style="display:flex;gap:8px;margin-bottom:${noA?"8px":"0"}">
-      <button onclick="setCriterio(${num},'SI')" style="flex:1;padding:10px;border-radius:8px;font-weight:700;font-family:var(--font-bc),sans-serif;font-size:16px;cursor:pointer;background:${resp==="SI"?"var(--green)":"var(--g50)"};color:${resp==="SI"?"#fff":"var(--g400)"};border:2px solid ${resp==="SI"?"var(--green)":"var(--g200)"}">✓ SI</button>
-      <button onclick="setCriterio(${num},'NO')" style="flex:1;padding:10px;border-radius:8px;font-weight:700;font-family:var(--font-bc),sans-serif;font-size:16px;cursor:pointer;background:${resp==="NO"?"var(--red)":"var(--g50)"};color:${resp==="NO"?"#fff":"var(--g400)"};border:2px solid ${resp==="NO"?"var(--red)":"var(--g200)"}">✗ NO</button>
-    </div>
-    ${noA ? `<input type="text" id="obs-cl-${num}" placeholder="Observación" value="${d.obs||""}" oninput="setAuditField(${num},'obs',this.value)" style="width:100%;padding:8px;border:1px solid var(--g200);border-radius:8px;font-size:13px;box-sizing:border-box;margin-bottom:6px">
-    <input type="text" id="resp-cl-${num}" placeholder="Responsable" value="${d.responsable||""}" oninput="setAuditField(${num},'responsable',this.value)" style="width:100%;padding:8px;border:1px solid var(--g200);border-radius:8px;font-size:13px;box-sizing:border-box;margin-bottom:6px">
-    <input type="date" id="fec-cl-${num}" title="Fecha tentativa (opcional)" value="${d.fecha_compromiso||""}" oninput="setAuditField(${num},'fecha_compromiso',this.value)" style="width:100%;padding:8px;border:1px solid var(--g200);border-radius:8px;font-size:13px;box-sizing:border-box">` : ""}`;
+  var noA  = resp === 'NO';
+  card.style.borderLeftColor = resp === 'SI' ? 'var(--green)' : 'var(--red)';
+  var h = '';
+  h += '<div style="font-size:13px;font-weight:700;color:var(--g700);margin-bottom:8px">' + num + '. ' + c.txt + '</div>';
+  h += '<div style="display:flex;gap:8px;margin-bottom:' + (noA ? '8px' : '0') + '">';
+  h += '<button onclick="setCriterio(' + num + ',\'SI\')" style="flex:1;padding:10px;border-radius:8px;font-weight:700;font-size:16px;cursor:pointer;background:' + (resp==='SI'?'var(--green)':'var(--g50)') + ';color:' + (resp==='SI'?'#fff':'var(--g400)') + ';border:2px solid ' + (resp==='SI'?'var(--green)':'var(--g200)') + '">\u2713 SI</button>';
+  h += '<button onclick="setCriterio(' + num + ',\'NO\')" style="flex:1;padding:10px;border-radius:8px;font-weight:700;font-size:16px;cursor:pointer;background:' + (resp==='NO'?'var(--red)':'var(--g50)') + ';color:' + (resp==='NO'?'#fff':'var(--g400)') + ';border:2px solid ' + (resp==='NO'?'var(--red)':'var(--g200)') + '">\u2717 NO</button>';
+  h += '</div>';
+  if (noA) {
+    h += '<input type="text" id="obs-cl-' + num + '" placeholder="Observacion *" value="' + (d.obs||'') + '" oninput="setAuditField(' + num + ',\'obs\',this.value);this.style.borderColor=this.value.trim()?\'var(--g200)\':\'var(--red)\'" style="width:100%;padding:8px;border:1px solid var(--g200);border-radius:8px;font-size:13px;box-sizing:border-box;margin-bottom:6px">';
+    h += '<input type="text" id="resp-cl-' + num + '" placeholder="Responsable" value="' + (d.responsable||'') + '" oninput="setAuditField(' + num + ',\'responsable\',this.value)" style="width:100%;padding:8px;border:1px solid var(--g200);border-radius:8px;font-size:13px;box-sizing:border-box;margin-bottom:6px">';
+    h += '<input type="date" id="fec-cl-' + num + '" title="Fecha tentativa (opcional)" value="' + (d.fecha_compromiso||'') + '" oninput="setAuditField(' + num + ',\'fecha_compromiso\',this.value)" style="width:100%;padding:8px;border:1px solid var(--g200);border-radius:8px;font-size:13px;box-sizing:border-box">';
+  }
+  card.innerHTML = h;
   updateProgreso();
 }
 
@@ -1489,10 +1496,14 @@ async function finalizarAuditoria() {
   if (cardObs && obsEl) {
     if (noOk.length) {
       cardObs.style.display = "block";
-      obsEl.innerHTML = noOk.map(c => {
-        const d = auditData[c.num] || {};
-        return `<div style="padding:10px;background:var(--g50);border-radius:8px;border-left:3px solid var(--red);margin-bottom:8px"><div style="font-size:12px;font-weight:700;color:var(--g700)">${c.num}. ${c.txt}</div><div style="font-size:10px;color:var(--g400)">Pilar: ${c.pilar}</div>${d.obs?`<div style="font-size:12px;color:var(--g600);background:#fff;border-radius:6px;padding:6px;margin-top:4px">${d.obs}</div>`:""}</div>`;
-      }).join("");
+      obsEl.innerHTML = noOk.map(function(c) {
+        var dv = auditData[c.num] || {};
+        return '<div style="padding:10px;background:var(--g50);border-radius:8px;border-left:3px solid var(--red);margin-bottom:8px">'
+          + '<div style="font-size:12px;font-weight:700;color:var(--g700)">' + c.num + '. ' + c.txt + '</div>'
+          + '<div style="font-size:10px;color:var(--g400)">Pilar: ' + c.pilar + '</div>'
+          + (dv.obs ? '<div style="font-size:12px;color:var(--g600);padding:5px;margin-top:4px">' + dv.obs + '</div>' : '')
+          + '</div>';
+      }).join('');
     } else cardObs.style.display = "none";
   }
   await guardarAuditoriaDB(pct, nivel.nivel, noOk);
@@ -1558,17 +1569,17 @@ async function cargarAuditorias() {
     [["hfil-mes",meses,mesLbl],["ofil-mes",meses,mesLbl],["d-fil-mes",meses,mesLbl]].forEach(([id,vs,lbl])=>{
       const el=document.getElementById(id); if(!el)return; const cur=el.value;
       el.innerHTML='<option value="">Todos los meses</option>';
-      vs.forEach(v=>el.innerHTML+=`<option value="${v}"${v===cur?" selected":""}>${lbl(v)}</option>`);
+      vs.forEach(v=>el.innerHTML+=`<option value="${v}"${v===cur?' selected':''}>${lbl(v)}</option>`);
     });
     [["hfil-sector",sects],["ofil-sector",sects],["d-fil-sector-a",sects]].forEach(([id,vs])=>{
       const el=document.getElementById(id); if(!el)return; const cur=el.value;
       el.innerHTML='<option value="">Todos los sectores</option>';
-      vs.forEach(v=>el.innerHTML+=`<option value="${v}"${v===cur?" selected":""}>${v}</option>`);
+      vs.forEach(v=>el.innerHTML+=`<option value="${v}"${v===cur?' selected':''}>${v}</option>`);
     });
     [["hfil-area",areas],["ofil-area-obs",areas],["d-fil-area-a",areas]].forEach(([id,vs])=>{
       const el=document.getElementById(id); if(!el)return; const cur=el.value;
       el.innerHTML='<option value="">Todas las áreas</option>';
-      vs.forEach(v=>el.innerHTML+=`<option value="${v}"${v===cur?" selected":""}>${v}</option>`);
+      vs.forEach(v=>el.innerHTML+=`<option value="${v}"${v===cur?' selected':''}>${v}</option>`);
     });
     const now = new Date();
     const mi  = new Date(now.getFullYear(),now.getMonth(),1).toISOString().split("T")[0];
@@ -1579,37 +1590,69 @@ async function cargarAuditorias() {
     const pctP   = todos.length>0 ? Math.min(100,Math.round(done/todos.length*100)) : 0;
     const colP   = pctP>=100?"#1B5E20":pctP>=50?"#D97706":"#E63329";
     const progEl = document.getElementById("progreso-sectores");
-    if (progEl) progEl.innerHTML = `<div style="background:#fff;border-radius:12px;padding:14px;box-shadow:var(--sh)"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><div style="font-family:var(--font-bc),sans-serif;font-size:15px;font-weight:800;color:var(--g700)">Progreso Check Lists</div><div style="font-family:var(--font-bc),sans-serif;font-size:20px;font-weight:900;color:${colP}">${pctP}% <span style="font-size:12px;color:var(--g400)">${done}/${todos.length}</span></div></div><div style="height:10px;background:var(--g100);border-radius:20px;overflow:hidden"><div style="height:100%;width:${pctP}%;background:${colP};border-radius:20px;transition:width .8s"></div></div><div style="font-size:11px;color:var(--g400);margin-top:5px">${done} de ${todos.length} sectores completados este mes${pctP>=100?" · ✅ Todos completados":""}</div></div>`;
+    if (progEl) progEl.innerHTML = `<div style="background:#fff;border-radius:12px;padding:14px;box-shadow:var(--sh)"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><div style="font-family:var(--font-bc),sans-serif;font-size:15px;font-weight:800;color:var(--g700)">Progreso Check Lists</div><div style="font-family:var(--font-bc),sans-serif;font-size:20px;font-weight:900;color:${colP}">${pctP}% <span style="font-size:12px;color:var(--g400)">${done}/${todos.length}</span></div></div><div style="height:10px;background:var(--g100);border-radius:20px;overflow:hidden"><div style="height:100%;width:${pctP}%;background:${colP};border-radius:20px;transition:width .8s"></div></div><div style="font-size:11px;color:var(--g400);margin-top:5px">${done} de ${todos.length} sectores completados este mes${pctP>=100?' - Todos completados':''}</div></div>`;
     renderProgresoBarra();
   } catch(e) { showToast("Error cargando datos: "+e.message, true); }
 }
 
 function renderHistorial() {
-  const fm  = document.getElementById("hfil-mes")?.value    || "";
-  const fs  = document.getElementById("hfil-sector")?.value || "";
-  const fa  = document.getElementById("hfil-area")?.value   || "";
-  const fn2 = document.getElementById("hfil-nivel")?.value  || "";
-  const el  = document.getElementById("historial-list");
+  var fm  = document.getElementById('hfil-mes')    ? document.getElementById('hfil-mes').value    : '';
+  var fs  = document.getElementById('hfil-sector') ? document.getElementById('hfil-sector').value : '';
+  var fa  = document.getElementById('hfil-area')   ? document.getElementById('hfil-area').value   : '';
+  var fn2 = document.getElementById('hfil-nivel')  ? document.getElementById('hfil-nivel').value  : '';
+  var el  = document.getElementById('historial-list');
   if (!el) return;
-  const G="#1E7C34", R="#E63329", A="#D97706";
-  const list = (auditorias||[]).filter(a => {
-    if (fm && String(a.nro_auditoria||a.fecha||"").substring(0,7)!==fm) return false;
+  var G='#1E7C34', R='#E63329', A='#D97706';
+  var list = (auditorias||[]).filter(function(a) {
+    if (fm && String(a.nro_auditoria||a.fecha||'').substring(0,7)!==fm) return false;
     if (fs && a.sector!==fs) return false;
     if (fa && a.area!==fa)   return false;
     if (fn2 && a.nivel!==fn2) return false;
     return true;
   });
-  if (!list.length) { el.innerHTML='<div class="empty"><div class="empty-ico">📋</div><p>Sin check lists registrados.</p></div>'; return; }
-  el.innerHTML = list.map(a => {
-    const uid  = "h"+a.id;
-    const pct  = a.pct_cumplimiento||0;
-    const col  = pct>=90?"#1B5E20":pct>=70?G:pct>=50?A:R;
-    const dets = Array.isArray(a.detalles)?a.detalles:safeJson(a.detalles,"[]");
-    const noOk = dets.filter(d=>d.respuesta==="NO"||(d.puntaje>0&&d.puntaje<=3));
-    const siOk = dets.filter(d=>d.respuesta==="SI"||(d.puntaje>=4));
-    const noHtml = noOk.map(d=>`<div style="padding:8px 10px;background:#FEF2F2;border-radius:8px;border-left:3px solid ${R};margin-bottom:6px"><div style="font-size:12px;font-weight:700;color:var(--g700)">${d.num}. ${d.criterio||d.txt||""}</div><div style="font-size:10px;color:var(--g400)">Pilar: ${d.pilar||""}</div>${d.obs?`<div style="font-size:12px;color:var(--g600);background:#fff;border-radius:5px;padding:5px 7px;margin-top:4px">${d.obs}</div>`:""} ${d.responsable?`<div style="font-size:10px;color:var(--g400);margin-top:3px">👤 ${d.responsable}${d.fecha_compromiso?" · 📅 "+d.fecha_compromiso:""}</div>`:""}</div>`).join("");
-    return `<div class="obs-card" style="border-left:4px solid ${col};margin-bottom:12px"><div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:8px"><div><div style="font-family:var(--font-bc),sans-serif;font-size:17px;font-weight:800;color:var(--g700)">${a.sector||""}</div><div style="font-size:11px;color:var(--g400)">${a.area||""} · ${a.fecha||""} · ${a.auditor||""}</div></div><div style="text-align:right;flex-shrink:0;margin-left:8px"><div style="font-family:var(--font-bc),sans-serif;font-size:26px;font-weight:900;color:${col}">${pct}%</div><div style="font-size:11px;color:${col};font-weight:700">${a.nivel||"—"}</div></div></div><div style="height:6px;background:var(--g100);border-radius:20px;overflow:hidden;margin-bottom:10px"><div style="height:100%;width:${pct}%;background:${col};border-radius:20px"></div></div><div style="display:flex;gap:8px;margin-bottom:10px"><div style="flex:1;background:#FEF2F2;border-radius:8px;padding:8px;text-align:center"><div style="font-family:var(--font-bc),sans-serif;font-size:22px;font-weight:900;color:${R}">${noOk.length}</div><div style="font-size:10px;color:var(--g400)">Observaciones</div></div><div style="flex:1;background:#F0FDF4;border-radius:8px;padding:8px;text-align:center"><div style="font-family:var(--font-bc),sans-serif;font-size:22px;font-weight:900;color:${G}">${siOk.length}</div><div style="font-size:10px;color:var(--g400)">Cumplidos</div></div></div><button onclick="const d=document.getElementById('det-${uid}');const o=d.style.display!=='none';d.style.display=o?'none':'block';this.textContent=o?'Ver detalle ▾':'Ocultar ▴'" style="width:100%;background:var(--g50);border:1px solid var(--g200);border-radius:8px;padding:8px;font-family:var(--font-bc),sans-serif;font-size:14px;font-weight:700;cursor:pointer;color:var(--g600)">Ver detalle ▾</button><div id="det-${uid}" style="display:none;margin-top:10px">${noHtml||'<p style="font-size:12px;color:var(--g400);text-align:center;padding:12px">✅ Sin observaciones</p>'}</div></div>`;
-  }).join("");
+  if (!list.length) {
+    el.innerHTML = '<div class="empty"><div class="empty-ico">&#128203;</div><p>Sin check lists registrados.</p></div>';
+    return;
+  }
+  el.innerHTML = list.map(function(a) {
+    var uid  = 'h'+a.id;
+    var pct  = a.pct_cumplimiento||0;
+    var col  = pct>=90?'#1B5E20':pct>=70?G:pct>=50?A:R;
+    var dets = Array.isArray(a.detalles) ? a.detalles : safeJson(a.detalles,'[]');
+    var noOk = dets.filter(function(d){return d.respuesta==='NO'||(d.puntaje>0&&d.puntaje<=3);});
+    var siOk = dets.filter(function(d){return d.respuesta==='SI'||(d.puntaje>=4);});
+    var noHtml = noOk.map(function(d){
+      var h2 = '<div style="padding:8px 10px;background:#FEF2F2;border-radius:8px;border-left:3px solid '+R+';margin-bottom:6px">';
+      h2 += '<div style="font-size:12px;font-weight:700;color:var(--g700)">'+d.num+'. '+(d.criterio||d.txt||'')+'</div>';
+      h2 += '<div style="font-size:10px;color:var(--g400)">Pilar: '+(d.pilar||'')+'</div>';
+      if (d.obs) h2 += '<div style="font-size:12px;color:var(--g600);background:#fff;border-radius:5px;padding:5px 7px;margin-top:4px">'+d.obs+'</div>';
+      if (d.responsable) h2 += '<div style="font-size:10px;color:var(--g400);margin-top:3px">&#128100; '+d.responsable+(d.fecha_compromiso?' - &#128197; '+d.fecha_compromiso:'')+'</div>';
+      h2 += '</div>';
+      return h2;
+    }).join('');
+    var h = '<div class="obs-card" style="border-left:4px solid '+col+';margin-bottom:12px">';
+    h += '<div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:8px">';
+    h += '<div><div style="font-family:\'Barlow Condensed\',sans-serif;font-size:17px;font-weight:800;color:var(--g700)">'+(a.sector||'')+'</div>';
+    h += '<div style="font-size:11px;color:var(--g400)">'+(a.area||'')+' - '+(a.fecha||'')+' - '+(a.auditor||'')+'</div></div>';
+    h += '<div style="text-align:right;flex-shrink:0;margin-left:8px">';
+    h += '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:26px;font-weight:900;color:'+col+'">'+pct+'%</div>';
+    h += '<div style="font-size:11px;color:'+col+';font-weight:700">'+(a.nivel||'')+'</div></div></div>';
+    h += '<div style="height:6px;background:var(--g100);border-radius:20px;overflow:hidden;margin-bottom:10px">';
+    h += '<div style="height:100%;width:'+pct+'%;background:'+col+';border-radius:20px"></div></div>';
+    h += '<div style="display:flex;gap:8px;margin-bottom:10px">';
+    h += '<div style="flex:1;background:#FEF2F2;border-radius:8px;padding:8px;text-align:center">';
+    h += '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:22px;font-weight:900;color:'+R+'">'+noOk.length+'</div>';
+    h += '<div style="font-size:10px;color:var(--g400)">Observaciones</div></div>';
+    h += '<div style="flex:1;background:#F0FDF4;border-radius:8px;padding:8px;text-align:center">';
+    h += '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:22px;font-weight:900;color:'+G+'">'+siOk.length+'</div>';
+    h += '<div style="font-size:10px;color:var(--g400)">Cumplidos</div></div></div>';
+    h += '<button onclick="var d=document.getElementById(\'det-'+uid+'\');var o=d.style.display!==\'none\';d.style.display=o?\'none\':\'block\';this.textContent=o?\'Ver detalle\':\'Ocultar\'" ';
+    h += 'style="width:100%;background:var(--g50);border:1px solid var(--g200);border-radius:8px;padding:8px;font-size:14px;font-weight:700;cursor:pointer;color:var(--g600)">Ver detalle</button>';
+    h += '<div id="det-'+uid+'" style="display:none;margin-top:10px">';
+    h += noHtml || '<p style="font-size:12px;color:var(--g400);text-align:center;padding:12px">Sin observaciones</p>';
+    h += '</div></div>';
+    return h;
+  }).join('');
 }
 
 function renderObsPendientes() {
@@ -2309,7 +2352,7 @@ function exportarPDF(){
     doc.setTextColor(...W);doc.setFont("helvetica","normal");doc.setFontSize(7);
     doc.text("Industrias San Miguel - Programa 5S",M,291);doc.text(fecha,PW/2,291,{align:"center"});doc.text("Pagina 1 de 1",PW-M,291,{align:"right"});
     const semLabel=sems[0]?"_Sem"+sems[0]:"";
-    doc.save(`Reporte5S_ISM${semLabel}_${new Date().toISOString().split("T")[0]}.pdf`);
+    doc.save('Reporte5S_ISM'+semLabel+'_'+new Date().toISOString().split('T')[0]+'.pdf');
     showToast("PDF generado");
   }catch(e){console.error(e);showToast("Error PDF: "+e.message,true);}
   if(btn){btn.textContent="PDF";btn.disabled=false;}
@@ -2666,8 +2709,212 @@ function filtrar() {
 }
 
 function renderDashboard() {
-  if (typeof renderAuditDashboard === "function") {
-    renderAuditDashboard();
+  // Filtros
+  var fm  = document.getElementById('d-fil-mes')    ? document.getElementById('d-fil-mes').value    : '';
+  var fs  = document.getElementById('d-fil-sector') ? document.getElementById('d-fil-sector').value : '';
+  var fa  = document.getElementById('d-fil-area')   ? document.getElementById('d-fil-area').value   : '';
+  var G   = '#1E7C34', R = '#E63329', A = '#D97706', B = '#1565C0';
+
+  // Filtrar observaciones
+  var obs = (observations||[]).filter(function(o){
+    if (fm && String(o.mes||o.semana||'').substring(0,7) !== fm) return false;
+    if (fs && o.sector !== fs) return false;
+    if (fa && o.area   !== fa) return false;
+    return true;
+  });
+
+  // Llenar filtro de meses con valores únicos
+  var meses = [];
+  (observations||[]).forEach(function(o){
+    var m = String(o.mes||o.created_at||'').substring(0,7);
+    if (m.length===7 && meses.indexOf(m)<0) meses.push(m);
+  });
+  meses.sort().reverse();
+  var mesEl = document.getElementById('d-fil-mes');
+  if (mesEl) {
+    var cur = mesEl.value;
+    mesEl.innerHTML = '<option value="">Todos los meses</option>';
+    meses.forEach(function(m){
+      var p=m.split('-');
+      var lbl=new Date(+p[0],+p[1]-1,1).toLocaleDateString('es-PE',{month:'long',year:'numeric'});
+      mesEl.innerHTML += '<option value="'+m+'"'+(m===cur?' selected':'')+'>'+lbl+'</option>';
+    });
+  }
+
+  // Llenar filtro sectores y areas
+  var sectores=[],areas=[];
+  (observations||[]).forEach(function(o){
+    if(o.sector&&sectores.indexOf(o.sector)<0) sectores.push(o.sector);
+    if(o.area&&areas.indexOf(o.area)<0) areas.push(o.area);
+  });
+  var secEl=document.getElementById('d-fil-sector');
+  if(secEl){var c2=secEl.value;secEl.innerHTML='<option value="">Todos los sectores</option>';sectores.sort().forEach(function(s){secEl.innerHTML+='<option value="'+s+'"'+(s===c2?' selected':'')+'>'+s+'</option>';});}
+  var areEl=document.getElementById('d-fil-area');
+  if(areEl){var c3=areEl.value;areEl.innerHTML='<option value="">Todas las areas</option>';areas.sort().forEach(function(a2){areEl.innerHTML+='<option value="'+a2+'"'+(a2===c3?' selected':'')+'>'+a2+'</option>';});}
+
+  // KPIs
+  var total    = obs.length;
+  var corr     = obs.filter(function(o){return o.status==='CORREGIDO';}).length;
+  var noCorr   = total - corr;
+  var pct      = total>0?Math.round(corr/total*100):0;
+  var elT=document.getElementById('d-total');     if(elT) elT.textContent=total;
+  var elC=document.getElementById('d-corregidas');if(elC) elC.textContent=corr;
+  var elN=document.getElementById('d-no-corr');   if(elN) elN.textContent=noCorr;
+  var elP=document.getElementById('d-pct');       if(elP) elP.textContent=pct+'%';
+  var elP2=document.getElementById('d-pct2');     if(elP2) elP2.textContent=pct+'%';
+
+  if (!total) {
+    ['d-top-areas','d-comparativo','d-sectores','d-responsables','d-zonas-ranking'].forEach(function(id){
+      var el=document.getElementById(id); if(el) el.innerHTML='<p style="font-size:12px;color:var(--g400);text-align:center;padding:12px">Sin datos</p>';
+    });
+    return;
+  }
+
+  // ── Dona estado ──────────────────────────────────────────
+  if(typeof destroyChart==='function') destroyChart('chart-donut-status');
+  var ctxS=document.getElementById('chart-donut-status');
+  if(ctxS) new Chart(ctxS,{type:'doughnut',
+    data:{labels:['Corregidas','Pendientes'],
+      datasets:[{data:[corr,noCorr],backgroundColor:[G,R],borderWidth:2,borderColor:'#fff'}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'70%',plugins:{legend:{display:false}}}
+  });
+  var legS=document.getElementById('legend-status');
+  if(legS) legS.innerHTML='<div style="display:flex;gap:8px;justify-content:center;font-size:10px">'
+    +'<span style="color:'+G+'">&#9679; Corregidas: '+corr+'</span>'
+    +'<span style="color:'+R+'">&#9679; Pendientes: '+noCorr+'</span></div>';
+
+  // ── Dona por S ───────────────────────────────────────────
+  var sCounts={'1S':0,'2S':0,'3S':0,'4S':0,'5S':0,'EPP':0};
+  obs.forEach(function(o){ var s=o.s||o.tipo_s||''; if(sCounts[s]!==undefined) sCounts[s]++; else sCounts['EPP']++; });
+  var sLabels=Object.keys(sCounts).filter(function(k){return sCounts[k]>0;});
+  var sVals=sLabels.map(function(k){return sCounts[k];});
+  var sColors=['#E65100','#1B5E20','#0D47A1','#4A148C','#880E4F','#B71C1C'];
+  var topS=sLabels.length?sLabels.reduce(function(a,b){return sCounts[a]>=sCounts[b]?a:b;},sLabels[0]):'-';
+  var elTS=document.getElementById('d-top-s'); if(elTS) elTS.textContent=topS;
+  if(typeof destroyChart==='function') destroyChart('chart-donut-s');
+  var ctxD=document.getElementById('chart-donut-s');
+  if(ctxD) new Chart(ctxD,{type:'doughnut',
+    data:{labels:sLabels,datasets:[{data:sVals,backgroundColor:sColors.slice(0,sLabels.length),borderWidth:2,borderColor:'#fff'}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'70%',plugins:{legend:{display:false}}}
+  });
+  var legD=document.getElementById('legend-s');
+  if(legD) legD.innerHTML='<div style="display:flex;flex-wrap:wrap;gap:4px;justify-content:center;">'+sLabels.map(function(k,i){return '<div style="font-size:9px;display:flex;align-items:center;gap:2px"><span style="color:'+sColors[i]+'">&#9679;</span>'+k+': '+sCounts[k]+'</div>';}).join('')+'</div>';
+
+  // ── Mejor/Peor área ──────────────────────────────────────
+  var byArea={};
+  obs.forEach(function(o){
+    var a=o.area||'Sin area';
+    if(!byArea[a]) byArea[a]={total:0,corr:0};
+    byArea[a].total++; if(o.status==='CORREGIDO') byArea[a].corr++;
+  });
+  var areaList=Object.entries(byArea).map(function(e){return{area:e[0],total:e[1].total,corr:e[1].corr,pct:Math.round(e[1].corr/e[1].total*100)};}).sort(function(a,b){return b.pct-a.pct;});
+  var elTA=document.getElementById('d-top-areas');
+  if(elTA&&areaList.length){
+    var best=areaList[0], worst=areaList[areaList.length-1];
+    elTA.innerHTML='<div style="margin-bottom:6px"><span style="font-size:10px;color:var(--g400)">Mejor:</span><br>'
+      +'<span style="font-weight:700;color:'+G+'">'+best.area+'</span> <span style="font-size:11px;color:'+G+'">'+best.pct+'%</span></div>'
+      +'<div><span style="font-size:10px;color:var(--g400)">Peor:</span><br>'
+      +'<span style="font-weight:700;color:'+R+'">'+worst.area+'</span> <span style="font-size:11px;color:'+R+'">'+worst.pct+'%</span></div>';
+  }
+
+  // ── Evolución mensual (línea) ────────────────────────────
+  var byMes={};
+  obs.forEach(function(o){
+    var m=String(o.mes||o.created_at||'').substring(0,7);
+    if(!m||m.length<7) return;
+    if(!byMes[m]) byMes[m]={total:0,corr:0};
+    byMes[m].total++; if(o.status==='CORREGIDO') byMes[m].corr++;
+  });
+  var mesKeys=Object.keys(byMes).sort();
+  var mesLbls=mesKeys.map(function(m){var p=m.split('-');return new Date(+p[0],+p[1]-1,1).toLocaleDateString('es-PE',{month:'short',year:'2-digit'});});
+  var mesPcts=mesKeys.map(function(m){return byMes[m].total>0?Math.round(byMes[m].corr/byMes[m].total*100):0;});
+  var mesTotals=mesKeys.map(function(m){return byMes[m].total;});
+  if(typeof destroyChart==='function') destroyChart('chart-evolucion');
+  var ctxE=document.getElementById('chart-evolucion');
+  if(ctxE) new Chart(ctxE,{type:'bar',
+    data:{labels:mesLbls,datasets:[
+      {label:'Total obs.',data:mesTotals,backgroundColor:R+'66',borderColor:R,borderWidth:1,borderRadius:4,yAxisID:'y1'},
+      {label:'% Corregidas',data:mesPcts,type:'line',borderColor:G,backgroundColor:G+'22',tension:0.3,pointRadius:4,pointBackgroundColor:G,yAxisID:'y2'}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'top',labels:{font:{size:10},boxWidth:10}}},
+      scales:{y1:{position:'left',ticks:{stepSize:1}},y2:{position:'right',min:0,max:100,ticks:{callback:function(v){return v+'%';}},grid:{drawOnChartArea:false}}}}
+  });
+
+  // ── Cumplimiento por sector ──────────────────────────────
+  var bySector={};
+  obs.forEach(function(o){
+    var s=o.sector||o.area||'Sin sector';
+    if(!bySector[s]) bySector[s]={total:0,corr:0};
+    bySector[s].total++; if(o.status==='CORREGIDO') bySector[s].corr++;
+  });
+  var sectList=Object.entries(bySector).sort(function(a,b){
+    var pA=Math.round(a[1].corr/a[1].total*100), pB=Math.round(b[1].corr/b[1].total*100);
+    return pB-pA;
+  });
+  var elSect=document.getElementById('d-sectores');
+  if(elSect) elSect.innerHTML=sectList.map(function(e){
+    var pct2=Math.round(e[1].corr/e[1].total*100);
+    var col=pct2>=80?G:pct2>=50?A:R;
+    return '<div style="margin-bottom:8px">'
+      +'<div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:2px">'
+      +'<span style="font-weight:600;color:var(--g700)">'+e[0]+'</span>'
+      +'<span style="font-weight:700;color:'+col+'">'+e[1].corr+'/'+e[1].total+' ('+pct2+'%)</span></div>'
+      +'<div style="height:5px;background:var(--g100);border-radius:20px;overflow:hidden">'
+      +'<div style="height:100%;width:'+pct2+'%;background:'+col+';border-radius:20px"></div></div></div>';
+  }).join('');
+
+  // ── Cumplimiento por responsable ─────────────────────────
+  var byResp={};
+  obs.forEach(function(o){
+    var r=o.responsable||'Sin asignar';
+    if(!byResp[r]) byResp[r]={total:0,corr:0};
+    byResp[r].total++; if(o.status==='CORREGIDO') byResp[r].corr++;
+  });
+  var respList=Object.entries(byResp).sort(function(a,b){return b[1].total-a[1].total;}).slice(0,8);
+  var elResp=document.getElementById('d-responsables');
+  if(elResp) elResp.innerHTML=respList.map(function(e){
+    var pct3=Math.round(e[1].corr/e[1].total*100);
+    var col=pct3>=80?G:pct3>=50?A:R;
+    return '<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--g100)">'
+      +'<div style="flex:1;font-size:11px;font-weight:600;color:var(--g700)">'+e[0]+'</div>'
+      +'<div style="font-size:10px;color:var(--g400)">'+e[1].corr+'/'+e[1].total+'</div>'
+      +'<div style="font-size:12px;font-weight:700;color:'+col+'">'+pct3+'%</div></div>';
+  }).join('');
+
+  // ── Zonas con más obs no corregidas ──────────────────────
+  var byZona={};
+  obs.filter(function(o){return o.status!=='CORREGIDO';}).forEach(function(o){
+    var z=(o.zona||o.sector||'Sin zona')+' ('+( o.area||'')+')';
+    byZona[z]=(byZona[z]||0)+1;
+  });
+  var zonaList=Object.entries(byZona).sort(function(a,b){return b[1]-a[1];}).slice(0,8);
+  var elZona=document.getElementById('d-zonas-ranking');
+  if(elZona) elZona.innerHTML=zonaList.length?zonaList.map(function(e,i){
+    var maxV=zonaList[0][1];
+    return '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">'
+      +'<div style="width:18px;height:18px;border-radius:50%;background:'+R+';color:#fff;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">'+(i+1)+'</div>'
+      +'<div style="flex:1;min-width:0">'
+      +'<div style="font-size:11px;font-weight:600;color:var(--g700);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+e[0]+'</div>'
+      +'<div style="height:4px;background:var(--g100);border-radius:20px;overflow:hidden;margin-top:2px">'
+      +'<div style="height:100%;width:'+Math.round(e[1]/maxV*100)+'%;background:'+R+';border-radius:20px"></div></div></div>'
+      +'<div style="font-size:12px;font-weight:700;color:'+R+'">'+e[1]+'</div></div>';
+  }).join(''):'<p style="font-size:12px;color:'+G+';text-align:center;padding:8px">Sin obs. pendientes ✅</p>';
+
+  // ── Tabla comparativo semana anterior ────────────────────
+  var elComp=document.getElementById('d-comparativo');
+  if(elComp&&mesKeys.length>=2){
+    var curr=byMes[mesKeys[mesKeys.length-1]], prev=byMes[mesKeys[mesKeys.length-2]];
+    var pctC=curr.total>0?Math.round(curr.corr/curr.total*100):0;
+    var pctP2=prev.total>0?Math.round(prev.corr/prev.total*100):0;
+    var diff=pctC-pctP2;
+    elComp.innerHTML='<div style="text-align:center">'
+      +'<div style="font-size:28px;font-weight:900;color:'+(diff>=0?G:R)+'">'+(diff>=0?'&#9650;':'&#9660;')+' '+Math.abs(diff)+'%</div>'
+      +'<div style="font-size:11px;color:var(--g400)">vs mes anterior</div>'
+      +'<div style="font-size:11px;margin-top:6px">Actual: <strong>'+pctC+'%</strong> | Anterior: <strong>'+pctP2+'%</strong></div>'
+      +'</div>';
+  } else if(elComp){
+    elComp.innerHTML='<p style="font-size:11px;color:var(--g400);text-align:center">Se necesitan al menos 2 meses de data</p>';
   }
 }
 
@@ -3148,6 +3395,7 @@ function exportarPDFGerencial(btn) {
 
   if (typeof cargarTodo === "function") cargarTodo();
 })();
+
 </script>
 
 <!-- Modal Cierre de Observación -->

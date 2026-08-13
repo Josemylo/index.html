@@ -2214,8 +2214,8 @@ async function guardarObservacion(){
     const {data:maxData}=await sb.from("observaciones").select("num").order("num",{ascending:false}).limit(1);
     const nextNum = maxData&&maxData.length>0?(maxData[0].num||0)+1:1;
     const {data,error}=await sb.from("observaciones").insert({
-      num:nextNum,sem:document.getElementById("f-sem").value,fecha:window._fecha,auditor,
-      area:AREA_PADRE[area]||area.replace(/_/g," "),sector:area.replace(/_/g," "),zona:document.getElementById("f-zona").value,
+      num:nextNum,sem:document.getElementById("f-sem").value,fecha:window._fecha||new Date().toISOString().split("T")[0],auditor,
+      area:SECTOR_AREA_MAP[area]||area.replace(/_/g," "),sector:area.replace(/_/g," "),zona:document.getElementById("f-zona").value,
       tipo,s:selectedS||"\u2014",obs,responsable:document.getElementById("f-responsable").value.trim(),status:"NO CORREGIDO",fotos:fotosUrls
     }).select().single();
     if(error)throw error;
@@ -3034,20 +3034,47 @@ function renderLista(data) {
   var el = document.getElementById("obs-list");
   if (!el) return;
   var list = data || observations || [];
-  if (!list.length){ el.innerHTML='<div class="empty"><div class="empty-ico">📋</div><p>Sin observaciones.</p></div>'; return; }
-  var G="#1E7C34",R="#E63329";
-  el.innerHTML = list.map(function(o){
-    var lv = o.status==="CORREGIDO";
-    var col = lv?G:R;
-    return '<div class="obs-card" style="border-left:4px solid '+col+';margin-bottom:10px">'
-      +'<div style="display:flex;justify-content:space-between;align-items:start">'
-      +'<div><div style="font-family:var(--font-bc),sans-serif;font-size:15px;font-weight:800;color:var(--g700)">'+o.area+'</div>'
-      +'<div style="font-size:10px;color:var(--g400)">'+o.zona+' · '+o.semana+'</div></div>'
-      +'<span style="background:'+col+';color:#fff;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700">'+(lv?"Corregido":"Pendiente")+'</span>'
-      +'</div>'
-      +(o.obs?'<div style="font-size:12px;color:var(--g700);margin-top:6px">'+o.obs+'</div>':"")
-      +(o.responsable?'<div style="font-size:11px;color:var(--g400);margin-top:3px">👤 '+o.responsable+'</div>':"")
-      +'</div>';
+  if (!list.length) {
+    el.innerHTML = '<div class="empty"><div class="empty-ico">&#128203;</div><p>Sin observaciones.</p></div>';
+    return;
+  }
+  var G = "#1E7C34", R = "#E63329";
+  el.innerHTML = list.map(function(o) {
+    var lv  = o.status === "CORREGIDO";
+    var col = lv ? G : R;
+    // Fecha: puede venir como 'fecha', 'created_at', o 'sem'
+    var fechaDisp = o.fecha || (o.created_at ? o.created_at.substring(0,10) : "") || o.sem || "";
+    var h = '<div class="obs-card" style="border-left:4px solid '+col+';margin-bottom:10px">';
+    h += '<div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:6px">';
+    h += '<div style="flex:1;min-width:0">';
+    h += '<div style="font-size:11px;color:var(--g400);font-weight:600">';
+    h += (o.area||"") + " &middot; " + (o.zona||o.sector||"") + (fechaDisp ? " &middot; " + fechaDisp : "");
+    h += '</div>';
+    h += '<div style="font-size:14px;font-weight:700;color:var(--g700);margin-top:2px">';
+    h += (o.tipo||"") + (o.s && o.s !== "—" ? " (" + o.s + ")" : "");
+    h += '</div>';
+    if (o.obs) h += '<div style="font-size:12px;color:var(--g600);margin-top:4px">'+o.obs+'</div>';
+    if (o.responsable) h += '<div style="font-size:11px;color:var(--g400);margin-top:3px">&#128100; '+o.responsable+'</div>';
+    h += '</div>';
+    h += '<span style="background:'+col+';color:#fff;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700;flex-shrink:0;margin-left:8px">'+(lv?"Corregido":"Pendiente")+'</span>';
+    h += '</div>';
+    // Fotos
+    if (o.fotos && o.fotos.length) {
+      h += '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px">';
+      o.fotos.forEach(function(f) {
+        h += '<img src="'+f+'" onclick="abrirFoto(this.src)" style="width:56px;height:56px;object-fit:cover;border-radius:6px;cursor:pointer">';
+      });
+      h += '</div>';
+    }
+    // Botones acción
+    h += '<div style="display:flex;gap:6px;margin-top:8px">';
+    if (!lv) {
+      h += '<button onclick="cerrarObservacion('+o.id+')" style="flex:1;padding:8px;background:'+G+';color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:12px;font-weight:700">&#10003; Corregir</button>';
+    }
+    h += '<button onclick="abrirEditar('+o.id+')" style="flex:1;padding:8px;background:var(--g50);border:1px solid var(--g200);border-radius:8px;cursor:pointer;font-size:12px;font-weight:700;color:var(--g600)">&#9998; Editar</button>';
+    h += '</div>';
+    h += '</div>';
+    return h;
   }).join("");
 }
 

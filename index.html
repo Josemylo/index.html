@@ -3035,44 +3035,44 @@ function renderLista(data) {
   if (!el) return;
   var list = data || observations || [];
   if (!list.length) {
-    el.innerHTML = '<div class="empty"><div class="empty-ico">&#128203;</div><p>Sin observaciones.</p></div>';
+    el.innerHTML = '<div class="empty"><div class="empty-ico">&#128203;</div><p>Sin observaciones registradas.</p></div>';
     return;
   }
   var G = "#1E7C34", R = "#E63329";
   el.innerHTML = list.map(function(o) {
     var lv  = o.status === "CORREGIDO";
     var col = lv ? G : R;
-    // Fecha: puede venir como 'fecha', 'created_at', o 'sem'
     var fechaDisp = o.fecha || (o.created_at ? o.created_at.substring(0,10) : "") || o.sem || "";
     var h = '<div class="obs-card" style="border-left:4px solid '+col+';margin-bottom:10px">';
+    // Header
     h += '<div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:6px">';
     h += '<div style="flex:1;min-width:0">';
-    h += '<div style="font-size:11px;color:var(--g400);font-weight:600">';
-    h += (o.area||"") + " &middot; " + (o.zona||o.sector||"") + (fechaDisp ? " &middot; " + fechaDisp : "");
-    h += '</div>';
-    h += '<div style="font-size:14px;font-weight:700;color:var(--g700);margin-top:2px">';
-    h += (o.tipo||"") + (o.s && o.s !== "—" ? " (" + o.s + ")" : "");
-    h += '</div>';
+    h += '<div style="font-size:10px;color:var(--g400);font-weight:600">'+(o.area||"")+" &middot; "+(o.zona||o.sector||"")+(fechaDisp?" &middot; "+fechaDisp:"")+'</div>';
+    h += '<div style="font-size:14px;font-weight:700;color:var(--g700);margin-top:2px">'+(o.tipo||"")+(o.s&&o.s!=="—"?" ("+o.s+")":"")+'</div>';
     if (o.obs) h += '<div style="font-size:12px;color:var(--g600);margin-top:4px">'+o.obs+'</div>';
     if (o.responsable) h += '<div style="font-size:11px;color:var(--g400);margin-top:3px">&#128100; '+o.responsable+'</div>';
     h += '</div>';
     h += '<span style="background:'+col+';color:#fff;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700;flex-shrink:0;margin-left:8px">'+(lv?"Corregido":"Pendiente")+'</span>';
     h += '</div>';
-    // Fotos
+    // Fotos antes
     if (o.fotos && o.fotos.length) {
-      h += '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px">';
+      h += '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px;margin-bottom:8px">';
       o.fotos.forEach(function(f) {
-        h += '<img src="'+f+'" onclick="abrirFoto(this.src)" style="width:56px;height:56px;object-fit:cover;border-radius:6px;cursor:pointer">';
+        h += '<img src="'+f+'" onclick="abrirFoto(this.src)" style="width:52px;height:52px;object-fit:cover;border-radius:6px;cursor:pointer">';
       });
       h += '</div>';
     }
-    // Botones acción
-    h += '<div style="display:flex;gap:6px;margin-top:8px">';
-    if (!lv) {
-      h += '<button onclick="cerrarObservacion('+o.id+')" style="flex:1;padding:8px;background:'+G+';color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:12px;font-weight:700">&#10003; Corregir</button>';
+    // Si está corregida, mostrar info del cierre
+    if (lv) {
+      h += '<div style="background:#F0FDF4;border-radius:8px;padding:8px;margin-top:4px">';
+      h += '<div style="font-size:11px;font-weight:700;color:#155A25">&#10003; Corregida'+(o.fecha_cierre?" &middot; "+o.fecha_cierre:"")+'</div>';
+      if (o.comentario_cierre) h += '<div style="font-size:11px;color:#3A3F37;margin-top:3px">'+o.comentario_cierre+'</div>';
+      if (o.foto_despues) h += '<img src="'+o.foto_despues+'" onclick="abrirFoto(this.src)" style="width:52px;height:52px;object-fit:cover;border-radius:6px;margin-top:4px;cursor:pointer">';
+      h += '</div>';
+    } else {
+      // Solo botón Corregir — sin Editar
+      h += '<button onclick="abrirModalCorregir('+o.id+')" style="width:100%;margin-top:8px;padding:9px;background:'+G+';color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:700;font-size:13px">&#10003; Marcar como Corregida</button>';
     }
-    h += '<button onclick="abrirEditar('+o.id+')" style="flex:1;padding:8px;background:var(--g50);border:1px solid var(--g200);border-radius:8px;cursor:pointer;font-size:12px;font-weight:700;color:var(--g600)">&#9998; Editar</button>';
-    h += '</div>';
     h += '</div>';
     return h;
   }).join("");
@@ -3359,6 +3359,45 @@ function exportarPDFGerencial(btn) {
     showToast("Error: "+e.message,true);
   }
 }
+
+function abrirModalCorregir(id) {
+  obsActual = (observations||[]).find(function(o){ return o.id === id; });
+  if (!obsActual) { showToast("Observacion no encontrada", true); return; }
+  // Cargar datos en el modal
+  var titleEl = document.getElementById("modal-obs-title");
+  var detEl   = document.getElementById("mo-detalle");
+  var fotosEl = document.getElementById("mo-fotos-antes");
+  var idEl    = document.getElementById("mo-id");
+  if (titleEl) titleEl.textContent = "Corregir: " + (obsActual.tipo||"Observacion");
+  if (idEl)    idEl.value = obsActual.id;
+  if (detEl) {
+    detEl.innerHTML =
+      '<div style="margin-bottom:4px"><strong>Area:</strong> '+(obsActual.area||"")+'</div>'
+      +'<div style="margin-bottom:4px"><strong>Zona:</strong> '+(obsActual.zona||"")+'</div>'
+      +'<div style="margin-bottom:4px"><strong>Tipo:</strong> '+(obsActual.tipo||"")+(obsActual.s&&obsActual.s!=="—"?" ("+obsActual.s+")":"")+'</div>'
+      +'<div><strong>Observacion:</strong> '+(obsActual.obs||"")+'</div>';
+  }
+  if (fotosEl) {
+    fotosEl.innerHTML = "";
+    (obsActual.fotos||[]).forEach(function(f){
+      var img = document.createElement("img");
+      img.src = f;
+      img.onclick = function(){ abrirFoto(this.src); };
+      img.style.cssText = "width:60px;height:60px;object-fit:cover;border-radius:6px;cursor:pointer";
+      fotosEl.appendChild(img);
+    });
+  }
+  // Limpiar campos de cierre
+  var comEl = document.getElementById("mo-comentario");
+  if (comEl) comEl.value = "";
+  photoCierre = null;
+  var dropEl = document.getElementById("drop-cierre");
+  if (dropEl) dropEl.style.borderColor = "var(--red)";
+  var prevEl = document.getElementById("prev-cierre");
+  if (prevEl) prevEl.innerHTML = "";
+  openModal("modal-obs");
+}
+
 (function init() {
   // Asignar logos
   var logoEl = document.getElementById('ism-logo-bienvenida');

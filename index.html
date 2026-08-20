@@ -35,6 +35,1011 @@
       <button class="btn-primary" onclick="confirmarCierreAudit()" style="flex:1">&#10003; Marcar como LEVANTADA</button>
       <button c
 
+
+
+
+<!-- Modal Cierre de Observación -->
+<div id="modal-cierre-obs" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;align-items:center;justify-content:center;padding:16px">
+  <div style="background:#fff;border-radius:16px;width:100%;max-width:420px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.3)">
+    <!-- Header -->
+    <div style="background:#1E7C34;padding:16px 20px;display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:900;color:#fff">Cerrar Observación</div>
+        <div style="font-size:11px;color:rgba(255,255,255,.8)" id="modal-cierre-desc"></div>
+      </div>
+      <button onclick="cerrarModalCierre()" style="background:rgba(255,255,255,.15);border:none;color:#fff;border-radius:8px;padding:6px 10px;cursor:pointer;font-size:16px">✕</button>
+    </div>
+    <!-- Body -->
+    <div style="padding:16px">
+      <!-- Fecha de cierre OBLIGATORIA -->
+      <div style="margin-bottom:12px">
+        <label style="font-size:12px;font-weight:700;color:#3A3F37;display:block;margin-bottom:4px">
+          Fecha de Cierre <span style="color:#E63329">*</span>
+        </label>
+        <input type="date" id="cierre-fecha"
+          style="width:100%;padding:10px;border:2px solid #D5DAD3;border-radius:8px;font-size:14px;box-sizing:border-box"
+          oninput="this.style.borderColor=this.value?'#1E7C34':'#E63329'">
+      </div>
+      <!-- Comentario OBLIGATORIO -->
+      <div style="margin-bottom:12px">
+        <label style="font-size:12px;font-weight:700;color:#3A3F37;display:block;margin-bottom:4px">
+          Comentario de Cierre <span style="color:#E63329">*</span>
+        </label>
+        <textarea id="cierre-comentario" rows="3" placeholder="Describe cómo se resolvió la observación..."
+          style="width:100%;padding:10px;border:2px solid #D5DAD3;border-radius:8px;font-size:13px;box-sizing:border-box;resize:vertical"
+          oninput="this.style.borderColor=this.value.trim()?'#1E7C34':'#E63329'"></textarea>
+      </div>
+      <!-- Foto evidencia OPCIONAL -->
+      <div style="margin-bottom:16px">
+        <label style="font-size:12px;font-weight:700;color:#3A3F37;display:block;margin-bottom:4px">
+          Foto de Evidencia <span style="font-size:11px;color:#8F9B8A;font-weight:400">(opcional)</span>
+        </label>
+        <div id="cierre-foto-preview" style="display:none;margin-bottom:8px">
+          <img id="cierre-foto-img" style="width:100%;height:160px;object-fit:cover;border-radius:8px;border:2px solid #1E7C34">
+        </div>
+        <label style="display:flex;align-items:center;gap:8px;padding:10px;background:#F7F8F6;border:2px dashed #D5DAD3;border-radius:8px;cursor:pointer">
+          <span style="font-size:20px">📷</span>
+          <span style="font-size:13px;color:#8F9B8A">Tomar foto o seleccionar archivo</span>
+          <input type="file" id="cierre-foto-input" accept="image/*" capture="environment"
+            style="display:none" onchange="previewFotoCierre(this)">
+        </label>
+      </div>
+      <!-- Botones -->
+      <div style="display:flex;gap:8px">
+        <button onclick="cerrarModalCierre()" style="flex:1;padding:12px;background:#F7F8F6;border:1px solid #D5DAD3;border-radius:8px;font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;color:#8F9B8A;cursor:pointer">
+          Cancelar
+        </button>
+        <button id="cierre-btn-guardar" onclick="guardarCierreObs()"
+          style="flex:2;padding:12px;background:#1E7C34;color:#fff;border:none;border-radius:8px;font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;cursor:pointer">
+          ✓ Confirmar Cierre
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+:root{
+  --green:#1E7C34;--green-d:#155A25;--green-l:#2DA048;
+  --red:#E63329;--amber:#D97706;--blue:#1565C0;
+  --g50:#F7F8F6;--g100:#EEF0EC;--g200:#D5DAD3;
+  --g400:#8F9B8A;--g700:#3A3F37;--g900:#1A1D18;
+  --r:10px;--sh:0 2px 12px rgba(30,124,52,.13);--shl:0 6px 32px rgba(30,124,52,.18);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Barlow",sans-serif;background:var(--g50);color:var(--g900);min-height:100vh;overflow-x:hidden}
+header{background:var(--green);position:sticky;top:0;z-index:100;box-shadow:0 3px 16px rgba(0,0,0,.22)}
+.hdr{display:flex;align-items:center;gap:12px;padding:8px 16px;max-width:720px;margin:0 auto}
+.logo-box{background:#fff;border-radius:6px;padding:3px 6px;flex-shrink:0}
+.logo-box img{height:32px;display:block;object-fit:contain}
+.hdr-brand h1,.hdr-brand span{color:#fff!important}
+.hdr-brand h1{font-family:"Barlow Condensed",sans-serif;font-size:19px;font-weight:800;line-height:1.1}
+.hdr-brand span{font-size:11px;opacity:.8}
+.hdr-txt{flex:1}
+.hdr-txt h1{font-family:"Barlow Condensed",sans-serif;font-size:20px;font-weight:800;color:#fff;letter-spacing:.5px;line-height:1.1}
+.hdr-txt span{font-size:11px;color:rgba(255,255,255,.82)}
+.hdr-sync{background:rgba(255,255,255,.15);border:none;color:#fff;border-radius:7px;padding:7px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:"Barlow",sans-serif;transition:background .18s}
+.hdr-sync:hover{background:rgba(255,255,255,.25)}
+nav{background:var(--green-d);display:flex;overflow-x:auto;scrollbar-width:none}
+nav::-webkit-scrollbar{display:none}
+.tab{flex-shrink:0;padding:11px 20px;color:rgba(255,255,255,.6);font-family:"Barlow Condensed",sans-serif;font-size:15px;font-weight:700;cursor:pointer;border-bottom:3px solid transparent;transition:all .18s;user-select:none;white-space:nowrap}
+.tab.active{color:#fff;border-bottom-color:var(--red)}
+.tab:hover:not(.active){color:rgba(255,255,255,.9)}
+main{max-width:720px;margin:0 auto;padding:18px 14px 100px}
+.section{display:none}.section.active{display:block}
+.card{background:#fff;border-radius:var(--r);box-shadow:var(--sh);padding:18px;margin-bottom:14px}
+.card-title{font-family:"Barlow Condensed",sans-serif;font-size:17px;font-weight:700;color:var(--green);margin-bottom:14px;text-transform:uppercase;letter-spacing:.4px;border-left:4px solid var(--red);padding-left:10px}
+.fg{margin-bottom:13px}
+label{display:block;font-size:11px;font-weight:600;color:var(--g700);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+select,input[type=text],textarea{width:100%;padding:10px 12px;border:1.5px solid var(--g200);border-radius:8px;font-family:"Barlow",sans-serif;font-size:15px;color:var(--g900);background:#fff;transition:border-color .18s;-webkit-appearance:none}
+select:focus,input:focus,textarea:focus{outline:none;border-color:var(--green)}
+textarea{resize:vertical;min-height:78px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.btn-primary{background:var(--green);color:#fff;width:100%;padding:12px;border:none;border-radius:8px;font-family:"Barlow",sans-serif;font-size:15px;font-weight:600;cursor:pointer;transition:background .18s;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-primary:hover{background:var(--green-l)}
+.btn-primary:disabled{background:var(--g200);cursor:not-allowed;color:var(--g400)}
+.btn-ghost{background:transparent;color:var(--green);border:1.5px solid var(--green);padding:7px 12px;font-size:13px;border-radius:8px;cursor:pointer;font-family:"Barlow",sans-serif;font-weight:600;transition:all .18s;display:inline-flex;align-items:center;gap:4px}
+.btn-ghost:hover{background:var(--green);color:#fff}
+.btn-red{background:transparent;color:var(--red);border:1.5px solid var(--red);padding:7px 12px;font-size:13px;border-radius:8px;cursor:pointer;font-family:"Barlow",sans-serif;font-weight:600;transition:all .18s}
+.btn-red:hover{background:var(--red);color:#fff}
+.s-sel{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.s-btn{padding:9px 6px;border:2px solid var(--g200);border-radius:8px;background:#fff;cursor:default;pointer-events:none;text-align:center;font-family:"Barlow Condensed",sans-serif;font-size:13px;font-weight:700;transition:all .15s;color:var(--g700)}
+.s-btn span{display:block;font-size:10px;font-weight:400;margin-top:2px;opacity:.8}
+.s-btn.active{border-color:var(--green);background:var(--green);color:#fff}
+.photo-drop{border:2px dashed var(--g200);border-radius:8px;padding:18px;text-align:center;cursor:pointer;transition:all .18s;position:relative}
+.photo-drop:hover{border-color:var(--green);background:var(--g50)}
+.photo-drop input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.photo-prev{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.photo-prev img{width:68px;height:68px;object-fit:cover;border-radius:6px;border:2px solid var(--g200)}
+.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;font-family:"Barlow Condensed",sans-serif;letter-spacing:.4px;text-transform:uppercase}
+.b-1s{background:#FFF3E0;color:#E65100}.b-2s{background:#E8F5E9;color:#1B5E20}
+.b-3s{background:#E3F2FD;color:#0D47A1}.b-4s{background:#F3E5F5;color:#4A148C}
+.b-5s{background:#FCE4EC;color:#880E4F}.b-epp{background:#FFF3E0;color:#E65100}
+.b-ok{background:#E8F5E9;color:#1B5E20}.b-no{background:#FFEBEE;color:#B71C1C}
+.b-pen{background:#FFF8E1;color:#F57F17}
+.obs-card{background:#fff;border-radius:var(--r);box-shadow:var(--sh);margin-bottom:10px;border-left:4px solid var(--g200);overflow:hidden;cursor:pointer}
+.obs-card.corregido{border-left-color:var(--green)}
+.obs-card.no-corregido{border-left-color:var(--red)}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;padding:16px;overflow-y:auto}
+.modal-overlay.show{display:flex;align-items:flex-start;justify-content:center}
+.modal{background:#fff;border-radius:14px;padding:20px;width:100%;max-width:500px;box-shadow:var(--shl);margin:auto}
+.modal-title{font-family:"Barlow Condensed",sans-serif;font-size:18px;font-weight:800;color:var(--green);margin-bottom:16px;text-transform:uppercase;border-left:4px solid var(--red);padding-left:10px}
+.kpi-box{background:#fff;border-radius:8px;box-shadow:var(--sh);padding:10px 6px;text-align:center;border-top:3px solid var(--g200)}
+.kpi-box.green{border-top-color:var(--green)}.kpi-box.red{border-top-color:var(--red)}.kpi-box.amber{border-top-color:var(--amber)}
+.kpi-val{font-family:"Barlow Condensed",sans-serif;font-size:24px;font-weight:800;line-height:1;color:var(--g900)}
+.kpi-box.green .kpi-val{color:var(--green)}.kpi-box.red .kpi-val{color:var(--red)}.kpi-box.amber .kpi-val{color:var(--amber)}
+.kpi-lbl{font-size:9px;color:var(--g400);font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-top:2px}
+.dash-card{background:#fff;border-radius:10px;box-shadow:var(--sh);padding:12px 12px 14px;margin-bottom:12px}
+.dash-card-title{font-family:"Barlow Condensed",sans-serif;font-size:12px;font-weight:700;color:var(--g700);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;border-left:3px solid var(--red);padding-left:8px}
+.dash-legend-row{display:flex;align-items:center;gap:6px;padding:3px 0;border-bottom:1px solid var(--g100)}
+.dash-legend-row:last-child{border-bottom:none}
+.dash-legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.dash-legend-label{font-size:10px;color:var(--g700);flex:1}
+.dash-legend-val{font-family:"Barlow Condensed",sans-serif;font-size:13px;font-weight:700;color:var(--g900)}
+.dash-legend-pct{font-size:10px;color:var(--g400);min-width:30px;text-align:right}
+.period-sel{display:flex;gap:0;border-radius:8px;overflow:hidden;border:1.5px solid var(--g200)}
+.period-btn{flex:1;padding:7px;border:none;background:#fff;font-family:"Barlow",sans-serif;font-size:11px;font-weight:600;cursor:pointer;color:var(--g400);transition:all .18s}
+.period-btn.active{background:var(--green);color:#fff}
+.filter-small{padding:8px 10px;border:1.5px solid var(--g200);border-radius:8px;font-family:"Barlow",sans-serif;font-size:12px;-webkit-appearance:none;background:#fff;width:100%}
+.dtbl{width:100%;border-collapse:collapse;font-size:11px}
+.dtbl th{background:var(--green);color:#fff;padding:6px 8px;font-size:10px;font-weight:700;white-space:nowrap;text-align:center}
+.dtbl th.left{text-align:left}
+.dtbl td{padding:5px 8px;border-bottom:1px solid var(--g100);text-align:center;color:var(--g900)}
+.dtbl td.left{text-align:left;font-weight:600;color:var(--g700);white-space:nowrap}
+.dtbl tr:last-child td{border-bottom:none}
+.dtbl .total-row td{background:var(--g50);font-weight:700;border-top:2px solid var(--g200)}
+.upload-progress{height:5px;background:var(--g100);border-radius:20px;overflow:hidden;margin-top:8px;display:none}
+.upload-progress-fill{height:100%;background:var(--green);border-radius:20px;transition:width .3s}
+.empty{text-align:center;padding:38px 20px;color:var(--g400)}
+.empty-ico{font-size:38px;margin-bottom:8px}
+.loading{text-align:center;padding:40px 20px;color:var(--g400)}
+.spinner{width:18px;height:18px;border:3px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:inline-block}
+.spinner-g{width:28px;height:28px;border:3px solid var(--g100);border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite;display:inline-block}
+#toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--green);color:#fff;padding:11px 22px;border-radius:30px;font-size:13px;font-weight:600;box-shadow:var(--shl);opacity:0;pointer-events:none;transition:opacity .3s;z-index:999;white-space:nowrap;max-width:90vw}
+#toast.show{opacity:1}#toast.error{background:var(--red)}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media(max-width:480px){.row2{grid-template-columns:1fr}.kpi-val{font-size:20px}}
+.puntaje-sel{display:flex;gap:6px}
+.puntaje-btn{flex:1;padding:10px 4px;border:2px solid var(--g200);border-radius:8px;background:#fff;cursor:pointer;text-align:center;font-family:"Barlow Condensed",sans-serif;font-size:18px;font-weight:800;transition:all .15s;color:var(--g700)}
+.puntaje-btn:hover{border-color:var(--green)}
+.puntaje-btn.p1.active{border-color:#B71C1C;background:#B71C1C;color:#fff}
+.puntaje-btn.p2.active{border-color:var(--red);background:var(--red);color:#fff}
+.puntaje-btn.p3.active{border-color:var(--amber);background:var(--amber);color:#fff}
+.puntaje-btn.p4.active{border-color:#2E7D32;background:#2E7D32;color:#fff}
+.puntaje-btn.p5.active{border-color:var(--green);background:var(--green);color:#fff}
+.criterio-card{background:#fff;border-radius:var(--r);box-shadow:var(--sh);padding:14px;margin-bottom:12px;border-left:4px solid var(--g200);transition:border-color .2s}
+.criterio-card.evaluado{border-left-color:var(--green)}
+.criterio-card.critico{border-left-color:var(--red)}
+.pilar-header{font-family:"Barlow Condensed",sans-serif;font-size:14px;font-weight:800;color:var(--green);text-transform:uppercase;letter-spacing:.5px;padding:8px 0 6px;border-bottom:2px solid var(--g100);margin-bottom:12px}
+#app-auditoria-nueva{display:none;min-height:100vh;background:var(--g50);padding-bottom:80px}
+.score-ring{position:relative;width:120px;height:120px;margin:0 auto}
+.score-ring svg{transform:rotate(-90deg)}
+.score-ring .score-txt{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}
+.audn-pts-btn{padding:10px;border-radius:10px;border:2px solid var(--g200);background:#fff;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;cursor:pointer;transition:all .15s;flex:1}
+.audn-pts-btn:hover{transform:scale(1.02)}
+.audn-pts-btn[data-pts="-20"]{border-color:#E0D0F0;background:#F9F5FF;color:#7B1FA2}
+.audn-pts-btn[data-pts="-15"]{border-color:#FECACA;background:#FEF2F2;color:#C62828}
+.audn-pts-btn[data-pts="-10"]{border-color:#FED7AA;background:#FFF7ED;color:#C2410C}
+.audn-pts-btn[data-pts="-5"]{border-color:#FDE68A;background:#FFFBEB;color:#B45309}
+.audn-pts-btn[data-pts="5"]{border-color:#BBF7D0;background:#F0FDF4;color:#15803D;grid-column:1/-1}
+.audn-pts-btn.active{transform:scale(1.04);box-shadow:0 0 0 3px rgba(0,0,0,.2)}
+</style>
+</head>
+<body>
+
+<!-- ===================== PANTALLA BIENVENIDA ===================== -->
+<div id="pantalla-bienvenida" style="display:flex;flex-direction:column;min-height:100vh;background:linear-gradient(160deg,#155A25 0%,#1E7C34 55%,#2DA048 100%);overflow:hidden;position:relative">
+  <div style="position:absolute;top:-80px;right:-80px;width:300px;height:300px;background:rgba(255,255,255,.04);border-radius:50%;pointer-events:none"></div>
+  <div style="position:absolute;bottom:-60px;left:-60px;width:240px;height:240px;background:rgba(255,255,255,.03);border-radius:50%;pointer-events:none"></div>
+  <div style="position:absolute;top:40%;left:-40px;width:160px;height:160px;background:rgba(255,255,255,.03);border-radius:50%;pointer-events:none"></div>
+  <div style="padding:32px 24px 0;display:flex;align-items:center;justify-content:space-between">
+    <div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;color:rgba(255,255,255,.5);letter-spacing:2px;text-transform:uppercase;margin-bottom:2px">Industrias San Miguel</div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:600;color:rgba(255,255,255,.7)">Planta Huaura · Excelencia Operacional</div>
+    </div>
+    <div style="background:rgba(255,255,255,.12);border-radius:8px;padding:5px 10px;border:1px solid rgba(255,255,255,.2)">
+      <div style="font-size:10px;color:rgba(255,255,255,.6);font-weight:600">SGI-5S-001</div>
+    </div>
+  </div>
+  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;text-align:center">
+    <div style="width:88px;height:88px;background:rgba(255,255,255,.12);border-radius:24px;display:flex;align-items:center;justify-content:center;margin-bottom:20px;border:1.5px solid rgba(255,255,255,.2);box-shadow:0 8px 32px rgba(0,0,0,.15)">
+      <span style="font-size:44px">⭐</span>
+    </div>
+    <h1 style="font-family:'Barlow Condensed',sans-serif;font-size:38px;font-weight:900;color:#fff;margin:0 0 8px;letter-spacing:.5px;line-height:1">Programa 5S</h1>
+    <p style="font-size:14px;color:rgba(255,255,255,.7);margin:0 0 40px;max-width:260px;line-height:1.5">Sistema integral de gestión, auditoría y mejora continua</p>
+    <div style="width:100%;max-width:340px;display:flex;flex-direction:column;gap:12px">
+      <button onclick="iniciarRecorrido()" style="background:#fff;color:var(--green-d,#155A25);border:none;border-radius:16px;padding:0;cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,.2);display:flex;align-items:stretch;overflow:hidden;transition:transform .18s;text-align:left" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+        <div style="background:var(--green,#1E7C34);width:6px;flex-shrink:0"></div>
+        <div style="padding:16px 18px;flex:1">
+          <div style="display:flex;align-items:center;gap:10px">
+            <span style="font-size:28px">🔍</span>
+            <div>
+              <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:#1A1D18;line-height:1">Recorrido Diario</div>
+              <div style="font-size:12px;color:#64748B;margin-top:2px">Observaciones y seguimiento en campo</div>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;padding-right:16px;color:#94A3B8;font-size:18px">›</div>
+      </button>
+      <button onclick="iniciarCheckList()" style="background:#fff;color:#155A25;border:none;border-radius:16px;padding:0;cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,.2);display:flex;align-items:stretch;overflow:hidden;transition:transform .18s;text-align:left" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+        <div style="background:#D97706;width:6px;flex-shrink:0"></div>
+        <div style="padding:16px 18px;flex:1">
+          <div style="display:flex;align-items:center;gap:10px">
+            <span style="font-size:28px">📊</span>
+            <div>
+              <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:#1A1D18;line-height:1">Check List 5S</div>
+              <div style="font-size:12px;color:#64748B;margin-top:2px">Evaluación mensual por sector</div>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;padding-right:16px;color:#94A3B8;font-size:18px">›</div>
+      </button>
+      <button onclick="iniciarAuditoriaNew()" style="background:#fff;color:#155A25;border:none;border-radius:16px;padding:0;cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,.2);display:flex;align-items:stretch;overflow:hidden;transition:transform .18s;text-align:left" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+        <div style="background:#1565C0;width:6px;flex-shrink:0"></div>
+        <div style="padding:16px 18px;flex:1">
+          <div style="display:flex;align-items:center;gap:10px">
+            <span style="font-size:28px">📋</span>
+            <div>
+              <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:#1A1D18;line-height:1">Auditoría 5S</div>
+              <div style="font-size:12px;color:#64748B;margin-top:2px">Evaluación cruzada · 4 veces al año</div>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;padding-right:16px;color:#94A3B8;font-size:18px">›</div>
+      </button>
+    </div>
+  </div>
+  <div style="padding:16px 24px 28px;text-align:center">
+    <div style="font-size:10px;color:rgba(255,255,255,.3)">v02 · 2026 · Planta Huaura</div>
+  </div>
+</div>
+
+<!-- ===================== APP RECORRIDO ===================== -->
+<div id="app-recorrido" style="display:none">
+<header>
+  <div class="hdr">
+    <div class="hdr-brand"><h1>Recorrido 5S</h1><span>Industrias San Miguel</span></div>
+    <button class="hdr-sync" onclick="cargarTodo()">&#8635;</button>
+    <button class="hdr-sync" onclick="volverBienvenida()" style="background:rgba(255,255,255,.12)">&#8592; Inicio</button>
+  </div>
+</header>
+<nav>
+  <div class="tab active" onclick="showTab('nuevo')">+ Nueva</div>
+  <div class="tab" onclick="showTab('lista')">Observaciones</div>
+  <div class="tab" onclick="showTab('dashboard')">Dashboard</div>
+</nav>
+<main>
+<!-- TAB NUEVO -->
+<div id="tab-nuevo" class="section active">
+  <div class="card">
+    <div class="card-title">&#128203; Nueva observacion</div>
+    <div class="fg"><label>Semana</label>
+      <input type="text" id="f-sem" readonly style="background:var(--g50);font-weight:700;color:var(--green)">
+    </div>
+    <div class="fg"><label>Responsable de Registro <span class="req">*</span></label>
+      <input type="text" id="f-auditor" placeholder="Tu nombre completo" oninput="this.style.borderColor=this.value?'var(--green)':''">
+    </div>
+    <div class="fg"><label>Sector <span class="req">*</span></label>
+      <select id="f-area" onchange="updateZonas()"><option value="">- Selecciona sector -</option></select>
+    </div>
+    <div class="row2">
+      <div class="fg"><label>Area</label>
+        <input type="text" id="f-sector" readonly style="background:var(--g50);color:var(--green);font-weight:700" placeholder="Se asigna automaticamente">
+      </div>
+      <div class="fg" id="f-zona-wrap"><label>Zona / Equipo <span class="req">*</span></label>
+        <select id="f-zona"><option value="">- Selecciona zona -</option></select>
+      </div>
+    </div>
+    <div class="fg"><label>Tipo de observacion <span class="req">*</span></label>
+      <select id="f-tipo" onchange="autoS()"><option value="">- Selecciona tipo -</option></select>
+    </div>
+    <div class="fg"><label>"S" observada</label>
+      <div class="s-sel">
+        <button class="s-btn" type="button" onclick="selectS('1S')">1S<span>Clasificar</span></button>
+        <button class="s-btn" type="button" onclick="selectS('2S')">2S<span>Ordenar</span></button>
+        <button class="s-btn" type="button" onclick="selectS('3S')">3S<span>Limpiar</span></button>
+        <button class="s-btn" type="button" onclick="selectS('4S')">4S<span>Estandarizar</span></button>
+        <button class="s-btn" type="button" onclick="selectS('5S')">5S<span>Disciplina</span></button>
+        <button class="s-btn" type="button" onclick="selectS('EPP')">EPP<span>Seguridad</span></button>
+      </div>
+    </div>
+    <div class="fg"><label>Descripcion <span class="req">*</span></label>
+      <textarea id="f-obs" placeholder="Describe la situacion encontrada..." oninput="this.style.borderColor=this.value?'var(--green)':''" style="min-height:90px"></textarea>
+    </div>
+    <div class="fg"><label>Responsable del area</label>
+      <input type="text" id="f-responsable" readonly style="background:var(--g50);color:var(--g700)" placeholder="Se asigna automaticamente">
+    </div>
+    <div class="fg">
+      <label>Foto de evidencia (antes) <span class="req">*</span></label>
+      <div class="photo-drop" id="drop-nuevo" style="border-color:var(--red);cursor:pointer" onclick="document.getElementById('input-foto-nuevo').click()">
+        <input type="file" id="input-foto-nuevo" accept="image/*" capture="environment" multiple onchange="handlePhotos(this)" style="display:none">
+        <div style="font-size:28px;margin-bottom:5px">&#128247;</div>
+        <p style="font-size:13px;color:var(--g400)">Toca para tomar foto o seleccionar</p>
+        <p style="font-size:11px;color:var(--red);font-weight:600;margin-top:4px">Obligatoria</p>
+      </div>
+      <div class="upload-progress" id="prog-nuevo"><div class="upload-progress-fill" id="prog-nuevo-fill"></div></div>
+      <div class="photo-prev" id="prev-nuevo"></div>
+    </div>
+    <button class="btn-primary" id="btn-guardar" onclick="guardarObservacion()">Guardar observacion</button>
+  </div>
+</div>
+<!-- TAB LISTA -->
+<div id="tab-lista" class="section">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+    <select id="fil-area" class="filter-small" onchange="filtrar()"><option value="">Todas las areas</option></select>
+    <select id="fil-status" class="filter-small" onchange="filtrar()">
+      <option value="">Todos los estados</option>
+      <option value="CORREGIDO">Corregido</option>
+      <option value="NO CORREGIDO">No corregido</option>
+    </select>
+    <select id="fil-sector" class="filter-small" onchange="filtrar()"><option value="">Todos los sectores</option></select>
+    <select id="fil-sem" class="filter-small" onchange="filtrar()"><option value="">Todas las semanas</option></select>
+    <select id="fil-orden" class="filter-small" onchange="filtrar()">
+      <option value="reciente">Mas reciente primero</option>
+      <option value="antiguo">Mas antiguo primero</option>
+      <option value="status">Por estado</option>
+      <option value="area">Por area</option>
+    </select>
+  </div>
+  <div id="obs-list"><div class="loading"><div class="spinner-g"></div><p style="margin-top:12px;font-size:13px">Cargando...</p></div></div>
+</div>
+<!-- TAB DASHBOARD -->
+<div id="tab-dashboard" class="section">
+  <div style="display:flex;gap:8px;margin-bottom:12px;align-items:center;flex-wrap:wrap">
+    <select id="d-fil-mes" onchange="renderDashboard()" class="filter-small"><option value="">Todos los meses</option></select>
+    <select id="d-fil-sector" onchange="renderDashboard()" class="filter-small"><option value="">Todos los sectores</option></select>
+    <select id="d-fil-area" onchange="renderDashboard()" class="filter-small"><option value="">Todas las areas</option></select>
+    <button onclick="exportarPDF()" style="flex-shrink:0;background:var(--red);color:#fff;border:none;border-radius:8px;padding:8px 12px;font-family:Barlow,sans-serif;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">&#128196; PDF</button>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:8px">
+    <div class="kpi-box"><div class="kpi-val" id="d-total">0</div><div class="kpi-lbl">Total obs.</div></div>
+    <div class="kpi-box green"><div class="kpi-val" id="d-corregidas">0</div><div class="kpi-lbl">Corregidas</div></div>
+    <div class="kpi-box red"><div class="kpi-val" id="d-no-corr">0</div><div class="kpi-lbl">No Corregidas</div></div>
+  </div>
+  <div style="margin-bottom:12px">
+    <div class="kpi-box amber" style="padding:10px 16px;display:flex;align-items:center;justify-content:space-between">
+      <div class="kpi-lbl" style="margin-top:0">% Obs. Corregidas del Total</div>
+      <div class="kpi-val" id="d-pct" style="font-size:28px">0%</div>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+    <div class="dash-card" style="margin-bottom:0">
+      <div class="dash-card-title">&#127942; Mejor / Peor area</div>
+      <div style="font-size:10px;color:var(--g400);margin:-4px 0 8px;font-style:italic">Semana actual</div>
+      <div id="d-top-areas"></div>
+    </div>
+    <div class="dash-card" style="margin-bottom:0">
+      <div class="dash-card-title">&#128200; vs Semana anterior</div>
+      <div id="d-comparativo"></div>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+    <div class="dash-card" style="margin-bottom:0">
+      <div class="dash-card-title">Estado obs.</div>
+      <div style="position:relative;width:100px;height:100px;margin:0 auto">
+        <canvas id="chart-donut-status"></canvas>
+        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;color:var(--green)" id="d-pct2">0%</div>
+          <div style="font-size:8px;color:var(--g400);font-weight:600;text-transform:uppercase">Cumpl.</div>
+        </div>
+      </div>
+      <div id="legend-status" style="margin-top:8px"></div>
+    </div>
+    <div class="dash-card" style="margin-bottom:0">
+      <div class="dash-card-title">Obs. por "S"</div>
+      <div style="position:relative;width:100px;height:100px;margin:0 auto">
+        <canvas id="chart-donut-s"></canvas>
+        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;color:var(--red)" id="d-top-s">-</div>
+          <div style="font-size:8px;color:var(--g400);font-weight:600;text-transform:uppercase">Top</div>
+        </div>
+      </div>
+      <div id="legend-s" style="margin-top:8px"></div>
+    </div>
+  </div>
+  <div class="dash-card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <div class="dash-card-title" style="margin-bottom:0">&#128200; Evolucion de observaciones</div>
+      <div class="period-sel" style="width:130px">
+        <button class="period-btn active" id="btn-sem" onclick="setPeriod('sem')">Semanal</button>
+        <button class="period-btn" id="btn-mes" onclick="setPeriod('mes')">Mensual</button>
+      </div>
+    </div>
+    <div style="position:relative;height:220px;width:100%"><canvas id="chart-evolucion"></canvas></div>
+  </div>
+  <div class="dash-card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <div class="dash-card-title" style="margin-bottom:0">&#128202; Evolucion por area</div>
+      <div class="period-sel" style="width:130px">
+        <button class="period-btn active" id="btn-area-sem" onclick="setPeriodArea('sem')">Semanal</button>
+        <button class="period-btn" id="btn-area-mes" onclick="setPeriodArea('mes')">Mensual</button>
+      </div>
+    </div>
+    <div style="position:relative;height:220px;width:100%"><canvas id="chart-area-evol"></canvas></div>
+  </div>
+  <div class="dash-card">
+    <div class="dash-card-title">&#127981; Cumplimiento por sector</div>
+    <div style="font-size:10px;color:var(--g400);margin:-4px 0 8px;font-style:italic">Obs. corregidas / total obs. del sector</div>
+    <div id="d-sectores"></div>
+  </div>
+  <div class="dash-card">
+    <div class="dash-card-title">&#128100; Cumplimiento por responsable</div>
+    <div style="font-size:10px;color:var(--g400);margin:-4px 0 8px;font-style:italic">Obs. corregidas / total obs. asignadas</div>
+    <div id="d-responsables"></div>
+  </div>
+  <div class="dash-card">
+    <div class="dash-card-title">&#128203; Resumen por sector y estado</div>
+    <div style="overflow-x:auto"><table id="tabla-pivot" class="dtbl"></table></div>
+  </div>
+  <div class="dash-card">
+    <div class="dash-card-title">&#128202; % Cumplimiento por area</div>
+    <div style="font-size:10px;color:var(--g400);margin:-4px 0 8px;font-style:italic">Obs. corregidas / total obs. por area</div>
+    <div style="overflow-x:auto"><table id="tabla-cumpl" class="dtbl"></table></div>
+  </div>
+  <div class="dash-card">
+    <div class="dash-card-title">&#128205; Zonas/equipos con mas obs. no corregidas</div>
+    <div id="d-zonas-ranking"></div>
+  </div>
+</div>
+</main>
+</div>
+
+<!-- ===================== APP CHECKLIST ===================== -->
+<div id="app-checklist" style="display:none">
+<header>
+  <div class="hdr">
+    <div class="logo-box" style="display:none"></div>
+    <div class="hdr-brand"><h1>Check List 5S</h1><span>Industrias San Miguel</span></div>
+    <button class="hdr-sync" onclick="volverBienvenida()">&#8592; Salir</button>
+  </div>
+</header>
+<nav style="background:#1565C0;display:flex;overflow-x:auto;scrollbar-width:none">
+  <div id="atab-nueva" onclick="showAuditTab('nueva')" style="flex-shrink:0;padding:11px 20px;color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;cursor:pointer;border-bottom:3px solid var(--amber);user-select:none;white-space:nowrap">+ Nueva</div>
+  <div id="atab-historial" onclick="showAuditTab('historial')" style="flex-shrink:0;padding:11px 20px;color:rgba(255,255,255,.6);font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;cursor:pointer;border-bottom:3px solid transparent;user-select:none;white-space:nowrap">Historial</div>
+  <div id="atab-dashboard" onclick="showAuditTab('dashboard')" style="flex-shrink:0;padding:11px 20px;color:rgba(255,255,255,.6);font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;cursor:pointer;border-bottom:3px solid transparent;user-select:none;white-space:nowrap">Dashboard</div>
+  <div id="atab-observaciones" onclick="showAuditTab('observaciones')" style="flex-shrink:0;padding:11px 20px;color:rgba(255,255,255,.6);font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;cursor:pointer;border-bottom:3px solid transparent;user-select:none;white-space:nowrap">&#9888; Obs. Pendientes</div>
+</nav>
+<main style="max-width:720px;margin:0 auto;padding:18px 14px 100px">
+<div id="asec-nueva">
+<div id="nueva-pendientes" style="margin-bottom:14px"></div>
+<div id="audit-paso1">
+  <div class="card">
+    <div class="card-title">&#9989; Datos del Check List</div>
+    <div class="fg"><label>Auditor <span class="req">*</span></label>
+      <select id="a-auditor" onchange="onAuditorChange()">
+        <option value="">&#8212; Selecciona auditor &#8212;</option>
+        <option value="Adiel Abednego Aguayo Flores">Adiel Abednego Aguayo Flores</option>
+        <option value="Alejandro Salvador Grados">Alejandro Salvador Grados</option>
+        <option value="Ayrton Raphael Cotrina Esteves">Ayrton Raphael Cotrina Esteves</option>
+        <option value="Carlos Joél Luyo Diaz">Carlos Joél Luyo Diaz</option>
+        <option value="Cristopher William Reyes Islado">Cristopher William Reyes Islado</option>
+        <option value="Darlene Cruz Donayre">Darlene Cruz Donayre</option>
+        <option value="Dylan Yaret Pintado Fernandez">Dylan Yaret Pintado Fernandez</option>
+        <option value="Enrique Fabricio Polo Manrique">Enrique Fabricio Polo Manrique</option>
+        <option value="Fabio Caldas Antúnez">Fabio Caldas Antúnez</option>
+        <option value="Héctor Arteaga Espinoza">Héctor Arteaga Espinoza</option>
+        <option value="Julio Arroyo Puse">Julio Arroyo Puse</option>
+        <option value="Luis Bossio Vargas">Luis Bossio Vargas</option>
+        <option value="Mariluz Reynaldina Montes Laurente">Mariluz Reynaldina Montes Laurente</option>
+        <option value="Nuria del Pilar Diaz Ramirez">Nuria del Pilar Diaz Ramirez</option>
+        <option value="Paula Valeria Cecilia La Rosa La Rosa">Paula Valeria Cecilia La Rosa La Rosa</option>
+        <option value="Roberto Carlos Medina La Rosa">Roberto Carlos Medina La Rosa</option>
+        <option value="Rosa Emilia Mejia Jaimes">Rosa Emilia Mejia Jaimes</option>
+        <option value="Ulises Eliseo Anselmo Carranza">Ulises Eliseo Anselmo Carranza</option>
+        <option value="William Jesus Joel Rivera Ramirez">William Jesus Joel Rivera Ramirez</option>
+        <option value="Ítalo Buendia Poma">Ítalo Buendia Poma</option>
+      </select>
+    </div>
+    <div class="fg"><label>Mes <span class="req">*</span></label>
+      <input type="month" id="a-nro" readonly style="background:var(--g50);font-weight:700;color:var(--blue)">
+    </div>
+    <div class="fg"><label>Sector auditado <span class="req">*</span></label>
+      <select id="a-sector" onchange="onSectorChange()" disabled>
+        <option value="">&#8212; Elige auditor primero &#8212;</option>
+      </select>
+    </div>
+    <div class="fg"><label>Área</label>
+      <input type="text" id="a-area" readonly style="background:var(--g50);color:var(--green);font-weight:700" placeholder="Se asigna automáticamente">
+    </div>
+    <div class="fg"><label>Responsable</label>
+      <input type="text" id="a-responsable" readonly style="background:var(--g50);color:var(--g700)" placeholder="Se asigna automáticamente">
+    </div>
+    <div class="fg"><label>Fecha</label>
+      <input type="text" id="a-fecha" readonly style="background:var(--g50);font-weight:700;color:var(--green)">
+    </div>
+    <button class="btn-primary" onclick="irPaso2()">Iniciar Check List &#8594;</button>
+  </div>
+</div>
+<div id="audit-paso2" style="display:none">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+    <button class="btn-ghost" onclick="irPaso1()" style="font-size:12px;padding:6px 10px">&#8592; Atras</button>
+    <div style="text-align:center">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;color:var(--g700)" id="audit-area-lbl">Area</div>
+      <div style="font-size:11px;color:var(--g400)" id="audit-progreso">0 / 20 criterios</div>
+    </div>
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;color:var(--green)" id="audit-puntaje-live">0/100</div>
+  </div>
+  <div style="height:5px;background:var(--g100);border-radius:20px;overflow:hidden;margin-bottom:16px">
+    <div id="audit-prog-bar" style="height:100%;width:0%;background:var(--green);border-radius:20px;transition:width .4s"></div>
+  </div>
+  <div id="criterios-container"></div>
+  <button class="btn-primary" onclick="finalizarAuditoria()" style="margin-top:8px">&#10003; Finalizar Check List</button>
+</div>
+<div id="audit-paso3" style="display:none">
+  <div class="card" style="text-align:center">
+    <div class="card-title" style="text-align:left">&#127942; Resultado del Check List</div>
+    <div class="score-ring" style="margin-bottom:16px">
+      <svg width="120" height="120" viewBox="0 0 120 120">
+        <circle cx="60" cy="60" r="50" fill="none" stroke="#EEF0EC" stroke-width="12"/>
+        <circle id="score-circle" cx="60" cy="60" r="50" fill="none" stroke="#1E7C34" stroke-width="12"
+          stroke-dasharray="314" stroke-dashoffset="314" stroke-linecap="round"
+          style="transition:stroke-dashoffset 1s ease"/>
+      </svg>
+      <div class="score-txt">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:32px;font-weight:800;color:var(--green)" id="result-puntaje">0</div>
+        <div style="font-size:10px;color:var(--g400);font-weight:600">de 100</div>
+      </div>
+    </div>
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:800;margin-bottom:4px" id="result-nivel">&#8212;</div>
+    <div style="font-size:12px;color:var(--g400);margin-bottom:16px" id="result-info"></div>
+    <div id="result-pilares" style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:16px"></div>
+    <button class="btn-primary" onclick="exportarPDFAuditoria()" style="margin-bottom:10px">&#128196; Descargar PDF</button>
+    <button class="btn-ghost" onclick="nuevaAuditoria()" style="width:100%;justify-content:center">+ Nuevo Check List</button>
+  </div>
+  <div class="card" id="card-obs-audit" style="display:none">
+    <div class="card-title">&#9888;&#65039; Observaciones de incumplimiento</div>
+    <div style="font-size:11px;color:var(--g400);margin:-8px 0 12px;font-style:italic">Criterios con puntaje 1, 2 o 3</div>
+    <div id="obs-incumplimiento"></div>
+  </div>
+</div>
+</div>
+<div id="asec-historial" style="display:none">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+    <select id="hfil-mes" class="filter-small" onchange="renderHistorial()">
+      <option value="">Todos los meses</option>
+    </select>
+    <select id="hfil-sector" class="filter-small" onchange="renderHistorial()">
+      <option value="">Todos los sectores</option>
+    </select>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+    <select id="hfil-area" class="filter-small" onchange="renderHistorial()"><option value="">Todas las areas</option></select>
+    <select id="hfil-nivel" class="filter-small" onchange="renderHistorial()">
+      <option value="">Todos los niveles</option>
+      <option value="Excelente">Excelente</option>
+      <option value="Bueno">Bueno</option>
+      <option value="Regular">Regular</option>
+      <option value="Deficiente">Deficiente</option>
+    </select>
+  </div>
+  <div id="historial-list"><div class="loading"><div class="spinner-g"></div><p style="margin-top:12px;font-size:13px">Cargando...</p></div></div>
+</div>
+<div id="asec-dashboard" style="display:none">
+  <div style="display:flex;gap:8px;margin-bottom:12px;align-items:center;flex-wrap:wrap">
+    <select id="d-fil-mes" onchange="renderAuditDashboard()" class="filter-small"><option value="">Todos los meses</option></select>
+    <select id="d-fil-sector-a" onchange="renderAuditDashboard()" class="filter-small"><option value="">Todos los sectores</option></select>
+    <select id="d-fil-area-a" onchange="renderAuditDashboard()" class="filter-small"><option value="">Todas las áreas</option></select>
+
+    <button onclick="const b=this;b.innerHTML='<span class=&quot;spinner&quot;></span> Generando...';b.disabled=true;setTimeout(()=>exportarPDFGerencial(b),50)" style="flex-shrink:0;background:#1565C0;color:#fff;border:none;border-radius:8px;padding:8px 14px;font-family:Barlow,sans-serif;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">&#128196; PDF Gerencial</button>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px">
+    <div class="kpi-box"><div class="kpi-val" id="dk-total">0</div><div class="kpi-lbl">Check Lists</div></div>
+    <div class="kpi-box green"><div class="kpi-val" id="dk-prom">0</div><div class="kpi-lbl">Puntaje prom.</div></div>
+    <div class="kpi-box red"><div class="kpi-val" id="dk-obs">0</div><div class="kpi-lbl">Obs. incumpl.</div></div>
+    <div class="kpi-box amber"><div class="kpi-val" id="dk-pct">0%</div><div class="kpi-lbl">Cumplimiento</div></div>
+  </div>
+  <div id="progreso-sectores" style="margin-bottom:12px"></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+    <div class="dash-card" style="margin-bottom:0">
+      <div class="dash-card-title">Estado general planta</div>
+      <div id="dk-nivel-badge" style="margin:8px 0"></div>
+      <div style="height:8px;background:var(--g100);border-radius:20px;overflow:hidden;margin:8px 0">
+        <div id="dk-barra-prom" style="height:100%;width:0%;border-radius:20px;transition:width .8s;background:var(--green)"></div>
+      </div>
+    </div>
+    <div class="dash-card" style="margin-bottom:0">
+      <div class="dash-card-title">Distribucion por nivel</div>
+      <div style="position:relative;width:90px;height:90px;margin:0 auto"><canvas id="chart-audit-nivel"></canvas></div>
+      <div id="legend-audit-nivel" style="margin-top:6px"></div>
+    </div>
+  </div>
+  <div class="dash-card">
+    <div class="dash-card-title">&#128202; Puntaje promedio por area</div>
+    <div style="position:relative;height:220px;width:100%"><canvas id="chart-audit-areas"></canvas></div>
+  </div>
+  <div class="dash-card">
+    <div class="dash-card-title">&#128202; Desempeno por pilar por area</div>
+    <div style="font-size:10px;color:var(--g400);margin:-4px 0 8px;font-style:italic">% y puntaje de cada S por area auditada</div>
+    <div id="chart-pilar-area-wrap" style="position:relative;width:100%;overflow-x:auto">
+      <canvas id="chart-pilar-area"></canvas>
+    </div>
+  </div>
+  <div class="dash-card">
+    <div class="dash-card-title">&#128200; Evolucion del puntaje</div>
+    <div style="position:relative;height:220px;width:100%"><canvas id="chart-audit-evol"></canvas></div>
+  </div>
+  <div class="dash-card">
+    <div class="dash-card-title">&#127919; Desempeno por pilar 5S</div>
+    <div style="position:relative;height:260px;width:100%;max-width:300px;margin:0 auto"><canvas id="chart-audit-radar"></canvas></div>
+  </div>
+  <div class="dash-card">
+    <div class="dash-card-title">&#9888;&#65039; Criterios con mas incumplimientos</div>
+    <div id="dk-criterios-criticos"></div>
+  </div>
+  <div class="dash-card">
+    <div class="dash-card-title">&#128203; Resumen de Check Lists</div>
+    <div style="font-size:10px;color:var(--g400);margin:-4px 0 8px;font-style:italic">N° de check list, area y % de cumplimiento</div>
+    <div style="overflow-x:auto"><div id="dk-comparativo-areas"></div></div>
+  </div>
+  <div class="dash-card">
+    <div class="dash-card-title">&#9203; Pendientes por auditor</div>
+    <div style="display:flex;gap:8px;margin-bottom:10px">
+
+    </div>
+    <div id="dk-pendientes"></div>
+  </div>
+  <div class="dash-card">
+    <div class="dash-card-title">&#128680; Areas con menor cumplimiento</div>
+    <div id="dk-areas-criticas"></div>
+  </div>
+  <div class="dash-card">
+    <div class="dash-card-title">&#128203; Observaciones pendientes de levantamiento</div>
+    <div style="font-size:10px;color:var(--g400);margin:-4px 0 8px;font-style:italic">Por responsable del area — criterios con puntaje &#8804;3 sin levantar</div>
+    <div id="dk-pendientes-cierre"></div>
+  </div>
+  <div class="dash-card">
+    <div class="dash-card-title">&#128203; Observaciones de incumplimiento por area</div>
+    <div style="position:relative;height:220px;width:100%"><canvas id="chart-audit-obs-area"></canvas></div>
+  </div>
+</div>
+<div id="asec-observaciones" style="display:none">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+    <select id="ofil-mes" class="filter-small" onchange="renderObsPendientes()">
+      <option value="">Todos los meses</option>
+    </select>
+    <select id="ofil-area-obs" class="filter-small" onchange="renderObsPendientes()">
+      <option value="">Todas las áreas</option>
+    </select>
+    <select id="ofil-sector" class="filter-small" onchange="renderObsPendientes()">
+      <option value="">Todos los sectores</option>
+    </select>
+    <select id="ofil-resp" class="filter-small" onchange="renderObsPendientes()">
+      <option value="">Todos los responsables</option>
+    </select>
+    <select id="ofil-status" class="filter-small" onchange="renderObsPendientes()">
+      <option value="pendiente">Solo pendientes</option>
+      <option value="levantada">Solo levantadas</option>
+      <option value="">Todas</option>
+    </select>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px">
+    <div class="kpi-box red"><div class="kpi-val" id="ok-pendientes">0</div><div class="kpi-lbl">Pendientes</div></div>
+    <div class="kpi-box green"><div class="kpi-val" id="ok-levantadas">0</div><div class="kpi-lbl">Levantadas</div></div>
+    <div class="kpi-box amber"><div class="kpi-val" id="ok-pct">0%</div><div class="kpi-lbl">% Levantado</div></div>
+  </div>
+  <div id="obs-audit-list"><div class="loading"><div class="spinner-g"></div><p style="margin-top:12px;font-size:13px">Cargando...</p></div></div>
+</div>
+</main>
+</div>
+
+<!-- ===================== APP AUDITORIA NUEVA ===================== -->
+<div id="app-auditoria-nueva" style="display:none;min-height:100vh;background:var(--g50);padding-bottom:80px">
+  <div style="background:var(--amber);padding:16px 20px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.2)">
+    <button onclick="salirAuditoriaNew()" style="background:rgba(0,0,0,.15);border:none;color:#fff;border-radius:8px;padding:6px 12px;cursor:pointer;font-size:13px;font-weight:600">← Inicio</button>
+    <div style="flex:1">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:900;color:#fff;letter-spacing:.3px">Auditoría 5S</div>
+      <div style="font-size:11px;color:rgba(255,255,255,.8)">Industrias San Miguel · Planta Huaura</div>
+    </div>
+    <div id="audn-badge-ronda" style="background:rgba(0,0,0,.2);border-radius:8px;padding:4px 12px;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;color:#fff;display:none"></div>
+  </div>
+  <div style="display:flex;background:#fff;border-bottom:2px solid var(--g100);overflow-x:auto;position:sticky;top:57px;z-index:99;box-shadow:0 1px 4px rgba(0,0,0,.06)">
+    <button id="audn-tab-nueva" onclick="auditNuevaTab('nueva')" style="flex:1;padding:11px 6px;border:none;background:none;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;color:var(--amber);border-bottom:3px solid var(--amber);cursor:pointer;white-space:nowrap">+ Nueva</button>
+    <button id="audn-tab-historial" onclick="auditNuevaTab('historial')" style="flex:1;padding:11px 6px;border:none;background:none;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;color:var(--g400);border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap">Historial</button>
+    <button id="audn-tab-dashboard" onclick="auditNuevaTab('dashboard')" style="flex:1;padding:11px 6px;border:none;background:none;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;color:var(--g400);border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap">Dashboard</button>
+    <button id="audn-tab-acciones" onclick="auditNuevaTab('acciones')" style="flex:1;padding:11px 6px;border:none;background:none;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;color:var(--g400);border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap">Acciones</button>
+  </div>
+  <div id="audn-content-nueva" style="padding:16px">
+    <div id="audn-form-datos" style="background:#fff;border-radius:14px;padding:18px;margin-bottom:14px;box-shadow:var(--sh)">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
+        <div style="width:4px;height:22px;background:var(--amber);border-radius:2px"></div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;color:var(--g700)">Datos de la Auditoría</div>
+      </div>
+      <div class="row2">
+        <div class="fg">
+          <label>N° Check List <span class="req">*</span></label>
+          <select id="audn-num">
+            <option value="">- Selecciona -</option>
+            <option value="1">A1 — 1ra Ronda</option>
+            <option value="2">A2 — 2da Ronda</option>
+            <option value="3">A3 — 3ra Ronda</option>
+            <option value="4">A4 — 4ta Ronda</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label>Fecha <span class="req">*</span></label>
+          <input type="date" id="audn-fecha">
+        </div>
+      </div>
+      <div class="fg">
+        <label>Sector auditado <span class="req">*</span></label>
+        <select id="audn-sector" onchange="audn_onSectorChange()"><option value="">- Selecciona sector -</option></select>
+      </div>
+      <div class="fg">
+        <label>Área</label>
+        <input type="text" id="audn-area-auto" readonly style="background:var(--g50);color:var(--green);font-weight:700" placeholder="Se asigna automáticamente">
+      </div>
+      <div class="row2">
+        <div class="fg">
+          <label>Auditor <span class="req">*</span></label>
+          <input type="text" id="audn-auditor" placeholder="Nombre del auditor">
+        </div>
+        <div class="fg">
+          <label>Responsable</label>
+          <input type="text" id="audn-lider" placeholder="Responsable del sector">
+        </div>
+      </div>
+      <button id="audn-btn-iniciar" onclick="audn_iniciarEvaluacion()" style="display:none;width:100%;margin-top:8px;background:var(--amber);color:#fff;border:none;border-radius:10px;padding:14px;font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:700;cursor:pointer">
+        Iniciar Evaluación →
+      </button>
+    </div>
+    <div id="audn-eval-container" style="display:none">
+      <div style="background:linear-gradient(135deg,var(--amber) 0%,#B45309 100%);border-radius:14px;padding:16px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;color:rgba(255,255,255,.8);letter-spacing:.5px">PUNTAJE ACTUAL</div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:42px;font-weight:900;color:#fff;line-height:1" id="audn-score-display">1000</div>
+          <div style="font-size:11px;color:rgba(255,255,255,.7)">de 1000 puntos</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:900;color:#fff" id="audn-pct-display">100%</div>
+          <div style="font-size:11px;color:rgba(255,255,255,.7)">Cumplimiento</div>
+          <div id="audn-nivel-display" style="margin-top:6px;background:rgba(255,255,255,.2);border-radius:6px;padding:3px 10px;font-size:12px;font-weight:700;color:#fff">EXCELENTE</div>
+        </div>
+      </div>
+      <div id="audn-criterios-body"></div>
+      <button id="audn-btn-guardar" onclick="audn_guardar()" style="width:100%;margin-top:14px;background:var(--green);color:#fff;border:none;border-radius:12px;padding:16px;font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;cursor:pointer">
+        ✓ Guardar Auditoría
+      </button>
+    </div>
+  </div>
+  <div id="audn-content-historial" style="padding:16px;display:none">
+    <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+      <select id="audn-fil-ronda" onchange="audn_cargarHistorial()" style="flex:1;min-width:110px;padding:8px;border-radius:8px;border:1px solid var(--g200);font-size:13px">
+        <option value="">Todos los check lists</option>
+        <option value="1">A1</option><option value="2">A2</option>
+        <option value="3">A3</option><option value="4">A4</option>
+      </select>
+      <select id="audn-fil-area" onchange="audn_cargarHistorial()" style="flex:1;min-width:110px;padding:8px;border-radius:8px;border:1px solid var(--g200);font-size:13px">
+        <option value="">Todas las áreas</option>
+      </select>
+    </div>
+    <div id="audn-historial-body"></div>
+  </div>
+  <div id="audn-content-dashboard" style="padding:16px;display:none">
+    <div style="display:flex;gap:8px;margin-bottom:12px">
+      <select id="audn-dash-ronda" onchange="audn_renderDashboard()" style="flex:1;padding:8px;border-radius:8px;border:1px solid var(--g200);font-size:13px">
+        <option value="">Todos los check lists</option>
+        <option value="1">A1</option><option value="2">A2</option>
+        <option value="3">A3</option><option value="4">A4</option>
+      </select>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px" id="audn-dash-kpis"></div>
+    <div style="background:#fff;border-radius:12px;padding:16px;margin-bottom:12px;box-shadow:var(--sh)">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;color:var(--g700);margin-bottom:12px">% Cumplimiento por Ronda</div>
+      <canvas id="audn-chart-rondas" height="180"></canvas>
+    </div>
+    <div style="background:#fff;border-radius:12px;padding:16px;margin-bottom:12px;box-shadow:var(--sh)">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;color:var(--g700);margin-bottom:12px">Puntaje Promedio por Área</div>
+      <canvas id="audn-chart-areas" height="220"></canvas>
+    </div>
+    <div style="background:#fff;border-radius:12px;padding:16px;box-shadow:var(--sh)">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;color:var(--g700);margin-bottom:12px">Estado de Observaciones</div>
+      <div id="audn-dash-obs-table"></div>
+    </div>
+  </div>
+  <div id="audn-content-acciones" style="padding:16px;display:none">
+    <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+      <select id="audn-fil-accion-area" onchange="audn_cargarAcciones()" style="flex:1;min-width:110px;padding:8px;border-radius:8px;border:1px solid var(--g200);font-size:13px">
+        <option value="">Todas las áreas</option>
+      </select>
+      <select id="audn-fil-accion-estado" onchange="audn_cargarAcciones()" style="flex:1;min-width:110px;padding:8px;border-radius:8px;border:1px solid var(--g200);font-size:13px">
+        <option value="">Todos los estados</option>
+        <option value="Pendiente">Pendiente</option>
+        <option value="En Proceso">En Proceso</option>
+        <option value="Completado">Completado</option>
+      </select>
+    </div>
+    <div id="audn-acciones-kpis" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px"></div>
+    <div id="audn-acciones-body"></div>
+  </div>
+</div>
+
+<!-- ===================== MODALES ===================== -->
+<!-- Modal Observación -->
+<div class="modal-overlay" id="modal-obs">
+  <div class="modal">
+    <div class="modal-title" id="modal-obs-title">Observacion</div>
+    <input type="hidden" id="mo-id">
+    <div id="mo-detalle" style="margin-bottom:14px;background:var(--g50);border-radius:8px;padding:12px;font-size:13px;line-height:1.8;color:var(--g700)"></div>
+    <div id="mo-fotos-antes" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px"></div>
+    <div id="mo-cierre-section">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.4px;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--g100)">Cerrar observacion</div>
+      <div class="fg"><label>Comentario <span style="font-size:10px;color:var(--g400);font-weight:400">(opcional)</span></label>
+        <textarea id="mo-comentario" placeholder="Como se corrigio? (opcional)"></textarea>
+      </div>
+      <div class="fg">
+        <label>Foto del despues <span class="req">*</span></label>
+        <div class="photo-drop" id="drop-cierre" style="border-color:var(--red);cursor:pointer" onclick="document.getElementById('input-foto-cierre').click()">
+          <input type="file" id="input-foto-cierre" accept="image/*" capture="environment" onchange="handleFotoCierre(this)" style="display:none">
+          <div style="font-size:24px;margin-bottom:4px">&#128247;</div>
+          <p style="font-size:12px;color:var(--g400)">Evidencia del cierre</p>
+          <p style="font-size:11px;color:var(--red);font-weight:600;margin-top:4px">Obligatoria</p>
+        </div>
+        <div class="upload-progress" id="prog-cierre"><div class="upload-progress-fill" id="prog-cierre-fill"></div></div>
+        <div class="photo-prev" id="prev-cierre"></div>
+      </div>
+      <button class="btn-primary" id="btn-cerrar-obs" onclick="cerrarObservacion()" style="margin-bottom:10px">Marcar como CORREGIDO</button>
+    </div>
+    <div id="mo-foto-despues" style="display:none;margin-bottom:14px"></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn-ghost" onclick="abrirEditar()" style="flex:1;justify-content:center">Editar</button>
+      <button class="btn-ghost" onclick="closeModal('modal-obs')" style="border-color:var(--g200);color:var(--g400);flex:1;justify-content:center">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Editar -->
+<div class="modal-overlay" id="modal-editar">
+  <div class="modal">
+    <div class="modal-title">Editar observacion</div>
+    <input type="hidden" id="me-id">
+    <div class="fg"><label>Descripcion</label><textarea id="me-obs"></textarea></div>
+    <div class="fg"><label>Responsable</label><input type="text" id="me-resp"></div>
+    <div class="fg"><label>Estado</label>
+      <select id="me-status">
+        <option value="CORREGIDO">CORREGIDO</option>
+        <option value="NO CORREGIDO">NO CORREGIDO</option>
+      </select>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:4px">
+      <button class="btn-primary" onclick="confirmarEditar()" style="flex:1">Guardar</button>
+      <button class="btn-ghost" onclick="closeModal('modal-editar')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Criterio Auditoría -->
+<div id="modal-audn-criterio" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1000;align-items:flex-end;justify-content:center;padding:0">
+  <div style="background:#fff;border-radius:20px 20px 0 0;padding:20px;width:100%;max-width:480px;max-height:92vh;overflow-y:auto">
+    <div style="display:flex;align-items:start;justify-content:space-between;margin-bottom:14px">
+      <div style="flex:1">
+        <div id="modal-audn-cat" style="font-size:11px;font-weight:700;color:var(--amber);letter-spacing:.5px;text-transform:uppercase"></div>
+        <div id="modal-audn-crit" style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:var(--g700);line-height:1.2;margin-top:2px"></div>
+      </div>
+      <button onclick="audn_cerrarModal()" style="background:var(--g100);border:none;border-radius:8px;width:32px;height:32px;cursor:pointer;font-size:16px;flex-shrink:0;margin-left:8px">✕</button>
+    </div>
+    <div class="fg">
+      <label>Puntaje <span class="req">*</span></label>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px" id="audn-puntaje-btns">
+        <button onclick="audn_selPuntaje(-20)" class="audn-pts-btn" data-pts="-20">-20 SSOMA</button>
+        <button onclick="audn_selPuntaje(-15)" class="audn-pts-btn" data-pts="-15">-15 Calidad</button>
+        <button onclick="audn_selPuntaje(-10)" class="audn-pts-btn" data-pts="-10">-10 Operac.</button>
+        <button onclick="audn_selPuntaje(-5)" class="audn-pts-btn" data-pts="-5">-5 No Oper.</button>
+        <button onclick="audn_selPuntaje(5)" class="audn-pts-btn" data-pts="5" style="grid-column:1/-1">+5 Destacable ✓</button>
+      </div>
+    </div>
+    <div id="audn-modal-incump" style="display:none">
+      <div class="fg" style="margin-top:12px">
+        <label>S afectada <span class="req">*</span></label>
+        <select id="audn-modal-s">
+          <option value="">- Selecciona -</option>
+          <option value="1S">1S — Seleccionar</option>
+          <option value="2S">2S — Ordenar</option>
+          <option value="3S">3S — Limpiar</option>
+          <option value="4S">4S — Estandarizar</option>
+          <option value="5S">5S — Disciplinar</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label>Observación <span class="req">*</span></label>
+        <textarea id="audn-modal-obs" rows="3" placeholder="Describe el incumplimiento..." style="resize:vertical"></textarea>
+      </div>
+      <div class="fg">
+        <label>Foto de evidencia (antes) <span class="req">*</span></label>
+        <div onclick="document.getElementById('audn-input-foto-antes').click()" style="border:2px dashed var(--g200);border-radius:10px;padding:16px;text-align:center;cursor:pointer;background:var(--g50)" id="audn-drop-antes">
+          <div style="font-size:28px">📷</div>
+          <div style="font-size:12px;color:var(--g400)">Toca para agregar foto antes</div>
+        </div>
+        <input type="file" id="audn-input-foto-antes" accept="image/*" capture="environment" style="display:none" onchange="audn_fotoAntes(this)">
+        <img id="audn-preview-antes" style="display:none;width:100%;border-radius:8px;margin-top:8px;max-height:180px;object-fit:cover">
+      </div>
+      <div class="fg">
+        <label>Responsable <span class="req">*</span></label>
+        <input type="text" id="audn-modal-resp" placeholder="Nombre del responsable">
+      </div>
+      <div class="row2">
+        <div class="fg">
+          <label>Fecha inicio planificada</label>
+          <input type="date" id="audn-modal-fi">
+        </div>
+        <div class="fg">
+          <label>Fecha fin planificada</label>
+          <input type="date" id="audn-modal-ff">
+        </div>
+      </div>
+    </div>
+    <div id="audn-modal-destacable" style="display:none;margin-top:12px">
+      <div class="fg">
+        <label>Comentario de fortaleza</label>
+        <textarea id="audn-modal-coment" rows="2" placeholder="¿Qué se destacó?" style="resize:vertical"></textarea>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:16px">
+      <button onclick="audn_cerrarModal()" style="flex:1;padding:13px;border:1.5px solid var(--g200);border-radius:10px;background:#fff;cursor:pointer;font-size:14px;font-weight:600">Cancelar</button>
+      <button onclick="audn_guardarCriterio()" class="btn-guardar-crit" style="flex:2;padding:13px;background:var(--amber);color:#fff;border:none;border-radius:10px;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:700">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Detalle Auditoría -->
+<div id="modal-audn-detalle" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1000;overflow-y:auto;padding:16px">
+  <div style="background:#fff;border-radius:16px;max-width:480px;margin:0 auto">
+    <div id="modal-audn-detalle-body"></div>
+    <div style="padding:16px">
+      <button onclick="document.getElementById('modal-audn-detalle').style.display='none'" style="width:100%;padding:12px;background:var(--g100);border:none;border-radius:10px;cursor:pointer;font-size:14px;font-weight:600">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Acción Auditoría -->
+<div id="modal-audn-accion" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1000;align-items:flex-end;justify-content:center;padding:0">
+  <div style="background:#fff;border-radius:20px 20px 0 0;padding:20px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto">
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:var(--amber);margin-bottom:16px">Plan de Acción</div>
+    <input type="hidden" id="audn-accion-id">
+    <input type="hidden" id="audn-accion-auditoria-id">
+    <div class="fg"><label>Responsable <span class="req">*</span></label>
+      <input type="text" id="audn-accion-responsable" placeholder="Nombre del responsable">
+    </div>
+    <div class="row2">
+      <div class="fg"><label>Fecha inicio <span class="req">*</span></label>
+        <input type="date" id="audn-accion-fecha-inicio">
+      </div>
+      <div class="fg"><label>Fecha fin <span class="req">*</span></label>
+        <input type="date" id="audn-accion-fecha-fin">
+      </div>
+    </div>
+    <div class="row2">
+      <div class="fg"><label>% Avance real</label>
+        <input type="number" id="audn-accion-avance" min="0" max="100" placeholder="0">
+      </div>
+      <div class="fg"><label>% Avance planificado</label>
+        <input type="number" id="audn-accion-avance-plan" min="0" max="100" placeholder="100">
+      </div>
+    </div>
+    <div class="fg"><label>Estado</label>
+      <select id="audn-accion-estado">
+        <option value="Pendiente">Pendiente</option>
+        <option value="En Proceso">En Proceso</option>
+        <option value="Completado">Completado</option>
+      </select>
+    </div>
+    <div class="fg"><label>Foto de cierre (después)</label>
+      <div onclick="document.getElementById('audn-input-foto-despues').click()" style="border:2px dashed var(--g200);border-radius:10px;padding:14px;text-align:center;cursor:pointer;background:var(--g50)">
+        <div style="font-size:24px">📸</div>
+        <div style="font-size:12px;color:var(--g400)">Foto del estado corregido</div>
+      </div>
+      <input type="file" id="audn-input-foto-despues" accept="image/*" capture="environment" style="display:none" onchange="audn_fotoDespues(this)">
+      <img id="audn-preview-despues" style="display:none;width:100%;border-radius:8px;margin-top:8px;max-height:160px;object-fit:cover">
+    </div>
+    <div style="display:flex;gap:8px;margin-top:16px">
+      <button onclick="document.getElementById('modal-audn-accion').style.display='none'" style="flex:1;padding:12px;border:1.5px solid var(--g200);border-radius:10px;background:#fff;cursor:pointer;font-size:14px">Cancelar</button>
+      <button onclick="audn_guardarAccion()" style="flex:2;padding:12px;background:var(--amber);color:#fff;border:none;border-radius:10px;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700">Guardar</button>
+    </div>
+  </div>
+</div>
+
+
+
+
 <script>
 // ============================================================
 // CONFIGURACIÓN Y DATOS
@@ -2614,1008 +3619,5 @@ function selectS(s) {
 })();
 
 </script>
-
-
-<!-- Modal Cierre de Observación -->
-<div id="modal-cierre-obs" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;align-items:center;justify-content:center;padding:16px">
-  <div style="background:#fff;border-radius:16px;width:100%;max-width:420px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.3)">
-    <!-- Header -->
-    <div style="background:#1E7C34;padding:16px 20px;display:flex;align-items:center;justify-content:space-between">
-      <div>
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:900;color:#fff">Cerrar Observación</div>
-        <div style="font-size:11px;color:rgba(255,255,255,.8)" id="modal-cierre-desc"></div>
-      </div>
-      <button onclick="cerrarModalCierre()" style="background:rgba(255,255,255,.15);border:none;color:#fff;border-radius:8px;padding:6px 10px;cursor:pointer;font-size:16px">✕</button>
-    </div>
-    <!-- Body -->
-    <div style="padding:16px">
-      <!-- Fecha de cierre OBLIGATORIA -->
-      <div style="margin-bottom:12px">
-        <label style="font-size:12px;font-weight:700;color:#3A3F37;display:block;margin-bottom:4px">
-          Fecha de Cierre <span style="color:#E63329">*</span>
-        </label>
-        <input type="date" id="cierre-fecha"
-          style="width:100%;padding:10px;border:2px solid #D5DAD3;border-radius:8px;font-size:14px;box-sizing:border-box"
-          oninput="this.style.borderColor=this.value?'#1E7C34':'#E63329'">
-      </div>
-      <!-- Comentario OBLIGATORIO -->
-      <div style="margin-bottom:12px">
-        <label style="font-size:12px;font-weight:700;color:#3A3F37;display:block;margin-bottom:4px">
-          Comentario de Cierre <span style="color:#E63329">*</span>
-        </label>
-        <textarea id="cierre-comentario" rows="3" placeholder="Describe cómo se resolvió la observación..."
-          style="width:100%;padding:10px;border:2px solid #D5DAD3;border-radius:8px;font-size:13px;box-sizing:border-box;resize:vertical"
-          oninput="this.style.borderColor=this.value.trim()?'#1E7C34':'#E63329'"></textarea>
-      </div>
-      <!-- Foto evidencia OPCIONAL -->
-      <div style="margin-bottom:16px">
-        <label style="font-size:12px;font-weight:700;color:#3A3F37;display:block;margin-bottom:4px">
-          Foto de Evidencia <span style="font-size:11px;color:#8F9B8A;font-weight:400">(opcional)</span>
-        </label>
-        <div id="cierre-foto-preview" style="display:none;margin-bottom:8px">
-          <img id="cierre-foto-img" style="width:100%;height:160px;object-fit:cover;border-radius:8px;border:2px solid #1E7C34">
-        </div>
-        <label style="display:flex;align-items:center;gap:8px;padding:10px;background:#F7F8F6;border:2px dashed #D5DAD3;border-radius:8px;cursor:pointer">
-          <span style="font-size:20px">📷</span>
-          <span style="font-size:13px;color:#8F9B8A">Tomar foto o seleccionar archivo</span>
-          <input type="file" id="cierre-foto-input" accept="image/*" capture="environment"
-            style="display:none" onchange="previewFotoCierre(this)">
-        </label>
-      </div>
-      <!-- Botones -->
-      <div style="display:flex;gap:8px">
-        <button onclick="cerrarModalCierre()" style="flex:1;padding:12px;background:#F7F8F6;border:1px solid #D5DAD3;border-radius:8px;font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;color:#8F9B8A;cursor:pointer">
-          Cancelar
-        </button>
-        <button id="cierre-btn-guardar" onclick="guardarCierreObs()"
-          style="flex:2;padding:12px;background:#1E7C34;color:#fff;border:none;border-radius:8px;font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;cursor:pointer">
-          ✓ Confirmar Cierre
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<style>
-:root{
-  --green:#1E7C34;--green-d:#155A25;--green-l:#2DA048;
-  --red:#E63329;--amber:#D97706;--blue:#1565C0;
-  --g50:#F7F8F6;--g100:#EEF0EC;--g200:#D5DAD3;
-  --g400:#8F9B8A;--g700:#3A3F37;--g900:#1A1D18;
-  --r:10px;--sh:0 2px 12px rgba(30,124,52,.13);--shl:0 6px 32px rgba(30,124,52,.18);
-}
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{font-family:"Barlow",sans-serif;background:var(--g50);color:var(--g900);min-height:100vh;overflow-x:hidden}
-header{background:var(--green);position:sticky;top:0;z-index:100;box-shadow:0 3px 16px rgba(0,0,0,.22)}
-.hdr{display:flex;align-items:center;gap:12px;padding:8px 16px;max-width:720px;margin:0 auto}
-.logo-box{background:#fff;border-radius:6px;padding:3px 6px;flex-shrink:0}
-.logo-box img{height:32px;display:block;object-fit:contain}
-.hdr-brand h1,.hdr-brand span{color:#fff!important}
-.hdr-brand h1{font-family:"Barlow Condensed",sans-serif;font-size:19px;font-weight:800;line-height:1.1}
-.hdr-brand span{font-size:11px;opacity:.8}
-.hdr-txt{flex:1}
-.hdr-txt h1{font-family:"Barlow Condensed",sans-serif;font-size:20px;font-weight:800;color:#fff;letter-spacing:.5px;line-height:1.1}
-.hdr-txt span{font-size:11px;color:rgba(255,255,255,.82)}
-.hdr-sync{background:rgba(255,255,255,.15);border:none;color:#fff;border-radius:7px;padding:7px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:"Barlow",sans-serif;transition:background .18s}
-.hdr-sync:hover{background:rgba(255,255,255,.25)}
-nav{background:var(--green-d);display:flex;overflow-x:auto;scrollbar-width:none}
-nav::-webkit-scrollbar{display:none}
-.tab{flex-shrink:0;padding:11px 20px;color:rgba(255,255,255,.6);font-family:"Barlow Condensed",sans-serif;font-size:15px;font-weight:700;cursor:pointer;border-bottom:3px solid transparent;transition:all .18s;user-select:none;white-space:nowrap}
-.tab.active{color:#fff;border-bottom-color:var(--red)}
-.tab:hover:not(.active){color:rgba(255,255,255,.9)}
-main{max-width:720px;margin:0 auto;padding:18px 14px 100px}
-.section{display:none}.section.active{display:block}
-.card{background:#fff;border-radius:var(--r);box-shadow:var(--sh);padding:18px;margin-bottom:14px}
-.card-title{font-family:"Barlow Condensed",sans-serif;font-size:17px;font-weight:700;color:var(--green);margin-bottom:14px;text-transform:uppercase;letter-spacing:.4px;border-left:4px solid var(--red);padding-left:10px}
-.fg{margin-bottom:13px}
-label{display:block;font-size:11px;font-weight:600;color:var(--g700);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
-select,input[type=text],textarea{width:100%;padding:10px 12px;border:1.5px solid var(--g200);border-radius:8px;font-family:"Barlow",sans-serif;font-size:15px;color:var(--g900);background:#fff;transition:border-color .18s;-webkit-appearance:none}
-select:focus,input:focus,textarea:focus{outline:none;border-color:var(--green)}
-textarea{resize:vertical;min-height:78px}
-.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.btn-primary{background:var(--green);color:#fff;width:100%;padding:12px;border:none;border-radius:8px;font-family:"Barlow",sans-serif;font-size:15px;font-weight:600;cursor:pointer;transition:background .18s;display:flex;align-items:center;justify-content:center;gap:8px}
-.btn-primary:hover{background:var(--green-l)}
-.btn-primary:disabled{background:var(--g200);cursor:not-allowed;color:var(--g400)}
-.btn-ghost{background:transparent;color:var(--green);border:1.5px solid var(--green);padding:7px 12px;font-size:13px;border-radius:8px;cursor:pointer;font-family:"Barlow",sans-serif;font-weight:600;transition:all .18s;display:inline-flex;align-items:center;gap:4px}
-.btn-ghost:hover{background:var(--green);color:#fff}
-.btn-red{background:transparent;color:var(--red);border:1.5px solid var(--red);padding:7px 12px;font-size:13px;border-radius:8px;cursor:pointer;font-family:"Barlow",sans-serif;font-weight:600;transition:all .18s}
-.btn-red:hover{background:var(--red);color:#fff}
-.s-sel{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.s-btn{padding:9px 6px;border:2px solid var(--g200);border-radius:8px;background:#fff;cursor:default;pointer-events:none;text-align:center;font-family:"Barlow Condensed",sans-serif;font-size:13px;font-weight:700;transition:all .15s;color:var(--g700)}
-.s-btn span{display:block;font-size:10px;font-weight:400;margin-top:2px;opacity:.8}
-.s-btn.active{border-color:var(--green);background:var(--green);color:#fff}
-.photo-drop{border:2px dashed var(--g200);border-radius:8px;padding:18px;text-align:center;cursor:pointer;transition:all .18s;position:relative}
-.photo-drop:hover{border-color:var(--green);background:var(--g50)}
-.photo-drop input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
-.photo-prev{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
-.photo-prev img{width:68px;height:68px;object-fit:cover;border-radius:6px;border:2px solid var(--g200)}
-.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;font-family:"Barlow Condensed",sans-serif;letter-spacing:.4px;text-transform:uppercase}
-.b-1s{background:#FFF3E0;color:#E65100}.b-2s{background:#E8F5E9;color:#1B5E20}
-.b-3s{background:#E3F2FD;color:#0D47A1}.b-4s{background:#F3E5F5;color:#4A148C}
-.b-5s{background:#FCE4EC;color:#880E4F}.b-epp{background:#FFF3E0;color:#E65100}
-.b-ok{background:#E8F5E9;color:#1B5E20}.b-no{background:#FFEBEE;color:#B71C1C}
-.b-pen{background:#FFF8E1;color:#F57F17}
-.obs-card{background:#fff;border-radius:var(--r);box-shadow:var(--sh);margin-bottom:10px;border-left:4px solid var(--g200);overflow:hidden;cursor:pointer}
-.obs-card.corregido{border-left-color:var(--green)}
-.obs-card.no-corregido{border-left-color:var(--red)}
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;padding:16px;overflow-y:auto}
-.modal-overlay.show{display:flex;align-items:flex-start;justify-content:center}
-.modal{background:#fff;border-radius:14px;padding:20px;width:100%;max-width:500px;box-shadow:var(--shl);margin:auto}
-.modal-title{font-family:"Barlow Condensed",sans-serif;font-size:18px;font-weight:800;color:var(--green);margin-bottom:16px;text-transform:uppercase;border-left:4px solid var(--red);padding-left:10px}
-.kpi-box{background:#fff;border-radius:8px;box-shadow:var(--sh);padding:10px 6px;text-align:center;border-top:3px solid var(--g200)}
-.kpi-box.green{border-top-color:var(--green)}.kpi-box.red{border-top-color:var(--red)}.kpi-box.amber{border-top-color:var(--amber)}
-.kpi-val{font-family:"Barlow Condensed",sans-serif;font-size:24px;font-weight:800;line-height:1;color:var(--g900)}
-.kpi-box.green .kpi-val{color:var(--green)}.kpi-box.red .kpi-val{color:var(--red)}.kpi-box.amber .kpi-val{color:var(--amber)}
-.kpi-lbl{font-size:9px;color:var(--g400);font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-top:2px}
-.dash-card{background:#fff;border-radius:10px;box-shadow:var(--sh);padding:12px 12px 14px;margin-bottom:12px}
-.dash-card-title{font-family:"Barlow Condensed",sans-serif;font-size:12px;font-weight:700;color:var(--g700);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;border-left:3px solid var(--red);padding-left:8px}
-.dash-legend-row{display:flex;align-items:center;gap:6px;padding:3px 0;border-bottom:1px solid var(--g100)}
-.dash-legend-row:last-child{border-bottom:none}
-.dash-legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-.dash-legend-label{font-size:10px;color:var(--g700);flex:1}
-.dash-legend-val{font-family:"Barlow Condensed",sans-serif;font-size:13px;font-weight:700;color:var(--g900)}
-.dash-legend-pct{font-size:10px;color:var(--g400);min-width:30px;text-align:right}
-.period-sel{display:flex;gap:0;border-radius:8px;overflow:hidden;border:1.5px solid var(--g200)}
-.period-btn{flex:1;padding:7px;border:none;background:#fff;font-family:"Barlow",sans-serif;font-size:11px;font-weight:600;cursor:pointer;color:var(--g400);transition:all .18s}
-.period-btn.active{background:var(--green);color:#fff}
-.filter-small{padding:8px 10px;border:1.5px solid var(--g200);border-radius:8px;font-family:"Barlow",sans-serif;font-size:12px;-webkit-appearance:none;background:#fff;width:100%}
-.dtbl{width:100%;border-collapse:collapse;font-size:11px}
-.dtbl th{background:var(--green);color:#fff;padding:6px 8px;font-size:10px;font-weight:700;white-space:nowrap;text-align:center}
-.dtbl th.left{text-align:left}
-.dtbl td{padding:5px 8px;border-bottom:1px solid var(--g100);text-align:center;color:var(--g900)}
-.dtbl td.left{text-align:left;font-weight:600;color:var(--g700);white-space:nowrap}
-.dtbl tr:last-child td{border-bottom:none}
-.dtbl .total-row td{background:var(--g50);font-weight:700;border-top:2px solid var(--g200)}
-.upload-progress{height:5px;background:var(--g100);border-radius:20px;overflow:hidden;margin-top:8px;display:none}
-.upload-progress-fill{height:100%;background:var(--green);border-radius:20px;transition:width .3s}
-.empty{text-align:center;padding:38px 20px;color:var(--g400)}
-.empty-ico{font-size:38px;margin-bottom:8px}
-.loading{text-align:center;padding:40px 20px;color:var(--g400)}
-.spinner{width:18px;height:18px;border:3px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:inline-block}
-.spinner-g{width:28px;height:28px;border:3px solid var(--g100);border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite;display:inline-block}
-#toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--green);color:#fff;padding:11px 22px;border-radius:30px;font-size:13px;font-weight:600;box-shadow:var(--shl);opacity:0;pointer-events:none;transition:opacity .3s;z-index:999;white-space:nowrap;max-width:90vw}
-#toast.show{opacity:1}#toast.error{background:var(--red)}
-@keyframes spin{to{transform:rotate(360deg)}}
-@media(max-width:480px){.row2{grid-template-columns:1fr}.kpi-val{font-size:20px}}
-.puntaje-sel{display:flex;gap:6px}
-.puntaje-btn{flex:1;padding:10px 4px;border:2px solid var(--g200);border-radius:8px;background:#fff;cursor:pointer;text-align:center;font-family:"Barlow Condensed",sans-serif;font-size:18px;font-weight:800;transition:all .15s;color:var(--g700)}
-.puntaje-btn:hover{border-color:var(--green)}
-.puntaje-btn.p1.active{border-color:#B71C1C;background:#B71C1C;color:#fff}
-.puntaje-btn.p2.active{border-color:var(--red);background:var(--red);color:#fff}
-.puntaje-btn.p3.active{border-color:var(--amber);background:var(--amber);color:#fff}
-.puntaje-btn.p4.active{border-color:#2E7D32;background:#2E7D32;color:#fff}
-.puntaje-btn.p5.active{border-color:var(--green);background:var(--green);color:#fff}
-.criterio-card{background:#fff;border-radius:var(--r);box-shadow:var(--sh);padding:14px;margin-bottom:12px;border-left:4px solid var(--g200);transition:border-color .2s}
-.criterio-card.evaluado{border-left-color:var(--green)}
-.criterio-card.critico{border-left-color:var(--red)}
-.pilar-header{font-family:"Barlow Condensed",sans-serif;font-size:14px;font-weight:800;color:var(--green);text-transform:uppercase;letter-spacing:.5px;padding:8px 0 6px;border-bottom:2px solid var(--g100);margin-bottom:12px}
-#app-auditoria-nueva{display:none;min-height:100vh;background:var(--g50);padding-bottom:80px}
-.score-ring{position:relative;width:120px;height:120px;margin:0 auto}
-.score-ring svg{transform:rotate(-90deg)}
-.score-ring .score-txt{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}
-.audn-pts-btn{padding:10px;border-radius:10px;border:2px solid var(--g200);background:#fff;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;cursor:pointer;transition:all .15s;flex:1}
-.audn-pts-btn:hover{transform:scale(1.02)}
-.audn-pts-btn[data-pts="-20"]{border-color:#E0D0F0;background:#F9F5FF;color:#7B1FA2}
-.audn-pts-btn[data-pts="-15"]{border-color:#FECACA;background:#FEF2F2;color:#C62828}
-.audn-pts-btn[data-pts="-10"]{border-color:#FED7AA;background:#FFF7ED;color:#C2410C}
-.audn-pts-btn[data-pts="-5"]{border-color:#FDE68A;background:#FFFBEB;color:#B45309}
-.audn-pts-btn[data-pts="5"]{border-color:#BBF7D0;background:#F0FDF4;color:#15803D;grid-column:1/-1}
-.audn-pts-btn.active{transform:scale(1.04);box-shadow:0 0 0 3px rgba(0,0,0,.2)}
-</style>
-</head>
-<body>
-
-<!-- ===================== PANTALLA BIENVENIDA ===================== -->
-<div id="pantalla-bienvenida" style="display:flex;flex-direction:column;min-height:100vh;background:linear-gradient(160deg,#155A25 0%,#1E7C34 55%,#2DA048 100%);overflow:hidden;position:relative">
-  <div style="position:absolute;top:-80px;right:-80px;width:300px;height:300px;background:rgba(255,255,255,.04);border-radius:50%;pointer-events:none"></div>
-  <div style="position:absolute;bottom:-60px;left:-60px;width:240px;height:240px;background:rgba(255,255,255,.03);border-radius:50%;pointer-events:none"></div>
-  <div style="position:absolute;top:40%;left:-40px;width:160px;height:160px;background:rgba(255,255,255,.03);border-radius:50%;pointer-events:none"></div>
-  <div style="padding:32px 24px 0;display:flex;align-items:center;justify-content:space-between">
-    <div>
-      <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;color:rgba(255,255,255,.5);letter-spacing:2px;text-transform:uppercase;margin-bottom:2px">Industrias San Miguel</div>
-      <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:600;color:rgba(255,255,255,.7)">Planta Huaura · Excelencia Operacional</div>
-    </div>
-    <div style="background:rgba(255,255,255,.12);border-radius:8px;padding:5px 10px;border:1px solid rgba(255,255,255,.2)">
-      <div style="font-size:10px;color:rgba(255,255,255,.6);font-weight:600">SGI-5S-001</div>
-    </div>
-  </div>
-  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;text-align:center">
-    <div style="width:88px;height:88px;background:rgba(255,255,255,.12);border-radius:24px;display:flex;align-items:center;justify-content:center;margin-bottom:20px;border:1.5px solid rgba(255,255,255,.2);box-shadow:0 8px 32px rgba(0,0,0,.15)">
-      <span style="font-size:44px">⭐</span>
-    </div>
-    <h1 style="font-family:'Barlow Condensed',sans-serif;font-size:38px;font-weight:900;color:#fff;margin:0 0 8px;letter-spacing:.5px;line-height:1">Programa 5S</h1>
-    <p style="font-size:14px;color:rgba(255,255,255,.7);margin:0 0 40px;max-width:260px;line-height:1.5">Sistema integral de gestión, auditoría y mejora continua</p>
-    <div style="width:100%;max-width:340px;display:flex;flex-direction:column;gap:12px">
-      <button onclick="iniciarRecorrido()" style="background:#fff;color:var(--green-d,#155A25);border:none;border-radius:16px;padding:0;cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,.2);display:flex;align-items:stretch;overflow:hidden;transition:transform .18s;text-align:left" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
-        <div style="background:var(--green,#1E7C34);width:6px;flex-shrink:0"></div>
-        <div style="padding:16px 18px;flex:1">
-          <div style="display:flex;align-items:center;gap:10px">
-            <span style="font-size:28px">🔍</span>
-            <div>
-              <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:#1A1D18;line-height:1">Recorrido Diario</div>
-              <div style="font-size:12px;color:#64748B;margin-top:2px">Observaciones y seguimiento en campo</div>
-            </div>
-          </div>
-        </div>
-        <div style="display:flex;align-items:center;padding-right:16px;color:#94A3B8;font-size:18px">›</div>
-      </button>
-      <button onclick="iniciarCheckList()" style="background:#fff;color:#155A25;border:none;border-radius:16px;padding:0;cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,.2);display:flex;align-items:stretch;overflow:hidden;transition:transform .18s;text-align:left" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
-        <div style="background:#D97706;width:6px;flex-shrink:0"></div>
-        <div style="padding:16px 18px;flex:1">
-          <div style="display:flex;align-items:center;gap:10px">
-            <span style="font-size:28px">📊</span>
-            <div>
-              <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:#1A1D18;line-height:1">Check List 5S</div>
-              <div style="font-size:12px;color:#64748B;margin-top:2px">Evaluación mensual por sector</div>
-            </div>
-          </div>
-        </div>
-        <div style="display:flex;align-items:center;padding-right:16px;color:#94A3B8;font-size:18px">›</div>
-      </button>
-      <button onclick="iniciarAuditoriaNew()" style="background:#fff;color:#155A25;border:none;border-radius:16px;padding:0;cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,.2);display:flex;align-items:stretch;overflow:hidden;transition:transform .18s;text-align:left" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
-        <div style="background:#1565C0;width:6px;flex-shrink:0"></div>
-        <div style="padding:16px 18px;flex:1">
-          <div style="display:flex;align-items:center;gap:10px">
-            <span style="font-size:28px">📋</span>
-            <div>
-              <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:#1A1D18;line-height:1">Auditoría 5S</div>
-              <div style="font-size:12px;color:#64748B;margin-top:2px">Evaluación cruzada · 4 veces al año</div>
-            </div>
-          </div>
-        </div>
-        <div style="display:flex;align-items:center;padding-right:16px;color:#94A3B8;font-size:18px">›</div>
-      </button>
-    </div>
-  </div>
-  <div style="padding:16px 24px 28px;text-align:center">
-    <div style="font-size:10px;color:rgba(255,255,255,.3)">v02 · 2026 · Planta Huaura</div>
-  </div>
-</div>
-
-<!-- ===================== APP RECORRIDO ===================== -->
-<div id="app-recorrido" style="display:none">
-<header>
-  <div class="hdr">
-    <div class="hdr-brand"><h1>Recorrido 5S</h1><span>Industrias San Miguel</span></div>
-    <button class="hdr-sync" onclick="cargarTodo()">&#8635;</button>
-    <button class="hdr-sync" onclick="volverBienvenida()" style="background:rgba(255,255,255,.12)">&#8592; Inicio</button>
-  </div>
-</header>
-<nav>
-  <div class="tab active" onclick="showTab('nuevo')">+ Nueva</div>
-  <div class="tab" onclick="showTab('lista')">Observaciones</div>
-  <div class="tab" onclick="showTab('dashboard')">Dashboard</div>
-</nav>
-<main>
-<!-- TAB NUEVO -->
-<div id="tab-nuevo" class="section active">
-  <div class="card">
-    <div class="card-title">&#128203; Nueva observacion</div>
-    <div class="fg"><label>Semana</label>
-      <input type="text" id="f-sem" readonly style="background:var(--g50);font-weight:700;color:var(--green)">
-    </div>
-    <div class="fg"><label>Responsable de Registro <span class="req">*</span></label>
-      <input type="text" id="f-auditor" placeholder="Tu nombre completo" oninput="this.style.borderColor=this.value?'var(--green)':''">
-    </div>
-    <div class="fg"><label>Sector <span class="req">*</span></label>
-      <select id="f-area" onchange="updateZonas()"><option value="">- Selecciona sector -</option></select>
-    </div>
-    <div class="row2">
-      <div class="fg"><label>Area</label>
-        <input type="text" id="f-sector" readonly style="background:var(--g50);color:var(--green);font-weight:700" placeholder="Se asigna automaticamente">
-      </div>
-      <div class="fg" id="f-zona-wrap"><label>Zona / Equipo <span class="req">*</span></label>
-        <select id="f-zona"><option value="">- Selecciona zona -</option></select>
-      </div>
-    </div>
-    <div class="fg"><label>Tipo de observacion <span class="req">*</span></label>
-      <select id="f-tipo" onchange="autoS()"><option value="">- Selecciona tipo -</option></select>
-    </div>
-    <div class="fg"><label>"S" observada</label>
-      <div class="s-sel">
-        <button class="s-btn" type="button" onclick="selectS('1S')">1S<span>Clasificar</span></button>
-        <button class="s-btn" type="button" onclick="selectS('2S')">2S<span>Ordenar</span></button>
-        <button class="s-btn" type="button" onclick="selectS('3S')">3S<span>Limpiar</span></button>
-        <button class="s-btn" type="button" onclick="selectS('4S')">4S<span>Estandarizar</span></button>
-        <button class="s-btn" type="button" onclick="selectS('5S')">5S<span>Disciplina</span></button>
-        <button class="s-btn" type="button" onclick="selectS('EPP')">EPP<span>Seguridad</span></button>
-      </div>
-    </div>
-    <div class="fg"><label>Descripcion <span class="req">*</span></label>
-      <textarea id="f-obs" placeholder="Describe la situacion encontrada..." oninput="this.style.borderColor=this.value?'var(--green)':''" style="min-height:90px"></textarea>
-    </div>
-    <div class="fg"><label>Responsable del area</label>
-      <input type="text" id="f-responsable" readonly style="background:var(--g50);color:var(--g700)" placeholder="Se asigna automaticamente">
-    </div>
-    <div class="fg">
-      <label>Foto de evidencia (antes) <span class="req">*</span></label>
-      <div class="photo-drop" id="drop-nuevo" style="border-color:var(--red);cursor:pointer" onclick="document.getElementById('input-foto-nuevo').click()">
-        <input type="file" id="input-foto-nuevo" accept="image/*" capture="environment" multiple onchange="handlePhotos(this)" style="display:none">
-        <div style="font-size:28px;margin-bottom:5px">&#128247;</div>
-        <p style="font-size:13px;color:var(--g400)">Toca para tomar foto o seleccionar</p>
-        <p style="font-size:11px;color:var(--red);font-weight:600;margin-top:4px">Obligatoria</p>
-      </div>
-      <div class="upload-progress" id="prog-nuevo"><div class="upload-progress-fill" id="prog-nuevo-fill"></div></div>
-      <div class="photo-prev" id="prev-nuevo"></div>
-    </div>
-    <button class="btn-primary" id="btn-guardar" onclick="guardarObservacion()">Guardar observacion</button>
-  </div>
-</div>
-<!-- TAB LISTA -->
-<div id="tab-lista" class="section">
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
-    <select id="fil-area" class="filter-small" onchange="filtrar()"><option value="">Todas las areas</option></select>
-    <select id="fil-status" class="filter-small" onchange="filtrar()">
-      <option value="">Todos los estados</option>
-      <option value="CORREGIDO">Corregido</option>
-      <option value="NO CORREGIDO">No corregido</option>
-    </select>
-    <select id="fil-sector" class="filter-small" onchange="filtrar()"><option value="">Todos los sectores</option></select>
-    <select id="fil-sem" class="filter-small" onchange="filtrar()"><option value="">Todas las semanas</option></select>
-    <select id="fil-orden" class="filter-small" onchange="filtrar()">
-      <option value="reciente">Mas reciente primero</option>
-      <option value="antiguo">Mas antiguo primero</option>
-      <option value="status">Por estado</option>
-      <option value="area">Por area</option>
-    </select>
-  </div>
-  <div id="obs-list"><div class="loading"><div class="spinner-g"></div><p style="margin-top:12px;font-size:13px">Cargando...</p></div></div>
-</div>
-<!-- TAB DASHBOARD -->
-<div id="tab-dashboard" class="section">
-  <div style="display:flex;gap:8px;margin-bottom:12px;align-items:center;flex-wrap:wrap">
-    <select id="d-fil-mes" onchange="renderDashboard()" class="filter-small"><option value="">Todos los meses</option></select>
-    <select id="d-fil-sector" onchange="renderDashboard()" class="filter-small"><option value="">Todos los sectores</option></select>
-    <select id="d-fil-area" onchange="renderDashboard()" class="filter-small"><option value="">Todas las areas</option></select>
-    <button onclick="exportarPDF()" style="flex-shrink:0;background:var(--red);color:#fff;border:none;border-radius:8px;padding:8px 12px;font-family:Barlow,sans-serif;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">&#128196; PDF</button>
-  </div>
-  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:8px">
-    <div class="kpi-box"><div class="kpi-val" id="d-total">0</div><div class="kpi-lbl">Total obs.</div></div>
-    <div class="kpi-box green"><div class="kpi-val" id="d-corregidas">0</div><div class="kpi-lbl">Corregidas</div></div>
-    <div class="kpi-box red"><div class="kpi-val" id="d-no-corr">0</div><div class="kpi-lbl">No Corregidas</div></div>
-  </div>
-  <div style="margin-bottom:12px">
-    <div class="kpi-box amber" style="padding:10px 16px;display:flex;align-items:center;justify-content:space-between">
-      <div class="kpi-lbl" style="margin-top:0">% Obs. Corregidas del Total</div>
-      <div class="kpi-val" id="d-pct" style="font-size:28px">0%</div>
-    </div>
-  </div>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
-    <div class="dash-card" style="margin-bottom:0">
-      <div class="dash-card-title">&#127942; Mejor / Peor area</div>
-      <div style="font-size:10px;color:var(--g400);margin:-4px 0 8px;font-style:italic">Semana actual</div>
-      <div id="d-top-areas"></div>
-    </div>
-    <div class="dash-card" style="margin-bottom:0">
-      <div class="dash-card-title">&#128200; vs Semana anterior</div>
-      <div id="d-comparativo"></div>
-    </div>
-  </div>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
-    <div class="dash-card" style="margin-bottom:0">
-      <div class="dash-card-title">Estado obs.</div>
-      <div style="position:relative;width:100px;height:100px;margin:0 auto">
-        <canvas id="chart-donut-status"></canvas>
-        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none">
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;color:var(--green)" id="d-pct2">0%</div>
-          <div style="font-size:8px;color:var(--g400);font-weight:600;text-transform:uppercase">Cumpl.</div>
-        </div>
-      </div>
-      <div id="legend-status" style="margin-top:8px"></div>
-    </div>
-    <div class="dash-card" style="margin-bottom:0">
-      <div class="dash-card-title">Obs. por "S"</div>
-      <div style="position:relative;width:100px;height:100px;margin:0 auto">
-        <canvas id="chart-donut-s"></canvas>
-        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none">
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;color:var(--red)" id="d-top-s">-</div>
-          <div style="font-size:8px;color:var(--g400);font-weight:600;text-transform:uppercase">Top</div>
-        </div>
-      </div>
-      <div id="legend-s" style="margin-top:8px"></div>
-    </div>
-  </div>
-  <div class="dash-card">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-      <div class="dash-card-title" style="margin-bottom:0">&#128200; Evolucion de observaciones</div>
-      <div class="period-sel" style="width:130px">
-        <button class="period-btn active" id="btn-sem" onclick="setPeriod('sem')">Semanal</button>
-        <button class="period-btn" id="btn-mes" onclick="setPeriod('mes')">Mensual</button>
-      </div>
-    </div>
-    <div style="position:relative;height:220px;width:100%"><canvas id="chart-evolucion"></canvas></div>
-  </div>
-  <div class="dash-card">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-      <div class="dash-card-title" style="margin-bottom:0">&#128202; Evolucion por area</div>
-      <div class="period-sel" style="width:130px">
-        <button class="period-btn active" id="btn-area-sem" onclick="setPeriodArea('sem')">Semanal</button>
-        <button class="period-btn" id="btn-area-mes" onclick="setPeriodArea('mes')">Mensual</button>
-      </div>
-    </div>
-    <div style="position:relative;height:220px;width:100%"><canvas id="chart-area-evol"></canvas></div>
-  </div>
-  <div class="dash-card">
-    <div class="dash-card-title">&#127981; Cumplimiento por sector</div>
-    <div style="font-size:10px;color:var(--g400);margin:-4px 0 8px;font-style:italic">Obs. corregidas / total obs. del sector</div>
-    <div id="d-sectores"></div>
-  </div>
-  <div class="dash-card">
-    <div class="dash-card-title">&#128100; Cumplimiento por responsable</div>
-    <div style="font-size:10px;color:var(--g400);margin:-4px 0 8px;font-style:italic">Obs. corregidas / total obs. asignadas</div>
-    <div id="d-responsables"></div>
-  </div>
-  <div class="dash-card">
-    <div class="dash-card-title">&#128203; Resumen por sector y estado</div>
-    <div style="overflow-x:auto"><table id="tabla-pivot" class="dtbl"></table></div>
-  </div>
-  <div class="dash-card">
-    <div class="dash-card-title">&#128202; % Cumplimiento por area</div>
-    <div style="font-size:10px;color:var(--g400);margin:-4px 0 8px;font-style:italic">Obs. corregidas / total obs. por area</div>
-    <div style="overflow-x:auto"><table id="tabla-cumpl" class="dtbl"></table></div>
-  </div>
-  <div class="dash-card">
-    <div class="dash-card-title">&#128205; Zonas/equipos con mas obs. no corregidas</div>
-    <div id="d-zonas-ranking"></div>
-  </div>
-</div>
-</main>
-</div>
-
-<!-- ===================== APP CHECKLIST ===================== -->
-<div id="app-checklist" style="display:none">
-<header>
-  <div class="hdr">
-    <div class="logo-box" style="display:none"></div>
-    <div class="hdr-brand"><h1>Check List 5S</h1><span>Industrias San Miguel</span></div>
-    <button class="hdr-sync" onclick="volverBienvenida()">&#8592; Salir</button>
-  </div>
-</header>
-<nav style="background:#1565C0;display:flex;overflow-x:auto;scrollbar-width:none">
-  <div id="atab-nueva" onclick="showAuditTab('nueva')" style="flex-shrink:0;padding:11px 20px;color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;cursor:pointer;border-bottom:3px solid var(--amber);user-select:none;white-space:nowrap">+ Nueva</div>
-  <div id="atab-historial" onclick="showAuditTab('historial')" style="flex-shrink:0;padding:11px 20px;color:rgba(255,255,255,.6);font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;cursor:pointer;border-bottom:3px solid transparent;user-select:none;white-space:nowrap">Historial</div>
-  <div id="atab-dashboard" onclick="showAuditTab('dashboard')" style="flex-shrink:0;padding:11px 20px;color:rgba(255,255,255,.6);font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;cursor:pointer;border-bottom:3px solid transparent;user-select:none;white-space:nowrap">Dashboard</div>
-  <div id="atab-observaciones" onclick="showAuditTab('observaciones')" style="flex-shrink:0;padding:11px 20px;color:rgba(255,255,255,.6);font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;cursor:pointer;border-bottom:3px solid transparent;user-select:none;white-space:nowrap">&#9888; Obs. Pendientes</div>
-</nav>
-<main style="max-width:720px;margin:0 auto;padding:18px 14px 100px">
-<div id="asec-nueva">
-<div id="nueva-pendientes" style="margin-bottom:14px"></div>
-<div id="audit-paso1">
-  <div class="card">
-    <div class="card-title">&#9989; Datos del Check List</div>
-    <div class="fg"><label>Auditor <span class="req">*</span></label>
-      <select id="a-auditor" onchange="onAuditorChange()">
-        <option value="">&#8212; Selecciona auditor &#8212;</option>
-        <option value="Adiel Abednego Aguayo Flores">Adiel Abednego Aguayo Flores</option>
-        <option value="Alejandro Salvador Grados">Alejandro Salvador Grados</option>
-        <option value="Ayrton Raphael Cotrina Esteves">Ayrton Raphael Cotrina Esteves</option>
-        <option value="Carlos Joél Luyo Diaz">Carlos Joél Luyo Diaz</option>
-        <option value="Cristopher William Reyes Islado">Cristopher William Reyes Islado</option>
-        <option value="Darlene Cruz Donayre">Darlene Cruz Donayre</option>
-        <option value="Dylan Yaret Pintado Fernandez">Dylan Yaret Pintado Fernandez</option>
-        <option value="Enrique Fabricio Polo Manrique">Enrique Fabricio Polo Manrique</option>
-        <option value="Fabio Caldas Antúnez">Fabio Caldas Antúnez</option>
-        <option value="Héctor Arteaga Espinoza">Héctor Arteaga Espinoza</option>
-        <option value="Julio Arroyo Puse">Julio Arroyo Puse</option>
-        <option value="Luis Bossio Vargas">Luis Bossio Vargas</option>
-        <option value="Mariluz Reynaldina Montes Laurente">Mariluz Reynaldina Montes Laurente</option>
-        <option value="Nuria del Pilar Diaz Ramirez">Nuria del Pilar Diaz Ramirez</option>
-        <option value="Paula Valeria Cecilia La Rosa La Rosa">Paula Valeria Cecilia La Rosa La Rosa</option>
-        <option value="Roberto Carlos Medina La Rosa">Roberto Carlos Medina La Rosa</option>
-        <option value="Rosa Emilia Mejia Jaimes">Rosa Emilia Mejia Jaimes</option>
-        <option value="Ulises Eliseo Anselmo Carranza">Ulises Eliseo Anselmo Carranza</option>
-        <option value="William Jesus Joel Rivera Ramirez">William Jesus Joel Rivera Ramirez</option>
-        <option value="Ítalo Buendia Poma">Ítalo Buendia Poma</option>
-      </select>
-    </div>
-    <div class="fg"><label>Mes <span class="req">*</span></label>
-      <input type="month" id="a-nro" readonly style="background:var(--g50);font-weight:700;color:var(--blue)">
-    </div>
-    <div class="fg"><label>Sector auditado <span class="req">*</span></label>
-      <select id="a-sector" onchange="onSectorChange()" disabled>
-        <option value="">&#8212; Elige auditor primero &#8212;</option>
-      </select>
-    </div>
-    <div class="fg"><label>Área</label>
-      <input type="text" id="a-area" readonly style="background:var(--g50);color:var(--green);font-weight:700" placeholder="Se asigna automáticamente">
-    </div>
-    <div class="fg"><label>Responsable</label>
-      <input type="text" id="a-responsable" readonly style="background:var(--g50);color:var(--g700)" placeholder="Se asigna automáticamente">
-    </div>
-    <div class="fg"><label>Fecha</label>
-      <input type="text" id="a-fecha" readonly style="background:var(--g50);font-weight:700;color:var(--green)">
-    </div>
-    <button class="btn-primary" onclick="irPaso2()">Iniciar Check List &#8594;</button>
-  </div>
-</div>
-<div id="audit-paso2" style="display:none">
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-    <button class="btn-ghost" onclick="irPaso1()" style="font-size:12px;padding:6px 10px">&#8592; Atras</button>
-    <div style="text-align:center">
-      <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;color:var(--g700)" id="audit-area-lbl">Area</div>
-      <div style="font-size:11px;color:var(--g400)" id="audit-progreso">0 / 20 criterios</div>
-    </div>
-    <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;color:var(--green)" id="audit-puntaje-live">0/100</div>
-  </div>
-  <div style="height:5px;background:var(--g100);border-radius:20px;overflow:hidden;margin-bottom:16px">
-    <div id="audit-prog-bar" style="height:100%;width:0%;background:var(--green);border-radius:20px;transition:width .4s"></div>
-  </div>
-  <div id="criterios-container"></div>
-  <button class="btn-primary" onclick="finalizarAuditoria()" style="margin-top:8px">&#10003; Finalizar Check List</button>
-</div>
-<div id="audit-paso3" style="display:none">
-  <div class="card" style="text-align:center">
-    <div class="card-title" style="text-align:left">&#127942; Resultado del Check List</div>
-    <div class="score-ring" style="margin-bottom:16px">
-      <svg width="120" height="120" viewBox="0 0 120 120">
-        <circle cx="60" cy="60" r="50" fill="none" stroke="#EEF0EC" stroke-width="12"/>
-        <circle id="score-circle" cx="60" cy="60" r="50" fill="none" stroke="#1E7C34" stroke-width="12"
-          stroke-dasharray="314" stroke-dashoffset="314" stroke-linecap="round"
-          style="transition:stroke-dashoffset 1s ease"/>
-      </svg>
-      <div class="score-txt">
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:32px;font-weight:800;color:var(--green)" id="result-puntaje">0</div>
-        <div style="font-size:10px;color:var(--g400);font-weight:600">de 100</div>
-      </div>
-    </div>
-    <div style="font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:800;margin-bottom:4px" id="result-nivel">&#8212;</div>
-    <div style="font-size:12px;color:var(--g400);margin-bottom:16px" id="result-info"></div>
-    <div id="result-pilares" style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:16px"></div>
-    <button class="btn-primary" onclick="exportarPDFAuditoria()" style="margin-bottom:10px">&#128196; Descargar PDF</button>
-    <button class="btn-ghost" onclick="nuevaAuditoria()" style="width:100%;justify-content:center">+ Nuevo Check List</button>
-  </div>
-  <div class="card" id="card-obs-audit" style="display:none">
-    <div class="card-title">&#9888;&#65039; Observaciones de incumplimiento</div>
-    <div style="font-size:11px;color:var(--g400);margin:-8px 0 12px;font-style:italic">Criterios con puntaje 1, 2 o 3</div>
-    <div id="obs-incumplimiento"></div>
-  </div>
-</div>
-</div>
-<div id="asec-historial" style="display:none">
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
-    <select id="hfil-mes" class="filter-small" onchange="renderHistorial()">
-      <option value="">Todos los meses</option>
-    </select>
-    <select id="hfil-sector" class="filter-small" onchange="renderHistorial()">
-      <option value="">Todos los sectores</option>
-    </select>
-  </div>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
-    <select id="hfil-area" class="filter-small" onchange="renderHistorial()"><option value="">Todas las areas</option></select>
-    <select id="hfil-nivel" class="filter-small" onchange="renderHistorial()">
-      <option value="">Todos los niveles</option>
-      <option value="Excelente">Excelente</option>
-      <option value="Bueno">Bueno</option>
-      <option value="Regular">Regular</option>
-      <option value="Deficiente">Deficiente</option>
-    </select>
-  </div>
-  <div id="historial-list"><div class="loading"><div class="spinner-g"></div><p style="margin-top:12px;font-size:13px">Cargando...</p></div></div>
-</div>
-<div id="asec-dashboard" style="display:none">
-  <div style="display:flex;gap:8px;margin-bottom:12px;align-items:center;flex-wrap:wrap">
-    <select id="d-fil-mes" onchange="renderAuditDashboard()" class="filter-small"><option value="">Todos los meses</option></select>
-    <select id="d-fil-sector-a" onchange="renderAuditDashboard()" class="filter-small"><option value="">Todos los sectores</option></select>
-    <select id="d-fil-area-a" onchange="renderAuditDashboard()" class="filter-small"><option value="">Todas las áreas</option></select>
-
-    <button onclick="const b=this;b.innerHTML='<span class=&quot;spinner&quot;></span> Generando...';b.disabled=true;setTimeout(()=>exportarPDFGerencial(b),50)" style="flex-shrink:0;background:#1565C0;color:#fff;border:none;border-radius:8px;padding:8px 14px;font-family:Barlow,sans-serif;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">&#128196; PDF Gerencial</button>
-  </div>
-  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px">
-    <div class="kpi-box"><div class="kpi-val" id="dk-total">0</div><div class="kpi-lbl">Check Lists</div></div>
-    <div class="kpi-box green"><div class="kpi-val" id="dk-prom">0</div><div class="kpi-lbl">Puntaje prom.</div></div>
-    <div class="kpi-box red"><div class="kpi-val" id="dk-obs">0</div><div class="kpi-lbl">Obs. incumpl.</div></div>
-    <div class="kpi-box amber"><div class="kpi-val" id="dk-pct">0%</div><div class="kpi-lbl">Cumplimiento</div></div>
-  </div>
-  <div id="progreso-sectores" style="margin-bottom:12px"></div>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
-    <div class="dash-card" style="margin-bottom:0">
-      <div class="dash-card-title">Estado general planta</div>
-      <div id="dk-nivel-badge" style="margin:8px 0"></div>
-      <div style="height:8px;background:var(--g100);border-radius:20px;overflow:hidden;margin:8px 0">
-        <div id="dk-barra-prom" style="height:100%;width:0%;border-radius:20px;transition:width .8s;background:var(--green)"></div>
-      </div>
-    </div>
-    <div class="dash-card" style="margin-bottom:0">
-      <div class="dash-card-title">Distribucion por nivel</div>
-      <div style="position:relative;width:90px;height:90px;margin:0 auto"><canvas id="chart-audit-nivel"></canvas></div>
-      <div id="legend-audit-nivel" style="margin-top:6px"></div>
-    </div>
-  </div>
-  <div class="dash-card">
-    <div class="dash-card-title">&#128202; Puntaje promedio por area</div>
-    <div style="position:relative;height:220px;width:100%"><canvas id="chart-audit-areas"></canvas></div>
-  </div>
-  <div class="dash-card">
-    <div class="dash-card-title">&#128202; Desempeno por pilar por area</div>
-    <div style="font-size:10px;color:var(--g400);margin:-4px 0 8px;font-style:italic">% y puntaje de cada S por area auditada</div>
-    <div id="chart-pilar-area-wrap" style="position:relative;width:100%;overflow-x:auto">
-      <canvas id="chart-pilar-area"></canvas>
-    </div>
-  </div>
-  <div class="dash-card">
-    <div class="dash-card-title">&#128200; Evolucion del puntaje</div>
-    <div style="position:relative;height:220px;width:100%"><canvas id="chart-audit-evol"></canvas></div>
-  </div>
-  <div class="dash-card">
-    <div class="dash-card-title">&#127919; Desempeno por pilar 5S</div>
-    <div style="position:relative;height:260px;width:100%;max-width:300px;margin:0 auto"><canvas id="chart-audit-radar"></canvas></div>
-  </div>
-  <div class="dash-card">
-    <div class="dash-card-title">&#9888;&#65039; Criterios con mas incumplimientos</div>
-    <div id="dk-criterios-criticos"></div>
-  </div>
-  <div class="dash-card">
-    <div class="dash-card-title">&#128203; Resumen de Check Lists</div>
-    <div style="font-size:10px;color:var(--g400);margin:-4px 0 8px;font-style:italic">N° de check list, area y % de cumplimiento</div>
-    <div style="overflow-x:auto"><div id="dk-comparativo-areas"></div></div>
-  </div>
-  <div class="dash-card">
-    <div class="dash-card-title">&#9203; Pendientes por auditor</div>
-    <div style="display:flex;gap:8px;margin-bottom:10px">
-
-    </div>
-    <div id="dk-pendientes"></div>
-  </div>
-  <div class="dash-card">
-    <div class="dash-card-title">&#128680; Areas con menor cumplimiento</div>
-    <div id="dk-areas-criticas"></div>
-  </div>
-  <div class="dash-card">
-    <div class="dash-card-title">&#128203; Observaciones pendientes de levantamiento</div>
-    <div style="font-size:10px;color:var(--g400);margin:-4px 0 8px;font-style:italic">Por responsable del area — criterios con puntaje &#8804;3 sin levantar</div>
-    <div id="dk-pendientes-cierre"></div>
-  </div>
-  <div class="dash-card">
-    <div class="dash-card-title">&#128203; Observaciones de incumplimiento por area</div>
-    <div style="position:relative;height:220px;width:100%"><canvas id="chart-audit-obs-area"></canvas></div>
-  </div>
-</div>
-<div id="asec-observaciones" style="display:none">
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
-    <select id="ofil-mes" class="filter-small" onchange="renderObsPendientes()">
-      <option value="">Todos los meses</option>
-    </select>
-    <select id="ofil-area-obs" class="filter-small" onchange="renderObsPendientes()">
-      <option value="">Todas las áreas</option>
-    </select>
-    <select id="ofil-sector" class="filter-small" onchange="renderObsPendientes()">
-      <option value="">Todos los sectores</option>
-    </select>
-    <select id="ofil-resp" class="filter-small" onchange="renderObsPendientes()">
-      <option value="">Todos los responsables</option>
-    </select>
-    <select id="ofil-status" class="filter-small" onchange="renderObsPendientes()">
-      <option value="pendiente">Solo pendientes</option>
-      <option value="levantada">Solo levantadas</option>
-      <option value="">Todas</option>
-    </select>
-  </div>
-  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px">
-    <div class="kpi-box red"><div class="kpi-val" id="ok-pendientes">0</div><div class="kpi-lbl">Pendientes</div></div>
-    <div class="kpi-box green"><div class="kpi-val" id="ok-levantadas">0</div><div class="kpi-lbl">Levantadas</div></div>
-    <div class="kpi-box amber"><div class="kpi-val" id="ok-pct">0%</div><div class="kpi-lbl">% Levantado</div></div>
-  </div>
-  <div id="obs-audit-list"><div class="loading"><div class="spinner-g"></div><p style="margin-top:12px;font-size:13px">Cargando...</p></div></div>
-</div>
-</main>
-</div>
-
-<!-- ===================== APP AUDITORIA NUEVA ===================== -->
-<div id="app-auditoria-nueva" style="display:none;min-height:100vh;background:var(--g50);padding-bottom:80px">
-  <div style="background:var(--amber);padding:16px 20px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.2)">
-    <button onclick="salirAuditoriaNew()" style="background:rgba(0,0,0,.15);border:none;color:#fff;border-radius:8px;padding:6px 12px;cursor:pointer;font-size:13px;font-weight:600">← Inicio</button>
-    <div style="flex:1">
-      <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:900;color:#fff;letter-spacing:.3px">Auditoría 5S</div>
-      <div style="font-size:11px;color:rgba(255,255,255,.8)">Industrias San Miguel · Planta Huaura</div>
-    </div>
-    <div id="audn-badge-ronda" style="background:rgba(0,0,0,.2);border-radius:8px;padding:4px 12px;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;color:#fff;display:none"></div>
-  </div>
-  <div style="display:flex;background:#fff;border-bottom:2px solid var(--g100);overflow-x:auto;position:sticky;top:57px;z-index:99;box-shadow:0 1px 4px rgba(0,0,0,.06)">
-    <button id="audn-tab-nueva" onclick="auditNuevaTab('nueva')" style="flex:1;padding:11px 6px;border:none;background:none;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;color:var(--amber);border-bottom:3px solid var(--amber);cursor:pointer;white-space:nowrap">+ Nueva</button>
-    <button id="audn-tab-historial" onclick="auditNuevaTab('historial')" style="flex:1;padding:11px 6px;border:none;background:none;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;color:var(--g400);border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap">Historial</button>
-    <button id="audn-tab-dashboard" onclick="auditNuevaTab('dashboard')" style="flex:1;padding:11px 6px;border:none;background:none;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;color:var(--g400);border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap">Dashboard</button>
-    <button id="audn-tab-acciones" onclick="auditNuevaTab('acciones')" style="flex:1;padding:11px 6px;border:none;background:none;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;color:var(--g400);border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap">Acciones</button>
-  </div>
-  <div id="audn-content-nueva" style="padding:16px">
-    <div id="audn-form-datos" style="background:#fff;border-radius:14px;padding:18px;margin-bottom:14px;box-shadow:var(--sh)">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
-        <div style="width:4px;height:22px;background:var(--amber);border-radius:2px"></div>
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;color:var(--g700)">Datos de la Auditoría</div>
-      </div>
-      <div class="row2">
-        <div class="fg">
-          <label>N° Check List <span class="req">*</span></label>
-          <select id="audn-num">
-            <option value="">- Selecciona -</option>
-            <option value="1">A1 — 1ra Ronda</option>
-            <option value="2">A2 — 2da Ronda</option>
-            <option value="3">A3 — 3ra Ronda</option>
-            <option value="4">A4 — 4ta Ronda</option>
-          </select>
-        </div>
-        <div class="fg">
-          <label>Fecha <span class="req">*</span></label>
-          <input type="date" id="audn-fecha">
-        </div>
-      </div>
-      <div class="fg">
-        <label>Sector auditado <span class="req">*</span></label>
-        <select id="audn-sector" onchange="audn_onSectorChange()"><option value="">- Selecciona sector -</option></select>
-      </div>
-      <div class="fg">
-        <label>Área</label>
-        <input type="text" id="audn-area-auto" readonly style="background:var(--g50);color:var(--green);font-weight:700" placeholder="Se asigna automáticamente">
-      </div>
-      <div class="row2">
-        <div class="fg">
-          <label>Auditor <span class="req">*</span></label>
-          <input type="text" id="audn-auditor" placeholder="Nombre del auditor">
-        </div>
-        <div class="fg">
-          <label>Responsable</label>
-          <input type="text" id="audn-lider" placeholder="Responsable del sector">
-        </div>
-      </div>
-      <button id="audn-btn-iniciar" onclick="audn_iniciarEvaluacion()" style="display:none;width:100%;margin-top:8px;background:var(--amber);color:#fff;border:none;border-radius:10px;padding:14px;font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:700;cursor:pointer">
-        Iniciar Evaluación →
-      </button>
-    </div>
-    <div id="audn-eval-container" style="display:none">
-      <div style="background:linear-gradient(135deg,var(--amber) 0%,#B45309 100%);border-radius:14px;padding:16px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between">
-        <div>
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;color:rgba(255,255,255,.8);letter-spacing:.5px">PUNTAJE ACTUAL</div>
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:42px;font-weight:900;color:#fff;line-height:1" id="audn-score-display">1000</div>
-          <div style="font-size:11px;color:rgba(255,255,255,.7)">de 1000 puntos</div>
-        </div>
-        <div style="text-align:right">
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:900;color:#fff" id="audn-pct-display">100%</div>
-          <div style="font-size:11px;color:rgba(255,255,255,.7)">Cumplimiento</div>
-          <div id="audn-nivel-display" style="margin-top:6px;background:rgba(255,255,255,.2);border-radius:6px;padding:3px 10px;font-size:12px;font-weight:700;color:#fff">EXCELENTE</div>
-        </div>
-      </div>
-      <div id="audn-criterios-body"></div>
-      <button id="audn-btn-guardar" onclick="audn_guardar()" style="width:100%;margin-top:14px;background:var(--green);color:#fff;border:none;border-radius:12px;padding:16px;font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;cursor:pointer">
-        ✓ Guardar Auditoría
-      </button>
-    </div>
-  </div>
-  <div id="audn-content-historial" style="padding:16px;display:none">
-    <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
-      <select id="audn-fil-ronda" onchange="audn_cargarHistorial()" style="flex:1;min-width:110px;padding:8px;border-radius:8px;border:1px solid var(--g200);font-size:13px">
-        <option value="">Todos los check lists</option>
-        <option value="1">A1</option><option value="2">A2</option>
-        <option value="3">A3</option><option value="4">A4</option>
-      </select>
-      <select id="audn-fil-area" onchange="audn_cargarHistorial()" style="flex:1;min-width:110px;padding:8px;border-radius:8px;border:1px solid var(--g200);font-size:13px">
-        <option value="">Todas las áreas</option>
-      </select>
-    </div>
-    <div id="audn-historial-body"></div>
-  </div>
-  <div id="audn-content-dashboard" style="padding:16px;display:none">
-    <div style="display:flex;gap:8px;margin-bottom:12px">
-      <select id="audn-dash-ronda" onchange="audn_renderDashboard()" style="flex:1;padding:8px;border-radius:8px;border:1px solid var(--g200);font-size:13px">
-        <option value="">Todos los check lists</option>
-        <option value="1">A1</option><option value="2">A2</option>
-        <option value="3">A3</option><option value="4">A4</option>
-      </select>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px" id="audn-dash-kpis"></div>
-    <div style="background:#fff;border-radius:12px;padding:16px;margin-bottom:12px;box-shadow:var(--sh)">
-      <div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;color:var(--g700);margin-bottom:12px">% Cumplimiento por Ronda</div>
-      <canvas id="audn-chart-rondas" height="180"></canvas>
-    </div>
-    <div style="background:#fff;border-radius:12px;padding:16px;margin-bottom:12px;box-shadow:var(--sh)">
-      <div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;color:var(--g700);margin-bottom:12px">Puntaje Promedio por Área</div>
-      <canvas id="audn-chart-areas" height="220"></canvas>
-    </div>
-    <div style="background:#fff;border-radius:12px;padding:16px;box-shadow:var(--sh)">
-      <div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;color:var(--g700);margin-bottom:12px">Estado de Observaciones</div>
-      <div id="audn-dash-obs-table"></div>
-    </div>
-  </div>
-  <div id="audn-content-acciones" style="padding:16px;display:none">
-    <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
-      <select id="audn-fil-accion-area" onchange="audn_cargarAcciones()" style="flex:1;min-width:110px;padding:8px;border-radius:8px;border:1px solid var(--g200);font-size:13px">
-        <option value="">Todas las áreas</option>
-      </select>
-      <select id="audn-fil-accion-estado" onchange="audn_cargarAcciones()" style="flex:1;min-width:110px;padding:8px;border-radius:8px;border:1px solid var(--g200);font-size:13px">
-        <option value="">Todos los estados</option>
-        <option value="Pendiente">Pendiente</option>
-        <option value="En Proceso">En Proceso</option>
-        <option value="Completado">Completado</option>
-      </select>
-    </div>
-    <div id="audn-acciones-kpis" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px"></div>
-    <div id="audn-acciones-body"></div>
-  </div>
-</div>
-
-<!-- ===================== MODALES ===================== -->
-<!-- Modal Observación -->
-<div class="modal-overlay" id="modal-obs">
-  <div class="modal">
-    <div class="modal-title" id="modal-obs-title">Observacion</div>
-    <input type="hidden" id="mo-id">
-    <div id="mo-detalle" style="margin-bottom:14px;background:var(--g50);border-radius:8px;padding:12px;font-size:13px;line-height:1.8;color:var(--g700)"></div>
-    <div id="mo-fotos-antes" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px"></div>
-    <div id="mo-cierre-section">
-      <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.4px;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--g100)">Cerrar observacion</div>
-      <div class="fg"><label>Comentario <span style="font-size:10px;color:var(--g400);font-weight:400">(opcional)</span></label>
-        <textarea id="mo-comentario" placeholder="Como se corrigio? (opcional)"></textarea>
-      </div>
-      <div class="fg">
-        <label>Foto del despues <span class="req">*</span></label>
-        <div class="photo-drop" id="drop-cierre" style="border-color:var(--red);cursor:pointer" onclick="document.getElementById('input-foto-cierre').click()">
-          <input type="file" id="input-foto-cierre" accept="image/*" capture="environment" onchange="handleFotoCierre(this)" style="display:none">
-          <div style="font-size:24px;margin-bottom:4px">&#128247;</div>
-          <p style="font-size:12px;color:var(--g400)">Evidencia del cierre</p>
-          <p style="font-size:11px;color:var(--red);font-weight:600;margin-top:4px">Obligatoria</p>
-        </div>
-        <div class="upload-progress" id="prog-cierre"><div class="upload-progress-fill" id="prog-cierre-fill"></div></div>
-        <div class="photo-prev" id="prev-cierre"></div>
-      </div>
-      <button class="btn-primary" id="btn-cerrar-obs" onclick="cerrarObservacion()" style="margin-bottom:10px">Marcar como CORREGIDO</button>
-    </div>
-    <div id="mo-foto-despues" style="display:none;margin-bottom:14px"></div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <button class="btn-ghost" onclick="abrirEditar()" style="flex:1;justify-content:center">Editar</button>
-      <button class="btn-ghost" onclick="closeModal('modal-obs')" style="border-color:var(--g200);color:var(--g400);flex:1;justify-content:center">Cerrar</button>
-    </div>
-  </div>
-</div>
-
-<!-- Modal Editar -->
-<div class="modal-overlay" id="modal-editar">
-  <div class="modal">
-    <div class="modal-title">Editar observacion</div>
-    <input type="hidden" id="me-id">
-    <div class="fg"><label>Descripcion</label><textarea id="me-obs"></textarea></div>
-    <div class="fg"><label>Responsable</label><input type="text" id="me-resp"></div>
-    <div class="fg"><label>Estado</label>
-      <select id="me-status">
-        <option value="CORREGIDO">CORREGIDO</option>
-        <option value="NO CORREGIDO">NO CORREGIDO</option>
-      </select>
-    </div>
-    <div style="display:flex;gap:10px;margin-top:4px">
-      <button class="btn-primary" onclick="confirmarEditar()" style="flex:1">Guardar</button>
-      <button class="btn-ghost" onclick="closeModal('modal-editar')">Cancelar</button>
-    </div>
-  </div>
-</div>
-
-<!-- Modal Criterio Auditoría -->
-<div id="modal-audn-criterio" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1000;align-items:flex-end;justify-content:center;padding:0">
-  <div style="background:#fff;border-radius:20px 20px 0 0;padding:20px;width:100%;max-width:480px;max-height:92vh;overflow-y:auto">
-    <div style="display:flex;align-items:start;justify-content:space-between;margin-bottom:14px">
-      <div style="flex:1">
-        <div id="modal-audn-cat" style="font-size:11px;font-weight:700;color:var(--amber);letter-spacing:.5px;text-transform:uppercase"></div>
-        <div id="modal-audn-crit" style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:var(--g700);line-height:1.2;margin-top:2px"></div>
-      </div>
-      <button onclick="audn_cerrarModal()" style="background:var(--g100);border:none;border-radius:8px;width:32px;height:32px;cursor:pointer;font-size:16px;flex-shrink:0;margin-left:8px">✕</button>
-    </div>
-    <div class="fg">
-      <label>Puntaje <span class="req">*</span></label>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px" id="audn-puntaje-btns">
-        <button onclick="audn_selPuntaje(-20)" class="audn-pts-btn" data-pts="-20">-20 SSOMA</button>
-        <button onclick="audn_selPuntaje(-15)" class="audn-pts-btn" data-pts="-15">-15 Calidad</button>
-        <button onclick="audn_selPuntaje(-10)" class="audn-pts-btn" data-pts="-10">-10 Operac.</button>
-        <button onclick="audn_selPuntaje(-5)" class="audn-pts-btn" data-pts="-5">-5 No Oper.</button>
-        <button onclick="audn_selPuntaje(5)" class="audn-pts-btn" data-pts="5" style="grid-column:1/-1">+5 Destacable ✓</button>
-      </div>
-    </div>
-    <div id="audn-modal-incump" style="display:none">
-      <div class="fg" style="margin-top:12px">
-        <label>S afectada <span class="req">*</span></label>
-        <select id="audn-modal-s">
-          <option value="">- Selecciona -</option>
-          <option value="1S">1S — Seleccionar</option>
-          <option value="2S">2S — Ordenar</option>
-          <option value="3S">3S — Limpiar</option>
-          <option value="4S">4S — Estandarizar</option>
-          <option value="5S">5S — Disciplinar</option>
-        </select>
-      </div>
-      <div class="fg">
-        <label>Observación <span class="req">*</span></label>
-        <textarea id="audn-modal-obs" rows="3" placeholder="Describe el incumplimiento..." style="resize:vertical"></textarea>
-      </div>
-      <div class="fg">
-        <label>Foto de evidencia (antes) <span class="req">*</span></label>
-        <div onclick="document.getElementById('audn-input-foto-antes').click()" style="border:2px dashed var(--g200);border-radius:10px;padding:16px;text-align:center;cursor:pointer;background:var(--g50)" id="audn-drop-antes">
-          <div style="font-size:28px">📷</div>
-          <div style="font-size:12px;color:var(--g400)">Toca para agregar foto antes</div>
-        </div>
-        <input type="file" id="audn-input-foto-antes" accept="image/*" capture="environment" style="display:none" onchange="audn_fotoAntes(this)">
-        <img id="audn-preview-antes" style="display:none;width:100%;border-radius:8px;margin-top:8px;max-height:180px;object-fit:cover">
-      </div>
-      <div class="fg">
-        <label>Responsable <span class="req">*</span></label>
-        <input type="text" id="audn-modal-resp" placeholder="Nombre del responsable">
-      </div>
-      <div class="row2">
-        <div class="fg">
-          <label>Fecha inicio planificada</label>
-          <input type="date" id="audn-modal-fi">
-        </div>
-        <div class="fg">
-          <label>Fecha fin planificada</label>
-          <input type="date" id="audn-modal-ff">
-        </div>
-      </div>
-    </div>
-    <div id="audn-modal-destacable" style="display:none;margin-top:12px">
-      <div class="fg">
-        <label>Comentario de fortaleza</label>
-        <textarea id="audn-modal-coment" rows="2" placeholder="¿Qué se destacó?" style="resize:vertical"></textarea>
-      </div>
-    </div>
-    <div style="display:flex;gap:10px;margin-top:16px">
-      <button onclick="audn_cerrarModal()" style="flex:1;padding:13px;border:1.5px solid var(--g200);border-radius:10px;background:#fff;cursor:pointer;font-size:14px;font-weight:600">Cancelar</button>
-      <button onclick="audn_guardarCriterio()" class="btn-guardar-crit" style="flex:2;padding:13px;background:var(--amber);color:#fff;border:none;border-radius:10px;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:700">Guardar</button>
-    </div>
-  </div>
-</div>
-
-<!-- Modal Detalle Auditoría -->
-<div id="modal-audn-detalle" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1000;overflow-y:auto;padding:16px">
-  <div style="background:#fff;border-radius:16px;max-width:480px;margin:0 auto">
-    <div id="modal-audn-detalle-body"></div>
-    <div style="padding:16px">
-      <button onclick="document.getElementById('modal-audn-detalle').style.display='none'" style="width:100%;padding:12px;background:var(--g100);border:none;border-radius:10px;cursor:pointer;font-size:14px;font-weight:600">Cerrar</button>
-    </div>
-  </div>
-</div>
-
-<!-- Modal Acción Auditoría -->
-<div id="modal-audn-accion" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1000;align-items:flex-end;justify-content:center;padding:0">
-  <div style="background:#fff;border-radius:20px 20px 0 0;padding:20px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto">
-    <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:var(--amber);margin-bottom:16px">Plan de Acción</div>
-    <input type="hidden" id="audn-accion-id">
-    <input type="hidden" id="audn-accion-auditoria-id">
-    <div class="fg"><label>Responsable <span class="req">*</span></label>
-      <input type="text" id="audn-accion-responsable" placeholder="Nombre del responsable">
-    </div>
-    <div class="row2">
-      <div class="fg"><label>Fecha inicio <span class="req">*</span></label>
-        <input type="date" id="audn-accion-fecha-inicio">
-      </div>
-      <div class="fg"><label>Fecha fin <span class="req">*</span></label>
-        <input type="date" id="audn-accion-fecha-fin">
-      </div>
-    </div>
-    <div class="row2">
-      <div class="fg"><label>% Avance real</label>
-        <input type="number" id="audn-accion-avance" min="0" max="100" placeholder="0">
-      </div>
-      <div class="fg"><label>% Avance planificado</label>
-        <input type="number" id="audn-accion-avance-plan" min="0" max="100" placeholder="100">
-      </div>
-    </div>
-    <div class="fg"><label>Estado</label>
-      <select id="audn-accion-estado">
-        <option value="Pendiente">Pendiente</option>
-        <option value="En Proceso">En Proceso</option>
-        <option value="Completado">Completado</option>
-      </select>
-    </div>
-    <div class="fg"><label>Foto de cierre (después)</label>
-      <div onclick="document.getElementById('audn-input-foto-despues').click()" style="border:2px dashed var(--g200);border-radius:10px;padding:14px;text-align:center;cursor:pointer;background:var(--g50)">
-        <div style="font-size:24px">📸</div>
-        <div style="font-size:12px;color:var(--g400)">Foto del estado corregido</div>
-      </div>
-      <input type="file" id="audn-input-foto-despues" accept="image/*" capture="environment" style="display:none" onchange="audn_fotoDespues(this)">
-      <img id="audn-preview-despues" style="display:none;width:100%;border-radius:8px;margin-top:8px;max-height:160px;object-fit:cover">
-    </div>
-    <div style="display:flex;gap:8px;margin-top:16px">
-      <button onclick="document.getElementById('modal-audn-accion').style.display='none'" style="flex:1;padding:12px;border:1.5px solid var(--g200);border-radius:10px;background:#fff;cursor:pointer;font-size:14px">Cancelar</button>
-      <button onclick="audn_guardarAccion()" style="flex:2;padding:12px;background:var(--amber);color:#fff;border:none;border-radius:10px;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700">Guardar</button>
-    </div>
-  </div>
-</div>
-
-
-
 </body>
 </html>

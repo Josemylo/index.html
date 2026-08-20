@@ -1,5 +1,3 @@
-<!DOCTYPE html>
-<html lang="es">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
@@ -10,93 +8,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 
-<!-- Modal Cierre Auditoría -->
-<div class="modal-overlay" id="modal-cierre-audit">
-  <div class="modal">
-    <div class="modal-title">Levantar observacion</div>
-    <input type="hidden" id="mca-audit-id">
-    <input type="hidden" id="mca-criterio-num">
-    <div id="mca-detalle" style="background:var(--g50);border-radius:8px;padding:10px;margin-bottom:14px;font-size:13px;color:var(--g700)"></div>
-    <div class="fg">
-      <label>Comentario <span style="font-size:10px;color:var(--g400)">(opcional)</span></label>
-      <textarea id="mca-comentario" placeholder="Como se levanto la observacion?..." style="min-height:70px"></textarea>
-    </div>
-    <div class="fg">
-      <label>Foto de evidencia <span class="req">*</span></label>
-      <div class="photo-drop" id="drop-cierre-audit" style="border-color:var(--red)">
-        <input type="file" accept="image/*" onchange="handleFotoCierreAudit(this)">
-        <div style="font-size:24px;margin-bottom:4px">&#128247;</div>
-        <p style="font-size:12px;color:var(--g400)">Foto del levantamiento</p>
-        <p style="font-size:11px;color:var(--red);font-weight:600;margin-top:4px">Obligatoria</p>
-      </div>
-      <div class="photo-prev" id="prev-cierre-audit"></div>
-    </div>
-    <div style="display:flex;gap:10px;margin-top:4px">
-      <button class="btn-primary" onclick="confirmarCierreAudit()" style="flex:1">&#10003; Marcar como LEVANTADA</button>
-      <button c
-
-
-
-
-<!-- Modal Cierre de Observación -->
-<div id="modal-cierre-obs" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;align-items:center;justify-content:center;padding:16px">
-  <div style="background:#fff;border-radius:16px;width:100%;max-width:420px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.3)">
-    <!-- Header -->
-    <div style="background:#1E7C34;padding:16px 20px;display:flex;align-items:center;justify-content:space-between">
-      <div>
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:900;color:#fff">Cerrar Observación</div>
-        <div style="font-size:11px;color:rgba(255,255,255,.8)" id="modal-cierre-desc"></div>
-      </div>
-      <button onclick="cerrarModalCierre()" style="background:rgba(255,255,255,.15);border:none;color:#fff;border-radius:8px;padding:6px 10px;cursor:pointer;font-size:16px">✕</button>
-    </div>
-    <!-- Body -->
-    <div style="padding:16px">
-      <!-- Fecha de cierre OBLIGATORIA -->
-      <div style="margin-bottom:12px">
-        <label style="font-size:12px;font-weight:700;color:#3A3F37;display:block;margin-bottom:4px">
-          Fecha de Cierre <span style="color:#E63329">*</span>
-        </label>
-        <input type="date" id="cierre-fecha"
-          style="width:100%;padding:10px;border:2px solid #D5DAD3;border-radius:8px;font-size:14px;box-sizing:border-box"
-          oninput="this.style.borderColor=this.value?'#1E7C34':'#E63329'">
-      </div>
-      <!-- Comentario OBLIGATORIO -->
-      <div style="margin-bottom:12px">
-        <label style="font-size:12px;font-weight:700;color:#3A3F37;display:block;margin-bottom:4px">
-          Comentario de Cierre <span style="color:#E63329">*</span>
-        </label>
-        <textarea id="cierre-comentario" rows="3" placeholder="Describe cómo se resolvió la observación..."
-          style="width:100%;padding:10px;border:2px solid #D5DAD3;border-radius:8px;font-size:13px;box-sizing:border-box;resize:vertical"
-          oninput="this.style.borderColor=this.value.trim()?'#1E7C34':'#E63329'"></textarea>
-      </div>
-      <!-- Foto evidencia OPCIONAL -->
-      <div style="margin-bottom:16px">
-        <label style="font-size:12px;font-weight:700;color:#3A3F37;display:block;margin-bottom:4px">
-          Foto de Evidencia <span style="font-size:11px;color:#8F9B8A;font-weight:400">(opcional)</span>
-        </label>
-        <div id="cierre-foto-preview" style="display:none;margin-bottom:8px">
-          <img id="cierre-foto-img" style="width:100%;height:160px;object-fit:cover;border-radius:8px;border:2px solid #1E7C34">
-        </div>
-        <label style="display:flex;align-items:center;gap:8px;padding:10px;background:#F7F8F6;border:2px dashed #D5DAD3;border-radius:8px;cursor:pointer">
-          <span style="font-size:20px">📷</span>
-          <span style="font-size:13px;color:#8F9B8A">Tomar foto o seleccionar archivo</span>
-          <input type="file" id="cierre-foto-input" accept="image/*" capture="environment"
-            style="display:none" onchange="previewFotoCierre(this)">
-        </label>
-      </div>
-      <!-- Botones -->
-      <div style="display:flex;gap:8px">
-        <button onclick="cerrarModalCierre()" style="flex:1;padding:12px;background:#F7F8F6;border:1px solid #D5DAD3;border-radius:8px;font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;color:#8F9B8A;cursor:pointer">
-          Cancelar
-        </button>
-        <button id="cierre-btn-guardar" onclick="guardarCierreObs()"
-          style="flex:2;padding:12px;background:#1E7C34;color:#fff;border:none;border-radius:8px;font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;cursor:pointer">
-          ✓ Confirmar Cierre
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
 
 <style>
 :root{
@@ -226,6 +137,95 @@ textarea{resize:vertical;min-height:78px}
 </style>
 </head>
 <body>
+<!-- Modal Cierre Auditoría -->
+<div class="modal-overlay" id="modal-cierre-audit">
+  <div class="modal">
+    <div class="modal-title">Levantar observacion</div>
+    <input type="hidden" id="mca-audit-id">
+    <input type="hidden" id="mca-criterio-num">
+    <div id="mca-detalle" style="background:var(--g50);border-radius:8px;padding:10px;margin-bottom:14px;font-size:13px;color:var(--g700)"></div>
+    <div class="fg">
+      <label>Comentario <span style="font-size:10px;color:var(--g400)">(opcional)</span></label>
+      <textarea id="mca-comentario" placeholder="Como se levanto la observacion?..." style="min-height:70px"></textarea>
+    </div>
+    <div class="fg">
+      <label>Foto de evidencia <span class="req">*</span></label>
+      <div class="photo-drop" id="drop-cierre-audit" style="border-color:var(--red)">
+        <input type="file" accept="image/*" onchange="handleFotoCierreAudit(this)">
+        <div style="font-size:24px;margin-bottom:4px">&#128247;</div>
+        <p style="font-size:12px;color:var(--g400)">Foto del levantamiento</p>
+        <p style="font-size:11px;color:var(--red);font-weight:600;margin-top:4px">Obligatoria</p>
+      </div>
+      <div class="photo-prev" id="prev-cierre-audit"></div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:4px">
+      <button class="btn-primary" onclick="confirmarCierreAudit()" style="flex:1">&#10003; Marcar como LEVANTADA</button>
+      <button c
+
+
+
+
+<!-- Modal Cierre de Observación -->
+<div id="modal-cierre-obs" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;align-items:center;justify-content:center;padding:16px">
+  <div style="background:#fff;border-radius:16px;width:100%;max-width:420px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.3)">
+    <!-- Header -->
+    <div style="background:#1E7C34;padding:16px 20px;display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:900;color:#fff">Cerrar Observación</div>
+        <div style="font-size:11px;color:rgba(255,255,255,.8)" id="modal-cierre-desc"></div>
+      </div>
+      <button onclick="cerrarModalCierre()" style="background:rgba(255,255,255,.15);border:none;color:#fff;border-radius:8px;padding:6px 10px;cursor:pointer;font-size:16px">✕</button>
+    </div>
+    <!-- Body -->
+    <div style="padding:16px">
+      <!-- Fecha de cierre OBLIGATORIA -->
+      <div style="margin-bottom:12px">
+        <label style="font-size:12px;font-weight:700;color:#3A3F37;display:block;margin-bottom:4px">
+          Fecha de Cierre <span style="color:#E63329">*</span>
+        </label>
+        <input type="date" id="cierre-fecha"
+          style="width:100%;padding:10px;border:2px solid #D5DAD3;border-radius:8px;font-size:14px;box-sizing:border-box"
+          oninput="this.style.borderColor=this.value?'#1E7C34':'#E63329'">
+      </div>
+      <!-- Comentario OBLIGATORIO -->
+      <div style="margin-bottom:12px">
+        <label style="font-size:12px;font-weight:700;color:#3A3F37;display:block;margin-bottom:4px">
+          Comentario de Cierre <span style="color:#E63329">*</span>
+        </label>
+        <textarea id="cierre-comentario" rows="3" placeholder="Describe cómo se resolvió la observación..."
+          style="width:100%;padding:10px;border:2px solid #D5DAD3;border-radius:8px;font-size:13px;box-sizing:border-box;resize:vertical"
+          oninput="this.style.borderColor=this.value.trim()?'#1E7C34':'#E63329'"></textarea>
+      </div>
+      <!-- Foto evidencia OPCIONAL -->
+      <div style="margin-bottom:16px">
+        <label style="font-size:12px;font-weight:700;color:#3A3F37;display:block;margin-bottom:4px">
+          Foto de Evidencia <span style="font-size:11px;color:#8F9B8A;font-weight:400">(opcional)</span>
+        </label>
+        <div id="cierre-foto-preview" style="display:none;margin-bottom:8px">
+          <img id="cierre-foto-img" style="width:100%;height:160px;object-fit:cover;border-radius:8px;border:2px solid #1E7C34">
+        </div>
+        <label style="display:flex;align-items:center;gap:8px;padding:10px;background:#F7F8F6;border:2px dashed #D5DAD3;border-radius:8px;cursor:pointer">
+          <span style="font-size:20px">📷</span>
+          <span style="font-size:13px;color:#8F9B8A">Tomar foto o seleccionar archivo</span>
+          <input type="file" id="cierre-foto-input" accept="image/*" capture="environment"
+            style="display:none" onchange="previewFotoCierre(this)">
+        </label>
+      </div>
+      <!-- Botones -->
+      <div style="display:flex;gap:8px">
+        <button onclick="cerrarModalCierre()" style="flex:1;padding:12px;background:#F7F8F6;border:1px solid #D5DAD3;border-radius:8px;font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;color:#8F9B8A;cursor:pointer">
+          Cancelar
+        </button>
+        <button id="cierre-btn-guardar" onclick="guardarCierreObs()"
+          style="flex:2;padding:12px;background:#1E7C34;color:#fff;border:none;border-radius:8px;font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;cursor:pointer">
+          ✓ Confirmar Cierre
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
 
 <!-- ===================== PANTALLA BIENVENIDA ===================== -->
 <div id="pantalla-bienvenida" style="display:flex;flex-direction:column;min-height:100vh;background:linear-gradient(160deg,#155A25 0%,#1E7C34 55%,#2DA048 100%);overflow:hidden;position:relative">
@@ -508,26 +508,6 @@ textarea{resize:vertical;min-height:78px}
     <div class="fg"><label>Auditor <span class="req">*</span></label>
       <select id="a-auditor" onchange="onAuditorChange()">
         <option value="">&#8212; Selecciona auditor &#8212;</option>
-        <option value="Adiel Abednego Aguayo Flores">Adiel Abednego Aguayo Flores</option>
-        <option value="Alejandro Salvador Grados">Alejandro Salvador Grados</option>
-        <option value="Ayrton Raphael Cotrina Esteves">Ayrton Raphael Cotrina Esteves</option>
-        <option value="Carlos Joél Luyo Diaz">Carlos Joél Luyo Diaz</option>
-        <option value="Cristopher William Reyes Islado">Cristopher William Reyes Islado</option>
-        <option value="Darlene Cruz Donayre">Darlene Cruz Donayre</option>
-        <option value="Dylan Yaret Pintado Fernandez">Dylan Yaret Pintado Fernandez</option>
-        <option value="Enrique Fabricio Polo Manrique">Enrique Fabricio Polo Manrique</option>
-        <option value="Fabio Caldas Antúnez">Fabio Caldas Antúnez</option>
-        <option value="Héctor Arteaga Espinoza">Héctor Arteaga Espinoza</option>
-        <option value="Julio Arroyo Puse">Julio Arroyo Puse</option>
-        <option value="Luis Bossio Vargas">Luis Bossio Vargas</option>
-        <option value="Mariluz Reynaldina Montes Laurente">Mariluz Reynaldina Montes Laurente</option>
-        <option value="Nuria del Pilar Diaz Ramirez">Nuria del Pilar Diaz Ramirez</option>
-        <option value="Paula Valeria Cecilia La Rosa La Rosa">Paula Valeria Cecilia La Rosa La Rosa</option>
-        <option value="Roberto Carlos Medina La Rosa">Roberto Carlos Medina La Rosa</option>
-        <option value="Rosa Emilia Mejia Jaimes">Rosa Emilia Mejia Jaimes</option>
-        <option value="Ulises Eliseo Anselmo Carranza">Ulises Eliseo Anselmo Carranza</option>
-        <option value="William Jesus Joel Rivera Ramirez">William Jesus Joel Rivera Ramirez</option>
-        <option value="Ítalo Buendia Poma">Ítalo Buendia Poma</option>
       </select>
     </div>
     <div class="fg"><label>Mes <span class="req">*</span></label>
@@ -1040,10 +1020,12 @@ textarea{resize:vertical;min-height:78px}
 
 
 
+
 <script>
 // ============================================================
 // CONFIGURACIÓN Y DATOS
 // ============================================================
+
 
 const {createClient} = supabase;
 const sb = createClient(
@@ -1102,7 +1084,7 @@ function showToast(msg, isErr) {
   t.textContent = msg;
   t.className = "show" + (isErr ? " error" : "");
   clearTimeout(window._toastT);
-  window._toastT = setTimeout(() => t.className = "", 3500);
+  window._toastT = setTimeout(function(){ t.className=""; }, 3500);
 }
 
 function openModal(id) {
@@ -1229,75 +1211,28 @@ function salirAuditoriaNew() {
 // ============================================================
 
 function onAuditorChange() {
-  const auditor = document.getElementById("a-auditor").value;
-  const sectorSelect = document.getElementById("a-sector");
-  const areaInput = document.getElementById("a-area");
-  const respInput = document.getElementById("a-responsable");
-  
-  // Limpiar selección anterior
-  sectorSelect.innerHTML = '<option value="">&#8212; Selecciona sector &#8212;</option>';
-  areaInput.value = "";
-  respInput.value = "";
-  
-  if (!auditor) {
-    sectorSelect.disabled = true;
-    return;
-  }
-  
-  // Cargar sectores asignados al auditor
-  const sectores = AUDITORES_SECTORES[auditor] || [];
-  sectores.forEach(sector => {
-    sectorSelect.innerHTML += `<option value="${sector}">${sector}</option>`;
+  var auditor = document.getElementById("a-auditor").value;
+  var sectorSel = document.getElementById("a-sector");
+  if (!sectorSel) return;
+  sectorSel.innerHTML = '<option value="">— Selecciona sector —</option>';
+  var sectores = AUDITORES_SECTORES[auditor] || [];
+  sectores.forEach(function(s) {
+    sectorSel.innerHTML += '<option value="'+s+'">'+s+'</option>';
   });
-  sectorSelect.disabled = false;
-  
-  // Verificar si ya fue auditado este mes
-  const now = new Date();
-  const mesIni = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split("T")[0];
-  const mesFin = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split("T")[0];
-  
-  sb.from("auditorias_5s_ism")
-    .select("sector")
-    .gte("fecha", mesIni)
-    .lte("fecha", mesFin)
-    .then(({data}) => {
-      if (!data || !data.length) return;
-      const auditados = new Set(data.map(d => d.sector));
-      Array.from(sectorSelect.options).forEach(opt => {
-        if (!opt.value) return;
-        if (auditados.has(opt.value)) {
-          opt.textContent = `✓ ${opt.value} (ya realizado)`;
-          opt.disabled = true;
-          opt.style.color = "#9CA3AF";
-        }
-      });
-    });
 }
 
 function onSectorChange() {
-  const sector = document.getElementById("a-sector").value;
-  const areaInput = document.getElementById("a-area");
-  const respInput = document.getElementById("a-responsable");
-  
-  if (!sector) {
-    areaInput.value = "";
-    respInput.value = "";
-    return;
-  }
-  
-  areaInput.value = SECTOR_AREA_MAP[sector] || "";
-  respInput.value = RESP_SECTOR[sector] || "";
-
-  // Asignar número de auditoría (año-mes actual)
+  var sector = document.getElementById("a-sector").value;
+  var areaEl = document.getElementById("a-area");
+  var respEl = document.getElementById("a-responsable");
+  if (areaEl) areaEl.value = SECTOR_AREA_MAP[sector] || "";
+  if (respEl) respEl.value = RESP_SECTOR[sector] || "";
+  // nro auditoria y fecha si no están
   var now2 = new Date();
   var nroEl = document.getElementById("a-nro");
-  if (nroEl && !nroEl.value) {
-    nroEl.value = now2.getFullYear() + "-" + String(now2.getMonth()+1).padStart(2,"0");
-  }
+  if (nroEl && !nroEl.value) nroEl.value = now2.getFullYear()+"-"+String(now2.getMonth()+1).padStart(2,"0");
   var fechaEl = document.getElementById("a-fecha");
-  if (fechaEl && !fechaEl.value) {
-    fechaEl.value = now2.toISOString().split("T")[0];
-  }
+  if (fechaEl && !fechaEl.value) fechaEl.value = now2.toISOString().split("T")[0];
 }
 
 // ============================================================
@@ -1335,19 +1270,17 @@ const CRITERIOS = [
 // ... (se mantienen igual que en el código original pero adaptadas para usar RESP_SECTOR)
 
 function showAuditTab(name) {
-  ["nueva","historial","dashboard","observaciones"].forEach(t => {
-    const sec = document.getElementById("asec-" + t);
-    const tab = document.getElementById("atab-" + t);
-    if (sec) sec.style.display = t === name ? "block" : "none";
-    if (tab) {
-      tab.style.color = t === name ? "#fff" : "rgba(255,255,255,.6)";
-      tab.style.borderBottomColor = t === name ? "var(--amber)" : "transparent";
-    }
-  });
-  if (name === "nueva") renderNuevaPendientes();
-  if (name === "historial") cargarAuditorias().then(() => renderHistorial());
-  if (name === "dashboard") cargarAuditorias().then(() => renderAuditDashboard());
-  if (name === "observaciones") cargarAuditorias().then(() => renderObsPendientes());
+  var tabs    = document.querySelectorAll(".audit-tab");
+  var sections= document.querySelectorAll(".audit-section");
+  tabs.forEach(function(t){ t.classList.remove("active"); });
+  sections.forEach(function(s){ s.classList.remove("active"); });
+  var tabEl = document.getElementById("asec-"+name);
+  var navEl = document.querySelector('.audit-tab[onclick*="'+name+'"]');
+  if (tabEl) tabEl.classList.add("active");
+  if (navEl) navEl.classList.add("active");
+  if (name === "historial")     cargarAuditorias().then(function(){ renderHistorial(); });
+  if (name === "dashboard")     cargarAuditorias().then(function(){ renderAuditDashboard(); });
+  if (name === "observaciones") cargarAuditorias().then(function(){ renderObsPendientes(); });
 }
 
 // Función para renderizar pendientes (simplificada)
@@ -1378,16 +1311,15 @@ function setAuditField(num, field, val) {
 }
 
 function updateProgreso() {
-  const total     = CRITERIOS.length;
-  const evaluados = CRITERIOS.filter(c => auditData[c.num]?.respuesta != null).length;
-  const siCount   = CRITERIOS.filter(c => auditData[c.num]?.respuesta === "SI").length;
-  const pct       = total > 0 ? Math.round(siCount / total * 100) : 0;
-  const bar  = document.getElementById("audit-prog-bar");
-  const lbl  = document.getElementById("audit-puntaje-live");
-  const prog = document.getElementById("audit-progreso");
-  if (bar)  bar.style.width  = (evaluados / total * 100) + "%";
-  if (lbl)  lbl.textContent  = pct + "/100";
-  if (prog) prog.textContent = evaluados + " / " + total + " criterios";
+  var evaluados = CRITERIOS.filter(function(c){ var d=auditData[c.num]; return d && d.respuesta != null; }).length;
+  var siCount   = CRITERIOS.filter(function(c){ var d=auditData[c.num]; return d && d.respuesta === "SI"; }).length;
+  var pct = CRITERIOS.length > 0 ? Math.round(evaluados/CRITERIOS.length*100) : 0;
+  var el  = document.getElementById("audit-progreso");
+  var el2 = document.getElementById("audit-progreso-fill");
+  var el3 = document.getElementById("audit-progreso-lbl");
+  if (el)  el.style.display  = "block";
+  if (el2) el2.style.width   = pct+"%";
+  if (el3) el3.textContent   = evaluados+"/"+CRITERIOS.length+" criterios evaluados";
 }
 
 function renderCriterios() {
@@ -1633,33 +1565,27 @@ async function cargarAuditorias() {
     const {data, error} = await sb.from("auditorias_5s_ism").select("*").order("fecha", {ascending:false});
     if (error) throw error;
     const norm = {"LINEA 1":"LÍNEA 1","LINEA 2":"LÍNEA 2","LINEA 3":"LÍNEA 3","LINEA 4":"LÍNEA 4","LINEA 5":"LÍNEA 5","LINEA 7":"LÍNEA 7","LINEA 8":"LÍNEA 8","LINEA 9":"LÍNEA 9","LP01":"LÍNEA 1","LP02":"LÍNEA 2","LP03":"LÍNEA 3","LP04":"LÍNEA 4","LP05":"LÍNEA 5","LP06":"LINEA 6","LP07":"LÍNEA 7","LP08":"LÍNEA 8","LP09":"LÍNEA 9","LP10":"LINEA 10"};
-    auditorias = (data||[]).map(a => ({...a, sector: norm[a.sector]||a.sector, detalles: safeJson(a.detalles,"[]"), incumplimientos: safeJson(a.incumplimientos,"[]")}));
-    sectoresAuditados = new Set(auditorias.map(a => a.sector).filter(Boolean));
-    const meses = [...new Set(auditorias.map(a => String(a.nro_auditoria||a.fecha||"").substring(0,7)).filter(v=>v.length===7))].sort().reverse();
-    const sects = [...new Set(auditorias.map(a => a.sector).filter(Boolean))].sort();
-    const areas = [...new Set(auditorias.map(a => a.area).filter(Boolean))].sort();
-    const mesLbl = m => { var pts=m.split("-"); return new Date(+pts[0],+pts[1]-1,1).toLocaleDateString("es-PE",{month:"long",year:"numeric"}); };
-    [["hfil-mes",meses,mesLbl],["ofil-mes",meses,mesLbl],["d-fil-mes",meses,mesLbl]].forEach(([id,vs,lbl])=>{
-      const el=document.getElementById(id); if(!el)return; const cur=el.value;
-      el.innerHTML='<option value="">Todos los meses</option>';
-      vs.forEach(v=>el.innerHTML+=`<option value="${v}"${v===cur?' selected':''}>${lbl(v)}</option>`);
-    });
-    [["hfil-sector",sects],["ofil-sector",sects],["d-fil-sector-a",sects]].forEach(([id,vs])=>{
-      const el=document.getElementById(id); if(!el)return; const cur=el.value;
-      el.innerHTML='<option value="">Todos los sectores</option>';
-      vs.forEach(v=>el.innerHTML+=`<option value="${v}"${v===cur?' selected':''}>${v}</option>`);
-    });
-    [["hfil-area",areas],["ofil-area-obs",areas],["d-fil-area-a",areas]].forEach(([id,vs])=>{
-      const el=document.getElementById(id); if(!el)return; const cur=el.value;
-      el.innerHTML='<option value="">Todas las áreas</option>';
-      vs.forEach(v=>el.innerHTML+=`<option value="${v}"${v===cur?' selected':''}>${v}</option>`);
-    });
+    auditorias = (data||[]).map(function(a){ return Object.assign({},a,{sector:norm[a.sector]||a.sector, detalles:safeJson(a.detalles,"[]"), incumplimientos:safeJson(a.incumplimientos,"[]")}); });
+    sectoresAuditados = new Set(auditorias.map(function(a){return a.sector;}).filter(Boolean));
+    var meses = []; var _mset={}; auditorias.forEach(function(a){var v=String(a.nro_auditoria||a.fecha||"").substring(0,7);if(v.length===7&&!_mset[v]){_mset[v]=1;meses.push(v);}}); meses.sort().reverse();
+    var sects=[]; var _sset={}; auditorias.forEach(function(a){if(a.sector&&!_sset[a.sector]){_sset[a.sector]=1;sects.push(a.sector);}}); sects.sort();
+    var areas=[]; var _aset={}; auditorias.forEach(function(a){if(a.area&&!_aset[a.area]){_aset[a.area]=1;areas.push(a.area);}}); areas.sort();
+    function mesLbl(m){ var pts=m.split("-"); return new Date(+pts[0],+pts[1]-1,1).toLocaleDateString("es-PE",{month:"long",year:"numeric"}); }
+    function fillSel(id, vs, lbl, placeholder) {
+      var el2=document.getElementById(id); if(!el2)return;
+      var cur=el2.value;
+      el2.innerHTML='<option value="">'+placeholder+'</option>';
+      vs.forEach(function(v){ el2.innerHTML+='<option value="'+v+'"'+(v===cur?' selected':'')+'>'+lbl(v)+'</option>'; });
+    }
+    ["hfil-mes","ofil-mes","d-fil-mes"].forEach(function(id){fillSel(id,meses,mesLbl,"Todos los meses");});
+    ["hfil-sector","ofil-sector","d-fil-sector-a"].forEach(function(id){fillSel(id,sects,function(v){return v;},"Todos los sectores");});
+    ["hfil-area","ofil-area-obs","d-fil-area-a"].forEach(function(id){fillSel(id,areas,function(v){return v;},"Todas las areas");});
     const now = new Date();
     const mi  = new Date(now.getFullYear(),now.getMonth(),1).toISOString().split("T")[0];
     const mf  = new Date(now.getFullYear(),now.getMonth()+1,0).toISOString().split("T")[0];
     const audMes = auditorias.filter(a => a.fecha>=mi && a.fecha<=mf && a.sector);
-    const todos  = [...new Set(Object.values(AUDITORES_SECTORES).flat())];
-    const done   = todos.filter(s => audMes.some(a => a.sector===s)).length;
+    var todosSet={}; Object.values(AUDITORES_SECTORES).forEach(function(arr){arr.forEach(function(s){todosSet[s]=1;})}); var todos=Object.keys(todosSet);
+    var done = todos.filter(function(s){return audMes.some(function(a){return a.sector===s;});}).length;
     const pctP   = todos.length>0 ? Math.min(100,Math.round(done/todos.length*100)) : 0;
     const colP   = pctP>=100?"#1B5E20":pctP>=50?"#D97706":"#E63329";
     const progEl = document.getElementById("progreso-sectores");
@@ -1831,118 +1757,122 @@ async function levantarObs(auditId, numCrit, btn) {
 }
 
 function renderAuditDashboard() {
-  const fm = document.getElementById("d-fil-mes")?.value      || "";
-  const fs = document.getElementById("d-fil-sector-a")?.value || "";
-  const fa = document.getElementById("d-fil-area-a")?.value   || "";
-  const G  = "#1E7C34", R = "#E63329", A = "#D97706", B = "#1565C0";
+  var fm = document.getElementById("d-fil-mes")    ? document.getElementById("d-fil-mes").value    : "";
+  var fs = document.getElementById("d-fil-sector-a")? document.getElementById("d-fil-sector-a").value : "";
+  var fa = document.getElementById("d-fil-area-a") ? document.getElementById("d-fil-area-a").value  : "";
+  var G="#1E7C34", R="#E63329", A="#D97706", B="#1565C0";
 
-  const lista = (auditorias||[]).filter(a => {
-    if (!a.sector || !a.fecha) return false;
-    if (fm && String(a.nro_auditoria||a.fecha||"").substring(0,7) !== fm) return false;
-    if (fs && a.sector !== fs) return false;
-    if (fa && a.area   !== fa) return false;
-    return true;
-  });
-
-  // helpers
   function col(p){ return p>=90?"#1B5E20":p>=70?G:p>=50?A:R; }
   function safeD(a){ return Array.isArray(a.detalles)?a.detalles:safeJson(a.detalles,"[]"); }
   function safeI(a){ return Array.isArray(a.incumplimientos)?a.incumplimientos:safeJson(a.incumplimientos,"[]"); }
 
-  // ── KPIs ─────────────────────────────────────────────
-  var avg   = lista.length ? Math.round(lista.reduce((s,a)=>s+(a.pct_cumplimiento||0),0)/lista.length) : 0;
-  var obsT  = lista.reduce((s,a)=>s+safeI(a).filter(x=>(x.estado||"Pendiente")==="Pendiente").length, 0);
-  var nivel = getNivel(avg);
-  var cA    = col(avg);
+  var lista = (auditorias||[]).filter(function(a) {
+    if (!a.sector||!a.fecha) return false;
+    if (fm && String(a.nro_auditoria||a.fecha||"").substring(0,7)!==fm) return false;
+    if (fs && a.sector!==fs) return false;
+    if (fa && a.area!==fa)   return false;
+    return true;
+  });
 
-  var tkEl = document.getElementById("dk-total");  if(tkEl)  tkEl.textContent = lista.length;
-  var pkEl = document.getElementById("dk-prom");   if(pkEl){ pkEl.textContent = avg+"%"; pkEl.style.color=cA; }
-  var okEl = document.getElementById("dk-obs");    if(okEl)  okEl.textContent = obsT;
-  var pEl  = document.getElementById("dk-pct");    if(pEl)   pEl.textContent  = avg+"%";
-  var nbEl = document.getElementById("dk-nivel-badge");
-  if(nbEl) nbEl.innerHTML = `<span style="background:${cA};color:#fff;border-radius:8px;padding:4px 12px;font-family:var(--font-bc),sans-serif;font-size:16px;font-weight:700">${nivel.nivel}</span>`;
-  var bpEl = document.getElementById("dk-barra-prom");
-  if(bpEl){ bpEl.style.width=avg+"%"; bpEl.style.background=cA; }
+  // ── KPIs ──────────────────────────────────────────────────
+  var avg  = 0;
+  if (lista.length) {
+    var sum=0; lista.forEach(function(a){sum+=(a.pct_cumplimiento||0);}); avg=Math.round(sum/lista.length);
+  }
+  var obsT=0;
+  lista.forEach(function(a){ safeI(a).forEach(function(x){if((x.estado||"Pendiente")==="Pendiente")obsT++;}); });
+  var nivel=getNivel(avg), cA=col(avg);
+
+  var el; 
+  el=document.getElementById("dk-total");  if(el) el.textContent=lista.length;
+  el=document.getElementById("dk-prom");   if(el){el.textContent=avg+"%"; el.style.color=cA;}
+  el=document.getElementById("dk-obs");    if(el) el.textContent=obsT;
+  el=document.getElementById("dk-pct");    if(el) el.textContent=avg+"%";
+  el=document.getElementById("dk-nivel-badge");
+  if(el) el.innerHTML='<span style="background:'+cA+';color:#fff;border-radius:8px;padding:4px 12px;font-size:16px;font-weight:700">'+nivel.nivel+'</span>';
+  el=document.getElementById("dk-barra-prom");
+  if(el){el.style.width=avg+"%"; el.style.background=cA;}
 
   if (!lista.length) {
-    ["chart-audit-nivel","chart-audit-areas","chart-pilar-area","chart-audit-evol","chart-audit-radar","chart-audit-obs-area"].forEach(id=>destroyChart(id));
-    var cmp=document.getElementById("dk-comparativo-areas");
-    if(cmp) cmp.innerHTML='<p style="font-size:13px;color:var(--g400);padding:12px">Sin datos para los filtros seleccionados.</p>';
+    ["chart-audit-nivel","chart-audit-areas","chart-pilar-area","chart-audit-evol","chart-audit-radar","chart-audit-obs-area"].forEach(function(id){destroyChart(id);});
+    el=document.getElementById("dk-comparativo-areas");
+    if(el) el.innerHTML='<p style="font-size:13px;color:var(--g400);padding:12px">Sin datos para los filtros seleccionados.</p>';
     return;
   }
 
-  // ── 1. DONA — Distribución por nivel ─────────────────
-  var nivelC = {Excelente:0,Bueno:0,Regular:0,Deficiente:0};
-  lista.forEach(a => { var n=getNivel(a.pct_cumplimiento||0).nivel; nivelC[n]=(nivelC[n]||0)+1; });
+  // ── 1. DONA — Distribución por nivel ──────────────────────
+  var nivelC={Excelente:0,Bueno:0,Regular:0,Deficiente:0};
+  lista.forEach(function(a){ var n=getNivel(a.pct_cumplimiento||0).nivel; nivelC[n]=(nivelC[n]||0)+1; });
   destroyChart("chart-audit-nivel");
-  var ctxN = document.getElementById("chart-audit-nivel");
+  var ctxN=document.getElementById("chart-audit-nivel");
   if(ctxN) new Chart(ctxN,{
     type:"doughnut",
-    data:{
-      labels:["Excelente","Bueno","Regular","Deficiente"],
+    data:{labels:["Excelente","Bueno","Regular","Deficiente"],
       datasets:[{data:[nivelC.Excelente,nivelC.Bueno,nivelC.Regular,nivelC.Deficiente],
-        backgroundColor:["#1B5E20","#1E7C34","#D97706","#E63329"],borderWidth:2,borderColor:"#fff"}]
-    },
-    options:{responsive:true,maintainAspectRatio:false,cutout:"65%",plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${ctx.raw}`}}}}
+        backgroundColor:["#1B5E20","#1E7C34","#D97706","#E63329"],borderWidth:2,borderColor:"#fff"}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:"65%",plugins:{legend:{display:false}}}
   });
-  var legEl=document.getElementById("legend-audit-nivel");
-  if(legEl){ var cols2=["#1B5E20","#1E7C34","#D97706","#E63329"],lbs=["Excelente","Bueno","Regular","Deficiente"];
-    legEl.innerHTML=lbs.map((l,i)=>nivelC[l]>0?`<div style="display:flex;align-items:center;gap:4px;font-size:10px;margin-bottom:2px"><div style="width:8px;height:8px;border-radius:50%;background:${cols2[i]};flex-shrink:0"></div><span>${l}: ${nivelC[l]}</span></div>`:"").join(""); }
+  el=document.getElementById("legend-audit-nivel");
+  if(el){
+    var cols2=["#1B5E20","#1E7C34","#D97706","#E63329"],lbs=["Excelente","Bueno","Regular","Deficiente"];
+    var legHtml="";
+    for(var i=0;i<lbs.length;i++){
+      if(nivelC[lbs[i]]>0) legHtml+='<div style="display:flex;align-items:center;gap:4px;font-size:10px;margin-bottom:2px"><div style="width:8px;height:8px;border-radius:50%;background:'+cols2[i]+';flex-shrink:0"></div><span>'+lbs[i]+': '+nivelC[lbs[i]]+'</span></div>';
+    }
+    el.innerHTML=legHtml;
+  }
 
-  // ── 2. BARRAS HORIZONTALES — % por sector este mes ───
-  var sectPct = {};
-  lista.forEach(a=>{ sectPct[a.sector]={pct:a.pct_cumplimiento||0,area:a.area||""}; });
-  var sectLbls = Object.keys(sectPct).sort((a,b)=>sectPct[b].pct-sectPct[a].pct);
+  // ── 2. BARRAS — % por sector ───────────────────────────────
+  var sectPct={};
+  lista.forEach(function(a){sectPct[a.sector]={pct:a.pct_cumplimiento||0,area:a.area||""};});
+  var sectLbls=Object.keys(sectPct).sort(function(a,b){return sectPct[b].pct-sectPct[a].pct;});
   destroyChart("chart-audit-areas");
   var ctxA=document.getElementById("chart-audit-areas");
   if(ctxA) new Chart(ctxA,{
     type:"bar",
-    data:{
-      labels:sectLbls.map(s=>s.length>18?s.substring(0,16)+"…":s),
-      datasets:[{label:"% Cumplimiento",data:sectLbls.map(s=>sectPct[s].pct),
-        backgroundColor:sectLbls.map(s=>col(sectPct[s].pct)+"CC"),
-        borderColor:sectLbls.map(s=>col(sectPct[s].pct)),
-        borderWidth:1,borderRadius:4}]
-    },
+    data:{labels:sectLbls.map(function(s){return s.length>18?s.substring(0,16)+"...":s;}),
+      datasets:[{label:"% Cumplimiento",
+        data:sectLbls.map(function(s){return sectPct[s].pct;}),
+        backgroundColor:sectLbls.map(function(s){return col(sectPct[s].pct)+"CC";}),
+        borderColor:sectLbls.map(function(s){return col(sectPct[s].pct);}),
+        borderWidth:1,borderRadius:4}]},
     options:{indexAxis:"y",responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.raw}%`}}},
-      scales:{x:{min:0,max:100,ticks:{callback:v=>v+"%"},grid:{color:"#F1F5F9"}},
+      plugins:{legend:{display:false}},
+      scales:{x:{min:0,max:100,ticks:{callback:function(v){return v+"%";}},grid:{color:"#F1F5F9"}},
               y:{ticks:{font:{size:9}}}}}
   });
 
-  // ── 3. LÍNEA — Evolución mensual del % promedio ──────
-  var evolMap = {};
-  (auditorias||[]).forEach(a=>{
+  // ── 3. LÍNEA — Evolución mensual ──────────────────────────
+  var evolMap={};
+  (auditorias||[]).forEach(function(a){
     var mes=String(a.nro_auditoria||a.fecha||"").substring(0,7);
     if(!mes||mes.length<7) return;
     if(!evolMap[mes]) evolMap[mes]={sum:0,cnt:0};
     evolMap[mes].sum+=(a.pct_cumplimiento||0); evolMap[mes].cnt++;
   });
-  var evolMeses = Object.keys(evolMap).sort();
-  var evolProms = evolMeses.map(m=>Math.round(evolMap[m].sum/evolMap[m].cnt));
-  var evolLbls  = evolMeses.map(m=>{var p=m.split("-");return new Date(+p[0],+p[1]-1,1).toLocaleDateString("es-PE",{month:"short",year:"2-digit"});});
+  var evolMeses=Object.keys(evolMap).sort();
+  var evolProms=evolMeses.map(function(m){return Math.round(evolMap[m].sum/evolMap[m].cnt);});
+  var evolLbls=evolMeses.map(function(m){var p=m.split("-");return new Date(+p[0],+p[1]-1,1).toLocaleDateString("es-PE",{month:"short",year:"2-digit"});});
   destroyChart("chart-audit-evol");
   var ctxE=document.getElementById("chart-audit-evol");
   if(ctxE) new Chart(ctxE,{
     type:"line",
-    data:{
-      labels:evolLbls,
-      datasets:[{label:"% Promedio",data:evolProms,borderColor:B,backgroundColor:B+"22",
-        tension:0.4,fill:true,pointRadius:5,pointBackgroundColor:B,pointBorderColor:"#fff",pointBorderWidth:2}]
-    },
-    options:{responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`Promedio: ${ctx.raw}%`}}},
-      scales:{y:{min:0,max:100,ticks:{callback:v=>v+"%"},grid:{color:"#F1F5F9"}},
+    data:{labels:evolLbls,datasets:[{label:"% Promedio",data:evolProms,borderColor:B,
+      backgroundColor:B+"22",tension:0.4,fill:true,pointRadius:5,pointBackgroundColor:B,
+      pointBorderColor:"#fff",pointBorderWidth:2}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{y:{min:0,max:100,ticks:{callback:function(v){return v+"%";}},grid:{color:"#F1F5F9"}},
               x:{ticks:{font:{size:10}}}}}
   });
 
-  // ── 4. RADAR — Desempeño por pilar 1S–5S ────────────
+  // ── 4. RADAR — Desempeño por pilar ────────────────────────
   var pilarNums={"1S":[1,2,3,4],"2S":[5,6,7,8],"3S":[9,10,11,12],"4S":[13,14,15,16],"5S":[17,18,19,20]};
-  var radarData=["1S","2S","3S","4S","5S"].map(p=>{
+  var pilares=["1S","2S","3S","4S","5S"];
+  var radarData=pilares.map(function(p){
     var nums=pilarNums[p],total=0,si=0;
-    lista.forEach(a=>{
-      safeD(a).forEach(d=>{
-        if(nums.indexOf(d.num)>-1){ total++; if(d.respuesta==="SI"||(d.puntaje>=4)) si++; }
+    lista.forEach(function(a){
+      safeD(a).forEach(function(d){
+        if(nums.indexOf(d.num)>-1){total++;if(d.respuesta==="SI"||(d.puntaje>=4))si++;}
       });
     });
     return total>0?Math.round(si/total*100):0;
@@ -1951,115 +1881,117 @@ function renderAuditDashboard() {
   var ctxR=document.getElementById("chart-audit-radar");
   if(ctxR) new Chart(ctxR,{
     type:"radar",
-    data:{
-      labels:["1S Seleccionar","2S Ordenar","3S Limpiar","4S Estandarizar","5S Disciplinar"],
-      datasets:[{label:"% Cumplimiento",data:radarData,
-        backgroundColor:G+"33",borderColor:G,pointBackgroundColor:G,pointRadius:4,pointBorderColor:"#fff",pointBorderWidth:2}]
-    },
-    options:{responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{display:false}},
+    data:{labels:["1S Seleccionar","2S Ordenar","3S Limpiar","4S Estandarizar","5S Disciplinar"],
+      datasets:[{label:"% Cumplimiento",data:radarData,backgroundColor:G+"33",borderColor:G,
+        pointBackgroundColor:G,pointRadius:4,pointBorderColor:"#fff",pointBorderWidth:2}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
       scales:{r:{min:0,max:100,ticks:{stepSize:20,font:{size:8},backdropColor:"transparent"},
         pointLabels:{font:{size:10}},grid:{color:"#E2E8F0"},angleLines:{color:"#E2E8F0"}}}}
   });
 
-  // ── 5. PILAR POR ÁREA (barras agrupadas) ─────────────
+  // ── 5. BARRAS AGRUPADAS — Pilar por área ──────────────────
   var pilNums={"1S":[1,2,3,4],"2S":[5,6,7,8],"3S":[9,10,11,12],"4S":[13,14,15,16],"5S":[17,18,19,20]};
   var pilCols={"1S":"#E65100","2S":"#1B5E20","3S":"#0D47A1","4S":"#4A148C","5S":"#880E4F"};
-  var areasPilar=[...new Set(lista.map(a=>a.area||"Sin área"))];
-  var pilarDatasets=["1S","2S","3S","4S","5S"].map(p=>({
-    label:p,backgroundColor:pilCols[p]+"CC",borderColor:pilCols[p],borderWidth:1,borderRadius:3,
-    data:areasPilar.map(ar=>{
-      var rows=lista.filter(a=>(a.area||"Sin área")===ar);
-      var total=0,si=0;
-      rows.forEach(a=>{ safeD(a).forEach(d=>{ if(pilNums[p].indexOf(d.num)>-1){total++;if(d.respuesta==="SI"||(d.puntaje>=4))si++;} }); });
-      return total>0?Math.round(si/total*100):0;
-    })
-  }));
+  var areaSet={};
+  lista.forEach(function(a){areaSet[a.area||"Sin area"]=true;});
+  var areasPilar=Object.keys(areaSet);
+  var pilarDatasets=pilares.map(function(p){
+    return {label:p,backgroundColor:pilCols[p]+"CC",borderColor:pilCols[p],borderWidth:1,borderRadius:3,
+      data:areasPilar.map(function(ar){
+        var rows=lista.filter(function(a){return (a.area||"Sin area")===ar;});
+        var total=0,si=0;
+        rows.forEach(function(a){safeD(a).forEach(function(d){if(pilNums[p].indexOf(d.num)>-1){total++;if(d.respuesta==="SI"||(d.puntaje>=4))si++;}});});
+        return total>0?Math.round(si/total*100):0;
+      })};
+  });
   destroyChart("chart-pilar-area");
   var ctxP=document.getElementById("chart-pilar-area");
   if(ctxP){
     ctxP.parentElement.style.height="250px";
-    new Chart(ctxP,{
-      type:"bar",
-      data:{labels:areasPilar,datasets:pilarDatasets},
+    new Chart(ctxP,{type:"bar",data:{labels:areasPilar,datasets:pilarDatasets},
       options:{responsive:true,maintainAspectRatio:false,
         plugins:{legend:{position:"top",labels:{font:{size:10},boxWidth:10}}},
-        scales:{y:{min:0,max:100,ticks:{callback:v=>v+"%"},grid:{color:"#F1F5F9"}},
-                x:{ticks:{font:{size:9}}}}}
-    });
+        scales:{y:{min:0,max:100,ticks:{callback:function(v){return v+"%";}},grid:{color:"#F1F5F9"}},
+                x:{ticks:{font:{size:9}}}}}});
   }
 
-  // ── 6. DONA — Progreso sectores completados ──────────
+  // ── 6. Progreso sectores ───────────────────────────────────
   renderProgresoBarra();
 
-  // ── 7. OBS PENDIENTES POR RESPONSABLE ────────────────
+  // ── 7. OBS PENDIENTES POR RESPONSABLE ─────────────────────
   var obsByResp={};
-  lista.forEach(a=>{
-    safeI(a).filter(x=>(x.estado||"Pendiente")==="Pendiente").forEach(x=>{
-      var r=x.responsable||"Sin asignar";
-      obsByResp[r]=(obsByResp[r]||0)+1;
+  lista.forEach(function(a){
+    safeI(a).filter(function(x){return (x.estado||"Pendiente")==="Pendiente";}).forEach(function(x){
+      var r=x.responsable||"Sin asignar"; obsByResp[r]=(obsByResp[r]||0)+1;
     });
   });
-  var pendEl=document.getElementById("dk-pendientes-cierre");
-  if(pendEl){
-    var sorted3=Object.entries(obsByResp).sort((a,b)=>b[1]-a[1]);
-    pendEl.innerHTML=sorted3.length?sorted3.map(([r,v])=>`
-      <div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--g100)">
-        <div style="flex:1;font-size:12px;font-weight:600;color:var(--g700)">👤 ${r}</div>
-        <div style="background:${R};color:#fff;border-radius:20px;padding:2px 10px;font-family:var(--font-bc),sans-serif;font-size:14px;font-weight:700">${v}</div>
-      </div>`).join("")
-    :'<p style="font-size:12px;color:var(--g400)">Sin observaciones pendientes ✅</p>';
+  el=document.getElementById("dk-pendientes-cierre");
+  if(el){
+    var sorted3=Object.entries(obsByResp).sort(function(a,b){return b[1]-a[1];});
+    if(sorted3.length){
+      var ph="";
+      sorted3.forEach(function(e){
+        ph+='<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--g100)">'
+          +'<div style="flex:1;font-size:12px;font-weight:600;color:var(--g700)">'+e[0]+'</div>'
+          +'<div style="background:'+R+';color:#fff;border-radius:20px;padding:2px 10px;font-size:14px;font-weight:700">'+e[1]+'</div></div>';
+      });
+      el.innerHTML=ph;
+    } else { el.innerHTML='<p style="font-size:12px;color:var(--g400)">Sin observaciones pendientes</p>'; }
   }
 
-  // ── 8. TOP 5 CRITERIOS MÁS INCUMPLIDOS ───────────────
+  // ── 8. TOP 5 CRITERIOS MÁS INCUMPLIDOS ───────────────────
   var criMap={};
-  lista.forEach(a=>{
-    safeD(a).filter(d=>d.respuesta==="NO"||(d.puntaje>0&&d.puntaje<=3)).forEach(d=>{
-      var k=d.num+". "+(d.criterio||d.txt||"");
-      criMap[k]=(criMap[k]||0)+1;
+  lista.forEach(function(a){
+    safeD(a).filter(function(d){return d.respuesta==="NO"||(d.puntaje>0&&d.puntaje<=3);}).forEach(function(d){
+      var k=d.num+". "+(d.criterio||d.txt||""); criMap[k]=(criMap[k]||0)+1;
     });
   });
-  var criEl=document.getElementById("dk-criterios-criticos");
-  if(criEl){
-    var top5=Object.entries(criMap).sort((a,b)=>b[1]-a[1]).slice(0,5);
-    criEl.innerHTML=top5.length?top5.map(([k,v])=>{
-      var pctBar=Math.round(v/lista.length*100);
-      return `<div style="margin-bottom:10px">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">
-          <div style="font-size:11px;font-weight:700;color:var(--g700);flex:1;min-width:0;margin-right:8px">${k}</div>
-          <div style="font-size:12px;font-weight:800;color:${R};flex-shrink:0">${v}x</div>
-        </div>
-        <div style="height:5px;background:var(--g100);border-radius:20px;overflow:hidden">
-          <div style="height:100%;width:${pctBar}%;background:${R};border-radius:20px"></div>
-        </div>
-      </div>`;
-    }).join(""):'<p style="font-size:12px;color:var(--g400)">Sin incumplimientos ✅</p>';
+  el=document.getElementById("dk-criterios-criticos");
+  if(el){
+    var top5=Object.entries(criMap).sort(function(a,b){return b[1]-a[1];}).slice(0,5);
+    if(top5.length){
+      var ch="";
+      top5.forEach(function(e){
+        var pctBar=Math.round(e[1]/lista.length*100);
+        ch+='<div style="margin-bottom:10px">'
+          +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">'
+          +'<div style="font-size:11px;font-weight:700;color:var(--g700);flex:1;margin-right:8px">'+e[0]+'</div>'
+          +'<div style="font-size:12px;font-weight:800;color:'+R+'">'+e[1]+'x</div></div>'
+          +'<div style="height:5px;background:var(--g100);border-radius:20px;overflow:hidden">'
+          +'<div style="height:100%;width:'+pctBar+'%;background:'+R+';border-radius:20px"></div></div></div>';
+      });
+      el.innerHTML=ch;
+    } else { el.innerHTML='<p style="font-size:12px;color:var(--g400)">Sin incumplimientos</p>'; }
   }
 
-  // ── TABLA RESUMEN ─────────────────────────────────────
-  var cmpEl=document.getElementById("dk-comparativo-areas");
-  if(cmpEl) cmpEl.innerHTML=lista.map(a=>{
-    var pct=a.pct_cumplimiento||0; var c=col(pct);
-    return `<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--g100)">
-      <div style="flex:1;min-width:0">
-        <div style="font-size:12px;font-weight:700;color:var(--g700)">${a.sector||""}</div>
-        <div style="font-size:10px;color:var(--g400)">${a.area||""} · ${a.auditor||""} · ${a.fecha||""}</div>
-      </div>
-      <div style="font-family:var(--font-bc),sans-serif;font-size:18px;font-weight:800;color:${c};flex-shrink:0">${pct}%</div>
-      <div style="font-size:10px;font-weight:700;color:${c};flex-shrink:0">${getNivel(pct).nivel}</div>
-    </div>`;
-  }).join("");
+  // ── TABLA RESUMEN ──────────────────────────────────────────
+  el=document.getElementById("dk-comparativo-areas");
+  if(el){
+    var th="";
+    lista.forEach(function(a){
+      var pct=a.pct_cumplimiento||0, c=col(pct);
+      th+='<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--g100)">'
+        +'<div style="flex:1;min-width:0">'
+        +'<div style="font-size:12px;font-weight:700;color:var(--g700)">'+(a.sector||"")+'</div>'
+        +'<div style="font-size:10px;color:var(--g400)">'+(a.area||"")+" - "+(a.auditor||"")+" - "+(a.fecha||"")+'</div></div>'
+        +'<div style="font-size:18px;font-weight:800;color:'+c+'">'+pct+'%</div>'
+        +'<div style="font-size:10px;font-weight:700;color:'+c+'">'+getNivel(pct).nivel+'</div></div>';
+    });
+    el.innerHTML=th;
+  }
 
-  // OBS por área (barras)
+  // OBS por área
   var obsArea={};
-  lista.forEach(a=>{ var k=a.area||"Sin área"; obsArea[k]=(obsArea[k]||0)+safeI(a).filter(x=>(x.estado||"Pendiente")==="Pendiente").length; });
+  lista.forEach(function(a){
+    var k=a.area||"Sin area";
+    obsArea[k]=(obsArea[k]||0)+safeI(a).filter(function(x){return (x.estado||"Pendiente")==="Pendiente";}).length;
+  });
   destroyChart("chart-audit-obs-area");
   var ctxO=document.getElementById("chart-audit-obs-area");
   if(ctxO) new Chart(ctxO,{
     type:"bar",
     data:{labels:Object.keys(obsArea),datasets:[{label:"Obs. pendientes",data:Object.values(obsArea),backgroundColor:R+"BB",borderRadius:4}]},
-    options:{responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{display:false}},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
       scales:{y:{ticks:{stepSize:1},grid:{color:"#F1F5F9"}},x:{ticks:{font:{size:10}}}}}
   });
 }
@@ -2256,13 +2188,21 @@ async function cargarTodo(){
   }
 }
 
-function showTab(name){
-  document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
-  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
-  document.getElementById("tab-"+name).classList.add("active");
-  ["nuevo","lista","dashboard"].forEach((t,i)=>{if(t===name)document.querySelectorAll(".tab")[i].classList.add("active");});
-  if(name==="lista")filtrar();
-  if(name==="dashboard")renderDashboard();
+function showTab(name) {
+  document.querySelectorAll(".section").forEach(function(s){ s.classList.remove("active"); });
+  document.querySelectorAll(".tab").forEach(function(t){ t.classList.remove("active"); });
+  var tabEl = document.getElementById("tab-"+name);
+  if (tabEl) tabEl.classList.add("active");
+  var tabs = ["nuevo","lista","dashboard"];
+  for (var i=0; i<tabs.length; i++) {
+    if (tabs[i]===name) {
+      var navTabs = document.querySelectorAll(".tab");
+      if (navTabs[i]) navTabs[i].classList.add("active");
+      break;
+    }
+  }
+  if (name==="lista")     filtrar();
+  if (name==="dashboard") renderDashboard();
 }
 
 async function guardarObservacion(){
@@ -2486,10 +2426,21 @@ function updateZonas() {
   }
 }
 
-function autoS(){
-  const found=TIPOS.find(t=>t.tipo===document.getElementById("f-tipo").value);
-  if(found)selectS(found.s);
-  else{selectedS="";document.querySelectorAll(".s-btn").forEach(b=>b.classList.remove("active"));}
+function autoS() {
+  var tipo = document.getElementById("f-tipo");
+  if (!tipo) return;
+  var tipos = window.TIPOS || [];
+  var found = null;
+  for (var i=0; i<tipos.length; i++) {
+    if (tipos[i].tipo === tipo.value) { found = tipos[i]; break; }
+  }
+  if (found) {
+    selectS(found.s);
+  } else {
+    selectedS = "";
+    var btns = document.querySelectorAll(".s-btn");
+    btns.forEach(function(b){ b.classList.remove("active"); });
+  }
 }
 
 function abrirEditar(){
@@ -2597,7 +2548,7 @@ function audn_iniciarEvaluacion(){
 
 
 
-async 
+
 
 async function audn_guardarAccion(){
   const resp=document.getElementById("audn-accion-responsable").value.trim();
@@ -2678,9 +2629,9 @@ async function confirmarCierreAudit(){
 
 
 function audn_onSectorChange() {
-  var sector  = document.getElementById("audn-sector").value;
-  var areaEl  = document.getElementById("audn-area-auto");
-  var liderEl = document.getElementById("audn-lider");
+  var sector = document.getElementById("audn-sector").value;
+  var areaEl = document.getElementById("audn-area-auto");
+  var liderEl= document.getElementById("audn-lider");
   if (!sector) {
     if (areaEl)  areaEl.value  = "";
     if (liderEl) liderEl.value = "";
@@ -3547,77 +3498,128 @@ function selectS(s) {
 }
 
 (function init() {
-  // Asignar logos
+
+  // Logo
   var logoEl = document.getElementById('ism-logo-bienvenida');
   if (logoEl) logoEl.src = ISM_LOGO;
-  
-  const today = new Date();
-  document.getElementById("f-sem").value = getWeek(today);
+
+  // Semana y fecha
+  var today = new Date();
+  var semEl = document.getElementById("f-sem");
+  if (semEl) semEl.value = getWeek(today);
   window._fecha = today.toISOString().split("T")[0];
-  
-  // Cargar sectores en el recorrido
-  const aEl = document.getElementById("f-area");
-  const fEl = document.getElementById("fil-area");
-  const dEl = document.getElementById("d-fil-area");
-  Object.keys(SECTOR_AREA_MAP).forEach(sector => {
-    [aEl, fEl, dEl].forEach(el => {
-      if (el) el.innerHTML += `<option value="${sector}">${sector}</option>`;
-    });
-  });
-  
-  // Cargar tipos de observación
-  const tipos = [
-    {tipo: "Presencia de Innecesarios", s: "1S"},
-    {tipo: "Desorden", s: "2S"},
-    {tipo: "Falta de limpieza", s: "3S"},
-    {tipo: "Falta de rotulación y/o demarcación", s: "4S"},
-    {tipo: "Incumplimiento del Estándar", s: "5S"},
-    {tipo: "Falta de EPP", s: "EPP"}
+
+  // Función para poblar un select con opciones
+  function poblar(id, opciones, placeholder) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    var html = '<option value="">' + (placeholder || '-- Selecciona --') + '</option>';
+    for (var i = 0; i < opciones.length; i++) {
+      html += '<option value="' + opciones[i].v + '">' + opciones[i].l + '</option>';
+    }
+    el.innerHTML = html;
+  }
+
+  // Construir arrays de sectores y auditores
+  var sectores = Object.keys(SECTOR_AREA_MAP).sort();
+  var auditores = Object.keys(AUDITORES_SECTORES).sort();
+
+  var sectOpts = [];
+  for (var i = 0; i < sectores.length; i++) {
+    sectOpts.push({v: sectores[i], l: sectores[i]});
+  }
+  var areaOpts = [];
+  for (var i = 0; i < sectores.length; i++) {
+    areaOpts.push({v: sectores[i], l: SECTOR_AREA_MAP[sectores[i]] || sectores[i]});
+  }
+  var audOpts = [];
+  for (var i = 0; i < auditores.length; i++) {
+    audOpts.push({v: auditores[i], l: auditores[i]});
+  }
+
+  // TIPOS de observación
+  var TIPOS = [
+    {tipo:"Presencia de Innecesarios", s:"1S"},
+    {tipo:"Desorden", s:"2S"},
+    {tipo:"Falta de limpieza", s:"3S"},
+    {tipo:"Falta de rotulacion y demarcacion", s:"4S"},
+    {tipo:"Incumplimiento del Estandar", s:"5S"},
+    {tipo:"Falta de EPP", s:"EPP"}
   ];
-  const tipoSelect = document.getElementById("f-tipo");
-  if (tipoSelect) {
-    tipos.forEach(t => {
-      tipoSelect.innerHTML += `<option value="${t.tipo}">${t.tipo}</option>`;
-    });
-  }
-  
-  // Inicializar sectores en el checklist
-  const sectorChecklist = document.getElementById("a-sector");
-  if (sectorChecklist) {
-    sectorChecklist.innerHTML = '<option value="">&#8212; Selecciona sector &#8212;</option>';
-    Object.keys(SECTOR_AREA_MAP).forEach(sector => {
-      sectorChecklist.innerHTML += `<option value="${sector}">${sector}</option>`;
-    });
-  }
-  
-  // Poblar select de sectores en auditoría
-  var audnSector = document.getElementById("audn-sector");
-  if (audnSector) {
-    audnSector.innerHTML = '<option value="">- Selecciona sector -</option>';
-    Object.keys(SECTOR_AREA_MAP).forEach(function(sector) {
-      audnSector.innerHTML += '<option value="' + sector + '">' + sector + '</option>';
-    });
+  window.TIPOS = TIPOS;
+  var tipoOpts = [];
+  for (var i = 0; i < TIPOS.length; i++) {
+    tipoOpts.push({v: TIPOS[i].tipo, l: TIPOS[i].tipo});
   }
 
-  // Poblar auditores en check list
-  var aAudEl = document.getElementById("a-auditor");
-  if (aAudEl) {
-    Object.keys(AUDITORES_SECTORES).sort().forEach(function(aud) {
-      aAudEl.innerHTML += '<option value="'+aud+'">'+aud+'</option>';
-    });
-  }
+  // ── RECORRIDO ─────────────────────────────────────────────
+  poblar("f-area",       sectOpts, "— Selecciona sector —");
+  poblar("f-tipo",       tipoOpts, "— Tipo de observacion —");
+  poblar("fil-area",     sectOpts, "Todas las areas");
+  poblar("fil-sector",   sectOpts, "Todos los sectores");
+  poblar("d-fil-sector", sectOpts, "Todos los sectores");
+  poblar("d-fil-area",   areaOpts, "Todas las areas");
 
-  // Poblar select de sectores en auditoría nueva
-  var audnSect = document.getElementById("audn-sector");
-  if (audnSect) {
-    Object.keys(SECTOR_AREA_MAP).forEach(function(s) {
-      audnSect.innerHTML += '<option value="' + s + '">' + s + '</option>';
-    });
-  }
+  // ── CHECK LIST ────────────────────────────────────────────
+  poblar("a-auditor",    audOpts,  "— Selecciona auditor —");
+  poblar("a-sector",     sectOpts, "— Selecciona sector —");
+  poblar("hfil-sector",  sectOpts, "Todos los sectores");
+  poblar("hfil-area",    areaOpts, "Todas las areas");
+  poblar("ofil-area-obs",areaOpts, "Todas las areas");
+  poblar("ofil-sector",  sectOpts, "Todos los sectores");
 
+  // ── AUDITORÍA ─────────────────────────────────────────────
+  poblar("audn-sector",         sectOpts, "— Selecciona sector —");
+  poblar("audn-fil-area",       areaOpts, "Todas las areas");
+  poblar("audn-fil-accion-area",areaOpts, "Todas las areas");
+
+  // Cargar observaciones del recorrido
   if (typeof cargarTodo === "function") cargarTodo();
+
 })();
 
+
 </script>
+
+
+
+<!-- Modal Cierre de Observación -->
+<div id="modal-cierre-obs" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;align-items:center;justify-content:center;padding:16px">
+  <div style="background:#fff;border-radius:16px;width:100%;max-width:420px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.3)">
+    <div style="background:#1E7C34;padding:16px 20px;display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:900;color:#fff">Cerrar Observación</div>
+        <div style="font-size:11px;color:rgba(255,255,255,.8)" id="modal-cierre-desc"></div>
+      </div>
+      <button onclick="cerrarModalCierre()" style="background:rgba(255,255,255,.15);border:none;color:#fff;border-radius:8px;padding:6px 10px;cursor:pointer;font-size:16px">✕</button>
+    </div>
+    <div style="padding:16px">
+      <div style="margin-bottom:12px">
+        <label style="font-size:12px;font-weight:700;color:#3A3F37;display:block;margin-bottom:4px">Fecha de Cierre <span style="color:#E63329">*</span></label>
+        <input type="date" id="cierre-fecha" style="width:100%;padding:10px;border:2px solid #D5DAD3;border-radius:8px;font-size:14px;box-sizing:border-box">
+      </div>
+      <div style="margin-bottom:12px">
+        <label style="font-size:12px;font-weight:700;color:#3A3F37;display:block;margin-bottom:4px">Comentario de Cierre <span style="color:#E63329">*</span></label>
+        <textarea id="cierre-comentario" rows="3" placeholder="Describe cómo se resolvió la observación..." style="width:100%;padding:10px;border:2px solid #D5DAD3;border-radius:8px;font-size:13px;box-sizing:border-box;resize:vertical"></textarea>
+      </div>
+      <div style="margin-bottom:16px">
+        <label style="font-size:12px;font-weight:700;color:#3A3F37;display:block;margin-bottom:4px">Foto de Evidencia <span style="font-size:11px;color:#8F9B8A;font-weight:400">(opcional)</span></label>
+        <div id="cierre-foto-preview" style="display:none;margin-bottom:8px">
+          <img id="cierre-foto-img" style="width:100%;height:160px;object-fit:cover;border-radius:8px;border:2px solid #1E7C34">
+        </div>
+        <label style="display:flex;align-items:center;gap:8px;padding:10px;background:#F7F8F6;border:2px dashed #D5DAD3;border-radius:8px;cursor:pointer">
+          <span style="font-size:20px">📷</span>
+          <span style="font-size:13px;color:#8F9B8A">Tomar foto o seleccionar archivo</span>
+          <input type="file" id="cierre-foto-input" accept="image/*" capture="environment" style="display:none" onchange="previewFotoCierre(this)">
+        </label>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button onclick="cerrarModalCierre()" style="flex:1;padding:12px;background:#F7F8F6;border:1px solid #D5DAD3;border-radius:8px;font-size:15px;font-weight:700;color:#8F9B8A;cursor:pointer">Cancelar</button>
+        <button id="cierre-btn-guardar" onclick="guardarCierreObs()" style="flex:2;padding:12px;background:#1E7C34;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer">✓ Confirmar Cierre</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>

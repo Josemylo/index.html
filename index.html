@@ -166,10 +166,10 @@ textarea{resize:vertical;min-height:78px}
     </div>
     <div style="display:flex;gap:10px;margin-top:4px">
       <button class="btn-primary" onclick="confirmarCierreAudit()" style="flex:1">&#10003; Marcar como LEVANTADA</button>
-      <button c
-
-
-
+      <button class="btn-ghost" onclick="closeModal('modal-cierre-audit')">Cancelar</button>
+    </div>
+  </div>
+</div>
 
 <!-- Modal Cierre de Observación -->
 <div id="modal-cierre-obs" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;align-items:center;justify-content:center;padding:16px">
@@ -572,10 +572,10 @@ textarea{resize:vertical;min-height:78px}
     <button class="btn-primary" onclick="exportarPDFAuditoria()" style="margin-bottom:10px">&#128196; Descargar PDF</button>
     <button class="btn-ghost" onclick="nuevaAuditoria()" style="width:100%;justify-content:center">+ Nuevo Check List</button>
   </div>
-  <div class="card" id="card-obs-audit" style="display:none">
+  <div class="card" id="result-obs-card" style="display:none">
     <div class="card-title">&#9888;&#65039; Observaciones de incumplimiento</div>
-    <div style="font-size:11px;color:var(--g400);margin:-8px 0 12px;font-style:italic">Criterios con puntaje 1, 2 o 3</div>
-    <div id="obs-incumplimiento"></div>
+    <div style="font-size:11px;color:var(--g400);margin:-8px 0 12px;font-style:italic">Criterios marcados como NO cumple</div>
+    <div id="result-obs-list"></div>
   </div>
 </div>
 </div>
@@ -602,7 +602,7 @@ textarea{resize:vertical;min-height:78px}
 </div>
 <div id="asec-dashboard" style="display:none">
   <div style="display:flex;gap:8px;margin-bottom:12px;align-items:center;flex-wrap:wrap">
-    <select id="d-fil-mes" onchange="renderAuditDashboard()" class="filter-small"><option value="">Todos los meses</option></select>
+    <select id="d-fil-mes-a" onchange="renderAuditDashboard()" class="filter-small"><option value="">Todos los meses</option></select>
     <select id="d-fil-sector-a" onchange="renderAuditDashboard()" class="filter-small"><option value="">Todos los sectores</option></select>
     <select id="d-fil-area-a" onchange="renderAuditDashboard()" class="filter-small"><option value="">Todas las áreas</option></select>
 
@@ -1024,13 +1024,9 @@ textarea{resize:vertical;min-height:78px}
         <div style="font-size:12px;color:var(--g400)">Foto del estado corregido</div>
       </div>
       <input type="file" id="audn-input-foto-despues" accept="image/*" capture="environment" style="display:none" onchange="audn_fotoDespues(this)">
-      <img id="audn-preview-despues" style="display:none;width:100%;border-radius:8px;margin-top:8px;max-height
-;">
-</div>
-</div>
-</div>
-</div>
-</div>
+      <img id="audn-preview-despues" style="display:none;width:100%;border-radius:8px;margin-top:8px;max-height:180px;object-fit:cover">
+    </div>
+  </div>
 </div>
 
 
@@ -1360,13 +1356,14 @@ function setAuditField(num, field, val) {
 function updateProgreso() {
   var evaluados = CRITERIOS.filter(function(c){ var d=auditData[c.num]; return d && d.respuesta != null; }).length;
   var siCount   = CRITERIOS.filter(function(c){ var d=auditData[c.num]; return d && d.respuesta === "SI"; }).length;
-  var pct = CRITERIOS.length > 0 ? Math.round(evaluados/CRITERIOS.length*100) : 0;
-  var el  = document.getElementById("audit-progreso");
-  var el2 = document.getElementById("audit-progreso-fill");
-  var el3 = document.getElementById("audit-progreso-lbl");
-  if (el)  el.style.display  = "block";
-  if (el2) el2.style.width   = pct+"%";
-  if (el3) el3.textContent   = evaluados+"/"+CRITERIOS.length+" criterios evaluados";
+  var pctEval = CRITERIOS.length > 0 ? Math.round(evaluados/CRITERIOS.length*100) : 0;
+  var pctScore = CRITERIOS.length > 0 ? Math.round(siCount/CRITERIOS.length*100) : 0;
+  var el   = document.getElementById("audit-progreso");
+  var el2  = document.getElementById("audit-prog-bar");
+  var el4  = document.getElementById("audit-puntaje-live");
+  if (el)  el.textContent    = evaluados+"/"+CRITERIOS.length+" criterios evaluados";
+  if (el2) el2.style.width   = pctEval+"%";
+  if (el4) el4.textContent   = pctScore+"/100";
 }
 
 function renderCriterios() {
@@ -1620,7 +1617,7 @@ async function cargarAuditorias() {
       el2.innerHTML='<option value="">'+placeholder+'</option>';
       vs.forEach(function(v){ el2.innerHTML+='<option value="'+v+'"'+(v===cur?' selected':'')+'>'+lbl(v)+'</option>'; });
     }
-    ["hfil-mes","ofil-mes","d-fil-mes"].forEach(function(id){fillSel(id,meses,mesLbl,"Todos los meses");});
+    ["hfil-mes","ofil-mes","d-fil-mes-a"].forEach(function(id){fillSel(id,meses,mesLbl,"Todos los meses");});
     ["hfil-sector","ofil-sector","d-fil-sector-a"].forEach(function(id){fillSel(id,sects,function(v){return v;},"Todos los sectores");});
     ["hfil-area","ofil-area-obs","d-fil-area-a"].forEach(function(id){fillSel(id,areas,function(v){return v;},"Todas las areas");});
     var now = new Date();
@@ -1806,7 +1803,7 @@ async function levantarObs(auditId, numCrit, btn) {
 }
 
 function renderAuditDashboard() {
-  var fm = document.getElementById("d-fil-mes")    ? document.getElementById("d-fil-mes").value    : "";
+  var fm = document.getElementById("d-fil-mes-a")    ? document.getElementById("d-fil-mes-a").value    : "";
   var fs = document.getElementById("d-fil-sector-a")? document.getElementById("d-fil-sector-a").value : "";
   var fa = document.getElementById("d-fil-area-a") ? document.getElementById("d-fil-area-a").value  : "";
   var G="#1E7C34", R="#E63329", A="#D97706", B="#1565C0";
@@ -2689,7 +2686,7 @@ function audn_fotoAntes(input) {
   window.audn_fotoAntesBlob = file;
   var reader = new FileReader();
   reader.onload = function(e) {
-    var el = document.getElementById("audn-foto-antes-preview");
+    var el = document.getElementById("audn-preview-antes");
     if (el) { el.src = e.target.result; el.style.display = "block"; }
   };
   reader.readAsDataURL(file);
@@ -2701,7 +2698,7 @@ function audn_fotoDespues(input) {
   window.audn_fotoDespuesBlob = file;
   var reader = new FileReader();
   reader.onload = function(e) {
-    var el = document.getElementById("audn-foto-despues-preview");
+    var el = document.getElementById("audn-preview-despues");
     if (el) { el.src = e.target.result; el.style.display = "block"; }
   };
   reader.readAsDataURL(file);
@@ -3006,8 +3003,10 @@ function handleFotoCierreAudit(input) {
   window._fotoCierreAuditBlob = file;
   var reader = new FileReader();
   reader.onload = function(e){
-    var el = document.getElementById("foto-cierre-audit-preview");
-    if (el) { el.src = e.target.result; el.style.display = "block"; }
+    var el = document.getElementById("prev-cierre-audit");
+    if (el) { el.innerHTML = '<img src="'+e.target.result+'" style="width:80px;height:80px;object-fit:cover;border-radius:8px;margin-top:6px">'; }
+    var drop = document.getElementById("drop-cierre-audit");
+    if (drop) drop.style.borderColor = "var(--green)";
   };
   reader.readAsDataURL(file);
 }
@@ -3312,7 +3311,7 @@ function exportarPDFGerencial(btn) {
     function cA(p){return p>=90?[27,94,32]:p>=70?[30,124,52]:p>=50?[217,119,6]:[230,51,41];}
     function sI2(a){return Array.isArray(a.incumplimientos)?a.incumplimientos:safeJson(a.incumplimientos,"[]");}
     function sD2(a){return Array.isArray(a.detalles)?a.detalles:safeJson(a.detalles,"[]");}
-    var fm=document.getElementById("d-fil-mes")?document.getElementById("d-fil-mes").value:"";
+    var fm=document.getElementById("d-fil-mes-a")?document.getElementById("d-fil-mes-a").value:"";
     var lista=(auditorias||[]).filter(function(a){
       if(!a.sector||!a.fecha) return false;
       if(fm&&String(a.nro_auditoria||a.fecha||"").substring(0,7)!==fm) return false;
@@ -3741,5 +3740,6 @@ function renderComparativo() {
 
 
 </script>
+<div id="toast"></div>
 </body>
 </html>

@@ -397,6 +397,14 @@ textarea{resize:vertical;min-height:78px}
       <div class="kpi-val" id="d-pct" style="font-size:28px">0%</div>
     </div>
   </div>
+  <div class="dash-card">
+    <div class="dash-card-title">&#9878; Comparativo entre Sectores</div>
+    <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+      <select id="rcmp-sector-a" onchange="renderComparativoRecorrido()" class="filter-small" style="flex:1;min-width:120px"><option value="">Sector A</option></select>
+      <select id="rcmp-sector-b" onchange="renderComparativoRecorrido()" class="filter-small" style="flex:1;min-width:120px"><option value="">Sector B</option></select>
+    </div>
+    <div id="rcmp-resultado"></div>
+  </div>
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
     <div class="dash-card" style="margin-bottom:0">
       <div class="dash-card-title">&#127942; Mejor / Peor area</div>
@@ -451,21 +459,6 @@ textarea{resize:vertical;min-height:78px}
       </div>
     </div>
     <div style="position:relative;height:220px;width:100%"><canvas id="chart-area-evol"></canvas></div>
-  </div>
-  <div class="dash-card">
-    <div class="dash-card-title">&#9878; Comparativo entre Sectores</div>
-    <div style="font-size:10px;color:var(--g400);margin:-4px 0 8px;font-style:italic">Observaciones registradas por tipo "S" y tendencia mensual</div>
-    <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
-      <select id="rcmp-sector-a" onchange="renderComparativoRecorrido()" class="filter-small" style="flex:1;min-width:120px"><option value="">Sector A</option></select>
-      <select id="rcmp-sector-b" onchange="renderComparativoRecorrido()" class="filter-small" style="flex:1;min-width:120px"><option value="">Sector B</option></select>
-    </div>
-    <div id="rcmp-kpis"></div>
-    <div id="rcmp-radar-wrap" style="display:none">
-      <div style="font-size:11px;font-weight:700;color:var(--g500);margin:8px 0 6px;text-transform:uppercase">Por tipo "S"</div>
-      <div style="position:relative;height:230px;width:100%;margin-bottom:14px"><canvas id="chart-rcmp-radar"></canvas></div>
-      <div style="font-size:11px;font-weight:700;color:var(--g500);margin-bottom:6px;text-transform:uppercase">Tendencia (últimos 6 meses)</div>
-      <div style="position:relative;height:170px;width:100%"><canvas id="chart-rcmp-tendencia"></canvas></div>
-    </div>
   </div>
   <div class="dash-card">
     <div class="dash-card-title">&#127981; Cumplimiento por sector</div>
@@ -1062,6 +1055,7 @@ var selectedS = "";
 var obsActual = null;
 var periodoEvol = "sem";
 var periodoArea = "sem";
+var _dashObsCache = [];
 
 // Estado para Auditoría Nueva
 var audn_state = {};
@@ -2465,6 +2459,103 @@ function setPeriod(p){periodoEvol=p;document.getElementById("btn-sem").classList
 
 function setPeriodArea(p){periodoArea=p;document.getElementById("btn-area-sem").classList.toggle("active",p==="sem");document.getElementById("btn-area-mes").classList.toggle("active",p==="mes");renderEvolArea();}
 
+function _periodKey(o, modo) {
+  var f = o.fecha || (o.created_at ? o.created_at.substring(0,10) : "");
+  if (!f) return null;
+  var d = new Date(f+"T00:00:00");
+  if (isNaN(d.getTime())) return null;
+  if (modo === "sem") {
+    return d.getFullYear() + "-W" + String(getWeek(d)).padStart(2,"0");
+  }
+  return String(f).substring(0,7);
+}
+
+function _periodLabel(key, modo) {
+  if (modo === "sem") {
+    var parts = key.split("-W");
+    return "Sem " + parts[1];
+  }
+  var p = key.split("-");
+  return new Date(+p[0],+p[1]-1,1).toLocaleDateString("es-PE",{month:"short",year:"2-digit"});
+}
+
+function renderEvolucion() {
+  var obs = _dashObsCache || [];
+  var G="#1E7C34", R="#E63329";
+  var byKey = {};
+  obs.forEach(function(o){
+    var k = _periodKey(o, periodoEvol);
+    if (!k) return;
+    if (!byKey[k]) byKey[k] = {total:0, corr:0};
+    byKey[k].total++; if (o.status==="CORREGIDO") byKey[k].corr++;
+  });
+  var keys = Object.keys(byKey).sort();
+  if (periodoEvol === "sem" && keys.length > 12) keys = keys.slice(-12);
+  var labels = keys.map(function(k){ return _periodLabel(k, periodoEvol); });
+  var totals = keys.map(function(k){ return byKey[k].total; });
+  var pcts   = keys.map(function(k){ return byKey[k].total>0 ? Math.round(byKey[k].corr/byKey[k].total*100) : 0; });
+
+  if (typeof destroyChart==='function') destroyChart('chart-evolucion');
+  var ctxE = document.getElementById('chart-evolucion');
+  if (!ctxE) return;
+  if (!keys.length) return;
+  new Chart(ctxE, {type:'bar',
+    data:{labels:labels, datasets:[
+      {label:'Total obs.', data:totals, backgroundColor:R+'66', borderColor:R, borderWidth:1, borderRadius:4, yAxisID:'y1'},
+      {label:'% Corregidas', data:pcts, type:'line', borderColor:G, backgroundColor:G+'22', tension:0.3, pointRadius:4, pointBackgroundColor:G, yAxisID:'y2'}
+    ]},
+    options:{responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{position:'top', labels:{font:{size:10}, boxWidth:10}}},
+      scales:{y1:{position:'left', ticks:{stepSize:1}}, y2:{position:'right', min:0, max:100, ticks:{callback:function(v){return v+'%';}}, grid:{drawOnChartArea:false}}}
+    }
+  });
+}
+
+function renderEvolArea() {
+  var obs = _dashObsCache || [];
+  var palette = ["#E63329","#1565C0","#1E7C34","#D97706","#6A1B9A","#00838F","#AD1457"];
+
+  // Top áreas por volumen total
+  var totalPorArea = {};
+  obs.forEach(function(o){ var a=o.area||"Sin área"; totalPorArea[a]=(totalPorArea[a]||0)+1; });
+  var topAreas = Object.entries(totalPorArea).sort(function(a,b){return b[1]-a[1];}).slice(0,5).map(function(e){return e[0];});
+
+  var byKeyArea = {};
+  obs.forEach(function(o){
+    var k = _periodKey(o, periodoArea);
+    if (!k) return;
+    var a = o.area || "Sin área";
+    if (topAreas.indexOf(a) < 0) return;
+    if (!byKeyArea[k]) byKeyArea[k] = {};
+    byKeyArea[k][a] = (byKeyArea[k][a]||0) + 1;
+  });
+  var keys = Object.keys(byKeyArea).sort();
+  if (periodoArea === "sem" && keys.length > 12) keys = keys.slice(-12);
+  var labels = keys.map(function(k){ return _periodLabel(k, periodoArea); });
+
+  var datasets = topAreas.map(function(a, i){
+    return {
+      label: a,
+      data: keys.map(function(k){ return (byKeyArea[k] && byKeyArea[k][a]) || 0; }),
+      borderColor: palette[i % palette.length],
+      backgroundColor: palette[i % palette.length]+'22',
+      tension: 0.3, pointRadius: 3, pointBackgroundColor: palette[i % palette.length]
+    };
+  });
+
+  if (typeof destroyChart==='function') destroyChart('chart-area-evol');
+  var ctxA = document.getElementById('chart-area-evol');
+  if (!ctxA) return;
+  if (!keys.length) return;
+  new Chart(ctxA, {type:'line',
+    data:{labels:labels, datasets:datasets},
+    options:{responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{position:'bottom', labels:{font:{size:9}, boxWidth:10}}},
+      scales:{y:{beginAtZero:true, ticks:{stepSize:1}}}
+    }
+  });
+}
+
 async function audn_guardar(){
   var num=document.getElementById("audn-num").value;
   var fecha=document.getElementById("audn-fecha").value;
@@ -2474,7 +2565,7 @@ async function audn_guardar(){
   var area=opt?opt.getAttribute("data-area"):"";
   var auditor=document.getElementById("audn-auditor").value.trim();
   var lider=document.getElementById("audn-lider").value.trim();
-  if(!num||!fecha||!sectorKey||!auditor){showToast("Completa todos los campos obligatorios",true);return;}
+  if(!num||!fecha||!sector||!auditor){showToast("Completa todos los campos obligatorios",true);return;}
   var btn=document.getElementById("audn-btn-guardar");
   btn.disabled=true;btn.textContent="Guardando...";
   // Calcular puntaje
@@ -2506,7 +2597,6 @@ async function audn_guardar(){
     audn_state={};
     document.getElementById("audn-eval-container").style.display="none";
     document.getElementById("audn-form-datos").style.opacity="1";
-    audn_checkReady();
     auditNuevaTab("historial");
   }catch(e){
     showToast("Error al guardar: "+e.message,true);
@@ -2613,7 +2703,6 @@ async function confirmarCierreAudit(){
     showToast("Observacion levantada correctamente");
     renderHistorial();
     renderObsPendientes();
-    renderPendientesCierre();
   }catch(e){
     showToast("Error: " + e.message, true);
   }
@@ -2671,7 +2760,7 @@ function abrirFoto(src) {
 
 // ── Funciones faltantes (recorrido + auditoría) ────────────
 
-function filtrar() {
+function getObsFiltradas() {
   var area   = document.getElementById("fil-area")   ? document.getElementById("fil-area").value   : "";
   var status = document.getElementById("fil-status") ? document.getElementById("fil-status").value : "";
   var sector = document.getElementById("fil-sector") ? document.getElementById("fil-sector").value : "";
@@ -2684,13 +2773,17 @@ function filtrar() {
     if (sem    && (o.sem||o.semana||"") !== sem) return false;
     return true;
   });
-  // Ordenar
   list = list.slice().sort(function(a,b){
     if (orden === "antiguo")  return new Date(a.created_at||0) - new Date(b.created_at||0);
     if (orden === "status")   return (a.status||"").localeCompare(b.status||"");
     if (orden === "area")     return (a.area||"").localeCompare(b.area||"");
     return new Date(b.created_at||0) - new Date(a.created_at||0); // reciente
   });
+  return list;
+}
+
+function filtrar() {
+  var list = getObsFiltradas();
   // Poblar selects de filtro con valores únicos de los datos
   var areaEl   = document.getElementById("fil-area");
   var sectorEl = document.getElementById("fil-sector");
@@ -2719,7 +2812,7 @@ function renderDashboard() {
 
   // Filtrar observaciones
   var obs = (observations||[]).filter(function(o){
-    if (fm && String(o.mes||o.semana||'').substring(0,7) !== fm) return false;
+    if (fm && String(o.mes||o.fecha||o.created_at||'').substring(0,7) !== fm) return false;
     if (fs && o.sector !== fs) return false;
     if (fa && o.area   !== fa) return false;
     return true;
@@ -2819,29 +2912,20 @@ function renderDashboard() {
       +'<span style="font-weight:700;color:'+R+'">'+worst.area+'</span> <span style="font-size:11px;color:'+R+'">'+worst.pct+'%</span></div>';
   }
 
-  // ── Evolución mensual (línea) ────────────────────────────
+  // ── Evolución (semanal / mensual) ────────────────────────
+  _dashObsCache = obs;
+  renderEvolucion();
+  renderEvolArea();
+
+  // Datos mensuales para la tarjeta "vs Semana anterior"
   var byMes={};
   obs.forEach(function(o){
-    var m=String(o.mes||o.created_at||'').substring(0,7);
+    var m=String(o.mes||o.fecha||o.created_at||'').substring(0,7);
     if(!m||m.length<7) return;
     if(!byMes[m]) byMes[m]={total:0,corr:0};
     byMes[m].total++; if(o.status==='CORREGIDO') byMes[m].corr++;
   });
   var mesKeys=Object.keys(byMes).sort();
-  var mesLbls=mesKeys.map(function(m){var p=m.split('-');return new Date(+p[0],+p[1]-1,1).toLocaleDateString('es-PE',{month:'short',year:'2-digit'});});
-  var mesPcts=mesKeys.map(function(m){return byMes[m].total>0?Math.round(byMes[m].corr/byMes[m].total*100):0;});
-  var mesTotals=mesKeys.map(function(m){return byMes[m].total;});
-  if(typeof destroyChart==='function') destroyChart('chart-evolucion');
-  var ctxE=document.getElementById('chart-evolucion');
-  if(ctxE) new Chart(ctxE,{type:'bar',
-    data:{labels:mesLbls,datasets:[
-      {label:'Total obs.',data:mesTotals,backgroundColor:R+'66',borderColor:R,borderWidth:1,borderRadius:4,yAxisID:'y1'},
-      {label:'% Corregidas',data:mesPcts,type:'line',borderColor:G,backgroundColor:G+'22',tension:0.3,pointRadius:4,pointBackgroundColor:G,yAxisID:'y2'}
-    ]},
-    options:{responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{position:'top',labels:{font:{size:10},boxWidth:10}}},
-      scales:{y1:{position:'left',ticks:{stepSize:1}},y2:{position:'right',min:0,max:100,ticks:{callback:function(v){return v+'%';}},grid:{drawOnChartArea:false}}}}
-  });
 
   // ── Cumplimiento por sector ──────────────────────────────
   var bySector={};
@@ -2923,18 +3007,15 @@ function renderDashboard() {
 function renderComparativoRecorrido() {
   var sA = document.getElementById("rcmp-sector-a") ? document.getElementById("rcmp-sector-a").value : "";
   var sB = document.getElementById("rcmp-sector-b") ? document.getElementById("rcmp-sector-b").value : "";
-  var kpisEl = document.getElementById("rcmp-kpis");
-  var wrapEl = document.getElementById("rcmp-radar-wrap");
-  if (!kpisEl) return;
+  var el = document.getElementById("rcmp-resultado");
+  if (!el) return;
 
   if (!sA && !sB) {
-    kpisEl.innerHTML = '<p style="font-size:12px;color:var(--g400);text-align:center;padding:12px">Selecciona dos sectores para comparar.</p>';
-    if (wrapEl) wrapEl.style.display = "none";
-    if (typeof destroyChart==='function') { destroyChart('chart-rcmp-radar'); destroyChart('chart-rcmp-tendencia'); }
+    el.innerHTML = '<p style="font-size:12px;color:var(--g400);text-align:center;padding:12px">Selecciona dos sectores para comparar.</p>';
     return;
   }
 
-  var G="#1E7C34", R="#E63329", A="#D97706", B="#1565C0";
+  var G="#1E7C34", R="#E63329", A="#D97706";
   var PILARES = ["1S","2S","3S","4S","5S","EPP"];
 
   function statsSector(sector) {
@@ -2948,78 +3029,94 @@ function renderComparativoRecorrido() {
       porTipo[t] = (porTipo[t]||0)+1;
     });
     var topTipo = Object.entries(porTipo).sort(function(a,b){return b[1]-a[1];})[0];
-    return { total: rows.length, porS: porS, topTipo: topTipo ? topTipo[0] : "—", rows: rows };
+    var ultima = rows.slice().sort(function(a,b){return (b.fecha||"")>(a.fecha||"")?1:-1;})[0];
+    return { total: rows.length, porS: porS, topTipo: topTipo ? topTipo[0] : "—", ultima: ultima };
   }
 
   var stA = sA ? statsSector(sA) : null;
   var stB = sB ? statsSector(sB) : null;
+  var maxTotal = Math.max(stA?stA.total:0, stB?stB.total:0, 1);
+  function colVol(n){ var pct = n/maxTotal*100; return pct===0?G:pct<=33?G:pct<=66?A:R; }
 
-  // KPIs
-  var h = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px">';
-  [{sec:sA, st:stA, col:R}, {sec:sB, st:stB, col:B}].forEach(function(x){
-    h += '<div style="background:'+(x.st?x.col+'12':'var(--g50)')+';border-radius:12px;padding:12px;border:2px solid '+(x.st?x.col:'var(--g200)')+'">';
-    h += '<div style="font-size:11px;font-weight:700;color:var(--g500);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+(x.sec||"Sin seleccionar")+'</div>';
-    if (x.st) {
-      h += '<div style="font-size:26px;font-weight:900;color:'+x.col+'">'+x.st.total+'</div>';
-      h += '<div style="font-size:10px;color:var(--g400)">observaciones registradas</div>';
-      h += '<div style="font-size:11px;color:var(--g600);margin-top:4px;font-weight:600">Más frecuente: '+x.st.topTipo+'</div>';
-    } else {
-      h += '<div style="font-size:13px;color:var(--g400)">No seleccionado</div>';
-    }
-    h += '</div>';
-  });
+  // Construir HTML (mismo formato que el comparativo del Check List)
+  var h = '';
+
+  // Header con totales
+  h += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">';
+  // Sector A
+  h += '<div style="background:'+(stA?colVol(stA.total)+'15':'var(--g50)')+';border-radius:12px;padding:12px;border:2px solid '+(stA?colVol(stA.total):'var(--g200)')+'">';
+  h += '<div style="font-size:11px;font-weight:700;color:var(--g500);margin-bottom:4px">'+(sA||"Sin seleccionar")+'</div>';
+  if (stA) {
+    h += '<div style="font-size:28px;font-weight:900;color:'+colVol(stA.total)+'">'+stA.total+'</div>';
+    h += '<div style="font-size:11px;color:'+colVol(stA.total)+';font-weight:700">observaciones</div>';
+    h += '<div style="font-size:10px;color:var(--g400);margin-top:4px">'+(stA.ultima?stA.ultima.fecha+' · '+(stA.ultima.auditor||''):'Sin registros')+'</div>';
+  } else if (sA) {
+    h += '<div style="font-size:13px;color:var(--g400)">Sin observaciones</div>';
+  } else {
+    h += '<div style="font-size:13px;color:var(--g400)">No seleccionado</div>';
+  }
   h += '</div>';
-  kpisEl.innerHTML = h;
+  // Sector B
+  h += '<div style="background:'+(stB?colVol(stB.total)+'15':'var(--g50)')+';border-radius:12px;padding:12px;border:2px solid '+(stB?colVol(stB.total):'var(--g200)')+'">';
+  h += '<div style="font-size:11px;font-weight:700;color:var(--g500);margin-bottom:4px">'+(sB||"Sin seleccionar")+'</div>';
+  if (stB) {
+    h += '<div style="font-size:28px;font-weight:900;color:'+colVol(stB.total)+'">'+stB.total+'</div>';
+    h += '<div style="font-size:11px;color:'+colVol(stB.total)+';font-weight:700">observaciones</div>';
+    h += '<div style="font-size:10px;color:var(--g400);margin-top:4px">'+(stB.ultima?stB.ultima.fecha+' · '+(stB.ultima.auditor||''):'Sin registros')+'</div>';
+  } else if (sB) {
+    h += '<div style="font-size:13px;color:var(--g400)">Sin observaciones</div>';
+  } else {
+    h += '<div style="font-size:13px;color:var(--g400)">No seleccionado</div>';
+  }
+  h += '</div>';
+  h += '</div>';
 
-  if (!stA && !stB) { if (wrapEl) wrapEl.style.display="none"; return; }
-  if (wrapEl) wrapEl.style.display = "block";
-
-  // ── Radar por tipo "S" ──────────────────────────────────
-  if (typeof destroyChart==='function') destroyChart('chart-rcmp-radar');
-  var ctxR = document.getElementById('chart-rcmp-radar');
-  if (ctxR) {
-    var datasets = [];
-    if (stA) datasets.push({label:sA, data:PILARES.map(function(p){return stA.porS[p];}), borderColor:R, backgroundColor:R+'33', pointBackgroundColor:R, borderWidth:2});
-    if (stB) datasets.push({label:sB, data:PILARES.map(function(p){return stB.porS[p];}), borderColor:B, backgroundColor:B+'33', pointBackgroundColor:B, borderWidth:2});
-    new Chart(ctxR, {type:'radar',
-      data:{labels:PILARES, datasets:datasets},
-      options:{responsive:true, maintainAspectRatio:false,
-        plugins:{legend:{position:'bottom', labels:{boxWidth:10, font:{size:10}}}},
-        scales:{r:{beginAtZero:true, ticks:{stepSize:1, font:{size:9}}, pointLabels:{font:{size:10, weight:'600'}}}}
-      }
+  // Comparativo por tipo "S"
+  if (stA || stB) {
+    var maxS = 1;
+    PILARES.forEach(function(p){
+      if (stA) maxS = Math.max(maxS, stA.porS[p]);
+      if (stB) maxS = Math.max(maxS, stB.porS[p]);
     });
+    h += '<div style="font-size:11px;font-weight:700;color:var(--g500);margin-bottom:8px;text-transform:uppercase">Por tipo "S"</div>';
+    PILARES.forEach(function(p) {
+      var nA = stA ? stA.porS[p] : null;
+      var nB = stB ? stB.porS[p] : null;
+      h += '<div style="margin-bottom:10px">';
+      h += '<div style="font-size:11px;font-weight:700;color:var(--g700);margin-bottom:5px">'+p+'</div>';
+      if (nA !== null) {
+        var wA = Math.round(nA/maxS*100);
+        h += '<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">';
+        h += '<div style="font-size:10px;color:var(--g500);width:20px;flex-shrink:0">A</div>';
+        h += '<div style="flex:1;height:14px;background:var(--g100);border-radius:20px;overflow:hidden">';
+        h += '<div style="height:100%;width:'+wA+'%;background:'+R+';border-radius:20px;transition:width .6s"></div></div>';
+        h += '<div style="font-size:11px;font-weight:800;color:'+R+';width:24px;text-align:right">'+nA+'</div>';
+        h += '</div>';
+      }
+      if (nB !== null) {
+        var wB = Math.round(nB/maxS*100);
+        h += '<div style="display:flex;align-items:center;gap:6px">';
+        h += '<div style="font-size:10px;color:var(--g500);width:20px;flex-shrink:0">B</div>';
+        h += '<div style="flex:1;height:14px;background:var(--g100);border-radius:20px;overflow:hidden">';
+        h += '<div style="height:100%;width:'+wB+'%;background:#1565C0;border-radius:20px;transition:width .6s"></div></div>';
+        h += '<div style="font-size:11px;font-weight:800;color:#1565C0;width:24px;text-align:right">'+nB+'</div>';
+        h += '</div>';
+      }
+      h += '</div>';
+    });
+
+    // Tipo más frecuente A/B
+    h += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">';
+    h += '<div style="text-align:center;background:var(--g50);border-radius:8px;padding:8px">';
+    h += '<div style="font-size:12px;font-weight:800;color:var(--g700)">'+(stA?stA.topTipo:"—")+'</div>';
+    h += '<div style="font-size:10px;color:var(--g400)">Más frecuente A</div></div>';
+    h += '<div style="text-align:center;background:var(--g50);border-radius:8px;padding:8px">';
+    h += '<div style="font-size:12px;font-weight:800;color:var(--g700)">'+(stB?stB.topTipo:"—")+'</div>';
+    h += '<div style="font-size:10px;color:var(--g400)">Más frecuente B</div></div>';
+    h += '</div>';
   }
 
-  // ── Tendencia mensual (últimos 6 meses) ──────────────────
-  if (typeof destroyChart==='function') destroyChart('chart-rcmp-tendencia');
-  var ctxT = document.getElementById('chart-rcmp-tendencia');
-  if (ctxT) {
-    var hoy = new Date();
-    var meses = [];
-    for (var i=5; i>=0; i--) {
-      var d = new Date(hoy.getFullYear(), hoy.getMonth()-i, 1);
-      meses.push(d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0"));
-    }
-    var mesLbls = meses.map(function(m){ var p=m.split("-"); return new Date(+p[0],+p[1]-1,1).toLocaleDateString("es-PE",{month:"short",year:"2-digit"}); });
-    function countPorMes(rows) {
-      var byM = {}; meses.forEach(function(m){byM[m]=0;});
-      rows.forEach(function(o){
-        var m = String(o.fecha||o.created_at||"").substring(0,7);
-        if (byM.hasOwnProperty(m)) byM[m]++;
-      });
-      return meses.map(function(m){return byM[m];});
-    }
-    var tdatasets = [];
-    if (stA) tdatasets.push({label:sA, data:countPorMes(stA.rows), borderColor:R, backgroundColor:R+'22', tension:0.3, pointRadius:3, pointBackgroundColor:R});
-    if (stB) tdatasets.push({label:sB, data:countPorMes(stB.rows), borderColor:B, backgroundColor:B+'22', tension:0.3, pointRadius:3, pointBackgroundColor:B});
-    new Chart(ctxT, {type:'line',
-      data:{labels:mesLbls, datasets:tdatasets},
-      options:{responsive:true, maintainAspectRatio:false,
-        plugins:{legend:{position:'bottom', labels:{boxWidth:10, font:{size:10}}}},
-        scales:{y:{beginAtZero:true, ticks:{stepSize:1, font:{size:9}}}, x:{ticks:{font:{size:9}}}}
-      }
-    });
-  }
+  el.innerHTML = h;
 }
 
 function handleFotoCierreAudit(input) {

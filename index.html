@@ -349,22 +349,11 @@ textarea{resize:vertical;min-height:78px}
         <button class="s-btn" type="button" onclick="selectS('EPP')">EPP<span>Seguridad</span></button>
       </div>
     </div>
-    <div class="fg"><label>Descripcion <span class="req">*</span></label>
-      <textarea id="f-obs" placeholder="Describe la situacion encontrada..." oninput="this.style.borderColor=this.value?'var(--green)':''" style="min-height:90px"></textarea>
+    <div class="fg"><label>Descripción del levantamiento <span class="req">*</span></label>
+      <textarea id="f-obs" placeholder="¿Qué acción se realizó para levantar la observación?" oninput="this.style.borderColor=this.value?'var(--green)':''" style="min-height:90px"></textarea>
     </div>
     <div class="fg"><label>Responsable del area</label>
       <input type="text" id="f-responsable" readonly style="background:var(--g50);color:var(--g700)" placeholder="Se asigna automaticamente">
-    </div>
-    <div class="fg">
-      <label>Foto de evidencia (antes) <span class="req">*</span></label>
-      <div class="photo-drop" id="drop-nuevo" style="border-color:var(--red);cursor:pointer" onclick="document.getElementById('input-foto-nuevo').click()">
-        <input type="file" id="input-foto-nuevo" accept="image/*" capture="environment" multiple onchange="handlePhotos(this)" style="display:none">
-        <div style="font-size:28px;margin-bottom:5px">&#128247;</div>
-        <p style="font-size:13px;color:var(--g400)">Toca para tomar foto o seleccionar</p>
-        <p style="font-size:11px;color:var(--red);font-weight:600;margin-top:4px">Obligatoria</p>
-      </div>
-      <div class="upload-progress" id="prog-nuevo"><div class="upload-progress-fill" id="prog-nuevo-fill"></div></div>
-      <div class="photo-prev" id="prev-nuevo"></div>
     </div>
     <button class="btn-primary" id="btn-guardar" onclick="guardarObservacion()">Guardar observacion</button>
   </div>
@@ -462,6 +451,21 @@ textarea{resize:vertical;min-height:78px}
       </div>
     </div>
     <div style="position:relative;height:220px;width:100%"><canvas id="chart-area-evol"></canvas></div>
+  </div>
+  <div class="dash-card">
+    <div class="dash-card-title">&#9878; Comparativo entre Sectores</div>
+    <div style="font-size:10px;color:var(--g400);margin:-4px 0 8px;font-style:italic">Observaciones registradas por tipo "S" y tendencia mensual</div>
+    <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+      <select id="rcmp-sector-a" onchange="renderComparativoRecorrido()" class="filter-small" style="flex:1;min-width:120px"><option value="">Sector A</option></select>
+      <select id="rcmp-sector-b" onchange="renderComparativoRecorrido()" class="filter-small" style="flex:1;min-width:120px"><option value="">Sector B</option></select>
+    </div>
+    <div id="rcmp-kpis"></div>
+    <div id="rcmp-radar-wrap" style="display:none">
+      <div style="font-size:11px;font-weight:700;color:var(--g500);margin:8px 0 6px;text-transform:uppercase">Por tipo "S"</div>
+      <div style="position:relative;height:230px;width:100%;margin-bottom:14px"><canvas id="chart-rcmp-radar"></canvas></div>
+      <div style="font-size:11px;font-weight:700;color:var(--g500);margin-bottom:6px;text-transform:uppercase">Tendencia (últimos 6 meses)</div>
+      <div style="position:relative;height:170px;width:100%"><canvas id="chart-rcmp-tendencia"></canvas></div>
+    </div>
   </div>
   <div class="dash-card">
     <div class="dash-card-title">&#127981; Cumplimiento por sector</div>
@@ -839,9 +843,9 @@ textarea{resize:vertical;min-height:78px}
       </select>
       <select id="audn-fil-accion-estado" onchange="audn_cargarAcciones()" style="flex:1;min-width:110px;padding:8px;border-radius:8px;border:1px solid var(--g200);font-size:13px">
         <option value="">Todos los estados</option>
-        <option value="Pendiente">Pendiente</option>
-        <option value="En Proceso">En Proceso</option>
         <option value="Completado">Completado</option>
+        <option value="En Proceso">En Proceso</option>
+        <option value="Pendiente">Pendiente</option>
       </select>
     </div>
     <div id="audn-acciones-kpis" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px"></div>
@@ -857,25 +861,6 @@ textarea{resize:vertical;min-height:78px}
     <input type="hidden" id="mo-id">
     <div id="mo-detalle" style="margin-bottom:14px;background:var(--g50);border-radius:8px;padding:12px;font-size:13px;line-height:1.8;color:var(--g700)"></div>
     <div id="mo-fotos-antes" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px"></div>
-    <div id="mo-cierre-section">
-      <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.4px;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--g100)">Cerrar observacion</div>
-      <div class="fg"><label>Comentario <span style="font-size:10px;color:var(--g400);font-weight:400">(opcional)</span></label>
-        <textarea id="mo-comentario" placeholder="Como se corrigio? (opcional)"></textarea>
-      </div>
-      <div class="fg">
-        <label>Foto del despues <span class="req">*</span></label>
-        <div class="photo-drop" id="drop-cierre" style="border-color:var(--red);cursor:pointer" onclick="document.getElementById('input-foto-cierre').click()">
-          <input type="file" id="input-foto-cierre" accept="image/*" capture="environment" onchange="handleFotoCierre(this)" style="display:none">
-          <div style="font-size:24px;margin-bottom:4px">&#128247;</div>
-          <p style="font-size:12px;color:var(--g400)">Evidencia del cierre</p>
-          <p style="font-size:11px;color:var(--red);font-weight:600;margin-top:4px">Obligatoria</p>
-        </div>
-        <div class="upload-progress" id="prog-cierre"><div class="upload-progress-fill" id="prog-cierre-fill"></div></div>
-        <div class="photo-prev" id="prev-cierre"></div>
-      </div>
-      <button class="btn-primary" id="btn-cerrar-obs" onclick="cerrarObservacion()" style="margin-bottom:10px">Marcar como CORREGIDO</button>
-    </div>
-    <div id="mo-foto-despues" style="display:none;margin-bottom:14px"></div>
     <div style="display:flex;gap:8px;flex-wrap:wrap">
       <button class="btn-ghost" onclick="abrirEditar()" style="flex:1;justify-content:center">Editar</button>
       <button class="btn-ghost" onclick="closeModal('modal-obs')" style="border-color:var(--g200);color:var(--g400);flex:1;justify-content:center">Cerrar</button>
@@ -1013,9 +998,9 @@ textarea{resize:vertical;min-height:78px}
     </div>
     <div class="fg"><label>Estado</label>
       <select id="audn-accion-estado">
-        <option value="Pendiente">Pendiente</option>
-        <option value="En Proceso">En Proceso</option>
         <option value="Completado">Completado</option>
+        <option value="En Proceso">En Proceso</option>
+        <option value="Pendiente" selected>Pendiente</option>
       </select>
     </div>
     <div class="fg"><label>Foto de cierre (después)</label>
@@ -1034,6 +1019,7 @@ textarea{resize:vertical;min-height:78px}
 
 
 function _uniq(arr) { var seen={}; return (arr||[]).filter(function(x){ if(seen[x])return false; seen[x]=1; return true; }); }
+function _sortEs(arr) { return (arr||[]).slice().sort(function(a,b){ return String(a).localeCompare(String(b),"es",{sensitivity:"base"}); }); }
 
 
 // Helper compatibilidad — reemplaza 
@@ -1073,8 +1059,6 @@ var AUDITORES_SECTORES = {"Fabio Caldas Antúnez": ["LÍNEA 1", "OFIC. DE COSTOS
 
 var observations = [];
 var selectedS = "";
-var photosNuevo = [];
-var photoCierre = null;
 var obsActual = null;
 var periodoEvol = "sem";
 var periodoArea = "sem";
@@ -1186,13 +1170,13 @@ function iniciarAuditoriaNew() {
   
   var sectEl = document.getElementById("audn-sector");
   if (sectEl && sectEl.options.length <= 1) {
-    Object.keys(SECTOR_AREA_MAP).sort().forEach(function(sector){
+    _sortEs(Object.keys(SECTOR_AREA_MAP)).forEach(function(sector){
       var area = SECTOR_AREA_MAP[sector] || "";
       sectEl.innerHTML += '<option value="'+sector+'" data-area="'+area+'">'+sector+' ('+area+')</option>';
     });
   }
   
-  var areasUnicas = _uniq(Object.values(SECTOR_AREA_MAP)).sort();
+  var areasUnicas = _sortEs(_uniq(Object.values(SECTOR_AREA_MAP)));
   ["audn-fil-area","audn-fil-accion-area"].forEach(function(id){
     var el = document.getElementById(id);
     if (el && el.options.length <= 1) {
@@ -1247,7 +1231,7 @@ function onAuditorChange() {
   }
 
   // Poblar sectores del auditor
-  var sectores = AUDITORES_SECTORES[auditor] || [];
+  var sectores = _sortEs(AUDITORES_SECTORES[auditor] || []);
   sectores.forEach(function(s) {
     sectorSel.innerHTML += '<option value="'+s+'">'+s+'</option>';
   });
@@ -1388,7 +1372,7 @@ function renderCriterios() {
     h += '<button onclick="setCriterio(' + c.num + ',\'NO\')" style="flex:1;padding:10px;border-radius:8px;font-weight:700;font-size:16px;cursor:pointer;background:' + (noA ? 'var(--red)' : 'var(--g50)') + ';color:' + (noA ? '#fff' : 'var(--g400)') + ';border:2px solid ' + (noA ? 'var(--red)' : 'var(--g200)') + '">\u2717 NO</button>';
     h += '</div>';
     if (noA) {
-      h += '<input type="text" id="obs-cl-' + c.num + '" placeholder="Observacion *" value="' + (d.obs||'') + '" oninput="setAuditField(' + c.num + ',\'obs\',this.value);this.style.borderColor=this.value.trim()?\'var(--g200)\':\'var(--red)\'" style="width:100%;padding:8px;border:1px solid var(--g200);border-radius:8px;font-size:13px;box-sizing:border-box;margin-bottom:6px">';
+      h += '<input type="text" id="obs-cl-' + c.num + '" placeholder="Plan de Accion *" value="' + (d.obs||'') + '" oninput="setAuditField(' + c.num + ',\'obs\',this.value);this.style.borderColor=this.value.trim()?\'var(--g200)\':\'var(--red)\'" style="width:100%;padding:8px;border:1px solid var(--g200);border-radius:8px;font-size:13px;box-sizing:border-box;margin-bottom:6px">';
       h += '<input type="text" id="resp-cl-' + c.num + '" placeholder="Responsable" value="' + (d.responsable||auditMeta.responsable||'') + '" oninput="setAuditField(' + c.num + ',\'responsable\',this.value)" style="width:100%;padding:8px;border:1px solid var(--g200);border-radius:8px;font-size:13px;box-sizing:border-box;margin-bottom:6px">';
       h += '<input type="date" id="fec-cl-' + c.num + '" title="Fecha tentativa (opcional)" value="' + (d.fecha_compromiso||'') + '" oninput="setAuditField(' + c.num + ',\'fecha_compromiso\',this.value)" style="width:100%;padding:8px;border:1px solid var(--g200);border-radius:8px;font-size:13px;box-sizing:border-box">';
     }
@@ -1421,7 +1405,7 @@ function setCriterio(num, resp) {
   h += '<button onclick="setCriterio(' + num + ',\'NO\')" style="flex:1;padding:10px;border-radius:8px;font-weight:700;font-size:16px;cursor:pointer;background:' + (resp==='NO'?'var(--red)':'var(--g50)') + ';color:' + (resp==='NO'?'#fff':'var(--g400)') + ';border:2px solid ' + (resp==='NO'?'var(--red)':'var(--g200)') + '">\u2717 NO</button>';
   h += '</div>';
   if (noA) {
-    h += '<input type="text" id="obs-cl-' + num + '" placeholder="Observacion *" value="' + (d.obs||'') + '" oninput="setAuditField(' + num + ',\'obs\',this.value);this.style.borderColor=this.value.trim()?\'var(--g200)\':\'var(--red)\'" style="width:100%;padding:8px;border:1px solid var(--g200);border-radius:8px;font-size:13px;box-sizing:border-box;margin-bottom:6px">';
+    h += '<input type="text" id="obs-cl-' + num + '" placeholder="Plan de Accion *" value="' + (d.obs||'') + '" oninput="setAuditField(' + num + ',\'obs\',this.value);this.style.borderColor=this.value.trim()?\'var(--g200)\':\'var(--red)\'" style="width:100%;padding:8px;border:1px solid var(--g200);border-radius:8px;font-size:13px;box-sizing:border-box;margin-bottom:6px">';
     h += '<input type="text" id="resp-cl-' + num + '" placeholder="Responsable" value="' + (d.responsable||'') + '" oninput="setAuditField(' + num + ',\'responsable\',this.value)" style="width:100%;padding:8px;border:1px solid var(--g200);border-radius:8px;font-size:13px;box-sizing:border-box;margin-bottom:6px">';
     h += '<input type="date" id="fec-cl-' + num + '" title="Fecha tentativa (opcional)" value="' + (d.fecha_compromiso||'') + '" oninput="setAuditField(' + num + ',\'fecha_compromiso\',this.value)" style="width:100%;padding:8px;border:1px solid var(--g200);border-radius:8px;font-size:13px;box-sizing:border-box">';
   }
@@ -1493,11 +1477,11 @@ async function finalizarAuditoria() {
       if (obsEl) {
         obsEl.style.borderColor = "var(--red)";
         obsEl.style.background  = "#FEF2F2";
-        obsEl.placeholder = "Observacion requerida";
+        obsEl.placeholder = "Plan de accion requerido";
         obsEl.scrollIntoView({behavior:"smooth", block:"center"});
       }
     });
-    showToast("Completa las observaciones de los criterios NO (" + sinObs.length + " pendientes)", true);
+    showToast("Completa el plan de accion de los criterios NO (" + sinObs.length + " pendientes)", true);
     return;
   }
 
@@ -1608,8 +1592,9 @@ async function cargarAuditorias() {
     auditorias = (data||[]).map(function(a){ return Object.assign({},a,{sector:norm[a.sector]||a.sector, detalles:safeJson(a.detalles,"[]"), incumplimientos:safeJson(a.incumplimientos,"[]")}); });
     sectoresAuditados = new Set(auditorias.map(function(a){return a.sector;}).filter(Boolean));
     var meses = []; var _mset={}; auditorias.forEach(function(a){var v=String(a.nro_auditoria||a.fecha||"").substring(0,7);if(v.length===7&&!_mset[v]){_mset[v]=1;meses.push(v);}}); meses.sort().reverse();
-    var sects=[]; var _sset={}; auditorias.forEach(function(a){if(a.sector&&!_sset[a.sector]){_sset[a.sector]=1;sects.push(a.sector);}}); sects.sort();
-    var areas=[]; var _aset={}; auditorias.forEach(function(a){if(a.area&&!_aset[a.area]){_aset[a.area]=1;areas.push(a.area);}}); areas.sort();
+    var sects=[]; var _sset={}; auditorias.forEach(function(a){if(a.sector&&!_sset[a.sector]){_sset[a.sector]=1;sects.push(a.sector);}}); sects=_sortEs(sects);
+    var areas=[]; var _aset={}; auditorias.forEach(function(a){if(a.area&&!_aset[a.area]){_aset[a.area]=1;areas.push(a.area);}}); areas=_sortEs(areas);
+    var resps=[]; var _rset={}; auditorias.forEach(function(a){ var incs=Array.isArray(a.incumplimientos)?a.incumplimientos:safeJson(a.incumplimientos,"[]"); incs.forEach(function(d){ if(d.responsable && !_rset[d.responsable]){_rset[d.responsable]=1;resps.push(d.responsable);} }); }); resps=_sortEs(resps);
     function mesLbl(m){ var pts=m.split("-"); return new Date(+pts[0],+pts[1]-1,1).toLocaleDateString("es-PE",{month:"long",year:"numeric"}); }
     function fillSel(id, vs, lbl, placeholder) {
       var el2=document.getElementById(id); if(!el2)return;
@@ -1620,6 +1605,7 @@ async function cargarAuditorias() {
     ["hfil-mes","ofil-mes","d-fil-mes-a"].forEach(function(id){fillSel(id,meses,mesLbl,"Todos los meses");});
     ["hfil-sector","ofil-sector","d-fil-sector-a"].forEach(function(id){fillSel(id,sects,function(v){return v;},"Todos los sectores");});
     ["hfil-area","ofil-area-obs","d-fil-area-a"].forEach(function(id){fillSel(id,areas,function(v){return v;},"Todas las areas");});
+    fillSel("ofil-resp",resps,function(v){return v;},"Todos los responsables");
     var now = new Date();
     var mi  = new Date(now.getFullYear(),now.getMonth(),1).toISOString().split("T")[0];
     var mf  = new Date(now.getFullYear(),now.getMonth()+1,0).toISOString().split("T")[0];
@@ -2261,21 +2247,18 @@ async function guardarObservacion(){
   if(!area){showToast("Selecciona el \u00e1rea",true);return;}
   if(!zona||zona.includes("\u2014")){showToast("Selecciona la zona / equipo",true);return;}
   if(!tipo){showToast("Selecciona el tipo de observaci\u00f3n",true);return;}
-  if(!obs){showToast("Escribe la descripci\u00f3n de la observaci\u00f3n",true);document.getElementById("f-obs").style.borderColor="var(--red)";return;}
-  if(photosNuevo.length===0){showToast("La foto de evidencia (antes) es obligatoria",true);document.getElementById("drop-nuevo").style.borderColor="var(--red)";return;}
+  if(!obs){showToast("Escribe la descripci\u00f3n del levantamiento",true);document.getElementById("f-obs").style.borderColor="var(--red)";return;}
   var btn=document.getElementById("btn-guardar");
   btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Guardando...';
   try{
-    var fotosUrls=[];
-    var pb=document.getElementById("prog-nuevo"),pf=document.getElementById("prog-nuevo-fill");
-    for(var i=0;i<photosNuevo.length;i++){showToast("Subiendo foto "+(i+1)+"/"+photosNuevo.length+"...");fotosUrls.push(await subirCloudinary(photosNuevo[i],pb,pf));}
     // Obtener el siguiente n\u00famero correlativo desde Supabase
     var {data:maxData}=await sb.from("observaciones").select("num").order("num",{ascending:false}).limit(1);
     var nextNum = maxData&&maxData.length>0?(maxData[0].num||0)+1:1;
+    var fechaHoy=new Date().toISOString().split("T")[0];
     var {data,error}=await sb.from("observaciones").insert({
-      num:nextNum,sem:document.getElementById("f-sem").value,fecha:window._fecha||new Date().toISOString().split("T")[0],auditor,
+      num:nextNum,sem:document.getElementById("f-sem").value,fecha:window._fecha||fechaHoy,auditor,
       area:SECTOR_AREA_MAP[area]||area.replace(/_/g," "),sector:area.replace(/_/g," "),zona:document.getElementById("f-zona").value,
-      tipo,s:selectedS||"\u2014",obs,responsable:document.getElementById("f-responsable").value.trim(),status:"NO CORREGIDO",fotos:fotosUrls
+      tipo,s:selectedS||"\u2014",obs,responsable:document.getElementById("f-responsable").value.trim(),status:"CORREGIDO",fecha_cierre:fechaHoy,fotos:[]
     }).select().single();
     if(error)throw error;
     observations.unshift(data);
@@ -2284,35 +2267,12 @@ async function guardarObservacion(){
       if(el.tagName==="SELECT"&&id!=="f-area"&&id!=="f-tipo")el.disabled=true;
       el.value="";
     });
-    document.getElementById("prev-nuevo").innerHTML="";
     document.querySelectorAll(".s-btn").forEach(function(b){b.classList.remove("active");});
-    selectedS="";photosNuevo=[];
-    var dropN=document.getElementById("drop-nuevo");
-    if(dropN){dropN.style.borderColor="var(--red)";}
+    selectedS="";
     showToast("Observacion guardada");
     filtrar();renderDashboard();
   }catch(e){console.error(e);showToast("Error: "+(e.message||JSON.stringify(e)),true);}
   btn.disabled=false;btn.innerHTML="Guardar observaci\u00f3n";
-}
-
-async function cerrarObservacion(){
-  var id=parseInt(document.getElementById("mo-id").value);
-  var comentario=document.getElementById("mo-comentario").value.trim();
-  if(!photoCierre){showToast("La foto del despu\u00e9s es obligatoria para cerrar",true);document.getElementById("drop-cierre").style.borderColor="var(--red)";return;}
-  var btn=document.getElementById("btn-cerrar-obs");
-  btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Guardando...';
-  try{
-    var foto_despues=null;
-    if(photoCierre){showToast("Subiendo foto...");foto_despues=await subirCloudinary(photoCierre,document.getElementById("prog-cierre"),document.getElementById("prog-cierre-fill"));}
-    var fecha_cierre=new Date().toISOString().split("T")[0];
-    var {error}=await sb.from("observaciones").update({status:"CORREGIDO",comentario_cierre:comentario,foto_despues,fecha_cierre}).eq("id",id);
-    if(error)throw error;
-    var idx=observations.findIndex(function(o){ return o.id===id; });
-    if(idx>-1)Object.assign(observations[idx],{status:"CORREGIDO",comentario_cierre:comentario,foto_despues,fecha_cierre});
-    closeModal("modal-obs");showToast("Observacion corregida");
-    filtrar();renderDashboard();
-  }catch(e){console.error(e);showToast("Error: "+(e.message||JSON.stringify(e)),true);}
-  btn.disabled=false;btn.innerHTML="Marcar como CORREGIDO";
 }
 
 function exportarPDF() {
@@ -2736,11 +2696,11 @@ function filtrar() {
   var sectorEl = document.getElementById("fil-sector");
   var semEl    = document.getElementById("fil-sem");
   if (areaEl && areaEl.options.length <= 1) {
-    var areas = _uniq((observations||[]).map(function(o){return o.area||"";}).filter(Boolean)).sort();
+    var areas = _sortEs(_uniq((observations||[]).map(function(o){return o.area||"";}).filter(Boolean)));
     areas.forEach(function(a2){ areaEl.innerHTML += '<option value="'+a2+'">'+a2+'</option>'; });
   }
   if (sectorEl && sectorEl.options.length <= 1) {
-    var sects = _uniq((observations||[]).map(function(o){return o.sector||"";}).filter(Boolean)).sort();
+    var sects = _sortEs(_uniq((observations||[]).map(function(o){return o.sector||"";}).filter(Boolean)));
     sects.forEach(function(s2){ sectorEl.innerHTML += '<option value="'+s2+'">'+s2+'</option>'; });
   }
   if (semEl && semEl.options.length <= 1) {
@@ -2790,9 +2750,9 @@ function renderDashboard() {
     if(o.area&&areas.indexOf(o.area)<0) areas.push(o.area);
   });
   var secEl=document.getElementById('d-fil-sector');
-  if(secEl){var c2=secEl.value;secEl.innerHTML='<option value="">Todos los sectores</option>';sectores.sort().forEach(function(s){secEl.innerHTML+='<option value="'+s+'"'+(s===c2?' selected':'')+'>'+s+'</option>';});}
+  if(secEl){var c2=secEl.value;secEl.innerHTML='<option value="">Todos los sectores</option>';_sortEs(sectores).forEach(function(s){secEl.innerHTML+='<option value="'+s+'"'+(s===c2?' selected':'')+'>'+s+'</option>';});}
   var areEl=document.getElementById('d-fil-area');
-  if(areEl){var c3=areEl.value;areEl.innerHTML='<option value="">Todas las areas</option>';areas.sort().forEach(function(a2){areEl.innerHTML+='<option value="'+a2+'"'+(a2===c3?' selected':'')+'>'+a2+'</option>';});}
+  if(areEl){var c3=areEl.value;areEl.innerHTML='<option value="">Todas las areas</option>';_sortEs(areas).forEach(function(a2){areEl.innerHTML+='<option value="'+a2+'"'+(a2===c3?' selected':'')+'>'+a2+'</option>';});}
 
   // KPIs
   var total    = obs.length;
@@ -2960,41 +2920,106 @@ function renderDashboard() {
   }
 }
 
-function handlePhotos(input) {
-  var files = Array.from(input.files);
-  if (!files.length) return;
-  files.forEach(function(f) { photosNuevo.push(f); });
-  var preview = document.getElementById("prev-nuevo");
-  if (!preview) return;
-  files.forEach(function(f) {
-    var reader = new FileReader();
-    reader.onload = function(e) {
-      var img = document.createElement("img");
-      img.src = e.target.result;
-      img.style.cssText = "width:64px;height:64px;object-fit:cover;border-radius:8px;margin:2px;cursor:pointer";
-      img.onclick = function(){ abrirFoto(this.src); };
-      preview.appendChild(img);
-    };
-    reader.readAsDataURL(f);
-  });
-  var drop = document.getElementById("drop-nuevo");
-  if (drop) drop.style.borderColor = "var(--green)";
-}
+function renderComparativoRecorrido() {
+  var sA = document.getElementById("rcmp-sector-a") ? document.getElementById("rcmp-sector-a").value : "";
+  var sB = document.getElementById("rcmp-sector-b") ? document.getElementById("rcmp-sector-b").value : "";
+  var kpisEl = document.getElementById("rcmp-kpis");
+  var wrapEl = document.getElementById("rcmp-radar-wrap");
+  if (!kpisEl) return;
 
-function handleFotoCierre(input) {
-  var file = input.files[0];
-  if (!file) return;
-  photoCierre = file;
-  var reader = new FileReader();
-  reader.onload = function(e) {
-    var prev = document.getElementById("prev-cierre");
-    if (prev) {
-      prev.innerHTML = '<img src="'+e.target.result+'" style="width:80px;height:80px;object-fit:cover;border-radius:8px;margin-top:6px">';
+  if (!sA && !sB) {
+    kpisEl.innerHTML = '<p style="font-size:12px;color:var(--g400);text-align:center;padding:12px">Selecciona dos sectores para comparar.</p>';
+    if (wrapEl) wrapEl.style.display = "none";
+    if (typeof destroyChart==='function') { destroyChart('chart-rcmp-radar'); destroyChart('chart-rcmp-tendencia'); }
+    return;
+  }
+
+  var G="#1E7C34", R="#E63329", A="#D97706", B="#1565C0";
+  var PILARES = ["1S","2S","3S","4S","5S","EPP"];
+
+  function statsSector(sector) {
+    var rows = (observations||[]).filter(function(o){ return o.sector===sector; });
+    var porS = {}; PILARES.forEach(function(p){ porS[p]=0; });
+    var porTipo = {};
+    rows.forEach(function(o){
+      var s = (o.s||"").toUpperCase();
+      if (porS.hasOwnProperty(s)) porS[s]++;
+      var t = o.tipo||"Sin tipo";
+      porTipo[t] = (porTipo[t]||0)+1;
+    });
+    var topTipo = Object.entries(porTipo).sort(function(a,b){return b[1]-a[1];})[0];
+    return { total: rows.length, porS: porS, topTipo: topTipo ? topTipo[0] : "—", rows: rows };
+  }
+
+  var stA = sA ? statsSector(sA) : null;
+  var stB = sB ? statsSector(sB) : null;
+
+  // KPIs
+  var h = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px">';
+  [{sec:sA, st:stA, col:R}, {sec:sB, st:stB, col:B}].forEach(function(x){
+    h += '<div style="background:'+(x.st?x.col+'12':'var(--g50)')+';border-radius:12px;padding:12px;border:2px solid '+(x.st?x.col:'var(--g200)')+'">';
+    h += '<div style="font-size:11px;font-weight:700;color:var(--g500);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+(x.sec||"Sin seleccionar")+'</div>';
+    if (x.st) {
+      h += '<div style="font-size:26px;font-weight:900;color:'+x.col+'">'+x.st.total+'</div>';
+      h += '<div style="font-size:10px;color:var(--g400)">observaciones registradas</div>';
+      h += '<div style="font-size:11px;color:var(--g600);margin-top:4px;font-weight:600">Más frecuente: '+x.st.topTipo+'</div>';
+    } else {
+      h += '<div style="font-size:13px;color:var(--g400)">No seleccionado</div>';
     }
-    var drop = document.getElementById("drop-cierre");
-    if (drop) drop.style.borderColor = "var(--green)";
-  };
-  reader.readAsDataURL(file);
+    h += '</div>';
+  });
+  h += '</div>';
+  kpisEl.innerHTML = h;
+
+  if (!stA && !stB) { if (wrapEl) wrapEl.style.display="none"; return; }
+  if (wrapEl) wrapEl.style.display = "block";
+
+  // ── Radar por tipo "S" ──────────────────────────────────
+  if (typeof destroyChart==='function') destroyChart('chart-rcmp-radar');
+  var ctxR = document.getElementById('chart-rcmp-radar');
+  if (ctxR) {
+    var datasets = [];
+    if (stA) datasets.push({label:sA, data:PILARES.map(function(p){return stA.porS[p];}), borderColor:R, backgroundColor:R+'33', pointBackgroundColor:R, borderWidth:2});
+    if (stB) datasets.push({label:sB, data:PILARES.map(function(p){return stB.porS[p];}), borderColor:B, backgroundColor:B+'33', pointBackgroundColor:B, borderWidth:2});
+    new Chart(ctxR, {type:'radar',
+      data:{labels:PILARES, datasets:datasets},
+      options:{responsive:true, maintainAspectRatio:false,
+        plugins:{legend:{position:'bottom', labels:{boxWidth:10, font:{size:10}}}},
+        scales:{r:{beginAtZero:true, ticks:{stepSize:1, font:{size:9}}, pointLabels:{font:{size:10, weight:'600'}}}}
+      }
+    });
+  }
+
+  // ── Tendencia mensual (últimos 6 meses) ──────────────────
+  if (typeof destroyChart==='function') destroyChart('chart-rcmp-tendencia');
+  var ctxT = document.getElementById('chart-rcmp-tendencia');
+  if (ctxT) {
+    var hoy = new Date();
+    var meses = [];
+    for (var i=5; i>=0; i--) {
+      var d = new Date(hoy.getFullYear(), hoy.getMonth()-i, 1);
+      meses.push(d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0"));
+    }
+    var mesLbls = meses.map(function(m){ var p=m.split("-"); return new Date(+p[0],+p[1]-1,1).toLocaleDateString("es-PE",{month:"short",year:"2-digit"}); });
+    function countPorMes(rows) {
+      var byM = {}; meses.forEach(function(m){byM[m]=0;});
+      rows.forEach(function(o){
+        var m = String(o.fecha||o.created_at||"").substring(0,7);
+        if (byM.hasOwnProperty(m)) byM[m]++;
+      });
+      return meses.map(function(m){return byM[m];});
+    }
+    var tdatasets = [];
+    if (stA) tdatasets.push({label:sA, data:countPorMes(stA.rows), borderColor:R, backgroundColor:R+'22', tension:0.3, pointRadius:3, pointBackgroundColor:R});
+    if (stB) tdatasets.push({label:sB, data:countPorMes(stB.rows), borderColor:B, backgroundColor:B+'22', tension:0.3, pointRadius:3, pointBackgroundColor:B});
+    new Chart(ctxT, {type:'line',
+      data:{labels:mesLbls, datasets:tdatasets},
+      options:{responsive:true, maintainAspectRatio:false,
+        plugins:{legend:{position:'bottom', labels:{boxWidth:10, font:{size:10}}}},
+        scales:{y:{beginAtZero:true, ticks:{stepSize:1, font:{size:9}}}, x:{ticks:{font:{size:9}}}}
+      }
+    });
+  }
 }
 
 function handleFotoCierreAudit(input) {
@@ -3119,10 +3144,8 @@ function renderLista(data) {
       if (o.comentario_cierre) h += '<div style="font-size:11px;color:#3A3F37;margin-top:3px">'+o.comentario_cierre+'</div>';
       if (o.foto_despues) h += '<img src="'+o.foto_despues+'" onclick="abrirFoto(this.src)" style="width:52px;height:52px;object-fit:cover;border-radius:6px;margin-top:4px;cursor:pointer">';
       h += '</div>';
-    } else {
-      // Solo botón Corregir — sin Editar
-      h += '<button onclick="abrirModalCorregir('+o.id+')" style="width:100%;margin-top:8px;padding:9px;background:'+G+';color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:700;font-size:13px">&#10003; Marcar como Corregida</button>';
     }
+    h += '<button onclick="abrirModalObs('+o.id+')" style="width:100%;margin-top:8px;padding:9px;background:transparent;color:var(--g600);border:1px solid var(--g200);border-radius:8px;cursor:pointer;font-weight:600;font-size:13px">&#9998; Editar</button>';
     h += '</div>';
     return h;
   }).join("");
@@ -3403,7 +3426,7 @@ function exportarPDFGerencial(btn) {
   }
 }
 
-function abrirModalCorregir(id) {
+function abrirModalObs(id) {
   obsActual = (observations||[]).find(function(o){ return o.id === id; });
   if (!obsActual) { showToast("Observacion no encontrada", true); return; }
   // Cargar datos en el modal
@@ -3411,14 +3434,14 @@ function abrirModalCorregir(id) {
   var detEl   = document.getElementById("mo-detalle");
   var fotosEl = document.getElementById("mo-fotos-antes");
   var idEl    = document.getElementById("mo-id");
-  if (titleEl) titleEl.textContent = "Corregir: " + (obsActual.tipo||"Observacion");
+  if (titleEl) titleEl.textContent = obsActual.tipo||"Observacion";
   if (idEl)    idEl.value = obsActual.id;
   if (detEl) {
     detEl.innerHTML =
       '<div style="margin-bottom:4px"><strong>Area:</strong> '+(obsActual.area||"")+'</div>'
       +'<div style="margin-bottom:4px"><strong>Zona:</strong> '+(obsActual.zona||"")+'</div>'
       +'<div style="margin-bottom:4px"><strong>Tipo:</strong> '+(obsActual.tipo||"")+(obsActual.s&&obsActual.s!=="—"?" ("+obsActual.s+")":"")+'</div>'
-      +'<div><strong>Observacion:</strong> '+(obsActual.obs||"")+'</div>';
+      +'<div><strong>Descripción del levantamiento:</strong> '+(obsActual.obs||"")+'</div>';
   }
   if (fotosEl) {
     fotosEl.innerHTML = "";
@@ -3430,14 +3453,6 @@ function abrirModalCorregir(id) {
       fotosEl.appendChild(img);
     });
   }
-  // Limpiar campos de cierre
-  var comEl = document.getElementById("mo-comentario");
-  if (comEl) comEl.value = "";
-  photoCierre = null;
-  var dropEl = document.getElementById("drop-cierre");
-  if (dropEl) dropEl.style.borderColor = "var(--red)";
-  var prevEl = document.getElementById("prev-cierre");
-  if (prevEl) prevEl.innerHTML = "";
   openModal("modal-obs");
 }
 
@@ -3679,16 +3694,17 @@ function renderComparativo() {
   }
 
   // Construir arrays de sectores y auditores
-  var sectores = Object.keys(SECTOR_AREA_MAP).sort();
-  var auditores = Object.keys(AUDITORES_SECTORES).sort();
+  var sectores = _sortEs(Object.keys(SECTOR_AREA_MAP));
+  var auditores = _sortEs(Object.keys(AUDITORES_SECTORES));
+  var areasUnicasInit = _sortEs(_uniq(Object.values(SECTOR_AREA_MAP)));
 
   var sectOpts = [];
   for (var i = 0; i < sectores.length; i++) {
     sectOpts.push({v: sectores[i], l: sectores[i]});
   }
   var areaOpts = [];
-  for (var i = 0; i < sectores.length; i++) {
-    areaOpts.push({v: sectores[i], l: SECTOR_AREA_MAP[sectores[i]] || sectores[i]});
+  for (var i = 0; i < areasUnicasInit.length; i++) {
+    areaOpts.push({v: areasUnicasInit[i], l: areasUnicasInit[i]});
   }
   var audOpts = [];
   for (var i = 0; i < auditores.length; i++) {
@@ -3697,12 +3713,12 @@ function renderComparativo() {
 
   // TIPOS de observación
   var TIPOS = [
-    {tipo:"Presencia de Innecesarios", s:"1S"},
     {tipo:"Desorden", s:"2S"},
+    {tipo:"Falta de EPP", s:"EPP"},
     {tipo:"Falta de limpieza", s:"3S"},
     {tipo:"Falta de rotulacion y demarcacion", s:"4S"},
     {tipo:"Incumplimiento del Estandar", s:"5S"},
-    {tipo:"Falta de EPP", s:"EPP"}
+    {tipo:"Presencia de Innecesarios", s:"1S"}
   ];
   window.TIPOS = TIPOS;
   var tipoOpts = [];
@@ -3713,10 +3729,12 @@ function renderComparativo() {
   // ── RECORRIDO ─────────────────────────────────────────────
   poblar("f-area",       sectOpts, "— Selecciona sector —");
   poblar("f-tipo",       tipoOpts, "— Tipo de observacion —");
-  poblar("fil-area",     sectOpts, "Todas las areas");
+  poblar("fil-area",     areaOpts, "Todas las areas");
   poblar("fil-sector",   sectOpts, "Todos los sectores");
   poblar("d-fil-sector", sectOpts, "Todos los sectores");
   poblar("d-fil-area",   areaOpts, "Todas las areas");
+  poblar("rcmp-sector-a",sectOpts, "Sector A");
+  poblar("rcmp-sector-b",sectOpts, "Sector B");
 
   // ── CHECK LIST ────────────────────────────────────────────
   poblar("a-auditor",    audOpts,  "— Selecciona auditor —");

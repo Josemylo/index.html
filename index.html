@@ -42,7 +42,7 @@ main{max-width:720px;margin:0 auto;padding:18px 14px 100px}
 .section{display:none}.section.active{display:block}
 .card{background:#fff;border-radius:var(--r);box-shadow:var(--sh);padding:18px;margin-bottom:14px}
 .card-title{font-family:"Barlow Condensed",sans-serif;font-size:17px;font-weight:700;color:var(--green);margin-bottom:14px;text-transform:uppercase;letter-spacing:.4px;border-left:4px solid var(--red);padding-left:10px}
-.fg{margin-bottom:13px}
+.fg{margin-bottom:13px;position:relative}
 label{display:block;font-size:11px;font-weight:600;color:var(--g700);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
 select,input[type=text],textarea{width:100%;padding:10px 12px;border:1.5px solid var(--g200);border-radius:8px;font-family:"Barlow",sans-serif;font-size:15px;color:var(--g900);background:#fff;transition:border-color .18s;-webkit-appearance:none}
 select:focus,input:focus,textarea:focus{outline:none;border-color:var(--green)}
@@ -138,7 +138,10 @@ textarea{resize:vertical;min-height:78px}
 .audn-pts-btn[data-pts="-10"]{border-color:#FED7AA;background:#FFF7ED;color:#C2410C}
 .audn-pts-btn[data-pts="-5"]{border-color:#FDE68A;background:#FFFBEB;color:#B45309}
 .audn-pts-btn[data-pts="5"]{border-color:#BBF7D0;background:#F0FDF4;color:#15803D;grid-column:1/-1}
-.audn-pts-btn.active{transform:scale(1.04);box-shadow:0 0 0 3px rgba(0,0,0,.2)}
+.audn-pts-btn.active{transform:scale(1.04);box-shadow:0 0 0 3px rgba(0,0,0,.2)}.sector-dd{display:none;position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid var(--g200);border-radius:10px;max-height:230px;overflow-y:auto;z-index:80;box-shadow:0 6px 18px rgba(0,0,0,.14);margin-top:4px}
+.sector-dd-item{padding:11px 12px;font-size:13px;cursor:pointer;border-bottom:1px solid var(--g50)}
+.sector-dd-item:hover,.sector-dd-item.hl{background:var(--g50)}
+.sector-dd-item:last-child{border-bottom:none}
 </style>
 </head>
 
@@ -326,8 +329,8 @@ textarea{resize:vertical;min-height:78px}
       <input type="text" id="f-auditor" placeholder="Tu nombre completo" oninput="this.style.borderColor=this.value?'var(--green)':''">
     </div>
     <div class="fg"><label>Sector <span class="req">*</span></label>
-      <input type="text" id="f-area" list="f-area-list" placeholder="Escribe para buscar un sector..." autocomplete="off" oninput="updateZonas()">
-      <datalist id="f-area-list"></datalist>
+      <input type="text" id="f-area" placeholder="Toca para ver todos o escribe para buscar..." autocomplete="off" oninput="filtrarSectorDropdown('f-area');updateZonas()" onfocus="mostrarSectorDropdown('f-area')">
+      <div class="sector-dd" id="f-area-dd"></div>
     </div>
     <div class="row2">
       <div class="fg"><label>Area</label>
@@ -518,8 +521,8 @@ textarea{resize:vertical;min-height:78px}
       <input type="month" id="a-nro" readonly style="background:var(--g50);font-weight:700;color:var(--blue)">
     </div>
     <div class="fg"><label>Sector auditado <span class="req">*</span></label>
-      <input type="text" id="a-sector" list="a-sector-list" placeholder="Elige auditor primero" autocomplete="off" disabled oninput="onSectorChange()">
-      <datalist id="a-sector-list"></datalist>
+      <input type="text" id="a-sector" placeholder="Elige auditor primero" autocomplete="off" disabled oninput="filtrarSectorDropdown('a-sector');onSectorChange()" onfocus="mostrarSectorDropdown('a-sector')">
+      <div class="sector-dd" id="a-sector-dd"></div>
     </div>
     <div class="fg"><label>Área</label>
       <input type="text" id="a-area" readonly style="background:var(--g50);color:var(--green);font-weight:700" placeholder="Se asigna automáticamente">
@@ -755,8 +758,8 @@ textarea{resize:vertical;min-height:78px}
       </div>
       <div class="fg">
         <label>Sector auditado <span class="req">*</span></label>
-        <input type="text" id="audn-sector" list="audn-sector-list" placeholder="Escribe para buscar un sector..." autocomplete="off" oninput="audn_onSectorChange()">
-        <datalist id="audn-sector-list"></datalist>
+        <input type="text" id="audn-sector" placeholder="Toca para ver todos o escribe para buscar..." autocomplete="off" oninput="filtrarSectorDropdown('audn-sector');audn_onSectorChange()" onfocus="mostrarSectorDropdown('audn-sector')">
+        <div class="sector-dd" id="audn-sector-dd"></div>
       </div>
       <div class="fg">
         <label>Área</label>
@@ -1057,6 +1060,60 @@ var obsActual = null;
 var periodoEvol = "sem";
 var periodoArea = "sem";
 var _dashObsCache = [];
+var _sectorDDData = {};
+
+function mostrarSectorDropdown(id) {
+  filtrarSectorDropdown(id);
+}
+
+function filtrarSectorDropdown(id) {
+  var input = document.getElementById(id);
+  var dd = document.getElementById(id + "-dd");
+  if (!input || !dd || input.disabled) return;
+  var q = (input.value || "").toLowerCase().trim();
+  var opciones = _sectorDDData[id] || [];
+  var filtradas = q ? opciones.filter(function(o) {
+    return (o.l || "").toLowerCase().indexOf(q) > -1;
+  }) : opciones;
+  if (!filtradas.length) {
+    dd.innerHTML = '<div style="padding:11px 12px;font-size:13px;color:var(--g400)">Sin resultados</div>';
+  } else {
+    dd.innerHTML = filtradas.map(function(o) {
+      var esc = String(o.v).replace(/"/g, "&quot;");
+      return '<div class="sector-dd-item" onmousedown="event.preventDefault();seleccionarSectorDropdown(\'' + id + '\',\'' + esc.replace(/'/g, "\\'") + '\')">' + o.l + '</div>';
+    }).join('');
+  }
+  dd.style.display = "block";
+}
+
+function seleccionarSectorDropdown(id, valor) {
+  var input = document.getElementById(id);
+  if (!input) return;
+  input.value = valor;
+  cerrarSectorDropdown(id);
+  input.dispatchEvent(new Event("input", {bubbles: true}));
+}
+
+function cerrarSectorDropdown(id) {
+  var dd = document.getElementById(id + "-dd");
+  if (dd) dd.style.display = "none";
+}
+
+function cerrarTodosSectorDropdown() {
+  Object.keys(_sectorDDData).forEach(cerrarSectorDropdown);
+}
+
+document.addEventListener("click", function(e) {
+  var wrap = e.target.closest ? e.target.closest(".fg") : null;
+  Object.keys(_sectorDDData).forEach(function(id) {
+    var input = document.getElementById(id);
+    var dd = document.getElementById(id + "-dd");
+    if (!input || !dd) return;
+    if (e.target !== input && (!dd.contains || !dd.contains(e.target))) {
+      dd.style.display = "none";
+    }
+  });
+});
 
 // Estado para Auditoría Nueva
 var audn_state = {};
@@ -1164,11 +1221,8 @@ function iniciarAuditoriaNew() {
   document.getElementById("app-auditoria-nueva").style.display = "block";
   
   var sectEl = document.getElementById("audn-sector");
-  var sectListEl = document.getElementById("audn-sector-list");
-  if (sectListEl && sectListEl.options.length <= 0) {
-    _sortEs(Object.keys(SECTOR_AREA_MAP)).forEach(function(sector){
-      sectListEl.innerHTML += '<option value="'+sector+'">';
-    });
+  if (!_sectorDDData["audn-sector"] || !_sectorDDData["audn-sector"].length) {
+    _sectorDDData["audn-sector"] = _sortEs(Object.keys(SECTOR_AREA_MAP)).map(function(s){ return {v:s, l:s}; });
   }
   
   var areasUnicas = _sortEs(_uniq(Object.values(SECTOR_AREA_MAP)));
@@ -1211,12 +1265,11 @@ function salirAuditoriaNew() {
 function onAuditorChange() {
   var auditor   = document.getElementById("a-auditor").value;
   var sectorSel = document.getElementById("a-sector");
-  var sectorList = document.getElementById("a-sector-list");
   if (!sectorSel) return;
 
   // Limpiar sector y dependientes
   sectorSel.value = "";
-  if (sectorList) sectorList.innerHTML = "";
+  cerrarSectorDropdown("a-sector");
   var areaEl = document.getElementById("a-area");
   var respEl = document.getElementById("a-responsable");
   if (areaEl)  areaEl.value = "";
@@ -1225,16 +1278,13 @@ function onAuditorChange() {
   if (!auditor) {
     sectorSel.disabled = true;
     sectorSel.placeholder = "Elige auditor primero";
+    _sectorDDData["a-sector"] = [];
     return;
   }
 
   // Poblar sectores del auditor
   var sectores = _sortEs(AUDITORES_SECTORES[auditor] || []);
-  if (sectorList) {
-    sectores.forEach(function(s) {
-      sectorList.innerHTML += '<option value="'+s+'">';
-    });
-  }
+  _sectorDDData["a-sector"] = sectores.map(function(s){ return {v:s, l:s}; });
   sectorSel.disabled = false;
   sectorSel.placeholder = "Escribe para buscar un sector...";
 }
@@ -3798,14 +3848,8 @@ function renderComparativo() {
     el.innerHTML = html;
   }
 
-  function poblarDatalist(id, opciones) {
-    var el = document.getElementById(id);
-    if (!el) return;
-    var html = '';
-    for (var i = 0; i < opciones.length; i++) {
-      html += '<option value="' + opciones[i].v + '">';
-    }
-    el.innerHTML = html;
+  function registrarOpcionesSector(id, opciones) {
+    _sectorDDData[id] = opciones;
   }
 
   // Construir arrays de sectores y auditores
@@ -3842,7 +3886,7 @@ function renderComparativo() {
   }
 
   // ── RECORRIDO ─────────────────────────────────────────────
-  poblarDatalist("f-area-list", sectOpts);
+  registrarOpcionesSector("f-area", sectOpts);
   poblar("f-tipo",       tipoOpts, "— Tipo de observacion —");
   poblar("fil-area",     areaOpts, "Todas las areas");
   poblar("fil-sector",   sectOpts, "Todos los sectores");
@@ -3862,7 +3906,7 @@ function renderComparativo() {
   poblar("ofil-sector",  sectOpts, "Todos los sectores");
 
   // ── AUDITORÍA ─────────────────────────────────────────────
-  poblarDatalist("audn-sector-list", sectOpts);
+  registrarOpcionesSector("audn-sector", sectOpts);
   poblar("audn-fil-area",       areaOpts, "Todas las areas");
   poblar("audn-fil-accion-area",areaOpts, "Todas las areas");
 

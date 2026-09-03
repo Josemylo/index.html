@@ -329,7 +329,7 @@ textarea{resize:vertical;min-height:78px}
       <input type="text" id="f-auditor" placeholder="Tu nombre completo" oninput="this.style.borderColor=this.value?'var(--green)':''">
     </div>
     <div class="fg"><label>Sector <span class="req">*</span></label>
-      <input type="text" id="f-area" placeholder="Toca para ver todos o escribe para buscar..." autocomplete="off" oninput="filtrarSectorDropdown('f-area');updateZonas()" onfocus="mostrarSectorDropdown('f-area')">
+      <input type="text" id="f-area" placeholder="Toca para ver todos o escribe para buscar..." autocomplete="off" oninput="filtrarSectorDropdown('f-area');updateZonas()" onfocus="mostrarSectorDropdown('f-area')" onclick="mostrarSectorDropdown('f-area')">
       <div class="sector-dd" id="f-area-dd"></div>
     </div>
     <div class="row2">
@@ -521,7 +521,7 @@ textarea{resize:vertical;min-height:78px}
       <input type="month" id="a-nro" readonly style="background:var(--g50);font-weight:700;color:var(--blue)">
     </div>
     <div class="fg"><label>Sector auditado <span class="req">*</span></label>
-      <input type="text" id="a-sector" placeholder="Elige auditor primero" autocomplete="off" disabled oninput="filtrarSectorDropdown('a-sector');onSectorChange()" onfocus="mostrarSectorDropdown('a-sector')">
+      <input type="text" id="a-sector" placeholder="Elige auditor primero" autocomplete="off" disabled oninput="filtrarSectorDropdown('a-sector');onSectorChange()" onfocus="mostrarSectorDropdown('a-sector')" onclick="mostrarSectorDropdown('a-sector')">
       <div class="sector-dd" id="a-sector-dd"></div>
     </div>
     <div class="fg"><label>Área</label>
@@ -758,7 +758,7 @@ textarea{resize:vertical;min-height:78px}
       </div>
       <div class="fg">
         <label>Sector auditado <span class="req">*</span></label>
-        <input type="text" id="audn-sector" placeholder="Toca para ver todos o escribe para buscar..." autocomplete="off" oninput="filtrarSectorDropdown('audn-sector');audn_onSectorChange()" onfocus="mostrarSectorDropdown('audn-sector')">
+        <input type="text" id="audn-sector" placeholder="Toca para ver todos o escribe para buscar..." autocomplete="off" oninput="filtrarSectorDropdown('audn-sector');audn_onSectorChange()" onfocus="mostrarSectorDropdown('audn-sector')" onclick="mostrarSectorDropdown('audn-sector')">
         <div class="sector-dd" id="audn-sector-dd"></div>
       </div>
       <div class="fg">
@@ -1063,6 +1063,12 @@ var _dashObsCache = [];
 var _sectorDDData = {};
 
 function mostrarSectorDropdown(id) {
+  var input = document.getElementById(id);
+  if (input) {
+    setTimeout(function(){
+      input.scrollIntoView({block: "center", behavior: "smooth"});
+    }, 250);
+  }
   filtrarSectorDropdown(id);
 }
 
@@ -1080,10 +1086,24 @@ function filtrarSectorDropdown(id) {
   } else {
     dd.innerHTML = filtradas.map(function(o) {
       var esc = String(o.v).replace(/"/g, "&quot;");
-      return '<div class="sector-dd-item" onmousedown="event.preventDefault();seleccionarSectorDropdown(\'' + id + '\',\'' + esc.replace(/'/g, "\\'") + '\')">' + o.l + '</div>';
+      return '<div class="sector-dd-item" onmousedown="event.preventDefault();seleccionarSectorDropdown(\'' + id + '\',\'' + esc.replace(/'/g, "\\'") + '\')" ontouchstart="event.preventDefault();seleccionarSectorDropdown(\'' + id + '\',\'' + esc.replace(/'/g, "\\'") + '\')">' + o.l + '</div>';
     }).join('');
   }
   dd.style.display = "block";
+  // Si no hay espacio suficiente debajo (ej. teclado del celular cubriendo la pantalla), abrir hacia arriba
+  var rect = input.getBoundingClientRect();
+  var espacioAbajo = window.innerHeight - rect.bottom;
+  if (espacioAbajo < 180) {
+    dd.style.top = "auto";
+    dd.style.bottom = "100%";
+    dd.style.marginTop = "0";
+    dd.style.marginBottom = "4px";
+  } else {
+    dd.style.top = "100%";
+    dd.style.bottom = "auto";
+    dd.style.marginTop = "4px";
+    dd.style.marginBottom = "0";
+  }
 }
 
 function seleccionarSectorDropdown(id, valor) {
@@ -1104,12 +1124,13 @@ function cerrarTodosSectorDropdown() {
 }
 
 document.addEventListener("click", function(e) {
-  var wrap = e.target.closest ? e.target.closest(".fg") : null;
   Object.keys(_sectorDDData).forEach(function(id) {
     var input = document.getElementById(id);
     var dd = document.getElementById(id + "-dd");
     if (!input || !dd) return;
-    if (e.target !== input && (!dd.contains || !dd.contains(e.target))) {
+    var dentroInput = input.contains ? input.contains(e.target) : e.target === input;
+    var dentroDD = dd.contains ? dd.contains(e.target) : false;
+    if (!dentroInput && !dentroDD) {
       dd.style.display = "none";
     }
   });

@@ -1111,7 +1111,10 @@ function seleccionarSectorDropdown(id, valor) {
   if (!input) return;
   input.value = valor;
   cerrarSectorDropdown(id);
-  input.dispatchEvent(new Event("input", {bubbles: true}));
+  // Ejecutar solo la lógica dependiente del campo (NO volver a filtrar/abrir el desplegable)
+  if (id === "f-area" && typeof updateZonas === "function") updateZonas();
+  else if (id === "a-sector" && typeof onSectorChange === "function") onSectorChange();
+  else if (id === "audn-sector" && typeof audn_onSectorChange === "function") audn_onSectorChange();
 }
 
 function cerrarSectorDropdown(id) {

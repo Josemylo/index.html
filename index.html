@@ -220,7 +220,7 @@ textarea{resize:vertical;min-height:78px}
         <label style="display:flex;align-items:center;gap:8px;padding:10px;background:#F7F8F6;border:2px dashed #D5DAD3;border-radius:8px;cursor:pointer">
           <span style="font-size:20px">📷</span>
           <span style="font-size:13px;color:#8F9B8A">Tomar foto o seleccionar archivo</span>
-          <input type="file" id="cierre-foto-input" accept="image/*" capture="environment"
+          <input type="file" id="cierre-foto-input" accept="image/*"
             style="display:none" onchange="previewFotoCierre(this)">
         </label>
       </div>
@@ -942,7 +942,7 @@ textarea{resize:vertical;min-height:78px}
           <div style="font-size:28px">📷</div>
           <div style="font-size:12px;color:var(--g400)">Toca para agregar foto antes</div>
         </div>
-        <input type="file" id="audn-input-foto-antes" accept="image/*" capture="environment" style="display:none" onchange="audn_fotoAntes(this)">
+        <input type="file" id="audn-input-foto-antes" accept="image/*" style="display:none" onchange="audn_fotoAntes(this)">
         <img id="audn-preview-antes" style="display:none;width:100%;border-radius:8px;margin-top:8px;max-height:180px;object-fit:cover">
       </div>
       <div class="fg">
@@ -1021,7 +1021,7 @@ textarea{resize:vertical;min-height:78px}
         <div style="font-size:24px">📸</div>
         <div style="font-size:12px;color:var(--g400)">Foto del estado corregido</div>
       </div>
-      <input type="file" id="audn-input-foto-despues" accept="image/*" capture="environment" style="display:none" onchange="audn_fotoDespues(this)">
+      <input type="file" id="audn-input-foto-despues" accept="image/*" style="display:none" onchange="audn_fotoDespues(this)">
       <img id="audn-preview-despues" style="display:none;width:100%;border-radius:8px;margin-top:8px;max-height:180px;object-fit:cover">
     </div>
     <div style="display:flex;gap:10px;margin-top:4px">
@@ -1068,7 +1068,7 @@ var SECTOR_AREA_MAP = {"ALM. TEMPORAL MP": "LOGISTICA", "ALM. DE INSUMOS": "LOGI
 var RESP_SECTOR = {"ALM. TEMPORAL MP": "Claudio Escobedo Chávez", "ALM. DE INSUMOS": "Claudio Escobedo Chávez", "ALM. DE REPUESTOS": "Claudio Escobedo Chávez", "ALM. DE INSUMOS GENERALES": "Claudio Escobedo Chávez", "ALM. DE INSUMOS QUÍMICOS": "Claudio Escobedo Chávez", "ALM. DE PT 1": "Claudio Escobedo Chávez", "ALM. TEMPORAL PT": "Claudio Escobedo Chávez", "ALM. PT HANGAR 8": "Claudio Escobedo Chávez", "ALM. PT HANGAR 10": "Claudio Escobedo Chávez", "ALM. DE ENVASES Y EMBALAJES": "Claudio Escobedo Chávez", "OFIC. DE JEF. DE PRODUCCIÓN": "Henry Treviños Torres", "OFIC. DE PLANEAMIENTO": "Freddy Pacherres", "OFIC. DE MEJORA CONTINUA": "Darlene Cruz Donayre", "SALA DE REUNIONES MC": "Carlos Luyo", "OFIC. DE JEFATURA DE PLANTA": "Fabio Caldas Antúnez", "OFIC. DE GESTION HUMANA": "Álvaro Sotomayor Checa", "OFIC. DE SEGURIDAD CIVIL / GARITA": "Fabio Caldas Antúnez", "OFIC. DE SEG. INDUSTRIAL": "Ubaldo Llacho Alhuirca", "OFIC. DE LOGÍSTICA": "Claudio Escobedo Chávez", "OFIC. DE APT": "Claudio Escobedo Chávez", "OFIC. DE CONTROL INTERNO": "Fabio Caldas Antúnez", "OFIC. DE FINANZAS": "Fabio Caldas Antúnez", "OFIC. DE SISTEMAS": "Fabio Caldas Antúnez", "OFIC. DE CONTABILIDAD": "Fabio Caldas Antúnez", "OFIC. DE COMUNICACIONES": "Fabio Caldas Antúnez", "OFIC. DE COSTOS": "Eber Valdez Nolasco", "OFIC. DE PROYECTOS": "Fabio Caldas Antúnez", "AUDITORIO DE PLANTA": "Álvaro Sotomayor Checa", "TÓPICO": "Ubaldo Llacho Alhuirca", "COMEDOR": "Álvaro Sotomayor Checa", "SSHH Y VESTUARIOS": "Álvaro Sotomayor Checa", "LÍNEA 1": "Henry Treviños Torres", "LÍNEA 2": "Junior Gervacio", "LÍNEA 3": "Daniel Taboada", "LÍNEA 4": "Juan Gordillo", "LÍNEA 5": "Yoner Angulo", "LINEA 6": "Fabricio Polo", "LÍNEA 7": "William Arhuiz", "LÍNEA 8": "Yoner Angulo", "LÍNEA 9": "Junior Gervacio", "SALA DE JARABE": "Juan Gordillo", "TRATAMIENTO DE AGUAS": "William Arhuiz", "OFICINA DE PRODUCCIÓN": "Henry Treviños Torres", "SALA DE CALDERO": "Daniel Taboada", "SALA DE MANEJOS": "Carlos Luyo", "SALA DE FUERZAS": "Roberto Cárdenas Arias", "TALLER DE MANT. MECÁNICO": "Roberto Cárdenas Arias", "TALLER DE MANT. ELÉCTRICO": "Roberto Cárdenas Arias", "SUB-ESTACIÓN": "Roberto Cárdenas Arias", "OFIC. SOSTENIBILIDAD Y SGI": "Martin Castillo Guerra", "SALA DE MUESTRAS": "Martin Castillo Guerra", "LAB. FISICOQUÍMICO": "Martin Castillo Guerra", "OFIC. ALM. DE REPUESTOS": "Claudio Escobedo Chávez", "OFICINA DE MANTENIMIENTO": "Roberto Cárdenas Arias", "LAB. MICROBIOLÓGICO": "Martin Castillo Guerra", "OFIC. SUPERVISORES SOS": "Martin Castillo Guerra", "LINEA 10": "Fabricio Polo", "LABORATORIO DE SOPLADO": "Fabricio Polo", "SECRETARIA GENERAL": "Fabio Caldas Antúnez"};;
 
 // Auditor y sus sectores asignados (del Excel)
-var AUDITORES_SECTORES = {"Fabio Caldas Antúnez": ["LÍNEA 1", "OFIC. DE COSTOS", "AUDITORIO DE PLANTA"], "Ítalo Buendia Poma": ["ALM. DE ENVASES Y EMBALAJES", "OFICINA DE PRODUCCIÓN", "OFIC. DE LOGÍSTICA"], "Héctor Arteaga Espinoza": ["SUB-ESTACIÓN", "OFIC. DE COMUNICACIONES", "LÍNEA 4"], "Carlos Joél Luyo Diaz": ["TÓPICO", "ALM. DE PT 1", "OFIC. DE FINANZAS"], "Enrique Fabricio Polo Manrique": ["ALM. PT HANGAR 8", "SECRETARIA GENERAL", "SALA DE FUERZAS"], "Ayrton Raphael Cotrina Esteves": ["LÍNEA 9", "OFIC. DE CONTROL INTERNO", "OFIC. DE SEG. INDUSTRIAL"], "William Jesus Joel Rivera Ramirez": ["LABORATORIO DE SOPLADO", "LÍNEA 7", "OFIC. DE SEGURIDAD CIVIL / GARITA"], "Nuria del Pilar Diaz Ramirez": ["OFIC. DE JEFATURA DE PLANTA", "COMEDOR", "OFICINA DE MANTENIMIENTO"], "Alejandro Salvador Grados": ["OFIC. DE APT", "ALM. DE INSUMOS", "LÍNEA 2"], "Adiel Abednego Aguayo Flores": ["OFIC. ALM. DE REPUESTOS", "TALLER DE MANT. ELÉCTRICO", "LÍNEA 3"], "Roberto Carlos Medina La Rosa": ["SSHH Y VESTUARIOS", "OFIC. DE CONTABILIDAD", "LÍNEA 5"], "Ulises Eliseo Anselmo Carranza": ["OFIC. DE GESTION HUMANA", "OFIC. DE JEF. DE PRODUCCIÓN", "SALA DE MUESTRAS"], "Dylan Yaret Pintado Fernandez": ["ALM. TEMPORAL MP", "OFIC. SUPERVISORES SOS", "LINEA 6"], "Mariluz Reynaldina Montes Laurente": ["SALA DE CALDERO", "LINEA 10", "ALM. DE REPUESTOS"], "Paula Valeria Cecilia La Rosa La Rosa": ["OFIC. DE MEJORA CONTINUA", "ALM. DE INSUMOS GENERALES", "LAB. FISICOQUÍMICO"], "Cristopher William Reyes Islado": ["LÍNEA 8", "TALLER DE MANT. MECÁNICO", "TRATAMIENTO DE AGUAS"], "Rosa Emilia Mejia Jaimes": ["OFIC. DE SISTEMAS", "ALM. PT HANGAR 10"], "Julio Arroyo Puse": ["ALM. DE INSUMOS QUÍMICOS", "ALM. TEMPORAL PT"], "Luis Bossio Vargas": ["SALA DE REUNIONES MC", "SALA DE JARABE", "OFIC. DE PROYECTOS"], "Darlene Cruz Donayre": ["SALA DE MANEJOS", "LAB. MICROBIOLÓGICO", "OFIC. DE PLANEAMIENTO", "OFIC. SOSTENIBILIDAD Y SGI"]};;
+var AUDITORES_SECTORES = {"Fabio Caldas Antúnez": ["LÍNEA 1", "OFIC. DE COSTOS", "AUDITORIO DE PLANTA"], "Ítalo Buendia Poma": ["ALM. DE ENVASES Y EMBALAJES", "OFICINA DE PRODUCCIÓN", "OFIC. DE LOGÍSTICA"], "Héctor Arteaga Espinoza": ["SUB-ESTACIÓN", "OFIC. DE COMUNICACIONES", "LÍNEA 4"], "Carlos Joél Luyo Diaz": ["TÓPICO", "ALM. DE PT 1", "OFIC. DE FINANZAS"], "Enrique Fabricio Polo Manrique": ["ALM. PT HANGAR 8", "SECRETARIA GENERAL", "SALA DE FUERZAS"], "Ayrton Raphael Cotrina Esteves": ["LÍNEA 9", "OFIC. DE CONTROL INTERNO", "OFIC. DE SEG. INDUSTRIAL"], "William Jesus Joel Rivera Ramirez": ["LABORATORIO DE SOPLADO", "LÍNEA 7", "OFIC. DE SEGURIDAD CIVIL / GARITA"], "Nuria del Pilar Diaz Ramirez": ["OFIC. DE JEFATURA DE PLANTA", "COMEDOR", "OFICINA DE MANTENIMIENTO"], "Alejandro Salvador Grados": ["OFIC. DE APT", "ALM. DE INSUMOS", "LÍNEA 2"], "Adiel Abednego Aguayo Flores": ["OFIC. ALM. DE REPUESTOS", "TALLER DE MANT. ELÉCTRICO", "LÍNEA 3"], "Roberto Carlos Medina La Rosa": ["SSHH Y VESTUARIOS", "OFIC. DE CONTABILIDAD", "LÍNEA 5"], "Ulises Eliseo Anselmo Carranza": ["OFIC. DE GESTION HUMANA", "OFIC. DE JEF. DE PRODUCCIÓN", "SALA DE MUESTRAS"], "Dylan Yaret Pintado Fernandez": ["ALM. TEMPORAL MP", "OFIC. SUPERVISORES SOS", "LINEA 6"], "Mariluz Reynaldina Montes Laurente": ["SALA DE CALDERO", "LINEA 10", "ALM. DE REPUESTOS"], "Cesar Ramirez Monzon": ["OFIC. DE MEJORA CONTINUA", "ALM. DE INSUMOS GENERALES", "LAB. FISICOQUÍMICO"], "Cristopher William Reyes Islado": ["LÍNEA 8", "TALLER DE MANT. MECÁNICO", "TRATAMIENTO DE AGUAS"], "Rosa Emilia Mejia Jaimes": ["OFIC. DE SISTEMAS", "ALM. PT HANGAR 10"], "Julio Arroyo Puse": ["ALM. DE INSUMOS QUÍMICOS", "ALM. TEMPORAL PT"], "Luis Bossio Vargas": ["SALA DE REUNIONES MC", "SALA DE JARABE", "OFIC. DE PROYECTOS"], "Darlene Cruz Donayre": ["SALA DE MANEJOS", "LAB. MICROBIOLÓGICO", "OFIC. DE PLANEAMIENTO", "OFIC. SOSTENIBILIDAD Y SGI"]};;
 
 // ============================================================
 // ESTADO GLOBAL
@@ -2194,6 +2194,10 @@ function abrirModalCierre(auditId, numCrit) {
   document.getElementById("cierre-fecha").style.borderColor       = "#1E7C34";
   document.getElementById("cierre-comentario").style.borderColor  = "#D5DAD3";
 
+  // Resetear el botón de confirmar (por si quedó deshabilitado de un cierre anterior)
+  var btnGuardar = document.getElementById("cierre-btn-guardar");
+  if (btnGuardar) { btnGuardar.disabled = false; btnGuardar.textContent = "✓ Confirmar Cierre"; }
+
   var modal = document.getElementById("modal-cierre-obs");
   modal.style.display = "flex";
   document.body.style.overflow = "hidden";
@@ -2277,6 +2281,7 @@ async function guardarCierreObs() {
   } catch(e) {
     console.error("Error cierre obs:", e);
     showToast("Error: " + e.message, true);
+  } finally {
     btn.disabled = false;
     btn.textContent = "✓ Confirmar Cierre";
   }

@@ -424,6 +424,11 @@ textarea{resize:vertical;min-height:78px}
       <div id="d-comparativo"></div>
     </div>
   </div>
+  <div class="dash-card">
+    <div class="dash-card-title">&#127942; Ranking de Auditores</div>
+    <div style="font-size:10px;color:var(--g400);margin:-4px 0 8px;font-style:italic">Quién está levantando más observaciones</div>
+    <div id="d-ranking-auditores"></div>
+  </div>
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
     <div class="dash-card" style="margin-bottom:0">
       <div class="dash-card-title">Estado obs.</div>
@@ -629,6 +634,11 @@ textarea{resize:vertical;min-height:78px}
     <div class="kpi-box amber"><div class="kpi-val" id="dk-pct">0%</div><div class="kpi-lbl">Cumplimiento</div></div>
   </div>
   <div id="progreso-sectores" style="margin-bottom:12px"></div>
+  <div class="dash-card">
+    <div class="dash-card-title">&#128203; Cumplimiento por Auditor</div>
+    <div style="font-size:10px;color:var(--g400);margin:-4px 0 8px;font-style:italic">Check List del mes actual — por nombre</div>
+    <div id="cumplimiento-auditores"></div>
+  </div>
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
     <div class="dash-card" style="margin-bottom:0">
       <div class="dash-card-title">Estado general planta</div>
@@ -1166,6 +1176,7 @@ var audn_accionAuditoriaId = null;
 var auditorias = [];
 var sectoresAuditados = new Set();
 var auditData = {};
+var _criterioFotoBlobs = {};
 var auditMeta = {};
 var fotoCierreAudit = null;
 
@@ -1243,6 +1254,7 @@ function iniciarCheckList() {
   document.getElementById("app-auditoria-nueva").style.display = "none";
   auditData = {};
   auditMeta = {};
+  _criterioFotoBlobs = {};
   var now = new Date();
   var mes = now.getFullYear() + "-" + String(now.getMonth()+1).padStart(2,"0");
   var nroEl   = document.getElementById("a-nro");
@@ -1404,8 +1416,55 @@ function showAuditTab(name) {
     if (secEl) secEl.style.display = (t === name) ? "block" : "none";
   });
   if (name === "historial")     cargarAuditorias().then(function(){ renderHistorial(); });
-  if (name === "dashboard")     cargarAuditorias().then(function(){ renderAuditDashboard(); });
+  if (name === "dashboard")     cargarAuditorias().then(function(){ renderAuditDashboard(); renderCumplimientoAuditores(); });
   if (name === "observaciones") cargarAuditorias().then(function(){ renderObsPendientes(); });
+}
+
+function renderCumplimientoAuditores() {
+  var el = document.getElementById("cumplimiento-auditores");
+  if (!el) return;
+  var hoy = new Date();
+  var mesActual = hoy.getFullYear() + "-" + String(hoy.getMonth()+1).padStart(2,"0");
+  var nombres = _sortEs(Object.keys(AUDITORES_SECTORES));
+  var lista = nombres.map(function(nombre) {
+    var sectoresAsignados = AUDITORES_SECTORES[nombre] || [];
+    var hechos = sectoresAsignados.filter(function(sector) {
+      return (auditorias || []).some(function(a) {
+        return a.auditor === nombre && a.sector === sector && String(a.fecha || "").substring(0, 7) === mesActual;
+      });
+    });
+    return { nombre: nombre, total: sectoresAsignados.length, hechos: hechos.length, completo: sectoresAsignados.length > 0 && hechos.length === sectoresAsignados.length };
+  });
+  var pendientes = lista.filter(function(x) { return !x.completo; });
+  var completos = lista.filter(function(x) { return x.completo; });
+
+  var h = "";
+  if (pendientes.length) {
+    h += '<div style="font-size:11px;font-weight:800;color:var(--red);text-transform:uppercase;margin-bottom:8px">&#9888; Pendientes este mes (' + pendientes.length + ')</div>';
+    pendientes.sort(function(a, b) { return a.hechos - b.hechos; });
+    pendientes.forEach(function(x) {
+      var pct = x.total ? Math.round(x.hechos / x.total * 100) : 0;
+      var col = pct === 0 ? "#E63329" : "#D97706";
+      h += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">'
+        + '<div style="flex:1;min-width:0">'
+        + '<div style="font-size:12px;font-weight:600;color:var(--g700);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + x.nombre + '</div>'
+        + '<div style="height:6px;background:var(--g100);border-radius:20px;overflow:hidden;margin-top:2px"><div style="height:100%;width:' + pct + '%;background:' + col + ';border-radius:20px"></div></div>'
+        + '</div>'
+        + '<div style="font-size:12px;font-weight:800;color:' + col + ';flex-shrink:0">' + x.hechos + '/' + x.total + '</div>'
+        + '</div>';
+    });
+  } else {
+    h += '<div style="text-align:center;padding:10px;background:#F0FDF4;border-radius:10px;margin-bottom:10px"><span style="font-size:12px;font-weight:700;color:#15803D">&#9989; ¡Todos los auditores completaron su Check List este mes!</span></div>';
+  }
+  if (completos.length) {
+    h += '<div style="font-size:11px;font-weight:700;color:var(--green);margin-top:10px;margin-bottom:6px">&#9989; Ya completado (' + completos.length + ')</div>';
+    h += '<div style="display:flex;flex-wrap:wrap;gap:6px">';
+    completos.forEach(function(x) {
+      h += '<span style="font-size:11px;background:#F0FDF4;color:#15803D;padding:4px 10px;border-radius:20px;font-weight:600">' + x.nombre + '</span>';
+    });
+    h += '</div>';
+  }
+  el.innerHTML = h;
 }
 
 // Función para renderizar pendientes (simplificada)
@@ -1433,6 +1492,23 @@ function getNivel(pct) {
 function setAuditField(num, field, val) {
   if (!auditData[num]) auditData[num] = {};
   auditData[num][field] = val;
+}
+
+function handleFotoCriterioCL(num, input) {
+  var file = input.files[0];
+  if (!file) return;
+  _criterioFotoBlobs[num] = file;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    if (!auditData[num]) auditData[num] = {};
+    auditData[num].fotoPreview = e.target.result;
+    var prevWrap = document.getElementById("foto-cl-prev-" + num);
+    if (prevWrap) {
+      prevWrap.innerHTML = '<img src="' + e.target.result + '" style="width:70px;height:70px;object-fit:cover;border-radius:8px;border:2px solid var(--green)">';
+      prevWrap.style.display = "block";
+    }
+  };
+  reader.readAsDataURL(file);
 }
 
 function updateProgreso() {
@@ -1472,7 +1548,12 @@ function renderCriterios() {
     if (noA) {
       h += '<input type="text" id="obs-cl-' + c.num + '" placeholder="Plan de Accion *" value="' + (d.obs||'') + '" oninput="setAuditField(' + c.num + ',\'obs\',this.value);this.style.borderColor=this.value.trim()?\'var(--g200)\':\'var(--red)\'" style="width:100%;padding:8px;border:1px solid var(--g200);border-radius:8px;font-size:13px;box-sizing:border-box;margin-bottom:6px">';
       h += '<input type="text" id="resp-cl-' + c.num + '" placeholder="Responsable" value="' + (d.responsable||auditMeta.responsable||'') + '" oninput="setAuditField(' + c.num + ',\'responsable\',this.value)" style="width:100%;padding:8px;border:1px solid var(--g200);border-radius:8px;font-size:13px;box-sizing:border-box;margin-bottom:6px">';
-      h += '<input type="date" id="fec-cl-' + c.num + '" title="Fecha tentativa (opcional)" value="' + (d.fecha_compromiso||'') + '" oninput="setAuditField(' + c.num + ',\'fecha_compromiso\',this.value)" style="width:100%;padding:8px;border:1px solid var(--g200);border-radius:8px;font-size:13px;box-sizing:border-box">';
+      h += '<input type="date" id="fec-cl-' + c.num + '" title="Fecha tentativa (opcional)" value="' + (d.fecha_compromiso||'') + '" oninput="setAuditField(' + c.num + ',\'fecha_compromiso\',this.value)" style="width:100%;padding:8px;border:1px solid var(--g200);border-radius:8px;font-size:13px;box-sizing:border-box;margin-bottom:6px">';
+      h += '<div id="foto-cl-prev-' + c.num + '" style="display:' + (d.fotoPreview ? 'block' : 'none') + ';margin-bottom:6px"><img src="' + (d.fotoPreview||'') + '" style="width:70px;height:70px;object-fit:cover;border-radius:8px;border:2px solid var(--green)"></div>';
+      h += '<label style="display:flex;align-items:center;gap:6px;padding:8px;background:var(--g50);border:1px dashed var(--g200);border-radius:8px;cursor:pointer">';
+      h += '<span style="font-size:15px">&#128247;</span><span style="font-size:12px;color:var(--g400)">Foto del plan de acción <em>(opcional)</em></span>';
+      h += '<input type="file" accept="image/*" style="display:none" onchange="handleFotoCriterioCL(' + c.num + ',this)">';
+      h += '</label>';
     }
     h += '</div>';
     return h;
@@ -1488,8 +1569,10 @@ function setCriterio(num, resp) {
     obs:              resp === 'SI' ? '' : (prev.obs              || ''),
     responsable:      resp === 'SI' ? '' : (prev.responsable      || auditMeta.responsable || ''),
     fecha_compromiso: resp === 'SI' ? '' : (prev.fecha_compromiso || ''),
-    fotos:            prev.fotos || []
+    fotos:            prev.fotos || [],
+    fotoPreview:      resp === 'SI' ? '' : (prev.fotoPreview || '')
   };
+  if (resp === 'SI') delete _criterioFotoBlobs[num];
   var c    = CRITERIOS.find(function(x){ return x.num === num; });
   var d    = auditData[num];
   var card = document.getElementById('crit-' + num);
@@ -1505,7 +1588,12 @@ function setCriterio(num, resp) {
   if (noA) {
     h += '<input type="text" id="obs-cl-' + num + '" placeholder="Plan de Accion *" value="' + (d.obs||'') + '" oninput="setAuditField(' + num + ',\'obs\',this.value);this.style.borderColor=this.value.trim()?\'var(--g200)\':\'var(--red)\'" style="width:100%;padding:8px;border:1px solid var(--g200);border-radius:8px;font-size:13px;box-sizing:border-box;margin-bottom:6px">';
     h += '<input type="text" id="resp-cl-' + num + '" placeholder="Responsable" value="' + (d.responsable||'') + '" oninput="setAuditField(' + num + ',\'responsable\',this.value)" style="width:100%;padding:8px;border:1px solid var(--g200);border-radius:8px;font-size:13px;box-sizing:border-box;margin-bottom:6px">';
-    h += '<input type="date" id="fec-cl-' + num + '" title="Fecha tentativa (opcional)" value="' + (d.fecha_compromiso||'') + '" oninput="setAuditField(' + num + ',\'fecha_compromiso\',this.value)" style="width:100%;padding:8px;border:1px solid var(--g200);border-radius:8px;font-size:13px;box-sizing:border-box">';
+    h += '<input type="date" id="fec-cl-' + num + '" title="Fecha tentativa (opcional)" value="' + (d.fecha_compromiso||'') + '" oninput="setAuditField(' + num + ',\'fecha_compromiso\',this.value)" style="width:100%;padding:8px;border:1px solid var(--g200);border-radius:8px;font-size:13px;box-sizing:border-box;margin-bottom:6px">';
+    h += '<div id="foto-cl-prev-' + num + '" style="display:' + (d.fotoPreview ? 'block' : 'none') + ';margin-bottom:6px"><img src="' + (d.fotoPreview||'') + '" style="width:70px;height:70px;object-fit:cover;border-radius:8px;border:2px solid var(--green)"></div>';
+    h += '<label style="display:flex;align-items:center;gap:6px;padding:8px;background:var(--g50);border:1px dashed var(--g200);border-radius:8px;cursor:pointer">';
+    h += '<span style="font-size:15px">&#128247;</span><span style="font-size:12px;color:var(--g400)">Foto del plan de acción <em>(opcional)</em></span>';
+    h += '<input type="file" accept="image/*" style="display:none" onchange="handleFotoCriterioCL(' + num + ',this)">';
+    h += '</label>';
   }
   card.innerHTML = h;
   updateProgreso();
@@ -1530,6 +1618,7 @@ async function irPaso2() {
   }
   auditMeta = {auditor, nro_auditoria: mes, sector, area, responsable: resp, fecha: document.getElementById("a-fecha").value};
   auditData = {};
+  _criterioFotoBlobs = {};
   document.getElementById("audit-area-lbl").textContent = area + " · " + sector;
   renderCriterios();
   document.getElementById("audit-paso1").style.display = "none";
@@ -1543,7 +1632,7 @@ function irPaso1() {
 }
 
 function nuevaAuditoria() {
-  auditData = {}; auditMeta = {};
+  auditData = {}; auditMeta = {}; _criterioFotoBlobs = {};
   document.getElementById("a-auditor").value = "";
   document.getElementById("a-sector").innerHTML = '<option value="">&#8212; Elige auditor primero &#8212;</option>';
   document.getElementById("a-sector").disabled = true;
@@ -1651,19 +1740,34 @@ async function finalizarAuditoria() {
 
 async function guardarAuditoriaDB(pct, nivel, noOk) {
   try {
+    // Subir fotos opcionales pendientes (una vez por criterio, no bloquea el guardado si falla)
+    var fotoUrls = {};
+    var nums = Object.keys(_criterioFotoBlobs);
+    if (nums.length) showToast("Subiendo fotos...");
+    for (var _k=0; _k<nums.length; _k++) {
+      var numFoto = nums[_k];
+      try {
+        fotoUrls[numFoto] = await subirIMGBB(_criterioFotoBlobs[numFoto]);
+      } catch(eFoto) {
+        console.error("Error subiendo foto del criterio " + numFoto, eFoto);
+      }
+    }
+
     var det = [];
     for (var _i=0; _i<CRITERIOS.length; _i++) {
       var c = CRITERIOS[_i]; var d = auditData[c.num] || {};
+      var fotosC = fotoUrls[c.num] ? [fotoUrls[c.num]] : [];
       det.push({num:c.num, pilar:c.pilar, criterio:c.txt,
         respuesta:d.respuesta||null, obs:d.obs||"",
-        responsable:d.responsable||"", fecha_compromiso:d.fecha_compromiso||"", fotos:[]});
+        responsable:d.responsable||"", fecha_compromiso:d.fecha_compromiso||"", fotos:fotosC});
     }
     var inc = [];
     for (var _j=0; _j<noOk.length; _j++) {
       var c2 = noOk[_j]; var d2 = auditData[c2.num] || {};
+      var fotosC2 = fotoUrls[c2.num] ? [fotoUrls[c2.num]] : [];
       inc.push({num:c2.num, pilar:c2.pilar, criterio:c2.txt,
         obs:d2.obs||"", responsable:d2.responsable||"",
-        fecha_compromiso:d2.fecha_compromiso||"", fotos:[], estado:"Pendiente"});
+        fecha_compromiso:d2.fecha_compromiso||"", fotos:fotosC2, estado:"Pendiente"});
     }
     var payload = {
       auditor:String(auditMeta.auditor||""),
@@ -1678,6 +1782,7 @@ async function guardarAuditoriaDB(pct, nivel, noOk) {
     };
     var res = await sb.from("auditorias_5s_ism").insert(payload);
     if (res.error) throw res.error;
+    _criterioFotoBlobs = {};
     showToast("Auditoria guardada correctamente");
   } catch(e) { showToast("Error guardando: "+(e.message||e), true); }
 }
@@ -2756,7 +2861,7 @@ async function audn_guardarAccion(){
   var fotoDespuesUrl="";
   if(audn_fotoDespuesBlob){
     showToast("Subiendo foto...");
-    try{fotoDespuesUrl=await subirCloudinary(audn_fotoDespuesBlob,null,null);}
+    try{fotoDespuesUrl=await subirIMGBB(audn_fotoDespuesBlob);}
     catch(e){showToast("Error subiendo foto",true);return;}
   }
   var id=document.getElementById("audn-accion-id").value;
@@ -2793,7 +2898,7 @@ async function confirmarCierreAudit(){
   if(btn){btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Guardando...';}
   try{
     showToast("Subiendo foto...");
-    var fotoUrl = await subirCloudinary(fotoCierreAudit, null, null);
+    var fotoUrl = await subirIMGBB(fotoCierreAudit);
     // Obtener auditor\u00eda actual
     var auditoria = auditorias.find(function(a){ return a.id === auditId; });
     if(!auditoria) throw new Error("Auditoria no encontrada");
@@ -2971,7 +3076,7 @@ function renderDashboard() {
   var elP2=document.getElementById('d-pct2');     if(elP2) elP2.textContent=pct+'%';
 
   if (!total) {
-    ['d-top-areas','d-comparativo','d-sectores','d-responsables','d-zonas-ranking'].forEach(function(id){
+    ['d-top-areas','d-comparativo','d-sectores','d-responsables','d-zonas-ranking','d-ranking-auditores'].forEach(function(id){
       var el=document.getElementById(id); if(el) el.innerHTML='<p style="font-size:12px;color:var(--g400);text-align:center;padding:12px">Sin datos</p>';
     });
     return;
@@ -3022,6 +3127,34 @@ function renderDashboard() {
       +'<span style="font-weight:700;color:'+G+'">'+best.area+'</span> <span style="font-size:11px;color:'+G+'">'+best.pct+'%</span></div>'
       +'<div><span style="font-size:10px;color:var(--g400)">Peor:</span><br>'
       +'<span style="font-weight:700;color:'+R+'">'+worst.area+'</span> <span style="font-size:11px;color:'+R+'">'+worst.pct+'%</span></div>';
+  }
+
+  // ── Ranking de auditores (quién levanta más observaciones) ──
+  var byAuditor={};
+  obs.forEach(function(o){
+    var au=o.auditor||'Sin registrar';
+    byAuditor[au]=(byAuditor[au]||0)+1;
+  });
+  var rankingAud=Object.entries(byAuditor).map(function(e){return{auditor:e[0],total:e[1]};}).sort(function(a,b){return b.total-a.total;}).slice(0,8);
+  var elRA=document.getElementById('d-ranking-auditores');
+  if(elRA){
+    if(!rankingAud.length){
+      elRA.innerHTML='<p style="font-size:12px;color:var(--g400);text-align:center;padding:12px">Sin datos</p>';
+    } else {
+      var maxAud=rankingAud[0].total;
+      elRA.innerHTML=rankingAud.map(function(r,i){
+        var w=Math.round(r.total/maxAud*100);
+        var medalla=i===0?'&#129351;':i===1?'&#129352;':i===2?'&#129353;':(i+1)+'.';
+        return '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">'
+          +'<div style="width:22px;text-align:center;font-size:13px;flex-shrink:0">'+medalla+'</div>'
+          +'<div style="flex:1;min-width:0">'
+          +'<div style="font-size:12px;font-weight:600;color:var(--g700);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+r.auditor+'</div>'
+          +'<div style="height:6px;background:var(--g100);border-radius:20px;overflow:hidden;margin-top:2px"><div style="height:100%;width:'+w+'%;background:'+G+';border-radius:20px"></div></div>'
+          +'</div>'
+          +'<div style="font-size:13px;font-weight:800;color:'+G+';flex-shrink:0">'+r.total+'</div>'
+          +'</div>';
+      }).join('');
+    }
   }
 
   // ── Evolución (semanal / mensual) ────────────────────────
@@ -3488,6 +3621,7 @@ function renderLista(data) {
     h += '<div style="font-size:10px;color:var(--g400);font-weight:600">'+(o.area||"")+" &middot; "+(o.zona||o.sector||"")+(fechaDisp?" &middot; "+fechaDisp:"")+'</div>';
     h += '<div style="font-size:14px;font-weight:700;color:var(--g700);margin-top:2px">'+(o.tipo||"")+(o.s&&o.s!=="—"?" ("+o.s+")":"")+'</div>';
     if (o.obs) h += '<div style="font-size:12px;color:var(--g600);margin-top:4px">'+o.obs+'</div>';
+    if (o.auditor) h += '<div style="font-size:11px;color:var(--green);font-weight:600;margin-top:3px">&#9989; Levantada por: '+o.auditor+'</div>';
     if (o.responsable) h += '<div style="font-size:11px;color:var(--g400);margin-top:3px">&#128100; '+o.responsable+'</div>';
     h += '</div>';
     h += '<span style="background:'+col+';color:#fff;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700;flex-shrink:0;margin-left:8px">'+(lv?"Corregido":"Pendiente")+'</span>';
@@ -3820,30 +3954,6 @@ function abrirModalObs(id) {
 }
 
 
-// subirCloudinary → redirige a IMGBB (misma API key ya configurada)
-async function subirCloudinary(file, progressBar, progressFill) {
-  return new Promise(function(resolve, reject) {
-    if (!file) { reject(new Error("No file")); return; }
-    var reader = new FileReader();
-    reader.onload = async function(e) {
-      try {
-        var b64  = e.target.result.split(",")[1];
-        var form = new FormData();
-        form.append("image", b64);
-        var res  = await fetch("https://api.imgbb.com/1/upload?key=" + IMGBB_KEY, {method:"POST", body:form});
-        var data = await res.json();
-        if (data.success) {
-          if (progressFill) progressFill.style.width = "100%";
-          resolve(data.data.url);
-        } else {
-          reject(new Error("Error subiendo imagen"));
-        }
-      } catch(err) { reject(err); }
-    };
-    reader.onerror = function() { reject(new Error("Error leyendo archivo")); };
-    reader.readAsDataURL(file);
-  });
-}
 
 
 var CATEGORIAS_AUDN = {
@@ -3989,7 +4099,7 @@ async function audn_guardarCriterio() {
       var fotoUrl = (audn_state[key] && audn_state[key].foto_antes) || "";
       if (window.audn_fotoAntesBlob) {
         showToast("Subiendo foto...");
-        fotoUrl = await subirCloudinary(window.audn_fotoAntesBlob, null, null);
+        fotoUrl = await subirIMGBB(window.audn_fotoAntesBlob);
       }
       audn_state[key] = {
         puntaje: pts, s: s, observacion: obs, foto_antes: fotoUrl,

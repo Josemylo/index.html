@@ -1341,9 +1341,25 @@ function onAuditorChange() {
     return;
   }
 
-  // Poblar sectores del auditor
+  // Poblar sectores del auditor — solo los pendientes de auditar este mes
   var sectores = _sortEs(AUDITORES_SECTORES[auditor] || []);
-  _sectorDDData["a-sector"] = sectores.map(function(s){ return {v:s, l:s}; });
+  var hoy = new Date();
+  var mesActual = hoy.getFullYear() + "-" + String(hoy.getMonth()+1).padStart(2,"0");
+  var sectoresPendientes = sectores.filter(function(sector){
+    return !(auditorias||[]).some(function(a){
+      return a.sector === sector && String(a.fecha||"").substring(0,7) === mesActual;
+    });
+  });
+  if (sectoresPendientes.length < sectores.length) {
+    var completados = sectores.length - sectoresPendientes.length;
+    showToast(completados + " sector(es) de este auditor ya fueron evaluados este mes");
+  }
+  _sectorDDData["a-sector"] = sectoresPendientes.map(function(s){ return {v:s, l:s}; });
+  if (!sectoresPendientes.length) {
+    sectorSel.placeholder = "Este auditor ya completó todos sus sectores este mes";
+    sectorSel.disabled = true;
+    return;
+  }
   sectorSel.disabled = false;
   sectorSel.placeholder = "Escribe para buscar un sector...";
 }

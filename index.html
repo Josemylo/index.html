@@ -1804,13 +1804,14 @@ async function guardarAuditoriaDB(pct, nivel, noOk) {
     var res = await sb.from("auditorias_5s_ism").insert(payload);
     if (res.error) throw res.error;
     _criterioFotoBlobs = {};
+    await cargarAuditorias(); // refrescar en memoria para que el sector ya no aparezca como pendiente
     showToast("Auditoria guardada correctamente");
   } catch(e) { showToast("Error guardando: "+(e.message||e), true); }
 }
 
 async function cargarAuditorias() {
   try {
-    var {data, error} = await sb.from("auditorias_5s_ism").select("*").order("fecha", {ascending:false});
+    var {data, error} = await sb.from("auditorias_5s_ism").select("*").order("created_at", {ascending:false});
     if (error) throw error;
     var norm = {"LINEA 1":"LÍNEA 1","LINEA 2":"LÍNEA 2","LINEA 3":"LÍNEA 3","LINEA 4":"LÍNEA 4","LINEA 5":"LÍNEA 5","LINEA 7":"LÍNEA 7","LINEA 8":"LÍNEA 8","LINEA 9":"LÍNEA 9","LP01":"LÍNEA 1","LP02":"LÍNEA 2","LP03":"LÍNEA 3","LP04":"LÍNEA 4","LP05":"LÍNEA 5","LP06":"LINEA 6","LP07":"LÍNEA 7","LP08":"LÍNEA 8","LP09":"LÍNEA 9","LP10":"LINEA 10"};
     auditorias = (data||[]).map(function(a){ return Object.assign({},a,{sector:norm[a.sector]||a.sector, detalles:safeJson(a.detalles,"[]"), incumplimientos:safeJson(a.incumplimientos,"[]")}); });
@@ -1864,6 +1865,9 @@ function renderHistorial() {
     if (fa && a.area!==fa)   return false;
     if (fn2 && a.nivel!==fn2) return false;
     return true;
+  });
+  list = list.slice().sort(function(x,y){
+    return new Date(y.created_at||y.fecha||0) - new Date(x.created_at||x.fecha||0);
   });
   if (!list.length) {
     el.innerHTML = '<div class="empty"><div class="empty-ico">&#128203;</div><p>Sin check lists registrados.</p></div>';
@@ -1934,9 +1938,13 @@ function renderObsPendientes() {
       if (fr && !(d.responsable||"").toLowerCase().includes(fr.toLowerCase())) return;
       obs.push(Object.assign({}, d, {
         _id: a.id, _sector: a.sector, _area: a.area,
-        _fecha: a.fecha, _auditor: a.auditor
+        _fecha: a.fecha, _auditor: a.auditor, _created_at: a.created_at
       }));
     });
+  });
+
+  obs.sort(function(x,y){
+    return new Date(y._created_at||y._fecha||0) - new Date(x._created_at||x._fecha||0);
   });
 
   var total = pend + lev;

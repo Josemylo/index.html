@@ -1740,17 +1740,22 @@ async function finalizarAuditoria() {
 
 async function guardarAuditoriaDB(pct, nivel, noOk) {
   try {
-    // Subir fotos opcionales pendientes (una vez por criterio, no bloquea el guardado si falla)
+    // Subir fotos opcionales pendientes (con reintento automático; una vez por criterio, no bloquea el guardado si falla)
     var fotoUrls = {};
+    var fotosFallidas = [];
     var nums = Object.keys(_criterioFotoBlobs);
     if (nums.length) showToast("Subiendo fotos...");
     for (var _k=0; _k<nums.length; _k++) {
       var numFoto = nums[_k];
       try {
-        fotoUrls[numFoto] = await subirIMGBB(_criterioFotoBlobs[numFoto]);
+        fotoUrls[numFoto] = await subirIMGBBConReintento(_criterioFotoBlobs[numFoto], 3);
       } catch(eFoto) {
-        console.error("Error subiendo foto del criterio " + numFoto, eFoto);
+        console.error("Error subiendo foto del criterio " + numFoto + " tras 3 intentos", eFoto);
+        fotosFallidas.push(numFoto);
       }
+    }
+    if (fotosFallidas.length) {
+      showToast("⚠️ " + fotosFallidas.length + " foto(s) no se pudieron subir tras varios intentos. El resto se guardará igual.", true);
     }
 
     var det = [];
@@ -2354,11 +2359,18 @@ async function guardarCierreObs() {
   btn.textContent = "Guardando...";
 
   try {
-    // Subir foto si hay
+    // Subir foto si hay (opcional — con reintento automático; si sigue fallando, no bloquea el cierre)
     var foto_cierre = "";
     if (_cierreFotoBlob) {
       showToast("Subiendo foto de evidencia...");
-      foto_cierre = await subirIMGBB(_cierreFotoBlob);
+      try {
+        foto_cierre = await subirIMGBBConReintento(_cierreFotoBlob, 3, function(intento){
+          showToast("Reintentando subir foto (" + (intento+1) + "/3)...");
+        });
+      } catch (eFoto) {
+        console.error("Error subiendo foto de cierre tras 3 intentos:", eFoto);
+        showToast("⚠️ La foto no se pudo subir tras varios intentos. El cierre se guardó igual, pero sin evidencia fotográfica.", true);
+      }
     }
 
     // Actualizar incumplimiento en Supabase
@@ -2409,6 +2421,25 @@ async function subirIMGBB(blob) {
     };
     reader.readAsDataURL(blob);
   });
+}
+
+// Sube una foto reintentando automáticamente ante fallas de conexión (no guarda nada en disco/localStorage;
+// todo vive en memoria durante la sesión, así que no quedan borradores viejos como antes).
+async function subirIMGBBConReintento(blob, maxIntentos, onIntento) {
+  maxIntentos = maxIntentos || 3;
+  var ultimoError = null;
+  for (var i = 1; i <= maxIntentos; i++) {
+    try {
+      return await subirIMGBB(blob);
+    } catch (err) {
+      ultimoError = err;
+      if (i < maxIntentos) {
+        if (onIntento) onIntento(i, maxIntentos);
+        await new Promise(function(r){ setTimeout(r, 1200); });
+      }
+    }
+  }
+  throw ultimoError || new Error("No se pudo subir la foto");
 }
 
 // ============================================================
@@ -2861,8 +2892,8 @@ async function audn_guardarAccion(){
   var fotoDespuesUrl="";
   if(audn_fotoDespuesBlob){
     showToast("Subiendo foto...");
-    try{fotoDespuesUrl=await subirIMGBB(audn_fotoDespuesBlob);}
-    catch(e){showToast("Error subiendo foto",true);return;}
+    try{fotoDespuesUrl=await subirIMGBBConReintento(audn_fotoDespuesBlob,3);}
+    catch(e){console.error("Error subiendo foto tras 3 intentos (no bloqueante):",e);showToast("⚠️ No se pudo subir la foto tras varios intentos, se guardará el resto igual",true);}
   }
   var id=document.getElementById("audn-accion-id").value;
   var payload={
@@ -4099,7 +4130,15 @@ async function audn_guardarCriterio() {
       var fotoUrl = (audn_state[key] && audn_state[key].foto_antes) || "";
       if (window.audn_fotoAntesBlob) {
         showToast("Subiendo foto...");
-        fotoUrl = await subirIMGBB(window.audn_fotoAntesBlob);
+        try {
+          fotoUrl = await subirIMGBBConReintento(window.audn_fotoAntesBlob, 3, function(intento){
+            showToast("Reintentando subir foto (" + (intento+1) + "/3)...");
+          });
+        } catch (eFotoAntes) {
+          showToast("No se pudo subir la foto (obligatoria). Intenta de nuevo.", true);
+          if (btn) { btn.disabled = false; btn.textContent = "Guardar"; }
+          return;
+        }
       }
       audn_state[key] = {
         puntaje: pts, s: s, observacion: obs, foto_antes: fotoUrl,
@@ -4117,7 +4156,7 @@ async function audn_guardarCriterio() {
     audn_renderCriterios();
     audn_actualizarScore();
   } catch (e) {
-    showToast("Error subiendo foto", true);
+    showToast("Error: " + (e.message || e), true);
   } finally {
     if (btn) { btn.disabled = false; btn.textContent = "Guardar"; }
   }

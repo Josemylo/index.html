@@ -2929,7 +2929,9 @@ async function confirmarCierreAudit(){
   if(btn){btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Guardando...';}
   try{
     showToast("Subiendo foto...");
-    var fotoUrl = await subirIMGBB(fotoCierreAudit);
+    var fotoUrl = await subirIMGBBConReintento(fotoCierreAudit, 3, function(intento){
+      showToast("Reintentando subir foto (" + (intento+1) + "/3)...");
+    });
     // Obtener auditor\u00eda actual
     var auditoria = auditorias.find(function(a){ return a.id === auditId; });
     if(!auditoria) throw new Error("Auditoria no encontrada");

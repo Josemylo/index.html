@@ -28,9 +28,6 @@ header{background:var(--green);position:sticky;top:0;z-index:100;box-shadow:0 3p
 .hdr-brand h1,.hdr-brand span{color:#fff!important}
 .hdr-brand h1{font-family:"Barlow Condensed",sans-serif;font-size:19px;font-weight:800;line-height:1.1}
 .hdr-brand span{font-size:11px;opacity:.8}
-.hdr-txt{flex:1}
-.hdr-txt h1{font-family:"Barlow Condensed",sans-serif;font-size:20px;font-weight:800;color:#fff;letter-spacing:.5px;line-height:1.1}
-.hdr-txt span{font-size:11px;color:rgba(255,255,255,.82)}
 .hdr-sync{background:rgba(255,255,255,.15);border:none;color:#fff;border-radius:7px;padding:7px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:"Barlow",sans-serif;transition:background .18s}
 .hdr-sync:hover{background:rgba(255,255,255,.25)}
 nav{background:var(--green-d);display:flex;overflow-x:auto;scrollbar-width:none}
@@ -53,26 +50,11 @@ textarea{resize:vertical;min-height:78px}
 .btn-primary:disabled{background:var(--g200);cursor:not-allowed;color:var(--g400)}
 .btn-ghost{background:transparent;color:var(--green);border:1.5px solid var(--green);padding:7px 12px;font-size:13px;border-radius:8px;cursor:pointer;font-family:"Barlow",sans-serif;font-weight:600;transition:all .18s;display:inline-flex;align-items:center;gap:4px}
 .btn-ghost:hover{background:var(--green);color:#fff}
-.btn-red{background:transparent;color:var(--red);border:1.5px solid var(--red);padding:7px 12px;font-size:13px;border-radius:8px;cursor:pointer;font-family:"Barlow",sans-serif;font-weight:600;transition:all .18s}
-.btn-red:hover{background:var(--red);color:#fff}
 .s-sel{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .s-btn{padding:9px 6px;border:2px solid var(--g200);border-radius:8px;background:#fff;cursor:default;pointer-events:none;text-align:center;font-family:"Barlow Condensed",sans-serif;font-size:13px;font-weight:700;transition:all .15s;color:var(--g700)}
 .s-btn span{display:block;font-size:10px;font-weight:400;margin-top:2px;opacity:.8}
 .s-btn.active{border-color:var(--green);background:var(--green);color:#fff}
-.photo-drop{border:2px dashed var(--g200);border-radius:8px;padding:18px;text-align:center;cursor:pointer;transition:all .18s;position:relative}
-.photo-drop:hover{border-color:var(--green);background:var(--g50)}
-.photo-drop input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
-.photo-prev{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
-.photo-prev img{width:68px;height:68px;object-fit:cover;border-radius:6px;border:2px solid var(--g200)}
-.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;font-family:"Barlow Condensed",sans-serif;letter-spacing:.4px;text-transform:uppercase}
-.b-1s{background:#FFF3E0;color:#E65100}.b-2s{background:#E8F5E9;color:#1B5E20}
-.b-3s{background:#E3F2FD;color:#0D47A1}.b-4s{background:#F3E5F5;color:#4A148C}
-.b-5s{background:#FCE4EC;color:#880E4F}.b-epp{background:#FFF3E0;color:#E65100}
-.b-ok{background:#E8F5E9;color:#1B5E20}.b-no{background:#FFEBEE;color:#B71C1C}
-.b-pen{background:#FFF8E1;color:#F57F17}
 .obs-card{background:#fff;border-radius:var(--r);box-shadow:var(--sh);margin-bottom:10px;border-left:4px solid var(--g200);overflow:hidden;cursor:pointer}
-.obs-card.corregido{border-left-color:var(--green)}
-.obs-card.no-corregido{border-left-color:var(--red)}
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;padding:16px;overflow-y:auto}
 .modal-overlay.show{display:flex;align-items:flex-start;justify-content:center}
 .modal{background:#fff;border-radius:14px;padding:20px;width:100%;max-width:500px;box-shadow:var(--shl);margin:auto}
@@ -84,12 +66,6 @@ textarea{resize:vertical;min-height:78px}
 .kpi-lbl{font-size:9px;color:var(--g400);font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-top:2px}
 .dash-card{background:#fff;border-radius:10px;box-shadow:var(--sh);padding:12px 12px 14px;margin-bottom:12px}
 .dash-card-title{font-family:"Barlow Condensed",sans-serif;font-size:12px;font-weight:700;color:var(--g700);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;border-left:3px solid var(--red);padding-left:8px}
-.dash-legend-row{display:flex;align-items:center;gap:6px;padding:3px 0;border-bottom:1px solid var(--g100)}
-.dash-legend-row:last-child{border-bottom:none}
-.dash-legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-.dash-legend-label{font-size:10px;color:var(--g700);flex:1}
-.dash-legend-val{font-family:"Barlow Condensed",sans-serif;font-size:13px;font-weight:700;color:var(--g900)}
-.dash-legend-pct{font-size:10px;color:var(--g400);min-width:30px;text-align:right}
 .period-sel{display:flex;gap:0;border-radius:8px;overflow:hidden;border:1.5px solid var(--g200)}
 .period-btn{flex:1;padding:7px;border:none;background:#fff;font-family:"Barlow",sans-serif;font-size:11px;font-weight:600;cursor:pointer;color:var(--g400);transition:all .18s}
 .period-btn.active{background:var(--green);color:#fff}
@@ -101,8 +77,6 @@ textarea{resize:vertical;min-height:78px}
 .dtbl td.left{text-align:left;font-weight:600;color:var(--g700);white-space:nowrap}
 .dtbl tr:last-child td{border-bottom:none}
 .dtbl .total-row td{background:var(--g50);font-weight:700;border-top:2px solid var(--g200)}
-.upload-progress{height:5px;background:var(--g100);border-radius:20px;overflow:hidden;margin-top:8px;display:none}
-.upload-progress-fill{height:100%;background:var(--green);border-radius:20px;transition:width .3s}
 .empty{text-align:center;padding:38px 20px;color:var(--g400)}
 .empty-ico{font-size:38px;margin-bottom:8px}
 .loading{text-align:center;padding:40px 20px;color:var(--g400)}
@@ -112,18 +86,6 @@ textarea{resize:vertical;min-height:78px}
 #toast.show{opacity:1}#toast.error{background:var(--red)}
 @keyframes spin{to{transform:rotate(360deg)}}
 @media(max-width:480px){.row2{grid-template-columns:1fr}.kpi-val{font-size:20px}}
-.puntaje-sel{display:flex;gap:6px}
-.puntaje-btn{flex:1;padding:10px 4px;border:2px solid var(--g200);border-radius:8px;background:#fff;cursor:pointer;text-align:center;font-family:"Barlow Condensed",sans-serif;font-size:18px;font-weight:800;transition:all .15s;color:var(--g700)}
-.puntaje-btn:hover{border-color:var(--green)}
-.puntaje-btn.p1.active{border-color:#B71C1C;background:#B71C1C;color:#fff}
-.puntaje-btn.p2.active{border-color:var(--red);background:var(--red);color:#fff}
-.puntaje-btn.p3.active{border-color:var(--amber);background:var(--amber);color:#fff}
-.puntaje-btn.p4.active{border-color:#2E7D32;background:#2E7D32;color:#fff}
-.puntaje-btn.p5.active{border-color:var(--green);background:var(--green);color:#fff}
-.criterio-card{background:#fff;border-radius:var(--r);box-shadow:var(--sh);padding:14px;margin-bottom:12px;border-left:4px solid var(--g200);transition:border-color .2s}
-.criterio-card.evaluado{border-left-color:var(--green)}
-.criterio-card.critico{border-left-color:var(--red)}
-.pilar-header{font-family:"Barlow Condensed",sans-serif;font-size:14px;font-weight:800;color:var(--green);text-transform:uppercase;letter-spacing:.5px;padding:8px 0 6px;border-bottom:2px solid var(--g100);margin-bottom:12px}
 #pantalla-bienvenida{position:fixed;top:0;left:0;width:100%;height:100%;overflow-y:auto;z-index:10}
 #app-recorrido{display:none;position:fixed;top:0;left:0;width:100%;height:100%;overflow-y:auto;background:var(--g50);z-index:10;padding-bottom:80px}
 #app-checklist{display:none;position:fixed;top:0;left:0;width:100%;height:100%;overflow-y:auto;background:var(--g50);z-index:10;padding-bottom:80px}
@@ -144,39 +106,12 @@ textarea{resize:vertical;min-height:78px}
 .audn-num-pill.active{border-color:var(--amber);background:linear-gradient(135deg,var(--amber),#B45309);color:#fff;transform:scale(1.03);box-shadow:0 4px 10px rgba(217,119,6,.3)}
 .sector-dd{display:none;position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid var(--g200);border-radius:10px;max-height:230px;overflow-y:auto;z-index:80;box-shadow:0 6px 18px rgba(0,0,0,.14);margin-top:4px}
 .sector-dd-item{padding:11px 12px;font-size:13px;cursor:pointer;border-bottom:1px solid var(--g50)}
-.sector-dd-item:hover,.sector-dd-item.hl{background:var(--g50)}
+.sector-dd-item:hover{background:var(--g50)}
 .sector-dd-item:last-child{border-bottom:none}
 </style>
 </head>
 
 <body>
-<!-- Modal Cierre Auditoría -->
-<div class="modal-overlay" id="modal-cierre-audit">
-  <div class="modal">
-    <div class="modal-title">Levantar observacion</div>
-    <input type="hidden" id="mca-audit-id">
-    <input type="hidden" id="mca-criterio-num">
-    <div id="mca-detalle" style="background:var(--g50);border-radius:8px;padding:10px;margin-bottom:14px;font-size:13px;color:var(--g700)"></div>
-    <div class="fg">
-      <label>Comentario <span style="font-size:10px;color:var(--g400)">(opcional)</span></label>
-      <textarea id="mca-comentario" placeholder="Como se levanto la observacion?..." style="min-height:70px"></textarea>
-    </div>
-    <div class="fg">
-      <label>Foto de evidencia <span class="req">*</span></label>
-      <div class="photo-drop" id="drop-cierre-audit" style="border-color:var(--red)">
-        <input type="file" accept="image/*" onchange="handleFotoCierreAudit(this)">
-        <div style="font-size:24px;margin-bottom:4px">&#128247;</div>
-        <p style="font-size:12px;color:var(--g400)">Foto del levantamiento</p>
-        <p style="font-size:11px;color:var(--red);font-weight:600;margin-top:4px">Obligatoria</p>
-      </div>
-      <div class="photo-prev" id="prev-cierre-audit"></div>
-    </div>
-    <div style="display:flex;gap:10px;margin-top:4px">
-      <button class="btn-primary" onclick="confirmarCierreAudit()" style="flex:1">&#10003; Marcar como LEVANTADA</button>
-      <button class="btn-ghost" onclick="closeModal('modal-cierre-audit')">Cancelar</button>
-    </div>
-  </div>
-</div>
 
 <!-- Modal Cierre de Observación -->
 <div id="modal-cierre-obs" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;align-items:center;justify-content:center;padding:16px">
@@ -983,16 +918,6 @@ textarea{resize:vertical;min-height:78px}
   </div>
 </div>
 
-<!-- Modal Detalle Auditoría -->
-<div id="modal-audn-detalle" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1000;overflow-y:auto;padding:16px">
-  <div style="background:#fff;border-radius:16px;max-width:480px;margin:0 auto">
-    <div id="modal-audn-detalle-body"></div>
-    <div style="padding:16px">
-      <button onclick="document.getElementById('modal-audn-detalle').style.display='none'" style="width:100%;padding:12px;background:var(--g100);border:none;border-radius:10px;cursor:pointer;font-size:14px;font-weight:600">Cerrar</button>
-    </div>
-  </div>
-</div>
-
 <!-- Modal Acción Auditoría -->
 <div id="modal-audn-accion" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1000;align-items:flex-end;justify-content:center;padding:0">
   <div style="background:#fff;border-radius:20px 20px 0 0;padding:20px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto">
@@ -1168,9 +1093,6 @@ document.addEventListener("click", function(e) {
 var audn_state = {};
 var audn_fotoAntesBlob = null;
 var audn_fotoDespuesBlob = null;
-var audn_criterioActual = null;
-var audn_allData = [];
-var audn_accionAuditoriaId = null;
 
 // Estado para Checklist
 var auditorias = [];
@@ -1178,7 +1100,6 @@ var sectoresAuditados = new Set();
 var auditData = {};
 var _criterioFotoBlobs = {};
 var auditMeta = {};
-var fotoCierreAudit = null;
 
 // ============================================================
 // FUNCIONES COMPARTIDAS
@@ -1755,6 +1676,10 @@ async function finalizarAuditoria() {
 }
 
 async function guardarAuditoriaDB(pct, nivel, noOk) {
+  // Congelar los datos ANTES de cualquier espera (subida de fotos), para que
+  // no se pierdan si el usuario navega a otra pantalla mientras se sube la foto.
+  var metaSnap = Object.assign({}, auditMeta);
+  var dataSnap = Object.assign({}, auditData);
   try {
     // Subir fotos opcionales pendientes (con reintento automático; una vez por criterio, no bloquea el guardado si falla)
     var fotoUrls = {};
@@ -1776,7 +1701,7 @@ async function guardarAuditoriaDB(pct, nivel, noOk) {
 
     var det = [];
     for (var _i=0; _i<CRITERIOS.length; _i++) {
-      var c = CRITERIOS[_i]; var d = auditData[c.num] || {};
+      var c = CRITERIOS[_i]; var d = dataSnap[c.num] || {};
       var fotosC = fotoUrls[c.num] ? [fotoUrls[c.num]] : [];
       det.push({num:c.num, pilar:c.pilar, criterio:c.txt,
         respuesta:d.respuesta||null, obs:d.obs||"",
@@ -1784,19 +1709,19 @@ async function guardarAuditoriaDB(pct, nivel, noOk) {
     }
     var inc = [];
     for (var _j=0; _j<noOk.length; _j++) {
-      var c2 = noOk[_j]; var d2 = auditData[c2.num] || {};
+      var c2 = noOk[_j]; var d2 = dataSnap[c2.num] || {};
       var fotosC2 = fotoUrls[c2.num] ? [fotoUrls[c2.num]] : [];
       inc.push({num:c2.num, pilar:c2.pilar, criterio:c2.txt,
         obs:d2.obs||"", responsable:d2.responsable||"",
         fecha_compromiso:d2.fecha_compromiso||"", fotos:fotosC2, estado:"Pendiente"});
     }
     var payload = {
-      auditor:String(auditMeta.auditor||""),
-      nro_auditoria:String(auditMeta.nro_auditoria||""),
+      auditor:String(metaSnap.auditor||""),
+      nro_auditoria:String(metaSnap.nro_auditoria||""),
       fecha:new Date().toISOString().split("T")[0],
-      sector:String(auditMeta.sector||""),
-      area:String(auditMeta.area||""),
-      responsable:String(auditMeta.responsable||""),
+      sector:String(metaSnap.sector||""),
+      area:String(metaSnap.area||""),
+      responsable:String(metaSnap.responsable||""),
       pct_cumplimiento:pct, nivel:nivel,
       detalles:JSON.stringify(det),
       incumplimientos:JSON.stringify(inc)
@@ -2362,6 +2287,10 @@ async function guardarCierreObs() {
   var comentario = document.getElementById("cierre-comentario").value.trim();
   var fechaEl    = document.getElementById("cierre-fecha");
   var comEl      = document.getElementById("cierre-comentario");
+  // Congelar a qué observación corresponde este cierre, antes de cualquier espera
+  // (si el usuario cancela o reabre el modal mientras se sube la foto, no se pierde la referencia).
+  var auditIdSnap = _cierreAuditId;
+  var numCritSnap = _cierreNumCrit;
 
   // Validar obligatorios
   var valid = true;
@@ -2399,9 +2328,9 @@ async function guardarCierreObs() {
 
     // Actualizar incumplimiento en Supabase
     var {data: a} = await sb.from("auditorias_5s_ism")
-      .select("incumplimientos").eq("id", _cierreAuditId).single();
+      .select("incumplimientos").eq("id", auditIdSnap).single();
     var incs = safeJson(a.incumplimientos, "[]");
-    var idx  = incs.findIndex(function(x){ return x.num === _cierreNumCrit; });
+    var idx  = incs.findIndex(function(x){ return x.num === numCritSnap; });
     if (idx > -1) {
       incs[idx].estado            = "Levantada";
       incs[idx].fecha_cierre      = fecha;
@@ -2411,7 +2340,7 @@ async function guardarCierreObs() {
 
     var {error} = await sb.from("auditorias_5s_ism")
       .update({incumplimientos: JSON.stringify(incs)})
-      .eq("id", _cierreAuditId);
+      .eq("id", auditIdSnap);
     if (error) throw error;
 
     cerrarModalCierre();
@@ -2506,6 +2435,7 @@ async function guardarObservacion(){
   var obs=document.getElementById("f-obs").value.trim();
   var auditor=document.getElementById("f-auditor").value.trim();
   var zona=document.getElementById("f-zona").value;
+  var responsable=document.getElementById("f-responsable").value.trim();
   if(!auditor){showToast("Escribe el nombre del responsable de registro",true);document.getElementById("f-auditor").style.borderColor="var(--red)";return;}
   if(!area || !SECTOR_AREA_MAP[area]){showToast("Selecciona un sector v\u00e1lido de la lista",true);return;}
   var tieneZonas = ZONAS_SECTOR[area] && ZONAS_SECTOR[area].length > 0;
@@ -2521,8 +2451,8 @@ async function guardarObservacion(){
     var fechaHoy=new Date().toISOString().split("T")[0];
     var {data,error}=await sb.from("observaciones").insert({
       num:nextNum,sem:document.getElementById("f-sem").value,fecha:window._fecha||fechaHoy,auditor,
-      area:SECTOR_AREA_MAP[area]||area.replace(/_/g," "),sector:area.replace(/_/g," "),zona:document.getElementById("f-zona").value,
-      tipo,s:selectedS||"\u2014",obs,responsable:document.getElementById("f-responsable").value.trim(),status:"CORREGIDO",fecha_cierre:fechaHoy,fotos:[]
+      area:SECTOR_AREA_MAP[area]||area.replace(/_/g," "),sector:area.replace(/_/g," "),zona:zona,
+      tipo,s:selectedS||"\u2014",obs,responsable:responsable,status:"CORREGIDO",fecha_cierre:fechaHoy,fotos:[]
     }).select().single();
     if(error)throw error;
     observations.unshift(data);
@@ -2913,22 +2843,25 @@ async function audn_guardarAccion(){
   var avancePlan=parseInt(document.getElementById("audn-accion-avance-plan").value||"100");
   var estado=document.getElementById("audn-accion-estado").value;
   if(!resp||!fi||!ff){showToast("Completa responsable y fechas",true);return;}
+  // Congelar a qué registro corresponde este guardado, ANTES de subir la foto
+  // (si el usuario navega o reabre el modal mientras se sube, no se pierde la referencia).
+  var idSnap = document.getElementById("audn-accion-id").value;
+  var auditoriaIdSnap = parseInt(document.getElementById("audn-accion-auditoria-id").value);
   var fotoDespuesUrl="";
   if(audn_fotoDespuesBlob){
     showToast("Subiendo foto...");
     try{fotoDespuesUrl=await subirIMGBBConReintento(audn_fotoDespuesBlob,3);}
     catch(e){console.error("Error subiendo foto tras 3 intentos (no bloqueante):",e);showToast("⚠️ No se pudo subir la foto tras varios intentos, se guardará el resto igual",true);}
   }
-  var id=document.getElementById("audn-accion-id").value;
   var payload={
-    auditoria_id:parseInt(document.getElementById("audn-accion-auditoria-id").value),
+    auditoria_id:auditoriaIdSnap,
     responsable:resp,fecha_inicio:fi,fecha_fin:ff,
     avance_real:avance,avance_planificado:avancePlan,
     estado,foto_despues:fotoDespuesUrl,
     created_at:new Date().toISOString()
   };
   var error;
-  if(id){var r=await sb.from("acciones_auditoria").update(payload).eq("id",id);error=r.error;}
+  if(idSnap){var r=await sb.from("acciones_auditoria").update(payload).eq("id",idSnap);error=r.error;}
   else{var r=await sb.from("acciones_auditoria").insert(payload);error=r.error;}
   if(error){showToast("Error: "+error.message,true);return;}
   document.getElementById("modal-audn-accion").style.display="none";
@@ -2939,50 +2872,6 @@ async function audn_guardarAccion(){
 function audn_cerrarModal(){
   document.getElementById("modal-audn-criterio").style.display="none";
 }
-
-async function confirmarCierreAudit(){
-  if(!fotoCierreAudit){
-    showToast("La foto de evidencia es obligatoria",true);
-    document.getElementById("drop-cierre-audit").style.borderColor="var(--red)";
-    return;
-  }
-  var auditId = parseInt(document.getElementById("mca-audit-id").value);
-  var numCriterio = parseInt(document.getElementById("mca-criterio-num").value);
-  var comentario = document.getElementById("mca-comentario").value.trim();
-  var btn = document.querySelector('#modal-cierre-audit .btn-primary');
-  if(btn){btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Guardando...';}
-  try{
-    showToast("Subiendo foto...");
-    var fotoUrl = await subirIMGBBConReintento(fotoCierreAudit, 3, function(intento){
-      showToast("Reintentando subir foto (" + (intento+1) + "/3)...");
-    });
-    // Obtener auditor\u00eda actual
-    var auditoria = auditorias.find(function(a){ return a.id === auditId; });
-    if(!auditoria) throw new Error("Auditoria no encontrada");
-    // Actualizar cierre_criterios
-    var cierres = (typeof auditoria.cierre_criterios==='object'&&auditoria.cierre_criterios)?auditoria.cierre_criterios:safeJson(auditoria.cierre_criterios,"{}");
-    cierres[numCriterio] = {
-      cerrado: true,
-      foto_cierre: fotoUrl,
-      comentario,
-      fecha_cierre: new Date().toISOString().split("T")[0]
-    };
-    var {error} = await sb.from("auditorias_5s_ism")
-      .update({cierre_criterios: JSON.stringify(cierres)})
-      .eq("id", auditId);
-    if(error) throw error;
-    // Actualizar local como objeto (igual que cargarAuditorias)
-    auditoria.cierre_criterios = cierres;
-    closeModal("modal-cierre-audit");
-    showToast("Observacion levantada correctamente");
-    renderHistorial();
-    renderObsPendientes();
-  }catch(e){
-    showToast("Error: " + e.message, true);
-  }
-  if(btn){btn.disabled=false;btn.innerHTML='&#10003; Marcar como LEVANTADA';}
-}
-
 
 function audn_onSectorChange() {
   var sector = document.getElementById("audn-sector").value;
@@ -3419,20 +3308,6 @@ function renderComparativoRecorrido() {
   }
 
   el.innerHTML = h;
-}
-
-function handleFotoCierreAudit(input) {
-  var file = input.files[0];
-  if (!file) return;
-  window._fotoCierreAuditBlob = file;
-  var reader = new FileReader();
-  reader.onload = function(e){
-    var el = document.getElementById("prev-cierre-audit");
-    if (el) { el.innerHTML = '<img src="'+e.target.result+'" style="width:80px;height:80px;object-fit:cover;border-radius:8px;margin-top:6px">'; }
-    var drop = document.getElementById("drop-cierre-audit");
-    if (drop) drop.style.borderColor = "var(--green)";
-  };
-  reader.readAsDataURL(file);
 }
 
 function audn_parseCriterios(val) {
@@ -4153,6 +4028,10 @@ async function audn_guardarCriterio() {
       var s = document.getElementById("audn-modal-s").value;
       var obs = document.getElementById("audn-modal-obs").value.trim();
       if (!s || !obs) { showToast("Completa la S afectada y la observación", true); return; }
+      // Congelar responsable y fechas ANTES de subir la foto (evita que se pierdan si el usuario navega mientras sube)
+      var respSnap = document.getElementById("audn-modal-resp").value.trim();
+      var fiSnap   = document.getElementById("audn-modal-fi").value;
+      var ffSnap   = document.getElementById("audn-modal-ff").value;
       var fotoUrl = (audn_state[key] && audn_state[key].foto_antes) || "";
       if (window.audn_fotoAntesBlob) {
         showToast("Subiendo foto...");
@@ -4168,9 +4047,9 @@ async function audn_guardarCriterio() {
       }
       audn_state[key] = {
         puntaje: pts, s: s, observacion: obs, foto_antes: fotoUrl,
-        responsable: document.getElementById("audn-modal-resp").value.trim(),
-        fecha_inicio: document.getElementById("audn-modal-fi").value,
-        fecha_fin: document.getElementById("audn-modal-ff").value
+        responsable: respSnap,
+        fecha_inicio: fiSnap,
+        fecha_fin: ffSnap
       };
     } else {
       audn_state[key] = {

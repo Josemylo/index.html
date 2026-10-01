@@ -3692,7 +3692,7 @@ function exportarPDFAuditoria() {
 function renderProgresoBarra() {
   var progEl = document.getElementById("progreso-sectores");
   if (!progEl) return;
-  var filtroMes = document.getElementById("d-fil-mes") ? document.getElementById("d-fil-mes").value : "";
+  var filtroMes = document.getElementById("d-fil-mes-a") ? document.getElementById("d-fil-mes-a").value : "";
   var now = new Date();
   var mesFiltro = filtroMes || (now.getFullYear()+"-"+String(now.getMonth()+1).padStart(2,"0"));
   var p = mesFiltro.split("-");

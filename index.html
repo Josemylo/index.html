@@ -7,6 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 
@@ -64,6 +65,7 @@ textarea{resize:vertical;min-height:78px}
 .kpi-val{font-family:"Barlow Condensed",sans-serif;font-size:24px;font-weight:800;line-height:1;color:var(--g900)}
 .kpi-box.green .kpi-val{color:var(--green)}.kpi-box.red .kpi-val{color:var(--red)}.kpi-box.amber .kpi-val{color:var(--amber)}
 .kpi-lbl{font-size:9px;color:var(--g400);font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-top:2px}
+.kpi-formula{font-size:7px;color:var(--g300);font-weight:400;text-transform:none;font-style:italic;letter-spacing:0;margin-top:1px;line-height:1.2}
 .dash-card{background:#fff;border-radius:10px;box-shadow:var(--sh);padding:12px 12px 14px;margin-bottom:12px}
 .dash-card-title{font-family:"Barlow Condensed",sans-serif;font-size:12px;font-weight:700;color:var(--g700);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;border-left:3px solid var(--red);padding-left:8px}
 .period-sel{display:flex;gap:0;border-radius:8px;overflow:hidden;border:1.5px solid var(--g200)}
@@ -330,14 +332,18 @@ textarea{resize:vertical;min-height:78px}
     <button onclick="exportarPDF()" style="flex-shrink:0;background:var(--red);color:#fff;border:none;border-radius:8px;padding:8px 12px;font-family:Barlow,sans-serif;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">&#128196; PDF</button>
   </div>
   <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:8px">
-    <div class="kpi-box"><div class="kpi-val" id="d-total">0</div><div class="kpi-lbl">Total obs.</div></div>
-    <div class="kpi-box green"><div class="kpi-val" id="d-corregidas">0</div><div class="kpi-lbl">Corregidas</div></div>
-    <div class="kpi-box red"><div class="kpi-val" id="d-no-corr">0</div><div class="kpi-lbl">No Corregidas</div></div>
+    <div class="kpi-box"><div class="kpi-val" id="d-total">0</div><div class="kpi-lbl">Levantamientos</div><div class="kpi-formula">Total registrados</div></div>
+    <div class="kpi-box green"><div class="kpi-val" id="d-semana">0</div><div class="kpi-lbl">Esta semana</div><div class="kpi-formula" id="d-semana-delta">vs sem. anterior</div></div>
+    <div class="kpi-box red"><div class="kpi-val" id="d-observadores">0</div><div class="kpi-lbl">Observadores</div><div class="kpi-formula">Personas distintas que levantaron</div></div>
   </div>
   <div style="margin-bottom:12px">
-    <div class="kpi-box amber" style="padding:10px 16px;display:flex;align-items:center;justify-content:space-between">
-      <div class="kpi-lbl" style="margin-top:0">% Obs. Corregidas del Total</div>
-      <div class="kpi-val" id="d-pct" style="font-size:28px">0%</div>
+    <div class="kpi-box amber" style="padding:10px 16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+        <div style="text-align:left"><div class="kpi-lbl" style="margin-top:0">Cobertura de la planta</div><div class="kpi-formula">Sectores con ≥1 levantamiento ÷ sectores de la planta × 100</div></div>
+        <div class="kpi-val" id="d-cob-pct" style="font-size:28px">0%</div>
+      </div>
+      <div style="height:7px;background:var(--g100);border-radius:20px;overflow:hidden;margin-top:8px"><div id="d-cob-bar" style="height:100%;width:0%;background:var(--amber);border-radius:20px;transition:width .4s"></div></div>
+      <div id="d-cob-txt" style="font-size:10px;color:var(--g400);margin-top:4px;text-align:left"></div>
     </div>
   </div>
   <div class="dash-card">
@@ -348,17 +354,6 @@ textarea{resize:vertical;min-height:78px}
     </div>
     <div id="rcmp-resultado"></div>
   </div>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
-    <div class="dash-card" style="margin-bottom:0">
-      <div class="dash-card-title">&#127942; Mejor / Peor area</div>
-      <div style="font-size:10px;color:var(--g400);margin:-4px 0 8px;font-style:italic">Semana actual</div>
-      <div id="d-top-areas"></div>
-    </div>
-    <div class="dash-card" style="margin-bottom:0">
-      <div class="dash-card-title">&#128200; vs Semana anterior</div>
-      <div id="d-comparativo"></div>
-    </div>
-  </div>
   <div class="dash-card">
     <div class="dash-card-title">&#127942; Ranking de Auditores</div>
     <div style="font-size:10px;color:var(--g400);margin:-4px 0 8px;font-style:italic">Quién está levantando más observaciones</div>
@@ -366,22 +361,22 @@ textarea{resize:vertical;min-height:78px}
   </div>
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
     <div class="dash-card" style="margin-bottom:0">
-      <div class="dash-card-title">Estado obs.</div>
-      <div style="position:relative;width:100px;height:100px;margin:0 auto">
-        <canvas id="chart-donut-status"></canvas>
+      <div class="dash-card-title">Por área</div>
+      <div style="position:relative;width:120px;height:120px;margin:0 auto">
+        <canvas id="chart-donut-area"></canvas>
         <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none">
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;color:var(--green)" id="d-pct2">0%</div>
-          <div style="font-size:8px;color:var(--g400);font-weight:600;text-transform:uppercase">Cumpl.</div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:var(--green)" id="d-total2">0</div>
+          <div style="font-size:8px;color:var(--g400);font-weight:600;text-transform:uppercase">Total</div>
         </div>
       </div>
-      <div id="legend-status" style="margin-top:8px"></div>
+      <div id="legend-area" style="margin-top:8px"></div>
     </div>
     <div class="dash-card" style="margin-bottom:0">
-      <div class="dash-card-title">Obs. por "S"</div>
-      <div style="position:relative;width:100px;height:100px;margin:0 auto">
+      <div class="dash-card-title">Por "S"</div>
+      <div style="position:relative;width:120px;height:120px;margin:0 auto">
         <canvas id="chart-donut-s"></canvas>
         <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none">
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;color:var(--red)" id="d-top-s">-</div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:var(--red)" id="d-top-s">-</div>
           <div style="font-size:8px;color:var(--g400);font-weight:600;text-transform:uppercase">Top</div>
         </div>
       </div>
@@ -390,7 +385,7 @@ textarea{resize:vertical;min-height:78px}
   </div>
   <div class="dash-card">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-      <div class="dash-card-title" style="margin-bottom:0">&#128200; Evolucion de observaciones</div>
+      <div class="dash-card-title" style="margin-bottom:0">&#128200; Evolucion de levantamientos</div>
       <div class="period-sel" style="width:130px">
         <button class="period-btn active" id="btn-sem" onclick="setPeriod('sem')">Semanal</button>
         <button class="period-btn" id="btn-mes" onclick="setPeriod('mes')">Mensual</button>
@@ -409,26 +404,28 @@ textarea{resize:vertical;min-height:78px}
     <div style="position:relative;height:220px;width:100%"><canvas id="chart-area-evol"></canvas></div>
   </div>
   <div class="dash-card">
-    <div class="dash-card-title">&#127981; Cumplimiento por sector</div>
-    <div style="font-size:10px;color:var(--g400);margin:-4px 0 8px;font-style:italic">Obs. corregidas / total obs. del sector</div>
+    <div class="dash-card-title">&#128269; Tipos de levantamiento más frecuentes</div>
+    <div style="font-size:10px;color:var(--g400);margin:-4px 0 8px;font-style:italic">Pareto: qué tipo de hallazgo se repite más (con % acumulado)</div>
+    <div id="d-pareto"></div>
+  </div>
+  <div class="dash-card">
+    <div class="dash-card-title">&#127981; Levantamientos por sector</div>
+    <div style="font-size:10px;color:var(--g400);margin:-4px 0 8px;font-style:italic">Los 12 sectores donde más se levanta</div>
     <div id="d-sectores"></div>
   </div>
   <div class="dash-card">
-    <div class="dash-card-title">&#128100; Cumplimiento por responsable</div>
-    <div style="font-size:10px;color:var(--g400);margin:-4px 0 8px;font-style:italic">Obs. corregidas / total obs. asignadas</div>
+    <div class="dash-card-title">&#128683; Sectores sin levantamientos</div>
+    <div style="font-size:10px;color:var(--g400);margin:-4px 0 8px;font-style:italic">Sectores a los que aún no llega el equipo de observadores (según los filtros)</div>
+    <div id="d-sin-lev"></div>
+  </div>
+  <div class="dash-card">
+    <div class="dash-card-title">&#128100; Levantamientos por responsable de área</div>
+    <div style="font-size:10px;color:var(--g400);margin:-4px 0 8px;font-style:italic">Responsable asignado al sector donde se levantó</div>
     <div id="d-responsables"></div>
   </div>
   <div class="dash-card">
-    <div class="dash-card-title">&#128203; Resumen por sector y estado</div>
-    <div style="overflow-x:auto"><table id="tabla-pivot" class="dtbl"></table></div>
-  </div>
-  <div class="dash-card">
-    <div class="dash-card-title">&#128202; % Cumplimiento por area</div>
-    <div style="font-size:10px;color:var(--g400);margin:-4px 0 8px;font-style:italic">Obs. corregidas / total obs. por area</div>
-    <div style="overflow-x:auto"><table id="tabla-cumpl" class="dtbl"></table></div>
-  </div>
-  <div class="dash-card">
-    <div class="dash-card-title">&#128205; Zonas/equipos con mas obs. no corregidas</div>
+    <div class="dash-card-title">&#128205; Zonas / equipos con más levantamientos</div>
+    <div style="font-size:10px;color:var(--g400);margin:-4px 0 8px;font-style:italic">Donde más se repite el hallazgo</div>
     <div id="d-zonas-ranking"></div>
   </div>
 </div>
@@ -563,16 +560,47 @@ textarea{resize:vertical;min-height:78px}
   </div>
 </div>
   <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px">
-    <div class="kpi-box"><div class="kpi-val" id="dk-total">0</div><div class="kpi-lbl">Check Lists</div></div>
-    <div class="kpi-box green"><div class="kpi-val" id="dk-prom">0</div><div class="kpi-lbl">Puntaje prom.</div></div>
-    <div class="kpi-box red"><div class="kpi-val" id="dk-obs">0</div><div class="kpi-lbl">Obs. incumpl.</div></div>
-    <div class="kpi-box amber"><div class="kpi-val" id="dk-pct">0%</div><div class="kpi-lbl">Cumplimiento</div></div>
+    <div class="kpi-box"><div class="kpi-val" id="dk-total">0</div><div class="kpi-lbl">Check Lists</div><div class="kpi-formula">Total guardados</div></div>
+    <div class="kpi-box green"><div class="kpi-val" id="dk-prom">0</div><div class="kpi-lbl">Puntaje prom.</div><div class="kpi-formula">Suma % ÷ cantidad</div></div>
+    <div class="kpi-box red"><div class="kpi-val" id="dk-obs">0</div><div class="kpi-lbl">Obs. incumpl.</div><div class="kpi-formula">Estado = Pendiente</div></div>
+    <div class="kpi-box amber"><div class="kpi-val" id="dk-pct">0%</div><div class="kpi-lbl">% Resuelto</div><div class="kpi-formula">Resueltas ÷ total obs.</div></div>
   </div>
   <div id="progreso-sectores" style="margin-bottom:12px"></div>
   <div class="dash-card">
     <div class="dash-card-title">&#128203; Cumplimiento por Auditor</div>
     <div style="font-size:10px;color:var(--g400);margin:-4px 0 8px;font-style:italic">Check List del mes actual — por nombre</div>
     <div id="cumplimiento-auditores"></div>
+  </div>
+  <div class="dash-card">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:2px">
+      <div class="dash-card-title" style="margin-bottom:0">&#127942; Ranking de Auditores</div>
+      <select id="ranking-periodo" onchange="renderRankingAuditores()" style="padding:6px 8px;border-radius:8px;border:1px solid var(--g200);font-size:11px;background:#fff">
+        <option value="3">Últimos 3 meses</option>
+        <option value="6">Últimos 6 meses</option>
+        <option value="12">Año en curso</option>
+      </select>
+    </div>
+    <div style="font-size:10px;color:var(--g400);margin:0 0 8px;font-style:italic">% de Check List completados sobre los posibles (1 por mes)</div>
+    <div id="ranking-auditores-list"></div>
+  </div>
+  <div class="dash-card">
+    <div class="dash-card-title">&#128202; Sectores con más Observaciones Pendientes</div>
+    <div style="font-size:10px;color:var(--g400);margin:-4px 0 8px;font-style:italic">Incumplimientos aún no levantados, por sector</div>
+    <canvas id="chart-sectores-pendientes" height="220"></canvas>
+  </div>
+  <div class="dash-card">
+    <div class="dash-card-title">&#128200; Tendencia Mensual de Puntaje 5S</div>
+    <div style="font-size:10px;color:var(--g400);margin:-4px 0 8px;font-style:italic">% de cumplimiento promedio por mes</div>
+    <canvas id="chart-tendencia-5s" height="200"></canvas>
+  </div>
+  <div class="dash-card">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+      <div>
+        <div class="dash-card-title" style="margin-bottom:2px">&#127919; Ranking de Sectores (mensual)</div>
+        <div style="font-size:10px;color:var(--g400);font-style:italic">Promedio de cada sector, mes por mes — exportable</div>
+      </div>
+      <button onclick="exportarRankingSectoresPDF(this)" style="background:var(--green);color:#fff;border:none;border-radius:8px;padding:8px 12px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">&#128196; Exportar PDF</button>
+    </div>
   </div>
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
     <div class="dash-card" style="margin-bottom:0">
@@ -584,7 +612,7 @@ textarea{resize:vertical;min-height:78px}
     </div>
     <div class="dash-card" style="margin-bottom:0">
       <div class="dash-card-title">Distribucion por nivel</div>
-      <div style="position:relative;width:90px;height:90px;margin:0 auto"><canvas id="chart-audit-nivel"></canvas></div>
+      <div style="position:relative;width:120px;height:120px;margin:0 auto"><canvas id="chart-audit-nivel"></canvas></div>
       <div id="legend-audit-nivel" style="margin-top:6px"></div>
     </div>
   </div>
@@ -658,9 +686,9 @@ textarea{resize:vertical;min-height:78px}
     </select>
   </div>
   <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px">
-    <div class="kpi-box red"><div class="kpi-val" id="ok-pendientes">0</div><div class="kpi-lbl">Pendientes</div></div>
-    <div class="kpi-box green"><div class="kpi-val" id="ok-levantadas">0</div><div class="kpi-lbl">Levantadas</div></div>
-    <div class="kpi-box amber"><div class="kpi-val" id="ok-pct">0%</div><div class="kpi-lbl">% Levantado</div></div>
+    <div class="kpi-box red"><div class="kpi-val" id="ok-pendientes">0</div><div class="kpi-lbl">Pendientes</div><div class="kpi-formula">Estado = Pendiente</div></div>
+    <div class="kpi-box green"><div class="kpi-val" id="ok-levantadas">0</div><div class="kpi-lbl">Levantadas</div><div class="kpi-formula">Estado = Levantada</div></div>
+    <div class="kpi-box amber"><div class="kpi-val" id="ok-pct">0%</div><div class="kpi-lbl">% Levantado</div><div class="kpi-formula">Levantadas ÷ Total × 100</div></div>
   </div>
   <div id="obs-audit-list"><div class="loading"><div class="spinner-g"></div><p style="margin-top:12px;font-size:13px">Cargando...</p></div></div>
 </div>
@@ -969,6 +997,125 @@ textarea{resize:vertical;min-height:78px}
 
 <script>
 
+if (window.Chart && window.ChartDataLabels) {
+  Chart.register(ChartDataLabels);
+  Chart.defaults.set('plugins.datalabels', {
+    display: true,
+    color: '#333',
+    font: { weight: 'bold', size: 10 },
+    anchor: 'end',
+    align: 'top',
+    offset: 2
+  });
+}
+
+// Etiquetas para gráficos circulares: porcentaje centrado en el anillo, oculto en porciones pequeñas
+function _dlDona(minFrac) {
+  function tot(ctx){ var d=ctx.dataset.data, t=0; for (var i=0;i<d.length;i++) t+=(+d[i]||0); return t; }
+  return {
+    anchor: 'center', align: 'center', offset: 0, clamp: true,
+    color: '#fff', font: { weight: 'bold', size: 10 },
+    display: function(ctx){ var t=tot(ctx); return t>0 && (ctx.dataset.data[ctx.dataIndex]/t) >= (minFrac||0.08); },
+    formatter: function(v, ctx){ var t=tot(ctx); return t>0 ? Math.round(v/t*100)+'%' : ''; }
+  };
+}
+
+// ═══════════════════════════════════════════════════════════════
+// DISEÑO COMÚN DE LOS PDF — misma tipografía, márgenes, colores y pie en todos los reportes
+// ═══════════════════════════════════════════════════════════════
+var PDF_C = {
+  verde:[21,90,37], verde2:[30,124,52], verdeClaro:[232,245,233],
+  rojo:[183,28,28], rojo2:[230,51,41], rojoClaro:[255,241,240],
+  ambar:[217,119,6], texto:[33,37,41], gris:[96,106,98], linea:[210,217,210], zebra:[246,248,246]
+};
+var PDF_F = { titulo:17, sub:9.5, bloque:9, cab:8.5, cuerpo:8.5, kpiVal:15, kpiLbl:8, pie:8 };
+
+function _pdfTxt(x) { return String(x == null ? "" : x).replace(/[^\x00-\xFF]/g, ""); }   // conserva tildes y ñ
+function _pdfSlug(s) { return String(s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]+/g, "_").replace(/^_+|_+$/g, ""); }
+function _pdfNivelColor(p) { return p >= 90 ? [27,94,32] : p >= 70 ? [30,124,52] : p >= 50 ? [217,119,6] : [230,51,41]; }
+
+// Banda de título (devuelve la posición Y donde empieza el contenido)
+function _pdfBanda(doc, titulo, subtitulo, rojo) {
+  var W = doc.internal.pageSize.getWidth();
+  var c1 = rojo ? PDF_C.rojo : PDF_C.verde, c2 = rojo ? PDF_C.rojo2 : PDF_C.verde2;
+  doc.setFillColor(c1[0], c1[1], c1[2]); doc.rect(0, 0, W, 5, "F");
+  doc.setFillColor(c2[0], c2[1], c2[2]); doc.rect(0, 5, W, 26, "F");
+  if (typeof ISM_LOGO !== "undefined" && ISM_LOGO) {
+    try {
+      doc.setFillColor(255, 255, 255); doc.roundedRect(14, 9, 34, 18, 2, 2, "F");
+      doc.addImage(ISM_LOGO, /^data:image\/png/i.test(ISM_LOGO) ? "PNG" : "JPEG", 16, 10.5, 30, 15);
+    } catch (e) {}
+  }
+  doc.setFont("helvetica", "bold"); doc.setFontSize(PDF_F.titulo); doc.setTextColor(255, 255, 255);
+  doc.text(_pdfTxt(titulo), W / 2, 18, { align: "center" });
+  doc.setFont("helvetica", "normal"); doc.setFontSize(PDF_F.sub);
+  doc.text(_pdfTxt(subtitulo), W / 2, 26, { align: "center" });
+  return 40;
+}
+
+// Pie de página en todas las hojas: texto a la izquierda, fecha al centro, número de página a la derecha
+function _pdfPie(doc, izq, mar) {
+  var W = doc.internal.pageSize.getWidth(), H = doc.internal.pageSize.getHeight();
+  var tot = doc.internal.getNumberOfPages();
+  var hoy = new Date().toLocaleDateString("es-PE");
+  for (var pg = 1; pg <= tot; pg++) {
+    doc.setPage(pg);
+    doc.setFillColor(PDF_C.verde[0], PDF_C.verde[1], PDF_C.verde[2]); doc.rect(0, H - 10, W, 10, "F");
+    doc.setFont("helvetica", "normal"); doc.setFontSize(PDF_F.pie); doc.setTextColor(255, 255, 255);
+    doc.text(_pdfTxt(izq), mar, H - 4);
+    doc.text("Generado: " + hoy + "     Pág. " + pg + " / " + tot, W - mar, H - 4, { align: "right" });
+  }
+}
+
+// Si queda poco espacio en la hoja, pasa a una nueva (evita títulos huérfanos al final de la página)
+function _pdfSalto(doc, y, minEspacio) {
+  var H = doc.internal.pageSize.getHeight();
+  if (y + minEspacio > H - 16) { doc.addPage(); return 18; }
+  return y;
+}
+
+// Fila de indicadores grandes (KPIs). colores: array opcional [{head:[r,g,b], val:[r,g,b]} | null]
+function _pdfKpis(doc, y, mar, labels, values, colores) {
+  var W = doc.internal.pageSize.getWidth();
+  doc.autoTable({
+    startY: y, margin: { left: mar, right: mar, bottom: 16 },
+    head: [labels], body: [values],
+    headStyles: { fillColor: PDF_C.verde, textColor: [255,255,255], fontStyle: "bold", fontSize: PDF_F.kpiLbl, halign: "center", valign: "middle", cellPadding: 3 },
+    bodyStyles: { fontSize: PDF_F.kpiVal, fontStyle: "bold", halign: "center", valign: "middle", textColor: PDF_C.verde2, cellPadding: 4 },
+    tableWidth: W - mar * 2, theme: "plain", styles: { lineColor: PDF_C.linea, lineWidth: 0.2 },
+    didParseCell: function (d) {
+      var c = colores && colores[d.column.index];
+      if (!c) return;
+      if (d.section === "head" && c.head) d.cell.styles.fillColor = c.head;
+      if (d.section === "body" && c.val) d.cell.styles.textColor = c.val;
+    }
+  });
+  return doc.lastAutoTable.finalY;
+}
+
+// Tabla de un bloque: barra de título numerada + encabezado de columnas alineado con el cuerpo
+// o = {y, mar, titulo, colTitulo, colCab, cols:[{h,w,a}], body, didParseCell}
+function _pdfTabla(doc, o) {
+  var W = doc.internal.pageSize.getWidth();
+  var anchoTotal = o.cols.reduce(function (s, c) { return s + c.w; }, 0);
+  var colStyles = {};
+  o.cols.forEach(function (c, i) { colStyles[i] = { cellWidth: c.w, halign: c.a || "left" }; });
+  var head = [];
+  if (o.titulo) head.push([{ content: _pdfTxt(o.titulo), colSpan: o.cols.length, styles: { halign: "left", fillColor: o.colTitulo, fontSize: PDF_F.bloque, cellPadding: { top: 2.8, bottom: 2.8, left: 2.5, right: 2.5 } } }]);
+  head.push(o.cols.map(function (c) { return { content: c.h, styles: { halign: c.a || "left" } }; }));
+  doc.autoTable({
+    startY: o.y, margin: { left: o.mar, right: o.mar, bottom: 16 }, rowPageBreak: "avoid",
+    head: head, body: o.body,
+    headStyles: { fillColor: o.colCab, textColor: [255,255,255], fontStyle: "bold", fontSize: PDF_F.cab, valign: "middle" },
+    bodyStyles: { fontSize: PDF_F.cuerpo, textColor: PDF_C.texto, valign: "middle" },
+    columnStyles: colStyles,
+    tableWidth: anchoTotal,
+    alternateRowStyles: { fillColor: PDF_C.zebra }, theme: "plain",
+    styles: { cellPadding: { top: 2.2, bottom: 2.2, left: 2.5, right: 2.5 }, lineColor: PDF_C.linea, lineWidth: 0.2, overflow: "linebreak" },
+    didParseCell: o.didParseCell
+  });
+  return doc.lastAutoTable.finalY;
+}
 
 function _uniq(arr) { var seen={}; return (arr||[]).filter(function(x){ if(seen[x])return false; seen[x]=1; return true; }); }
 function _sortEs(arr) { return (arr||[]).slice().sort(function(a,b){ return String(a).localeCompare(String(b),"es",{sensitivity:"base"}); }); }
@@ -1353,7 +1500,7 @@ function showAuditTab(name) {
     if (secEl) secEl.style.display = (t === name) ? "block" : "none";
   });
   if (name === "historial")     cargarAuditorias().then(function(){ renderHistorial(); });
-  if (name === "dashboard")     cargarAuditorias().then(function(){ renderAuditDashboard(); renderCumplimientoAuditores(); });
+  if (name === "dashboard")     cargarAuditorias().then(function(){ renderAuditDashboard(); renderCumplimientoAuditores(); renderRankingAuditores(); renderChartSectoresPendientes(); renderChartTendencia5S(); });
   if (name === "observaciones") cargarAuditorias().then(function(){ renderObsPendientes(); });
 }
 
@@ -1362,7 +1509,7 @@ function renderCumplimientoAuditores() {
   if (!el) return;
   var hoy = new Date();
   var mesActual = hoy.getFullYear() + "-" + String(hoy.getMonth()+1).padStart(2,"0");
-  var nombres = _sortEs(Object.keys(AUDITORES_SECTORES));
+  var nombres = _sortEs(Object.keys(AUDITORES_SECTORES)).filter(function(n) { return (AUDITORES_SECTORES[n] || []).length > 0; });
   var lista = nombres.map(function(nombre) {
     var sectoresAsignados = AUDITORES_SECTORES[nombre] || [];
     var hechos = sectoresAsignados.filter(function(sector) {
@@ -1402,6 +1549,162 @@ function renderCumplimientoAuditores() {
     h += '</div>';
   }
   el.innerHTML = h;
+}
+
+function _mesesAtras(n) {
+  // Devuelve un array de n strings "YYYY-MM", desde hace (n-1) meses hasta el mes actual, en orden cronológico
+  var out = [];
+  var hoy = new Date();
+  for (var i = n - 1; i >= 0; i--) {
+    var d = new Date(hoy.getFullYear(), hoy.getMonth() - i, 1);
+    out.push(d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0"));
+  }
+  return out;
+}
+
+function renderRankingAuditores() {
+  var el = document.getElementById("ranking-auditores-list");
+  if (!el) return;
+  var sel = document.getElementById("ranking-periodo");
+  var nMeses = sel ? parseInt(sel.value) : 3;
+  var meses = nMeses === 12 ? _mesesAtras(new Date().getMonth() + 1) : _mesesAtras(nMeses);
+
+  var nombres = _sortEs(Object.keys(AUDITORES_SECTORES)).filter(function(n) { return (AUDITORES_SECTORES[n] || []).length > 0; });
+  var ranking = nombres.map(function(nombre) {
+    var mesesCompletados = meses.filter(function(m) {
+      return (auditorias || []).some(function(a) { return a.auditor === nombre && String(a.fecha || "").substring(0, 7) === m; });
+    }).length;
+    var pct = meses.length ? Math.round(mesesCompletados / meses.length * 100) : 0;
+    return { nombre: nombre, hechos: mesesCompletados, total: meses.length, pct: pct };
+  }).sort(function(a, b) { return b.pct - a.pct; });
+
+  if (!ranking.length) { el.innerHTML = '<p style="font-size:12px;color:var(--g400);text-align:center;padding:12px">Sin datos</p>'; return; }
+
+  el.innerHTML = ranking.map(function(r, i) {
+    var col = r.pct >= 90 ? "#1B5E20" : r.pct >= 70 ? "#1E7C34" : r.pct >= 50 ? "#D97706" : "#E63329";
+    var medalla = i === 0 ? "&#129351;" : i === 1 ? "&#129352;" : i === 2 ? "&#129353;" : (i + 1) + ".";
+    return '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">'
+      + '<div style="width:22px;text-align:center;font-size:13px;flex-shrink:0">' + medalla + '</div>'
+      + '<div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:600;color:var(--g700);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + r.nombre + '</div>'
+      + '<div style="height:6px;background:var(--g100);border-radius:20px;overflow:hidden;margin-top:2px"><div style="height:100%;width:' + r.pct + '%;background:' + col + ';border-radius:20px"></div></div></div>'
+      + '<div style="font-size:12px;font-weight:800;color:' + col + ';flex-shrink:0;white-space:nowrap">' + r.pct + '% (' + r.hechos + '/' + r.total + ')</div>'
+      + '</div>';
+  }).join('');
+}
+
+function renderChartSectoresPendientes() {
+  var ctx = document.getElementById("chart-sectores-pendientes");
+  if (!ctx) return;
+  function sI(a) { return Array.isArray(a.incumplimientos) ? a.incumplimientos : safeJson(a.incumplimientos, "[]"); }
+  var porSector = {};
+  (auditorias || []).forEach(function(a) {
+    if (!a.sector) return;
+    sI(a).forEach(function(x) {
+      if ((x.estado || "Pendiente") === "Pendiente") porSector[a.sector] = (porSector[a.sector] || 0) + 1;
+    });
+  });
+  var top = Object.entries(porSector).sort(function(a, b) { return b[1] - a[1]; }).slice(0, 10);
+  if (typeof destroyChart === 'function') destroyChart('chart-sectores-pendientes');
+  if (!top.length) return;
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: top.map(function(t) { return t[0]; }),
+      datasets: [{ label: 'Observaciones pendientes', data: top.map(function(t) { return t[1]; }), backgroundColor: '#E63329', borderRadius: 6 }]
+    },
+    options: {
+      indexAxis: 'y', responsive: true,
+      plugins: { legend: { display: false }, datalabels: { anchor: 'end', align: 'right', color: '#E63329', font: { weight: 'bold', size: 11 } } },
+      scales: { x: { beginAtZero: true, ticks: { stepSize: 1 } }, y: { ticks: { font: { size: 10 } } } }
+    }
+  });
+}
+
+function renderChartTendencia5S() {
+  var ctx = document.getElementById("chart-tendencia-5s");
+  if (!ctx) return;
+  var meses = _mesesAtras(12);
+  var porMes = {};
+  (auditorias || []).forEach(function(a) {
+    if (!a.fecha) return;
+    var m = String(a.fecha).substring(0, 7);
+    if (!porMes[m]) porMes[m] = [];
+    porMes[m].push(a.pct_cumplimiento || 0);
+  });
+  var mesesConDatos = meses.filter(function(m) { return porMes[m] && porMes[m].length; });
+  var valores = mesesConDatos.map(function(m) { var arr = porMes[m]; return Math.round(arr.reduce(function(s, v) { return s + v; }, 0) / arr.length); });
+  var labels = mesesConDatos.map(function(m) { var p = m.split("-"); return new Date(+p[0], +p[1] - 1, 1).toLocaleDateString("es-PE", { month: "short", year: "2-digit" }); });
+  if (typeof destroyChart === 'function') destroyChart('chart-tendencia-5s');
+  if (!mesesConDatos.length) return;
+  new Chart(ctx, {
+    type: 'line',
+    data: { labels: labels, datasets: [{ label: '% Cumplimiento promedio', data: valores, borderColor: '#1E7C34', backgroundColor: 'rgba(30,124,52,.12)', fill: true, tension: .3, pointRadius: 4, pointBackgroundColor: '#1E7C34' }] },
+    options: { responsive: true, plugins: { legend: { display: false }, datalabels: { anchor: 'end', align: 'top', color: '#1E7C34', font: { weight: 'bold', size: 11 }, formatter: function(v){ return v + '%'; } } }, scales: { y: { min: 0, max: 100, ticks: { callback: function(v) { return v + '%'; } } } } }
+  });
+}
+
+function exportarRankingSectoresPDF(btn) {
+  try {
+    if (btn) { btn.disabled = true; btn.innerHTML = "Generando..."; }
+    var jsPDF2 = window.jspdf.jsPDF;
+    var doc = new jsPDF2({ orientation: "landscape", unit: "mm", format: "a4" });
+    var W = 297, H = 210, mar = 10, ss = _pdfTxt;
+
+    var meses = _mesesAtras(6);
+    var mesesLbl = meses.map(function (m) { var p = m.split("-"); return new Date(+p[0], +p[1] - 1, 1).toLocaleDateString("es-PE", { month: "short" }).replace(".", "").toUpperCase() + "-" + String(p[0]).slice(2); });
+
+    var sectores = _sortEs(Object.keys(SECTOR_AREA_MAP));
+    var filas = sectores.map(function (sector) {
+      var auditor = null;
+      for (var a in AUDITORES_SECTORES) { if (AUDITORES_SECTORES[a].indexOf(sector) > -1) { auditor = a; break; } }
+      var valoresPorMes = meses.map(function (m) {
+        var reg = (auditorias || []).filter(function (a) { return a.sector === sector && String(a.fecha || "").substring(0, 7) === m; });
+        if (!reg.length) return "No realizado";
+        return Math.round(reg.reduce(function (s, a) { return s + (a.pct_cumplimiento || 0); }, 0) / reg.length) + "%";
+      });
+      var valoresNum = valoresPorMes.filter(function (v) { return v !== "No realizado"; }).map(function (v) { return parseInt(v); });
+      var promGeneral = valoresNum.length ? Math.round(valoresNum.reduce(function (s, v) { return s + v; }, 0) / valoresNum.length) : null;
+      return { sector: sector, auditor: auditor || "—", valores: valoresPorMes, hechos: valoresNum.length, promGeneral: promGeneral };
+    }).sort(function (a, b) { return (b.promGeneral == null ? -1 : b.promGeneral) - (a.promGeneral == null ? -1 : a.promGeneral); });
+
+    var y = _pdfBanda(doc, "RANKING DE SECTORES - PUNTAJE 5S MENSUAL", "ISM Planta Huaura - " + mesesLbl[0] + " a " + mesesLbl[mesesLbl.length - 1]);
+
+    var cols = [{ h: "#", w: 9, a: "center" }, { h: "SECTOR", w: 47 }, { h: "AUDITOR", w: 58 }];
+    mesesLbl.forEach(function (l) { cols.push({ h: l, w: 21, a: "center" }); });
+    cols.push({ h: "REAL.", w: 17, a: "center" }, { h: "PROM.", w: 20, a: "center" });
+    var iReal = 3 + meses.length, iProm = iReal + 1;
+
+    var yFin = _pdfTabla(doc, {
+      y: y, mar: mar, titulo: "PROMEDIO DE PUNTAJE POR SECTOR Y MES (de mayor a menor promedio)",
+      colTitulo: PDF_C.verde, colCab: PDF_C.verde2, cols: cols,
+      body: filas.map(function (f, i) {
+        return [String(i + 1), ss(f.sector), ss(f.auditor)].concat(f.valores).concat([f.hechos + "/" + meses.length, f.promGeneral != null ? f.promGeneral + "%" : "—"]);
+      }),
+      didParseCell: function (d) {
+        if (d.section !== "body") return;
+        var ci = d.column.index, raw = d.cell.raw;
+        if (ci >= 3 && ci < iReal) {
+          if (raw === "No realizado") { d.cell.styles.textColor = [170, 80, 80]; d.cell.styles.fillColor = [253, 243, 243]; d.cell.styles.fontStyle = "normal"; d.cell.styles.fontSize = 8; }
+          else { d.cell.styles.textColor = _pdfNivelColor(parseInt(raw) || 0); d.cell.styles.fontStyle = "bold"; }
+        }
+        if (ci === iProm && raw !== "—") { d.cell.styles.textColor = _pdfNivelColor(parseInt(raw) || 0); d.cell.styles.fontStyle = "bold"; }
+        if (ci === 1 && d.row.index < 3) d.cell.styles.fontStyle = "bold";
+      }
+    });
+
+    // Leyenda: cómo leer el reporte
+    var yL = yFin + 6;
+    if (yL > H - 30) { doc.addPage(); yL = 20; }
+    doc.setFont("helvetica", "bold"); doc.setFontSize(9); doc.setTextColor(PDF_C.texto[0], PDF_C.texto[1], PDF_C.texto[2]);
+    doc.text("Cómo leer este reporte", mar, yL);
+    doc.setFont("helvetica", "normal"); doc.setFontSize(8.5); doc.setTextColor(PDF_C.gris[0], PDF_C.gris[1], PDF_C.gris[2]);
+    doc.text("- Cada mes muestra el promedio de los Check Lists del sector. \"No realizado\" = ese mes no se hizo el Check List.\n- REAL. = meses realizados de los últimos " + meses.length + ".   PROM. = promedio solo de los meses realizados (por eso ordena el ranking).\n- Colores del puntaje: verde oscuro = 90% o más   |   verde = 70% o más   |   ámbar = 50% o más   |   rojo = menos de 50%.", mar, yL + 5, { maxWidth: W - mar * 2 });
+
+    _pdfPie(doc, "ISM Check List 5S - Ranking de sectores", mar);
+    doc.save("Ranking_Sectores_5S_" + new Date().toISOString().split("T")[0] + ".pdf");
+    showToast("PDF generado");
+  } catch (e) { showToast("Error: " + e.message, true); }
+  if (btn) { btn.disabled = false; btn.innerHTML = "📄 Exportar PDF"; }
 }
 
 // Función para renderizar pendientes (simplificada)
@@ -1968,15 +2271,20 @@ function renderAuditDashboard() {
   if (lista.length) {
     var sum=0; lista.forEach(function(a){sum+=(a.pct_cumplimiento||0);}); avg=Math.round(sum/lista.length);
   }
-  var obsT=0;
-  lista.forEach(function(a){ safeI(a).forEach(function(x){if((x.estado||"Pendiente")==="Pendiente")obsT++;}); });
+  var obsT=0, obsResueltas=0, obsTotalEncontradas=0;
+  lista.forEach(function(a){ safeI(a).forEach(function(x){
+    obsTotalEncontradas++;
+    if((x.estado||"Pendiente")==="Pendiente") obsT++; else obsResueltas++;
+  }); });
+  var pctResuelto = obsTotalEncontradas ? Math.round(obsResueltas/obsTotalEncontradas*100) : 100;
   var nivel=getNivel(avg), cA=col(avg);
+  var colResuelto = pctResuelto>=90?"#1B5E20":pctResuelto>=70?G:pctResuelto>=50?A:R;
 
   var el; 
   el=document.getElementById("dk-total");  if(el) el.textContent=lista.length;
   el=document.getElementById("dk-prom");   if(el){el.textContent=avg+"%"; el.style.color=cA;}
   el=document.getElementById("dk-obs");    if(el) el.textContent=obsT;
-  el=document.getElementById("dk-pct");    if(el) el.textContent=avg+"%";
+  el=document.getElementById("dk-pct");    if(el){el.textContent=pctResuelto+"%"; el.style.color=colResuelto;}
   el=document.getElementById("dk-nivel-badge");
   if(el) el.innerHTML='<span style="background:'+cA+';color:#fff;border-radius:8px;padding:4px 12px;font-size:16px;font-weight:700">'+nivel.nivel+'</span>';
   el=document.getElementById("dk-barra-prom");
@@ -1999,7 +2307,7 @@ function renderAuditDashboard() {
     data:{labels:["Excelente","Bueno","Regular","Deficiente"],
       datasets:[{data:[nivelC.Excelente,nivelC.Bueno,nivelC.Regular,nivelC.Deficiente],
         backgroundColor:["#1B5E20","#1E7C34","#D97706","#E63329"],borderWidth:2,borderColor:"#fff"}]},
-    options:{responsive:true,maintainAspectRatio:false,cutout:"65%",plugins:{legend:{display:false}}}
+    options:{responsive:true,maintainAspectRatio:false,cutout:"55%",plugins:{legend:{display:false},datalabels:_dlDona(0.08)}}
   });
   el=document.getElementById("legend-audit-nivel");
   if(el){
@@ -2026,7 +2334,7 @@ function renderAuditDashboard() {
         borderColor:sectLbls.map(function(s){return col(sectPct[s].pct);}),
         borderWidth:1,borderRadius:4}]},
     options:{indexAxis:"y",responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{display:false}},
+      plugins:{legend:{display:false},datalabels:{display:false}},
       scales:{x:{min:0,max:100,ticks:{callback:function(v){return v+"%";}},grid:{color:"#F1F5F9"}},
               y:{ticks:{font:{size:9}}}}}
   });
@@ -2049,7 +2357,7 @@ function renderAuditDashboard() {
     data:{labels:evolLbls,datasets:[{label:"% Promedio",data:evolProms,borderColor:B,
       backgroundColor:B+"22",tension:0.4,fill:true,pointRadius:5,pointBackgroundColor:B,
       pointBorderColor:"#fff",pointBorderWidth:2}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},datalabels:{anchor:"end",align:"top",color:B,font:{weight:"bold",size:11},formatter:function(v){return v+"%";}}},
       scales:{y:{min:0,max:100,ticks:{callback:function(v){return v+"%";}},grid:{color:"#F1F5F9"}},
               x:{ticks:{font:{size:10}}}}}
   });
@@ -2073,7 +2381,7 @@ function renderAuditDashboard() {
     data:{labels:["1S Seleccionar","2S Ordenar","3S Limpiar","4S Estandarizar","5S Disciplinar"],
       datasets:[{label:"% Cumplimiento",data:radarData,backgroundColor:G+"33",borderColor:G,
         pointBackgroundColor:G,pointRadius:4,pointBorderColor:"#fff",pointBorderWidth:2}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},datalabels:{color:G,font:{weight:"bold",size:10},formatter:function(v){return v+"%";}}},
       scales:{r:{min:0,max:100,ticks:{stepSize:20,font:{size:8},backdropColor:"transparent"},
         pointLabels:{font:{size:10}},grid:{color:"#E2E8F0"},angleLines:{color:"#E2E8F0"}}}}
   });
@@ -2099,7 +2407,7 @@ function renderAuditDashboard() {
     ctxP.parentElement.style.height="250px";
     new Chart(ctxP,{type:"bar",data:{labels:areasPilar,datasets:pilarDatasets},
       options:{responsive:true,maintainAspectRatio:false,
-        plugins:{legend:{position:"top",labels:{font:{size:10},boxWidth:10}}},
+        plugins:{legend:{position:"top",labels:{font:{size:10},boxWidth:10}},datalabels:{display:false}},
         scales:{y:{min:0,max:100,ticks:{callback:function(v){return v+"%";}},grid:{color:"#F1F5F9"}},
                 x:{ticks:{font:{size:9}}}}}});
   }
@@ -2180,7 +2488,7 @@ function renderAuditDashboard() {
   if(ctxO) new Chart(ctxO,{
     type:"bar",
     data:{labels:Object.keys(obsArea),datasets:[{label:"Obs. pendientes",data:Object.values(obsArea),backgroundColor:R+"BB",borderRadius:4}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},datalabels:{anchor:"end",align:"top",color:R,font:{weight:"bold",size:10}}},
       scales:{y:{ticks:{stepSize:1},grid:{color:"#F1F5F9"}},x:{ticks:{font:{size:10}}}}}
   });
 }
@@ -2471,90 +2779,95 @@ async function guardarObservacion(){
 
 function exportarPDF() {
   var btn = document.querySelector('[onclick="exportarPDF()"]');
+  var btnTxt = btn ? btn.innerHTML : "";
   if (btn) { btn.textContent = "..."; btn.disabled = true; }
   try {
     var jsPDFLib = window.jspdf;
     if (!jsPDFLib) { showToast("jsPDF no disponible", true); return; }
-    var doc = new jsPDFLib.jsPDF({orientation:"portrait", unit:"mm", format:"a4"});
-    var PW=210, M=14, CW=182;
-    var obsF = getObsFiltradas();
+    var doc = new jsPDFLib.jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+    var M = 14, ss = _pdfTxt;
+    var _nn = function (s) { return String(s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/_/g, " ").toUpperCase().trim(); };
+    var fmtF = function (f) { var p = String(f || "").split("-"); return p.length === 3 ? p[2] + "/" + p[1] + "/" + p[0].slice(2) : String(f || ""); };
+
+    var obsF = (_dashObsCache || []).slice().sort(function (x, y) { return String(y.fecha || "") > String(x.fecha || "") ? 1 : -1; });
     var total = obsF.length;
-    var corr  = obsF.filter(function(o){ return o.status==="CORREGIDO"; }).length;
-    var noCorr= total - corr;
-    var G="#1E7C34", R="#E63329", A="#D97706";
-    var y = M;
 
-    // Logo e info
-    if (ISM_LOGO) {
-      try { doc.addImage(ISM_LOGO,"JPEG",M,y,30,10); } catch(e){}
-    }
-    doc.setFontSize(16); doc.setFont(undefined,"bold");
-    doc.setTextColor(30,124,52);
-    doc.text("REPORTE RECORRIDO 5S",PW/2,y+6,{align:"center"});
-    doc.setFontSize(9); doc.setFont(undefined,"normal");
-    doc.setTextColor(100,100,100);
-    doc.text("Industrias San Miguel — Planta Huaura",PW/2,y+11,{align:"center"});
-    doc.text("Generado: "+new Date().toLocaleDateString("es-PE"),PW/2,y+15,{align:"center"});
-    y += 22;
+    // Filtros aplicados en el dashboard
+    var selTxt = function (id) { var e = document.getElementById(id); return e && e.value ? (e.options[e.selectedIndex] ? e.options[e.selectedIndex].text : e.value) : ""; };
+    var fa = (document.getElementById("d-fil-area") || {}).value || "", fs = (document.getElementById("d-fil-sector") || {}).value || "";
+    var filtroTxt = "Filtros aplicados:   Mes: " + (selTxt("d-fil-mes") || "todos") + "   |   Área: " + (selTxt("d-fil-area") || "todas") + "   |   Sector: " + (selTxt("d-fil-sector") || "todos");
 
-    // KPIs
-    var kpis = [
-      {label:"TOTAL OBS.", val:String(total), col:G},
-      {label:"CORREGIDAS", val:String(corr),  col:G},
-      {label:"PENDIENTES", val:String(noCorr),col:R}
-    ];
-    var kw = (CW-6) / kpis.length;
-    for (var ki=0; ki<kpis.length; ki++) {
-      var kx = M + ki*(kw+3);
-      doc.setFillColor(248,250,248);
-      doc.roundedRect(kx,y,kw,16,2,2,"F");
-      doc.setFontSize(18); doc.setFont(undefined,"bold"); doc.setTextColor(30,124,52);
-      doc.text(kpis[ki].val, kx+kw/2, y+10, {align:"center"});
-      doc.setFontSize(7); doc.setFont(undefined,"normal"); doc.setTextColor(100,100,100);
-      doc.text(kpis[ki].label, kx+kw/2, y+14, {align:"center"});
-    }
-    y += 22;
-
-    // Tabla de observaciones
-    var rows = [];
-    for (var oi=0; oi<obsF.length; oi++) {
-      var o = obsF[oi];
-      rows.push([
-        String(o.num||""),
-        String(o.sector||o.area||""),
-        String(o.tipo||""),
-        String(o.obs||""),
-        String(o.responsable||""),
-        String(o.status==="CORREGIDO"?"Corregida":"Pendiente")
-      ]);
-    }
-
-    doc.autoTable({
-      startY: y,
-      head: [["#","Sector","Tipo","Observacion","Responsable","Estado"]],
-      body: rows,
-      theme: "striped",
-      headStyles: {fillColor:[30,124,52], textColor:255, fontSize:8, fontStyle:"bold"},
-      bodyStyles: {fontSize:7},
-      columnStyles: {
-        0:{cellWidth:10}, 1:{cellWidth:30}, 2:{cellWidth:30},
-        3:{cellWidth:60}, 4:{cellWidth:30}, 5:{cellWidth:20}
-      },
-      margin: {left:M, right:M},
-      didParseCell: function(data) {
-        if (data.section==="body" && data.column.index===5) {
-          if (data.cell.raw==="Pendiente") { data.cell.styles.textColor=[230,51,41]; data.cell.styles.fontStyle="bold"; }
-          else { data.cell.styles.textColor=[30,124,52]; data.cell.styles.fontStyle="bold"; }
-        }
-      }
+    // Cobertura y observadores
+    var sectPlanta = Object.keys(SECTOR_AREA_MAP).filter(function (s) {
+      if (fa && _nn(SECTOR_AREA_MAP[s]) !== _nn(fa)) return false;
+      if (fs && _nn(s) !== _nn(fs)) return false;
+      return true;
     });
+    var scope = {}; sectPlanta.forEach(function (s) { scope[_nn(s)] = 1; });
+    var cub = {}, audSet = {}, todoSec = {};
+    obsF.forEach(function (o) {
+      var k = _nn(o.sector); if (k) todoSec[k] = 1;
+      if (scope[k]) cub[k] = 1;
+      var a = _nn(o.auditor); if (a) audSet[a] = 1;
+    });
+    var nCub = Object.keys(cub).length, nPlanta = sectPlanta.length;
+    var pctCob = nPlanta ? Math.round(nCub / nPlanta * 100) : 0;
 
+    var y = _pdfBanda(doc, "REPORTE RECORRIDO 5S", "Industrias San Miguel - Planta Huaura");
+    doc.setFont("helvetica", "normal"); doc.setFontSize(8.5); doc.setTextColor(PDF_C.gris[0], PDF_C.gris[1], PDF_C.gris[2]);
+    doc.text(ss(filtroTxt), M, y - 1);
+    y = _pdfKpis(doc, y + 3, M,
+      ["LEVANTAMIENTOS", "SECTORES CUBIERTOS", "COBERTURA DE LA PLANTA", "OBSERVADORES"],
+      [String(total), nCub + " de " + nPlanta, pctCob + "%", String(Object.keys(audSet).length)], null) + 9;
+
+    if (!total) {
+      doc.autoTable({
+        startY: y, margin: { left: M, right: M, bottom: 16 },
+        body: [["No hay levantamientos con los filtros seleccionados."]],
+        bodyStyles: { fontSize: 10, textColor: PDF_C.gris, halign: "center" }, tableWidth: 182, theme: "plain", styles: { cellPadding: 6 }
+      });
+    } else {
+      // Bloque 1: resumen por área
+      var porArea = {};
+      obsF.forEach(function (o) {
+        var a = o.area || "Sin área";
+        if (!porArea[a]) porArea[a] = { n: 0, sec: {} };
+        porArea[a].n++; porArea[a].sec[_nn(o.sector)] = 1;
+      });
+      var areaRows = Object.entries(porArea).sort(function (a, b) { return b[1].n - a[1].n; }).map(function (e) {
+        return [ss(e[0]).toUpperCase(), String(e[1].n), Math.round(e[1].n / total * 100) + "%", String(Object.keys(e[1].sec).length)];
+      });
+      areaRows.push(["TOTAL", String(total), "100%", String(Object.keys(todoSec).length)]);
+      y = _pdfTabla(doc, {
+        y: y, mar: M, titulo: "1. RESUMEN POR ÁREA",
+        colTitulo: PDF_C.verde, colCab: PDF_C.verde2,
+        cols: [{ h: "ÁREA", w: 70 }, { h: "LEVANTAMIENTOS", w: 38, a: "center" }, { h: "% DEL TOTAL", w: 34, a: "center" }, { h: "SECTORES CON LEVANT.", w: 40, a: "center" }],
+        body: areaRows,
+        didParseCell: function (d) {
+          if (d.section === "body" && String(d.row.raw[0]) === "TOTAL") { d.cell.styles.fontStyle = "bold"; d.cell.styles.fillColor = PDF_C.verdeClaro; d.cell.styles.textColor = PDF_C.verde; }
+        }
+      }) + 10;
+
+      // Bloque 2: detalle de levantamientos
+      y = _pdfSalto(doc, y, 45);
+      _pdfTabla(doc, {
+        y: y, mar: M, titulo: "2. DETALLE DE LEVANTAMIENTOS (" + total + ", del más reciente al más antiguo)",
+        colTitulo: PDF_C.verde, colCab: PDF_C.verde2,
+        cols: [{ h: "#", w: 9, a: "center" }, { h: "FECHA", w: 17, a: "center" }, { h: "SECTOR / ZONA", w: 38 }, { h: "S", w: 11, a: "center" }, { h: "TIPO", w: 25 }, { h: "LEVANTAMIENTO", w: 54 }, { h: "LEVANTÓ", w: 28 }],
+        body: obsF.map(function (o) {
+          var sec = ss(o.sector || o.area || "") + (String(o.zona || "").trim() ? "\nZona: " + ss(o.zona) : "");
+          return [String(o.num || ""), fmtF(o.fecha), sec, ss(o.s && o.s !== "—" ? o.s : ""), ss(o.tipo || ""), ss(o.obs || ""), ss(o.auditor || "")];
+        })
+      });
+    }
+
+    _pdfPie(doc, "ISM Recorrido 5S - Planta Huaura", M);
     doc.save("Recorrido5S_" + new Date().toISOString().split("T")[0] + ".pdf");
-  } catch(e) {
+  } catch (e) {
     showToast("Error generando PDF: " + e.message, true);
     console.error(e);
   } finally {
-    if (btn) { btn.textContent = "Exportar PDF"; btn.disabled = false; }
+    if (btn) { btn.innerHTML = btnTxt; btn.disabled = false; }
   }
 }
 
@@ -2687,14 +3000,13 @@ function renderEvolucion() {
   obs.forEach(function(o){
     var k = _periodKey(o, periodoEvol);
     if (!k) return;
-    if (!byKey[k]) byKey[k] = {total:0, corr:0};
-    byKey[k].total++; if (o.status==="CORREGIDO") byKey[k].corr++;
+    byKey[k] = (byKey[k]||0) + 1;
   });
   var keys = Object.keys(byKey).sort();
   if (periodoEvol === "sem" && keys.length > 12) keys = keys.slice(-12);
   var labels = keys.map(function(k){ return _periodLabel(k, periodoEvol); });
-  var totals = keys.map(function(k){ return byKey[k].total; });
-  var pcts   = keys.map(function(k){ return byKey[k].total>0 ? Math.round(byKey[k].corr/byKey[k].total*100) : 0; });
+  var totals = keys.map(function(k){ return byKey[k]; });
+  var prom = totals.length ? Math.round(totals.reduce(function(s,v){return s+v;},0)/totals.length*10)/10 : 0;
 
   if (typeof destroyChart==='function') destroyChart('chart-evolucion');
   var ctxE = document.getElementById('chart-evolucion');
@@ -2702,12 +3014,12 @@ function renderEvolucion() {
   if (!keys.length) return;
   new Chart(ctxE, {type:'bar',
     data:{labels:labels, datasets:[
-      {label:'Total obs.', data:totals, backgroundColor:R+'66', borderColor:R, borderWidth:1, borderRadius:4, yAxisID:'y1'},
-      {label:'% Corregidas', data:pcts, type:'line', borderColor:G, backgroundColor:G+'22', tension:0.3, pointRadius:4, pointBackgroundColor:G, yAxisID:'y2'}
+      {label:'Levantamientos', data:totals, backgroundColor:G+'99', borderColor:G, borderWidth:1, borderRadius:4, datalabels:{anchor:'end', align:'top', color:G, font:{weight:'bold', size:10}}},
+      {label:'Promedio ('+prom+')', data:totals.map(function(){return prom;}), type:'line', borderColor:R, borderDash:[5,4], borderWidth:1.5, pointRadius:0, fill:false, datalabels:{display:false}}
     ]},
     options:{responsive:true, maintainAspectRatio:false,
       plugins:{legend:{position:'top', labels:{font:{size:10}, boxWidth:10}}},
-      scales:{y1:{position:'left', ticks:{stepSize:1}}, y2:{position:'right', min:0, max:100, ticks:{callback:function(v){return v+'%';}}, grid:{drawOnChartArea:false}}}
+      scales:{y:{beginAtZero:true, ticks:{precision:0}}}
     }
   });
 }
@@ -2751,7 +3063,7 @@ function renderEvolArea() {
   new Chart(ctxA, {type:'line',
     data:{labels:labels, datasets:datasets},
     options:{responsive:true, maintainAspectRatio:false,
-      plugins:{legend:{position:'bottom', labels:{font:{size:9}, boxWidth:10}}},
+      plugins:{legend:{position:'bottom', labels:{font:{size:9}, boxWidth:10}}, datalabels:{display:function(ctx){return ctx.dataIndex===ctx.dataset.data.length-1;}, align:'right', font:{weight:'bold', size:9}, color:function(ctx){return ctx.dataset.borderColor;}}},
       scales:{y:{beginAtZero:true, ticks:{stepSize:1}}}
     }
   });
@@ -3010,97 +3322,148 @@ function renderDashboard() {
   var areEl=document.getElementById('d-fil-area');
   if(areEl){var c3=areEl.value;areEl.innerHTML='<option value="">Todas las areas</option>';_sortEs(areas).forEach(function(a2){areEl.innerHTML+='<option value="'+a2+'"'+(a2===c3?' selected':'')+'>'+a2+'</option>';});}
 
-  // KPIs
-  var total    = obs.length;
-  var corr     = obs.filter(function(o){return o.status==='CORREGIDO';}).length;
-  var noCorr   = total - corr;
-  var pct      = total>0?Math.round(corr/total*100):0;
-  var elT=document.getElementById('d-total');     if(elT) elT.textContent=total;
-  var elC=document.getElementById('d-corregidas');if(elC) elC.textContent=corr;
-  var elN=document.getElementById('d-no-corr');   if(elN) elN.textContent=noCorr;
-  var elP=document.getElementById('d-pct');       if(elP) elP.textContent=pct+'%';
-  var elP2=document.getElementById('d-pct2');     if(elP2) elP2.textContent=pct+'%';
+  // ── KPIs — cada registro es un levantamiento hecho directamente en el recorrido ──
+  var _n = function(s){ return String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/_/g,' ').toUpperCase().trim(); };
+  var total = obs.length;
+  var elT=document.getElementById('d-total');   if(elT) elT.textContent=total;
+  var elT2=document.getElementById('d-total2'); if(elT2) elT2.textContent=total;
+
+  // Observadores activos
+  var obsSet={};
+  obs.forEach(function(o){ var k=_n(o.auditor); if(k) obsSet[k]=1; });
+  var elOb=document.getElementById('d-observadores'); if(elOb) elOb.textContent=Object.keys(obsSet).length;
+
+  // Semana actual vs anterior (respeta sector/área, no el filtro de mes)
+  var baseSemana=(observations||[]).filter(function(o){
+    if (fs && o.sector!==fs) return false;
+    if (fa && o.area!==fa) return false;
+    return true;
+  });
+  function _isoDay(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+  var hoyD=new Date(), hace7D=new Date(hoyD.getTime()-7*86400000);
+  var kSem=_periodKey({fecha:_isoDay(hoyD)},'sem'), kSemAnt=_periodKey({fecha:_isoDay(hace7D)},'sem');
+  var nSem=0, nSemAnt=0;
+  baseSemana.forEach(function(o){ var k=_periodKey(o,'sem'); if(k===kSem) nSem++; else if(k===kSemAnt) nSemAnt++; });
+  var elS=document.getElementById('d-semana'); if(elS) elS.textContent=nSem;
+  var elSD=document.getElementById('d-semana-delta');
+  if(elSD){
+    var dif=nSem-nSemAnt;
+    elSD.style.color = dif>=0 ? G : R;
+    elSD.textContent = (dif>0 ? '▲ +'+dif : dif<0 ? '▼ '+dif : '= igual') + ' vs sem. ant. ('+nSemAnt+')';
+  }
+
+  // Cobertura de la planta
+  var sectoresPlanta = Object.keys(SECTOR_AREA_MAP).filter(function(s){
+    if (fa && _n(SECTOR_AREA_MAP[s])!==_n(fa)) return false;
+    if (fs && _n(s)!==_n(fs)) return false;
+    return true;
+  });
+  var scopeN={}; sectoresPlanta.forEach(function(s){ scopeN[_n(s)]=1; });
+  var cubiertos={};
+  obs.forEach(function(o){ var k=_n(o.sector); if(scopeN[k]) cubiertos[k]=1; });
+  var nCub=Object.keys(cubiertos).length, nPlanta=sectoresPlanta.length;
+  var pctCob=nPlanta?Math.round(nCub/nPlanta*100):0;
+  var colCob=pctCob>=80?G:pctCob>=50?A:R;
+  var elCP=document.getElementById('d-cob-pct'); if(elCP){ elCP.textContent=pctCob+'%'; elCP.style.color=colCob; }
+  var elCB=document.getElementById('d-cob-bar'); if(elCB){ elCB.style.width=pctCob+'%'; elCB.style.background=colCob; }
+  var elCT=document.getElementById('d-cob-txt'); if(elCT) elCT.textContent=nCub+' de '+nPlanta+' sectores con al menos un levantamiento';
+
+  // Sectores sin levantamientos
+  var elSin=document.getElementById('d-sin-lev');
+  if (elSin) {
+    if (fs) {
+      elSin.innerHTML='<p style="font-size:12px;color:var(--g400);text-align:center;padding:8px">Quita el filtro de sector para ver los sectores sin levantamientos.</p>';
+    } else {
+      var sinLev=_sortEs(sectoresPlanta.filter(function(s){ return !cubiertos[_n(s)]; }));
+      if (!sinLev.length) {
+        elSin.innerHTML='<p style="font-size:12px;color:'+G+';text-align:center;padding:8px">Todos los sectores tuvieron al menos un levantamiento ✅</p>';
+      } else {
+        elSin.innerHTML='<div style="font-size:11px;font-weight:700;color:'+R+';margin-bottom:6px">'+sinLev.length+' sector(es) sin levantamientos</div>'
+          +'<div style="display:flex;flex-wrap:wrap;gap:5px">'
+          +sinLev.map(function(s){ return '<span style="font-size:10px;background:#FFF1F0;color:#B71C1C;padding:3px 9px;border-radius:20px;font-weight:600">'+s+'</span>'; }).join('')
+          +'</div>';
+      }
+    }
+  }
 
   if (!total) {
-    ['d-top-areas','d-comparativo','d-sectores','d-responsables','d-zonas-ranking','d-ranking-auditores'].forEach(function(id){
+    ['d-sectores','d-responsables','d-zonas-ranking','d-ranking-auditores','d-pareto'].forEach(function(id){
       var el=document.getElementById(id); if(el) el.innerHTML='<p style="font-size:12px;color:var(--g400);text-align:center;padding:12px">Sin datos</p>';
     });
+    ['chart-donut-area','chart-donut-s','chart-evolucion','chart-area-evol'].forEach(function(cid){ if(typeof destroyChart==='function') destroyChart(cid); });
+    var lgA0=document.getElementById('legend-area'); if(lgA0) lgA0.innerHTML='';
+    var lgS0=document.getElementById('legend-s'); if(lgS0) lgS0.innerHTML='';
     return;
   }
 
-  // ── Dona estado ──────────────────────────────────────────
-  if(typeof destroyChart==='function') destroyChart('chart-donut-status');
-  var ctxS=document.getElementById('chart-donut-status');
-  if(ctxS) new Chart(ctxS,{type:'doughnut',
-    data:{labels:['Corregidas','Pendientes'],
-      datasets:[{data:[corr,noCorr],backgroundColor:[G,R],borderWidth:2,borderColor:'#fff'}]},
-    options:{responsive:true,maintainAspectRatio:false,cutout:'70%',plugins:{legend:{display:false}}}
+  // Helper de barras
+  function barRow(label, val, maxV, col, extra) {
+    return '<div style="margin-bottom:8px">'
+      +'<div style="display:flex;justify-content:space-between;gap:8px;font-size:11px;margin-bottom:2px">'
+      +'<span style="font-weight:600;color:var(--g700);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+label+'</span>'
+      +'<span style="font-weight:700;color:'+col+';white-space:nowrap">'+val+(extra||'')+'</span></div>'
+      +'<div style="height:5px;background:var(--g100);border-radius:20px;overflow:hidden">'
+      +'<div style="height:100%;width:'+Math.round(val/maxV*100)+'%;background:'+col+';border-radius:20px"></div></div></div>';
+  }
+
+  // ── Dona por área ────────────────────────────────────────
+  var byAreaC={};
+  obs.forEach(function(o){ var a=o.area||'Sin área'; byAreaC[a]=(byAreaC[a]||0)+1; });
+  var areaSorted=Object.entries(byAreaC).sort(function(a,b){return b[1]-a[1];});
+  var aTop=areaSorted.slice(0,5);
+  var aOtras=areaSorted.slice(5).reduce(function(s,e){return s+e[1];},0);
+  var aLabels=aTop.map(function(e){return e[0];}), aVals=aTop.map(function(e){return e[1];});
+  if (aOtras>0) { aLabels.push('Otras'); aVals.push(aOtras); }
+  var aColors=['#1E7C34','#1565C0','#D97706','#6A1B9A','#E63329','#90A4AE'];
+  if(typeof destroyChart==='function') destroyChart('chart-donut-area');
+  var ctxAr=document.getElementById('chart-donut-area');
+  if(ctxAr) new Chart(ctxAr,{type:'doughnut',
+    data:{labels:aLabels,datasets:[{data:aVals,backgroundColor:aColors.slice(0,aLabels.length),borderWidth:2,borderColor:'#fff'}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'55%',plugins:{legend:{display:false},datalabels:_dlDona(0.08)}}
   });
-  var legS=document.getElementById('legend-status');
-  if(legS) legS.innerHTML='<div style="display:flex;gap:8px;justify-content:center;font-size:10px">'
-    +'<span style="color:'+G+'">&#9679; Corregidas: '+corr+'</span>'
-    +'<span style="color:'+R+'">&#9679; Pendientes: '+noCorr+'</span></div>';
+  var legAr=document.getElementById('legend-area');
+  if(legAr) legAr.innerHTML='<div style="display:flex;flex-wrap:wrap;gap:4px;justify-content:center">'
+    +aLabels.map(function(k,i){ var nm=k.length>14?k.substring(0,13)+'…':k; return '<div style="font-size:9px;display:flex;align-items:center;gap:2px"><span style="color:'+aColors[i]+'">&#9679;</span>'+nm+': '+aVals[i]+'</div>'; }).join('')+'</div>';
 
   // ── Dona por S ───────────────────────────────────────────
-  var sCounts={'1S':0,'2S':0,'3S':0,'4S':0,'5S':0,'EPP':0};
-  obs.forEach(function(o){ var s=o.s||o.tipo_s||''; if(sCounts[s]!==undefined) sCounts[s]++; else sCounts['EPP']++; });
+  var sCounts={'1S':0,'2S':0,'3S':0,'4S':0,'5S':0,'EPP':0,'S/D':0};
+  obs.forEach(function(o){ var s=String(o.s||o.tipo_s||'').toUpperCase(); if(sCounts[s]!==undefined) sCounts[s]++; else sCounts['S/D']++; });
   var sLabels=Object.keys(sCounts).filter(function(k){return sCounts[k]>0;});
   var sVals=sLabels.map(function(k){return sCounts[k];});
-  var sColors=['#E65100','#1B5E20','#0D47A1','#4A148C','#880E4F','#B71C1C'];
-  var topS=sLabels.length?sLabels.reduce(function(a,b){return sCounts[a]>=sCounts[b]?a:b;},sLabels[0]):'-';
+  var sColorMap={'1S':'#E65100','2S':'#1B5E20','3S':'#0D47A1','4S':'#4A148C','5S':'#880E4F','EPP':'#B71C1C','S/D':'#90A4AE'};
+  var sCols=sLabels.map(function(k){return sColorMap[k];});
+  var topS='-';
+  sLabels.forEach(function(k){ if(k!=='S/D' && (topS==='-' || sCounts[k]>sCounts[topS])) topS=k; });
   var elTS=document.getElementById('d-top-s'); if(elTS) elTS.textContent=topS;
   if(typeof destroyChart==='function') destroyChart('chart-donut-s');
   var ctxD=document.getElementById('chart-donut-s');
   if(ctxD) new Chart(ctxD,{type:'doughnut',
-    data:{labels:sLabels,datasets:[{data:sVals,backgroundColor:sColors.slice(0,sLabels.length),borderWidth:2,borderColor:'#fff'}]},
-    options:{responsive:true,maintainAspectRatio:false,cutout:'70%',plugins:{legend:{display:false}}}
+    data:{labels:sLabels,datasets:[{data:sVals,backgroundColor:sCols,borderWidth:2,borderColor:'#fff'}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'55%',plugins:{legend:{display:false},datalabels:_dlDona(0.08)}}
   });
   var legD=document.getElementById('legend-s');
-  if(legD) legD.innerHTML='<div style="display:flex;flex-wrap:wrap;gap:4px;justify-content:center;">'+sLabels.map(function(k,i){return '<div style="font-size:9px;display:flex;align-items:center;gap:2px"><span style="color:'+sColors[i]+'">&#9679;</span>'+k+': '+sCounts[k]+'</div>';}).join('')+'</div>';
+  if(legD) legD.innerHTML='<div style="display:flex;flex-wrap:wrap;gap:4px;justify-content:center">'
+    +sLabels.map(function(k,i){return '<div style="font-size:9px;display:flex;align-items:center;gap:2px"><span style="color:'+sCols[i]+'">&#9679;</span>'+k+': '+sVals[i]+'</div>';}).join('')+'</div>';
 
-  // ── Mejor/Peor área ──────────────────────────────────────
-  var byArea={};
-  obs.forEach(function(o){
-    var a=o.area||'Sin area';
-    if(!byArea[a]) byArea[a]={total:0,corr:0};
-    byArea[a].total++; if(o.status==='CORREGIDO') byArea[a].corr++;
-  });
-  var areaList=Object.entries(byArea).map(function(e){return{area:e[0],total:e[1].total,corr:e[1].corr,pct:Math.round(e[1].corr/e[1].total*100)};}).sort(function(a,b){return b.pct-a.pct;});
-  var elTA=document.getElementById('d-top-areas');
-  if(elTA&&areaList.length){
-    var best=areaList[0], worst=areaList[areaList.length-1];
-    elTA.innerHTML='<div style="margin-bottom:6px"><span style="font-size:10px;color:var(--g400)">Mejor:</span><br>'
-      +'<span style="font-weight:700;color:'+G+'">'+best.area+'</span> <span style="font-size:11px;color:'+G+'">'+best.pct+'%</span></div>'
-      +'<div><span style="font-size:10px;color:var(--g400)">Peor:</span><br>'
-      +'<span style="font-weight:700;color:'+R+'">'+worst.area+'</span> <span style="font-size:11px;color:'+R+'">'+worst.pct+'%</span></div>';
-  }
-
-  // ── Ranking de auditores (quién levanta más observaciones) ──
+  // ── Ranking de auditores (quién levanta más) ─────────────
   var byAuditor={};
-  obs.forEach(function(o){
-    var au=o.auditor||'Sin registrar';
-    byAuditor[au]=(byAuditor[au]||0)+1;
-  });
+  obs.forEach(function(o){ var au=o.auditor||'Sin registrar'; byAuditor[au]=(byAuditor[au]||0)+1; });
   var rankingAud=Object.entries(byAuditor).map(function(e){return{auditor:e[0],total:e[1]};}).sort(function(a,b){return b.total-a.total;}).slice(0,8);
   var elRA=document.getElementById('d-ranking-auditores');
   if(elRA){
-    if(!rankingAud.length){
-      elRA.innerHTML='<p style="font-size:12px;color:var(--g400);text-align:center;padding:12px">Sin datos</p>';
-    } else {
-      var maxAud=rankingAud[0].total;
-      elRA.innerHTML=rankingAud.map(function(r,i){
-        var w=Math.round(r.total/maxAud*100);
-        var medalla=i===0?'&#129351;':i===1?'&#129352;':i===2?'&#129353;':(i+1)+'.';
-        return '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">'
-          +'<div style="width:22px;text-align:center;font-size:13px;flex-shrink:0">'+medalla+'</div>'
-          +'<div style="flex:1;min-width:0">'
-          +'<div style="font-size:12px;font-weight:600;color:var(--g700);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+r.auditor+'</div>'
-          +'<div style="height:6px;background:var(--g100);border-radius:20px;overflow:hidden;margin-top:2px"><div style="height:100%;width:'+w+'%;background:'+G+';border-radius:20px"></div></div>'
-          +'</div>'
-          +'<div style="font-size:13px;font-weight:800;color:'+G+';flex-shrink:0">'+r.total+'</div>'
-          +'</div>';
-      }).join('');
-    }
+    var maxAud=rankingAud[0].total;
+    elRA.innerHTML=rankingAud.map(function(r,i){
+      var w=Math.round(r.total/maxAud*100);
+      var medalla=i===0?'&#129351;':i===1?'&#129352;':i===2?'&#129353;':(i+1)+'.';
+      return '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">'
+        +'<div style="width:22px;text-align:center;font-size:13px;flex-shrink:0">'+medalla+'</div>'
+        +'<div style="flex:1;min-width:0">'
+        +'<div style="font-size:12px;font-weight:600;color:var(--g700);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+r.auditor+'</div>'
+        +'<div style="height:6px;background:var(--g100);border-radius:20px;overflow:hidden;margin-top:2px"><div style="height:100%;width:'+w+'%;background:'+G+';border-radius:20px"></div></div>'
+        +'</div>'
+        +'<div style="font-size:13px;font-weight:800;color:'+G+';flex-shrink:0">'+r.total+'</div>'
+        +'</div>';
+    }).join('');
   }
 
   // ── Evolución (semanal / mensual) ────────────────────────
@@ -3108,90 +3471,52 @@ function renderDashboard() {
   renderEvolucion();
   renderEvolArea();
 
-  // Datos mensuales para la tarjeta "vs Semana anterior"
-  var byMes={};
-  obs.forEach(function(o){
-    var m=String(o.mes||o.fecha||o.created_at||'').substring(0,7);
-    if(!m||m.length<7) return;
-    if(!byMes[m]) byMes[m]={total:0,corr:0};
-    byMes[m].total++; if(o.status==='CORREGIDO') byMes[m].corr++;
-  });
-  var mesKeys=Object.keys(byMes).sort();
+  // ── Pareto de tipos de levantamiento ─────────────────────
+  var byTipo={};
+  obs.forEach(function(o){ var t=o.tipo||'Sin tipo'; byTipo[t]=(byTipo[t]||0)+1; });
+  var tipoList=Object.entries(byTipo).sort(function(a,b){return b[1]-a[1];}).slice(0,8);
+  var elPar=document.getElementById('d-pareto');
+  if(elPar){
+    var acum=0, maxT=tipoList[0][1];
+    elPar.innerHTML=tipoList.map(function(e){
+      acum+=e[1];
+      return barRow(e[0], e[1], maxT, B, ' <span style="font-size:9px;color:var(--g400);font-weight:600">· '+Math.round(acum/total*100)+'% acum.</span>');
+    }).join('');
+  }
 
-  // ── Cumplimiento por sector ──────────────────────────────
+  // ── Levantamientos por sector (top 12) ───────────────────
   var bySector={};
-  obs.forEach(function(o){
-    var s=o.sector||o.area||'Sin sector';
-    if(!bySector[s]) bySector[s]={total:0,corr:0};
-    bySector[s].total++; if(o.status==='CORREGIDO') bySector[s].corr++;
-  });
-  var sectList=Object.entries(bySector).sort(function(a,b){
-    var pA=Math.round(a[1].corr/a[1].total*100), pB=Math.round(b[1].corr/b[1].total*100);
-    return pB-pA;
-  });
+  obs.forEach(function(o){ var s=o.sector||o.area||'Sin sector'; bySector[s]=(bySector[s]||0)+1; });
+  var sectList=Object.entries(bySector).sort(function(a,b){return b[1]-a[1];}).slice(0,12);
   var elSect=document.getElementById('d-sectores');
-  if(elSect) elSect.innerHTML=sectList.map(function(e){
-    var pct2=Math.round(e[1].corr/e[1].total*100);
-    var col=pct2>=80?G:pct2>=50?A:R;
-    return '<div style="margin-bottom:8px">'
-      +'<div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:2px">'
-      +'<span style="font-weight:600;color:var(--g700)">'+e[0]+'</span>'
-      +'<span style="font-weight:700;color:'+col+'">'+e[1].corr+'/'+e[1].total+' ('+pct2+'%)</span></div>'
-      +'<div style="height:5px;background:var(--g100);border-radius:20px;overflow:hidden">'
-      +'<div style="height:100%;width:'+pct2+'%;background:'+col+';border-radius:20px"></div></div></div>';
-  }).join('');
+  if(elSect){
+    var maxS=sectList[0][1];
+    elSect.innerHTML=sectList.map(function(e){
+      return barRow(e[0], e[1], maxS, G, ' <span style="font-size:9px;color:var(--g400);font-weight:600">· '+Math.round(e[1]/total*100)+'%</span>');
+    }).join('');
+  }
 
-  // ── Cumplimiento por responsable ─────────────────────────
+  // ── Levantamientos por responsable de área ───────────────
   var byResp={};
-  obs.forEach(function(o){
-    var r=o.responsable||'Sin asignar';
-    if(!byResp[r]) byResp[r]={total:0,corr:0};
-    byResp[r].total++; if(o.status==='CORREGIDO') byResp[r].corr++;
-  });
-  var respList=Object.entries(byResp).sort(function(a,b){return b[1].total-a[1].total;}).slice(0,8);
+  obs.forEach(function(o){ var r=o.responsable||'Sin asignar'; byResp[r]=(byResp[r]||0)+1; });
+  var respList=Object.entries(byResp).sort(function(a,b){return b[1]-a[1];}).slice(0,8);
   var elResp=document.getElementById('d-responsables');
-  if(elResp) elResp.innerHTML=respList.map(function(e){
-    var pct3=Math.round(e[1].corr/e[1].total*100);
-    var col=pct3>=80?G:pct3>=50?A:R;
-    return '<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--g100)">'
-      +'<div style="flex:1;font-size:11px;font-weight:600;color:var(--g700)">'+e[0]+'</div>'
-      +'<div style="font-size:10px;color:var(--g400)">'+e[1].corr+'/'+e[1].total+'</div>'
-      +'<div style="font-size:12px;font-weight:700;color:'+col+'">'+pct3+'%</div></div>';
-  }).join('');
+  if(elResp){
+    var maxR=respList[0][1];
+    elResp.innerHTML=respList.map(function(e){ return barRow(e[0], e[1], maxR, A, ''); }).join('');
+  }
 
-  // ── Zonas con más obs no corregidas ──────────────────────
+  // ── Zonas / equipos con más levantamientos ───────────────
   var byZona={};
-  obs.filter(function(o){return o.status!=='CORREGIDO';}).forEach(function(o){
-    var z=(o.zona||o.sector||'Sin zona')+' ('+( o.area||'')+')';
+  obs.filter(function(o){return String(o.zona||'').trim();}).forEach(function(o){
+    var z=o.zona+' ('+(o.sector||o.area||'')+')';
     byZona[z]=(byZona[z]||0)+1;
   });
   var zonaList=Object.entries(byZona).sort(function(a,b){return b[1]-a[1];}).slice(0,8);
   var elZona=document.getElementById('d-zonas-ranking');
-  if(elZona) elZona.innerHTML=zonaList.length?zonaList.map(function(e,i){
-    var maxV=zonaList[0][1];
-    return '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">'
-      +'<div style="width:18px;height:18px;border-radius:50%;background:'+R+';color:#fff;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">'+(i+1)+'</div>'
-      +'<div style="flex:1;min-width:0">'
-      +'<div style="font-size:11px;font-weight:600;color:var(--g700);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+e[0]+'</div>'
-      +'<div style="height:4px;background:var(--g100);border-radius:20px;overflow:hidden;margin-top:2px">'
-      +'<div style="height:100%;width:'+Math.round(e[1]/maxV*100)+'%;background:'+R+';border-radius:20px"></div></div></div>'
-      +'<div style="font-size:12px;font-weight:700;color:'+R+'">'+e[1]+'</div></div>';
-  }).join(''):'<p style="font-size:12px;color:'+G+';text-align:center;padding:8px">Sin obs. pendientes ✅</p>';
-
-  // ── Tabla comparativo semana anterior ────────────────────
-  var elComp=document.getElementById('d-comparativo');
-  if(elComp&&mesKeys.length>=2){
-    var curr=byMes[mesKeys[mesKeys.length-1]], prev=byMes[mesKeys[mesKeys.length-2]];
-    var pctC=curr.total>0?Math.round(curr.corr/curr.total*100):0;
-    var pctP2=prev.total>0?Math.round(prev.corr/prev.total*100):0;
-    var diff=pctC-pctP2;
-    elComp.innerHTML='<div style="text-align:center">'
-      +'<div style="font-size:28px;font-weight:900;color:'+(diff>=0?G:R)+'">'+(diff>=0?'&#9650;':'&#9660;')+' '+Math.abs(diff)+'%</div>'
-      +'<div style="font-size:11px;color:var(--g400)">vs mes anterior</div>'
-      +'<div style="font-size:11px;margin-top:6px">Actual: <strong>'+pctC+'%</strong> | Anterior: <strong>'+pctP2+'%</strong></div>'
-      +'</div>';
-  } else if(elComp){
-    elComp.innerHTML='<p style="font-size:11px;color:var(--g400);text-align:center">Se necesitan al menos 2 meses de data</p>';
+  if(elZona){
+    if(!zonaList.length) elZona.innerHTML='<p style="font-size:12px;color:var(--g400);text-align:center;padding:8px">Aún no hay levantamientos con zona / equipo registrado.</p>';
+    else { var maxZ=zonaList[0][1]; elZona.innerHTML=zonaList.map(function(e){ return barRow(e[0], e[1], maxZ, R, ''); }).join(''); }
   }
 }
 
@@ -3487,7 +3812,7 @@ async function audn_renderDashboard() {
     var ctxR = document.getElementById('audn-chart-rondas');
     if (ctxR) new Chart(ctxR, {type:'bar',
       data:{labels:["A1","A2","A3","A4"], datasets:[{label:'% Cumplimiento', data:rondaVals, backgroundColor:rondaVals.map(function(v){return v>=90?"#1B5E20":v>=70?"#1E7C34":v>=50?"#D97706":"#E63329";}), borderRadius:6, maxBarThickness:50}]},
-      options:{responsive:true, plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true, max:100, ticks:{callback:function(v){return v+'%';}}}}}
+      options:{responsive:true, plugins:{legend:{display:false},datalabels:{anchor:'end',align:'top',font:{weight:'bold',size:11},formatter:function(v){return v>0?v+'%':'';}}}, scales:{y:{beginAtZero:true, max:100, ticks:{callback:function(v){return v+'%';}}}}}
     });
 
     // Gráfico: puntaje promedio por área
@@ -3499,7 +3824,7 @@ async function audn_renderDashboard() {
     var ctxA = document.getElementById('audn-chart-areas');
     if (ctxA) new Chart(ctxA, {type:'bar',
       data:{labels:areaLbls, datasets:[{label:'Puntaje promedio', data:areaVals, backgroundColor:"#D97706", borderRadius:6, maxBarThickness:26}]},
-      options:{indexAxis:'y', responsive:true, plugins:{legend:{display:false}}, scales:{x:{beginAtZero:true, max:1000}}}
+      options:{indexAxis:'y', responsive:true, plugins:{legend:{display:false},datalabels:{anchor:'end',align:'right',color:"#B45309",font:{weight:'bold',size:10}}}, scales:{x:{beginAtZero:true, max:1000}}}
     });
 
     // Tabla: estado de observaciones por tipo de hallazgo
@@ -3583,109 +3908,98 @@ function renderLista(data) {
 function exportarPDFAuditoria() {
   try {
     var jsPDF2 = window.jspdf.jsPDF;
-    var doc    = new jsPDF2({orientation:"portrait",unit:"mm",format:"a4"});
-    var meta   = auditMeta || {};
-    var W      = 210, mar = 14;
-    var pct    = Number((document.getElementById("result-puntaje")?document.getElementById("result-puntaje").textContent:0)||0);
-    var niv    = (document.getElementById("result-nivel")?document.getElementById("result-nivel").textContent:"")||"";
-    var rCol   = pct>=90?[27,94,32]:pct>=70?[30,124,52]:pct>=50?[217,119,6]:[230,51,41];
+    var doc = new jsPDF2({ orientation: "portrait", unit: "mm", format: "a4" });
+    var meta = auditMeta || {};
+    var W = 210, mar = 14, CW = 182, ss = _pdfTxt;
+    var pct = Number((document.getElementById("result-puntaje") ? document.getElementById("result-puntaje").textContent : 0) || 0);
+    var niv = (document.getElementById("result-nivel") ? document.getElementById("result-nivel").textContent : "") || "";
+    var rCol = _pdfNivelColor(pct);
+    var nSI = 0, nNO = 0, nSR = 0;
+    CRITERIOS.forEach(function (c) { var r = (auditData[c.num] || {}).respuesta; if (r === "SI") nSI++; else if (r === "NO") nNO++; else nSR++; });
 
-    function safe(s){ return String(s||"").replace(/[áÁ]/g,"a").replace(/[éÉ]/g,"e").replace(/[íÍ]/g,"i").replace(/[óÓ]/g,"o").replace(/[úÚüÜ]/g,"u").replace(/[ñÑ]/g,"n").replace(/[^\x00-\x7F]/g,""); }
+    var y = _pdfBanda(doc, "CHECK LIST 5S", "Industrias San Miguel - Planta Huaura");
 
-    // Header
-    doc.setFillColor(21,90,37); doc.rect(0,0,W,6,"F");
-    doc.setFillColor(30,124,52); doc.rect(0,6,W,26,"F");
-    doc.setFont("helvetica","bold"); doc.setFontSize(16); doc.setTextColor(255,255,255);
-    doc.text("CHECK LIST 5S - INDUSTRIAS SAN MIGUEL",W/2,18,{align:"center"});
-    doc.setFont("helvetica","normal"); doc.setFontSize(9);
-    doc.text("Planta Huaura",W/2,27,{align:"center"});
-    doc.setFillColor(217,119,6); doc.rect(0,32,W,1.5,"F");
+    // Datos generales (2 columnas, mismas etiquetas alineadas)
+    function L(t) { return { content: t, styles: { fontStyle: "bold", textColor: PDF_C.gris, fontSize: PDF_F.cab } }; }
+    doc.autoTable({
+      startY: y, margin: { left: mar, right: mar, bottom: 16 },
+      body: [
+        [L("Auditor"), ss(meta.auditor), L("Sector"), ss(meta.sector)],
+        [L("Área"), ss(meta.area), L("Responsable"), ss(meta.responsable)],
+        [L("Mes"), ss(meta.nro_auditoria), L("Fecha"), ss(meta.fecha)]
+      ],
+      bodyStyles: { fontSize: 9.5, textColor: PDF_C.texto, fillColor: [247, 248, 246] },
+      columnStyles: { 0: { cellWidth: 24 }, 1: { cellWidth: 67 }, 2: { cellWidth: 26 }, 3: { cellWidth: 65 } },
+      tableWidth: CW, theme: "plain", styles: { cellPadding: { top: 3, bottom: 3, left: 3, right: 2 }, lineColor: PDF_C.linea, lineWidth: 0.2 }
+    });
+    y = doc.lastAutoTable.finalY + 8;
 
-    // Datos
-    var y = 40;
-    doc.setTextColor(0,0,0);
-    var datos = [["Auditor",safe(meta.auditor||"")],["Sector",safe(meta.sector||"")],
-      ["Area",safe(meta.area||"")],["Responsable",safe(meta.responsable||"")],
-      ["Mes",safe(meta.nro_auditoria||"")],["Fecha",safe(meta.fecha||"")]];
-    doc.setFillColor(247,248,246); doc.roundedRect(mar,y-3,W-mar*2,datos.length*8+6,2,2,"F");
-    datos.forEach(function(d){
-      doc.setFont("helvetica","bold"); doc.setFontSize(8); doc.setTextColor(100,116,139);
-      doc.text(d[0]+":",mar+3,y+3);
-      doc.setFont("helvetica","normal"); doc.setFontSize(9); doc.setTextColor(0,0,0);
-      doc.text(d[1],mar+40,y+3); y+=8;
+    // Resultado
+    doc.setFillColor(rCol[0], rCol[1], rCol[2]); doc.roundedRect(mar, y, CW, 21, 3, 3, "F");
+    doc.setFont("helvetica", "bold"); doc.setFontSize(19); doc.setTextColor(255, 255, 255);
+    doc.text(pct + "% - " + ss(niv), W / 2, y + 10, { align: "center" });
+    doc.setFont("helvetica", "normal"); doc.setFontSize(9.5);
+    doc.text("Cumplen (SÍ): " + nSI + "     |     No cumplen (NO): " + nNO + (nSR ? "     |     Sin responder: " + nSR : ""), W / 2, y + 17, { align: "center" });
+    y += 30;
+
+    // Desempeño por pilar (barras horizontales)
+    var pilDef = [{ key: "1S", label: "Seleccionar", nums: [1,2,3,4], c: [230,81,0] }, { key: "2S", label: "Ordenar", nums: [5,6,7,8], c: [27,94,32] }, { key: "3S", label: "Limpiar", nums: [9,10,11,12], c: [13,71,161] }, { key: "4S", label: "Estandarizar", nums: [13,14,15,16], c: [74,20,140] }, { key: "5S", label: "Disciplinar", nums: [17,18,19,20], c: [136,14,79] }];
+    doc.setFont("helvetica", "bold"); doc.setFontSize(10); doc.setTextColor(PDF_C.texto[0], PDF_C.texto[1], PDF_C.texto[2]);
+    doc.text("DESEMPEÑO POR PILAR", mar, y); y += 6;
+    var x0 = mar + 40, bw = 100;
+    pilDef.forEach(function (p) {
+      var si = p.nums.filter(function (n) { return auditData[n] && auditData[n].respuesta === "SI"; }).length;
+      var pp = Math.round(si / p.nums.length * 100);
+      doc.setFont("helvetica", "bold"); doc.setFontSize(10); doc.setTextColor(p.c[0], p.c[1], p.c[2]);
+      doc.text(p.key, mar, y + 4);
+      doc.setFont("helvetica", "normal"); doc.setFontSize(9); doc.setTextColor(PDF_C.texto[0], PDF_C.texto[1], PDF_C.texto[2]);
+      doc.text(p.label, mar + 10, y + 4);
+      doc.setFillColor(236, 239, 236); doc.roundedRect(x0, y, bw, 5.5, 1.5, 1.5, "F");
+      if (pp > 0) { doc.setFillColor(p.c[0], p.c[1], p.c[2]); doc.roundedRect(x0, y, Math.max(3, bw * pp / 100), 5.5, 1.5, 1.5, "F"); }
+      doc.setFont("helvetica", "bold"); doc.setFontSize(9); doc.setTextColor(PDF_C.texto[0], PDF_C.texto[1], PDF_C.texto[2]);
+      doc.text(si + "/" + p.nums.length + "  (" + pp + "%)", x0 + bw + 4, y + 4.3);
+      y += 8.5;
     });
     y += 6;
 
-    // Resultado
-    doc.setFillColor(rCol[0],rCol[1],rCol[2]); doc.roundedRect(mar,y,W-mar*2,14,3,3,"F");
-    doc.setFont("helvetica","bold"); doc.setFontSize(14); doc.setTextColor(255,255,255);
-    doc.text(pct+"% - "+safe(niv),W/2,y+9,{align:"center"});
-    y += 20;
-
-    // Pilares
-    var pilDef=[{key:"1S",label:"Seleccionar",nums:[1,2,3,4],c:[230,81,0]},{key:"2S",label:"Ordenar",nums:[5,6,7,8],c:[27,94,32]},{key:"3S",label:"Limpiar",nums:[9,10,11,12],c:[13,71,161]},{key:"4S",label:"Estandarizar",nums:[13,14,15,16],c:[74,20,140]},{key:"5S",label:"Disciplinar",nums:[17,18,19,20],c:[136,14,79]}];
-    doc.setFont("helvetica","bold"); doc.setFontSize(9); doc.setTextColor(0,0,0);
-    doc.text("DESEMPENO POR PILAR",mar,y); y+=6;
-    var bw=(W-mar*2-8)/5;
-    pilDef.forEach(function(p,i){
-      var si=p.nums.filter(function(n){return auditData[n]&&auditData[n].respuesta==="SI";}).length;
-      var pp=Math.round(si/p.nums.length*100);
-      var x=mar+i*(bw+2);
-      doc.setFillColor(240,240,240); doc.roundedRect(x,y,bw,16,2,2,"F");
-      doc.setFillColor(p.c[0],p.c[1],p.c[2]);
-      if(pp>0) doc.roundedRect(x,y+16-Math.round(16*pp/100),bw,Math.round(16*pp/100),2,2,"F");
-      doc.setFont("helvetica","bold"); doc.setFontSize(8);
-      doc.setTextColor(p.c[0],p.c[1],p.c[2]);
-      doc.text(p.key,x+bw/2,y+22,{align:"center"});
-      doc.setFont("helvetica","normal"); doc.setFontSize(7); doc.setTextColor(100,116,139);
-      doc.text(si+"/"+p.nums.length,x+bw/2,y+27,{align:"center"});
-    });
-    y += 34;
-
-    // Criterios
-    doc.setFont("helvetica","bold"); doc.setFontSize(9); doc.setTextColor(0,0,0);
-    doc.text("EVALUACION DE CRITERIOS",mar,y); y+=6;
-    var lastPilar="";
-    CRITERIOS.forEach(function(c){
-      if(y>272){doc.addPage();y=20;}
-      var d=auditData[c.num]||{};
-      var resp=d.respuesta||"-";
-      if(c.pilar!==lastPilar){
-        lastPilar=c.pilar;
-        if(y>268){doc.addPage();y=20;}
-        doc.setFillColor(226,232,240); doc.rect(mar,y-1,W-mar*2,6,"F");
-        doc.setFont("helvetica","bold"); doc.setFontSize(7.5); doc.setTextColor(21,90,37);
-        doc.text(safe(c.pilar).toUpperCase(),mar+2,y+3.5); y+=8;
+    // Evaluación de criterios (texto completo, sin cortar) + plan de acción de los "NO"
+    var cbody = [], lastP = "";
+    CRITERIOS.forEach(function (c) {
+      if (c.pilar !== lastP) {
+        lastP = c.pilar;
+        cbody.push([{ content: ss(c.pilar).toUpperCase(), colSpan: 3, styles: { halign: "left", fillColor: [226, 232, 240], textColor: PDF_C.verde, fontStyle: "bold" } }]);
       }
-      var rc=resp==="SI"?[27,94,32]:resp==="NO"?[230,51,41]:[150,150,150];
-      doc.setFillColor(rc[0],rc[1],rc[2]); doc.circle(mar+2,y+2,1.8,"F");
-      doc.setFont("helvetica","normal"); doc.setFontSize(7.5); doc.setTextColor(0,0,0);
-      var ct=doc.splitTextToSize(c.num+". "+safe(c.txt),W-mar*2-18);
-      doc.text(ct[0]+(ct.length>1?"...":""),mar+5,y+3.5);
-      doc.setFont("helvetica","bold"); doc.setTextColor(rc[0],rc[1],rc[2]);
-      doc.text(resp,W-mar,y+3.5,{align:"right"});
-      doc.setTextColor(0,0,0); y+=7;
-      if(resp==="NO"&&d.obs){
-        doc.setFont("helvetica","italic"); doc.setFontSize(7); doc.setTextColor(100,116,139);
-        var ol=doc.splitTextToSize("Obs: "+safe(d.obs),W-mar*2-10);
-        doc.text(ol[0],mar+5,y); y+=4;
-        doc.setTextColor(0,0,0);
+      var d = auditData[c.num] || {};
+      var resp = d.respuesta || "—";
+      cbody.push([String(c.num), ss(c.txt), resp === "SI" ? "SÍ" : resp]);
+      if (resp === "NO") {
+        var partes = ["Plan de acción: " + ss(d.obs || "(sin descripción)")];
+        var extra = [];
+        if (d.responsable) extra.push("Responsable: " + ss(d.responsable));
+        if (d.fecha_compromiso) extra.push("Fecha compromiso: " + ss(d.fecha_compromiso));
+        if (extra.length) partes.push(extra.join("     |     "));
+        cbody.push([{ content: partes.join("\n"), colSpan: 3, styles: { halign: "left", fillColor: PDF_C.rojoClaro, textColor: [100, 40, 40], fontSize: 8.5, cellPadding: { top: 2, bottom: 2.6, left: 13, right: 3 } } }]);
+      }
+    });
+    y = _pdfSalto(doc, y, 40);
+    _pdfTabla(doc, {
+      y: y, mar: mar, titulo: "EVALUACIÓN DE CRITERIOS (" + CRITERIOS.length + ")",
+      colTitulo: PDF_C.verde, colCab: PDF_C.verde2,
+      cols: [{ h: "#", w: 10, a: "center" }, { h: "CRITERIO", w: 142 }, { h: "RESPUESTA", w: 30, a: "center" }],
+      body: cbody,
+      didParseCell: function (d) {
+        if (d.section === "body" && d.column.index === 2 && d.cell.colSpan === 1) {
+          var v = String(d.cell.raw);
+          d.cell.styles.fontStyle = "bold";
+          d.cell.styles.textColor = v === "NO" ? PDF_C.rojo2 : v === "—" ? [150, 150, 150] : [27, 94, 32];
+        }
       }
     });
 
-    // Pie
-    var tot=doc.internal.getNumberOfPages();
-    for(var pg=1;pg<=tot;pg++){
-      doc.setPage(pg);
-      doc.setFillColor(30,124,52); doc.rect(0,287,W,10,"F");
-      doc.setFont("helvetica","normal"); doc.setFontSize(7); doc.setTextColor(255,255,255);
-      doc.text("ISM Check List 5S - "+safe(meta.nro_auditoria||""),mar,293);
-      doc.text("Pag. "+pg+" / "+tot,W-mar,293,{align:"right"});
-    }
-
-    doc.save("CheckList5S_"+safe(meta.sector||"sector").replace(/[^a-zA-Z0-9]/g,"_")+".pdf");
+    _pdfPie(doc, "ISM Check List 5S - " + ss(meta.sector || "") + " - " + ss(meta.nro_auditoria || ""), mar);
+    doc.save("CheckList5S_" + _pdfSlug(meta.sector || "sector") + ".pdf");
     showToast("PDF descargado");
-  } catch(e){ console.error(e); showToast("Error PDF: "+e.message,true); }
+  } catch (e) { console.error(e); showToast("Error PDF: " + e.message, true); }
 }
 
 
@@ -3755,105 +4069,125 @@ function togglePendientes() {
 
 function exportarPDFGerencial(btn) {
   try {
-    if(btn){btn.disabled=true;btn.innerHTML="Generando...";}
-    var jsPDF2=window.jspdf.jsPDF;
-    var doc=new jsPDF2({orientation:"portrait",unit:"mm",format:"a4"});
-    var W=210,mar=14;
-    function ss(x){return String(x||"").replace(/[^\x00-\x7F]/g,"");}
-    function cA(p){return p>=90?[27,94,32]:p>=70?[30,124,52]:p>=50?[217,119,6]:[230,51,41];}
-    function sI2(a){return Array.isArray(a.incumplimientos)?a.incumplimientos:safeJson(a.incumplimientos,"[]");}
-    function sD2(a){return Array.isArray(a.detalles)?a.detalles:safeJson(a.detalles,"[]");}
-    var fm=document.getElementById("d-fil-mes-a")?document.getElementById("d-fil-mes-a").value:"";
-    var lista=(auditorias||[]).filter(function(a){
-      if(!a.sector||!a.fecha) return false;
-      if(fm&&String(a.nro_auditoria||a.fecha||"").substring(0,7)!==fm) return false;
+    if (btn) { btn.disabled = true; btn.innerHTML = "Generando..."; }
+    var jsPDF2 = window.jspdf.jsPDF;
+    var doc = new jsPDF2({ orientation: "portrait", unit: "mm", format: "a4" });
+    var mar = 14, ss = _pdfTxt;
+    function sI2(a) { return Array.isArray(a.incumplimientos) ? a.incumplimientos : safeJson(a.incumplimientos, "[]"); }
+    var fm = document.getElementById("d-fil-mes-a") ? document.getElementById("d-fil-mes-a").value : "";
+    var lista = (auditorias || []).filter(function (a) {
+      if (!a.sector || !a.fecha) return false;
+      if (fm && String(a.nro_auditoria || a.fecha || "").substring(0, 7) !== fm) return false;
       return true;
-    }).sort(function(a,b){return (b.pct_cumplimiento||0)-(a.pct_cumplimiento||0);});
-    if(!lista.length){if(btn){btn.disabled=false;btn.innerHTML="PDF Gerencial";}showToast("Sin datos",true);return;}
-    var mesLbl=fm?(function(){var p=fm.split("-");return new Date(+p[0],+p[1]-1,1).toLocaleDateString("es-PE",{month:"long",year:"numeric"});})():"Todos";
-    var avg=Math.round(lista.reduce(function(s,a){return s+(a.pct_cumplimiento||0);},0)/lista.length);
-    var obsT=lista.reduce(function(s,a){return s+sI2(a).filter(function(x){return(x.estado||"Pendiente")==="Pendiente";}).length;},0);
-    // Header
-    doc.setFillColor(21,90,37);doc.rect(0,0,W,5,"F");
-    doc.setFillColor(30,124,52);doc.rect(0,5,W,30,"F");
-    doc.setFont("helvetica","bold");doc.setFontSize(18);doc.setTextColor(255,255,255);
-    doc.text("REPORTE GERENCIAL 5S",W/2,18,{align:"center"});
-    doc.setFontSize(9);doc.setFont("helvetica","normal");
-    doc.text("ISM Planta Huaura - "+mesLbl,W/2,27,{align:"center"});
-    // KPIs
-    var y=42;
-    doc.autoTable({
-      startY:y,margin:{left:mar,right:mar},
-      head:[["CHECK LISTS","% PROMEDIO","OBS. PENDIENTES","NIVEL"]],
-      body:[[String(lista.length),avg+"%",String(obsT),ss(getNivel(avg).nivel)]],
-      headStyles:{fillColor:[21,90,37],textColor:[255,255,255],fontStyle:"bold",fontSize:9,halign:"center"},
-      bodyStyles:{fontSize:14,textColor:[30,124,52],fontStyle:"bold",halign:"center"},
-      theme:"plain",styles:{cellPadding:4,lineColor:[226,232,240],lineWidth:0.2},
-    });
-    y=doc.lastAutoTable.finalY+10;
-    // Tabla sectores
-    doc.autoTable({
-      startY:y,margin:{left:mar,right:mar},
-      head:[["#","SECTOR","AREA","AUDITOR","% CUMPL.","NIVEL","OBS"]],
-      body:lista.map(function(a,i){
-        var pct=a.pct_cumplimiento||0;
-        var obs=sI2(a).filter(function(x){return(x.estado||"Pendiente")==="Pendiente";}).length;
-        return[String(i+1),ss(a.sector||""),ss(a.area||""),ss((a.auditor||"").split(" ").slice(0,2).join(" ")),pct+"%",ss(getNivel(pct).nivel),String(obs)];
-      }),
-      headStyles:{fillColor:[21,90,37],textColor:[255,255,255],fontStyle:"bold",fontSize:7,halign:"center"},
-      bodyStyles:{fontSize:6.5,textColor:[58,63,55]},
-      columnStyles:{0:{halign:"center",cellWidth:8},1:{cellWidth:38},2:{cellWidth:28},3:{cellWidth:30},4:{halign:"center",cellWidth:16},5:{halign:"center",cellWidth:18},6:{halign:"center",cellWidth:14}},
-      alternateRowStyles:{fillColor:[247,248,246]},theme:"plain",
-      styles:{cellPadding:2,lineColor:[226,232,240],lineWidth:0.2},
-      didParseCell:function(d){
-        if(d.section==="body"&&d.column.index===4){var v=parseInt(d.cell.raw)||0;d.cell.styles.textColor=v>=70?"#1E7C34":v>=50?"#D97706":"#E63329";d.cell.styles.fontStyle="bold";}
-        if(d.section==="body"&&d.column.index===6){var v2=parseInt(d.cell.raw)||0;d.cell.styles.textColor=v2>0?"#E63329":"#1E7C34";d.cell.styles.fontStyle="bold";}
-      },
-    });
-    // Obs por area (nueva pagina)
-    doc.addPage();
-    var obsBody=[];
-    var obsArea={};
-    lista.forEach(function(a){
-      sI2(a).filter(function(x){return(x.estado||"Pendiente")==="Pendiente";}).forEach(function(x){
-        var ar=ss(a.area||"Sin area");
-        if(!obsArea[ar])obsArea[ar]=[];
-        obsArea[ar].push({sector:ss(a.sector||""),criterio:ss(x.criterio||""),responsable:ss(x.responsable||""),fecha:ss(x.fecha_compromiso||"")});
+    }).sort(function (a, b) { return (b.pct_cumplimiento || 0) - (a.pct_cumplimiento || 0); });
+    if (!lista.length) { if (btn) { btn.disabled = false; btn.innerHTML = "PDF Gerencial"; } showToast("Sin datos", true); return; }
+    var mesLbl = fm ? (function () { var p = fm.split("-"); return new Date(+p[0], +p[1] - 1, 1).toLocaleDateString("es-PE", { month: "long", year: "numeric" }); })() : "Todos";
+    var avg = Math.round(lista.reduce(function (s, a) { return s + (a.pct_cumplimiento || 0); }, 0) / lista.length);
+    var obsT = lista.reduce(function (s, a) { return s + sI2(a).filter(function (x) { return (x.estado || "Pendiente") === "Pendiente"; }).length; }, 0);
+
+    // Sectores pendientes de realizar (mismo criterio que el Progreso del dashboard)
+    var nowP = new Date();
+    var mesPend = fm || (nowP.getFullYear() + "-" + String(nowP.getMonth() + 1).padStart(2, "0"));
+    var pp = mesPend.split("-");
+    var miP = mesPend + "-01", mfP = mesPend + "-" + String(new Date(+pp[0], +pp[1], 0).getDate()).padStart(2, "0");
+    var mesPendLbl = new Date(+pp[0], +pp[1] - 1, 1).toLocaleDateString("es-PE", { month: "long", year: "numeric" }) + (fm ? "" : " (mes actual)");
+    var hechosP = {};
+    (auditorias || []).forEach(function (a) { if (a.sector && a.fecha >= miP && a.fecha <= mfP) hechosP[a.sector] = true; });
+    var vistosP = {}, totalP = 0, pendItems = [];
+    Object.keys(AUDITORES_SECTORES).forEach(function (aud) {
+      AUDITORES_SECTORES[aud].forEach(function (s) {
+        if (vistosP[s]) return;
+        vistosP[s] = true; totalP++;
+        if (!hechosP[s]) pendItems.push({ sector: s, auditor: aud, area: SECTOR_AREA_MAP[s] || "Sin área", resp: RESP_SECTOR[s] || "" });
       });
     });
-    Object.entries(obsArea).sort(function(a,b){return b[1].length-a[1].length;}).forEach(function(e){
-      obsBody.push([{content:e[0].toUpperCase()+" ("+e[1].length+" obs.)",colSpan:4,styles:{fillColor:[232,245,233],textColor:[21,90,37],fontStyle:"bold",fontSize:8}}]);
-      e[1].forEach(function(it){obsBody.push([it.sector,it.criterio,it.responsable,it.fecha||"Pendiente"]);});
-    });
-    if(obsBody.length){
+    var hechosN = totalP - pendItems.length;
+    var pendArea = {};
+    pendItems.forEach(function (it) { (pendArea[it.area] = pendArea[it.area] || []).push(it); });
+
+    // ── Encabezado y resumen ──
+    var y = _pdfBanda(doc, "REPORTE GERENCIAL 5S", "ISM Planta Huaura - " + mesLbl);
+    y = _pdfKpis(doc, y, mar,
+      ["CHECK LISTS", "SECTORES PENDIENTES", "% PROMEDIO", "OBS. PENDIENTES", "NIVEL"],
+      [String(lista.length), pendItems.length + " de " + totalP, avg + "%", String(obsT), ss(getNivel(avg).nivel)],
+      [null, { head: PDF_C.rojo, val: pendItems.length ? PDF_C.rojo : PDF_C.verde }, null, null, null]) + 9;
+
+    // ── Bloque 1: sectores pendientes ──
+    if (pendItems.length) {
+      var pendBody = [];
+      Object.entries(pendArea).sort(function (a, b) { return b[1].length - a[1].length; }).forEach(function (e) {
+        pendBody.push([{ content: ss(e[0]).toUpperCase() + "  (" + e[1].length + " pendiente" + (e[1].length > 1 ? "s" : "") + ")", colSpan: 3, styles: { fillColor: PDF_C.rojoClaro, textColor: PDF_C.rojo, fontStyle: "bold" } }]);
+        e[1].slice().sort(function (a, b) { return String(a.sector).localeCompare(String(b.sector), "es"); }).forEach(function (it) {
+          pendBody.push([ss(it.sector), ss(it.auditor), ss(it.resp)]);
+        });
+      });
+      y = _pdfTabla(doc, {
+        y: y, mar: mar, titulo: "1. SECTORES PENDIENTES DE REALIZAR - " + mesPendLbl.toUpperCase() + " (" + pendItems.length + " de " + totalP + ")",
+        colTitulo: PDF_C.rojo, colCab: PDF_C.rojo2,
+        cols: [{ h: "SECTOR", w: 68 }, { h: "AUDITOR ASIGNADO", w: 64 }, { h: "RESPONSABLE DEL ÁREA", w: 50 }],
+        body: pendBody
+      }) + 10;
+    } else {
       doc.autoTable({
-        startY:14,margin:{left:mar,right:mar},
-        head:[["SECTOR","CRITERIO","RESPONSABLE","FECHA"]],
-        body:obsBody,
-        headStyles:{fillColor:[21,90,37],textColor:[255,255,255],fontStyle:"bold",fontSize:7},
-        bodyStyles:{fontSize:6.5,textColor:[58,63,55]},
-        columnStyles:{0:{cellWidth:36},1:{cellWidth:72},2:{cellWidth:40},3:{cellWidth:22,halign:"center"}},
-        alternateRowStyles:{fillColor:[247,248,246]},theme:"plain",
-        styles:{cellPadding:2,lineColor:[226,232,240],lineWidth:0.2},
+        startY: y, margin: { left: mar, right: mar, bottom: 16 },
+        body: [["1. Todos los sectores realizaron su Check List en este periodo (" + hechosN + " de " + totalP + ")."]],
+        bodyStyles: { fontSize: 10, textColor: [27, 94, 32], fontStyle: "bold", halign: "center", fillColor: PDF_C.verdeClaro },
+        tableWidth: 182, theme: "plain", styles: { cellPadding: 5 }
+      });
+      y = doc.lastAutoTable.finalY + 10;
+    }
+
+    // ── Bloque 2: sectores realizados ──
+    y = _pdfSalto(doc, y, 45);
+    y = _pdfTabla(doc, {
+      y: y, mar: mar, titulo: "2. SECTORES REALIZADOS - RESULTADOS (" + lista.length + " Check Lists, de mayor a menor %)",
+      colTitulo: PDF_C.verde, colCab: PDF_C.verde2,
+      cols: [{ h: "#", w: 8, a: "center" }, { h: "SECTOR", w: 40 }, { h: "ÁREA", w: 34 }, { h: "AUDITOR", w: 48 }, { h: "% CUMPL.", w: 20, a: "center" }, { h: "NIVEL", w: 20, a: "center" }, { h: "OBS.", w: 12, a: "center" }],
+      body: lista.map(function (a, i) {
+        var obs = sI2(a).filter(function (x) { return (x.estado || "Pendiente") === "Pendiente"; }).length;
+        return [String(i + 1), ss(a.sector || ""), ss(a.area || ""), ss(a.auditor || ""), (a.pct_cumplimiento || 0) + "%", ss(getNivel(a.pct_cumplimiento || 0).nivel), String(obs)];
+      }),
+      didParseCell: function (d) {
+        if (d.section !== "body") return;
+        if (d.column.index === 4) { d.cell.styles.textColor = _pdfNivelColor(parseInt(d.cell.raw) || 0); d.cell.styles.fontStyle = "bold"; }
+        if (d.column.index === 6) { d.cell.styles.textColor = (parseInt(d.cell.raw) || 0) > 0 ? PDF_C.rojo2 : PDF_C.verde2; d.cell.styles.fontStyle = "bold"; }
+      }
+    }) + 10;
+
+    // ── Bloque 3: observaciones pendientes por área ──
+    var obsBody = [], obsArea = {};
+    lista.forEach(function (a) {
+      sI2(a).filter(function (x) { return (x.estado || "Pendiente") === "Pendiente"; }).forEach(function (x) {
+        var ar = ss(a.area || "Sin área");
+        if (!obsArea[ar]) obsArea[ar] = [];
+        obsArea[ar].push({ sector: ss(a.sector || ""), criterio: ss(x.criterio || ""), responsable: ss(x.responsable || ""), fecha: ss(x.fecha_compromiso || "") });
+      });
+    });
+    Object.entries(obsArea).sort(function (a, b) { return b[1].length - a[1].length; }).forEach(function (e) {
+      obsBody.push([{ content: e[0].toUpperCase() + "  (" + e[1].length + " obs.)", colSpan: 4, styles: { fillColor: PDF_C.verdeClaro, textColor: PDF_C.verde, fontStyle: "bold" } }]);
+      e[1].forEach(function (it) { obsBody.push([it.sector, it.criterio, it.responsable, it.fecha || "Sin fecha"]); });
+    });
+    if (obsBody.length) {
+      y = _pdfSalto(doc, y, 45);
+      _pdfTabla(doc, {
+        y: y, mar: mar, titulo: "3. OBSERVACIONES PENDIENTES POR ÁREA (" + obsT + ")",
+        colTitulo: PDF_C.verde, colCab: PDF_C.verde2,
+        cols: [{ h: "SECTOR", w: 40 }, { h: "CRITERIO", w: 74 }, { h: "RESPONSABLE", w: 46 }, { h: "FECHA", w: 22, a: "center" }],
+        body: obsBody
       });
     }
-    var tot=doc.internal.getNumberOfPages();
-    for(var pg=1;pg<=tot;pg++){
-      doc.setPage(pg);
-      doc.setFillColor(21,90,37);doc.rect(0,287,W,10,"F");
-      doc.setFont("helvetica","normal");doc.setFontSize(7);doc.setTextColor(255,255,255);
-      doc.text("ISM Check List 5S - "+mesLbl,mar,293);
-      doc.text("Pag "+pg+"/"+tot,W-mar,293,{align:"right"});
-    }
-    doc.save("ReporteGerencial_ISM_"+(fm||"todos").replace(/-/g,"")+".pdf");
-    if(btn){btn.disabled=false;btn.innerHTML="PDF Gerencial";}
+
+    _pdfPie(doc, "ISM Check List 5S - " + mesLbl, mar);
+    doc.save("ReporteGerencial_ISM_" + (fm || "todos").replace(/-/g, "") + ".pdf");
+    if (btn) { btn.disabled = false; btn.innerHTML = "PDF Gerencial"; }
     showToast("PDF Gerencial generado");
-  } catch(e){
+  } catch (e) {
     console.error(e);
-    if(btn){btn.disabled=false;btn.innerHTML="PDF Gerencial";}
-    showToast("Error: "+e.message,true);
+    if (btn) { btn.disabled = false; btn.innerHTML = "PDF Gerencial"; }
+    showToast("Error: " + e.message, true);
   }
 }
+
 
 function abrirModalObs(id) {
   obsActual = (observations||[]).find(function(o){ return o.id === id; });

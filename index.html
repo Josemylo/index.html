@@ -1793,6 +1793,17 @@ function _mismaPersona(a, b) {
   a = n(a); b = n(b);
   return !!a && !!b && (a === b || a.indexOf(b) === 0 || b.indexOf(a) === 0);
 }
+// Responsable de un plan de acción: si al guardarlo se llenó solo con el responsable que tenía el sector
+// en ese momento (o con un jefe de área), se muestra el responsable VIGENTE del sector (nivel 2).
+// Si el auditor escribió a otra persona a propósito, se respeta ese nombre.
+function respPlan(sector, guardado, respRegistro) {
+  var vig = respN2(sector);
+  if (!guardado) return vig;
+  if (!vig) return guardado;
+  var auto = _mismaPersona(guardado, respRegistro) || _mismaPersona(guardado, respN1(sector)) || _mismaPersona(guardado, vig)
+    || (typeof RESP_NIVEL1 !== "undefined" && Object.keys(RESP_NIVEL1).some(function(k){ return _mismaPersona(guardado, RESP_NIVEL1[k]); }));
+  return auto ? vig : guardado;
+}
 function respHTML(s) {
   var a = respN1(s), b = respN2(s), l = respLider(s);
   if (!a && !b) return "";
@@ -2233,7 +2244,7 @@ async function cargarAuditorias() {
     const areas = [...new Set(auditorias.map(a => a.area).filter(Boolean))].sort();
     const respsSet = new Set(Object.values(RESP_SECTOR).filter(Boolean));
     if (hayNivel1()) Object.values(RESP_NIVEL1).forEach(r => { if (r) respsSet.add(r); });
-    auditorias.forEach(a => (a.incumplimientos||[]).forEach(d => { if (d.responsable) respsSet.add(d.responsable); }));
+    auditorias.forEach(a => (a.incumplimientos||[]).forEach(d => { var r = respPlan(a.sector, d.responsable, a.responsable); if (r) respsSet.add(r); }));
     const resps = _sortEs([...respsSet]);
     const mesLbl = m => { var pts=m.split("-"); return new Date(+pts[0],+pts[1]-1,1).toLocaleDateString("es-PE",{month:"long",year:"numeric"}); };
     [["hfil-mes",meses,mesLbl],["ofil-mes",meses,mesLbl],["d-fil-mes-a",meses,mesLbl]].forEach(([id,vs,lbl])=>{
@@ -2291,7 +2302,8 @@ function renderHistorial() {
       h2 += '<div style="font-size:12px;font-weight:700;color:var(--g700)">'+d.num+'. '+(d.criterio||d.txt||'')+'</div>';
       h2 += '<div style="font-size:10px;color:var(--g400)">Pilar: '+(d.pilar||'')+'</div>';
       if (d.obs) h2 += '<div style="font-size:12px;color:var(--g600);background:#fff;border-radius:5px;padding:5px 7px;margin-top:4px">'+d.obs+'</div>';
-      if (d.responsable) h2 += '<div style="font-size:10px;color:var(--g400);margin-top:3px">&#128100; '+d.responsable+(d.fecha_compromiso?' - &#128197; '+d.fecha_compromiso:'')+'</div>';
+      var _rp = respPlan(a.sector, d.responsable, a.responsable);
+      if (_rp) h2 += '<div style="font-size:10px;color:var(--g400);margin-top:3px">&#128100; '+_rp+(d.fecha_compromiso?' - &#128197; '+d.fecha_compromiso:'')+'</div>';
       h2 += '</div>';
       return h2;
     }).join('');
@@ -2385,11 +2397,11 @@ function renderObsPendientes() {
       if (fst === "levantada" && !lv) return;
       if (fr) {
         var _q = fr.toLowerCase();
-        var _cands = [d.responsable, respN1(a.sector), respN2(a.sector), respLider(a.sector)].map(function(x){ return String(x||"").toLowerCase(); });
+        var _cands = [respPlan(a.sector, d.responsable, a.responsable), respN1(a.sector), respN2(a.sector), respLider(a.sector)].map(function(x){ return String(x||"").toLowerCase(); });
         if (!_cands.some(function(x){ return x && (x.indexOf(_q) > -1 || _q.indexOf(x) > -1); })) return;
       }
       obs.push(Object.assign({}, d, {
-        _id: a.id, _sector: a.sector, _area: a.area,
+        _id: a.id, _sector: a.sector, _area: a.area, _respReg: a.responsable,
         _fecha: a.fecha, _auditor: a.auditor, _mes: mesAudit
       }));
     });
@@ -2431,9 +2443,11 @@ function renderObsPendientes() {
       html += '</div>';
       if (d.obs) html += '<div style="font-size:12px;color:var(--g700);background:var(--g50);border-radius:6px;padding:8px;margin-bottom:6px">' + d.obs + '</div>';
       if (respHTML(d._sector)) html += '<div style="font-size:11px;color:var(--g500);margin-bottom:4px">' + respHTML(d._sector) + '</div>';
-      if ((d.responsable && d.responsable !== respN1(d._sector) && d.responsable !== respN2(d._sector)) || d.fecha_compromiso) {
+      var _rpl = respPlan(d._sector, d.responsable, d._respReg);
+      var _propio = _rpl && !_mismaPersona(_rpl, respN2(d._sector));
+      if (_propio || d.fecha_compromiso) {
         html += '<div style="font-size:11px;color:var(--g400);margin-bottom:6px">';
-        if (d.responsable && d.responsable !== respN1(d._sector) && d.responsable !== respN2(d._sector)) html += '📝 Registrado en el plan: <strong>' + d.responsable + '</strong> ';
+        if (_propio) html += '📝 Asignado en el plan: <strong>' + _rpl + '</strong> ';
         if (d.fecha_compromiso) html += '📅 ' + d.fecha_compromiso;
         html += '</div>';
       }
@@ -2724,7 +2738,7 @@ function renderAuditDashboard() {
   var obsByResp={};
   lista.forEach(a=>{
     safeI(a).filter(x=>(x.estado||"Pendiente")==="Pendiente").forEach(x=>{
-      var r=respN2(a.sector)||x.responsable||"Sin asignar";
+      var r=respPlan(a.sector, x.responsable, a.responsable)||"Sin asignar";
       obsByResp[r]=(obsByResp[r]||0)+1;
     });
   });
@@ -2927,7 +2941,10 @@ async function guardarCierreObs() {
       foto_cierre = await subirFoto(fotoBlob, function(intento){ showToast("Reintentando subir la foto (" + intento + "/3)..."); });
     } catch (fotoErr) {
       console.error("Error subiendo foto de cierre:", fotoErr);
-      showToast("No se pudo subir la foto. Revisa tu conexión e inténtalo de nuevo", true);
+      var _m = String((fotoErr && fotoErr.message) || "");
+      showToast(/ImgBB/.test(_m) && !/HTTP 5|timeout|tard/i.test(_m)
+        ? "El servicio de fotos rechazó la subida (" + _m.replace("ImgBB: ", "") + "). Avisa al administrador: puede ser la clave de ImgBB."
+        : "No se pudo subir la foto. Revisa tu conexión e inténtalo de nuevo", true);
       btn.disabled = false;
       btn.textContent = "✓ Confirmar Cierre";
       return;
@@ -3017,9 +3034,16 @@ async function subirIMGBB(blob) {
         var form = new FormData();
         form.append("image", b64);
         var res  = await fetch("https://api.imgbb.com/1/upload?key=" + IMGBB_KEY, {method:"POST", body:form});
-        var data = await res.json();
-        if (data.success) resolve(data.data.url);
-        else reject(new Error("IMGBB error"));
+        var data = {};
+        try { data = await res.json(); } catch (eJson) {}
+        if (data && data.success) resolve(data.data.url);
+        else {
+          var msg = (data && data.error && (data.error.message || data.error.code)) || ("HTTP " + res.status);
+          var err = new Error("ImgBB: " + msg);
+          // 400/401/403 con clave inválida o bloqueada: no sirve reintentar
+          err.sinReintento = /key|clave|api|forbidden|unauthori/i.test(String(msg)) || res.status === 401 || res.status === 403;
+          reject(err);
+        }
       } catch(err) { reject(err); }
     };
     reader.readAsDataURL(paraSubir);
@@ -3034,6 +3058,7 @@ async function subirFoto(blob, onReintento) {
       return await conTimeout(subirIMGBB(blob), 25000, "La subida de la foto tardó demasiado.");
     } catch (err) {
       ultimoError = err;
+      if (err && err.sinReintento) break;
       if (i < 3) {
         if (onReintento) onReintento(i + 1);
         await new Promise(function(r){ setTimeout(r, 1200); });
@@ -5031,7 +5056,7 @@ function exportarPDFGerencial(btn) {
       sI2(a).filter(function (x) { return (x.estado || "Pendiente") === "Pendiente"; }).forEach(function (x) {
         var ar = ss(a.area || "Sin área");
         if (!obsArea[ar]) obsArea[ar] = [];
-        obsArea[ar].push({ sector: ss(a.sector || ""), criterio: ss(x.criterio || ""), responsable: ss(x.responsable || ""), fecha: ss(x.fecha_compromiso || "") });
+        obsArea[ar].push({ sector: ss(a.sector || ""), criterio: ss(x.criterio || ""), responsable: ss(respPlan(a.sector, x.responsable, a.responsable) || ""), fecha: ss(x.fecha_compromiso || "") });
       });
     });
     Object.entries(obsArea).sort(function (a, b) { return b[1].length - a[1].length; }).forEach(function (e) {
@@ -5180,7 +5205,8 @@ function exportarPDFAuditoria() {
       if (resp === "NO") {
         var partes = ["Plan de acción: " + ss(d.obs || "(sin descripción)")];
         var extra = [];
-        if (d.responsable) extra.push("Responsable: " + ss(d.responsable));
+        var _rpPdf = respPlan(meta.sector, d.responsable, meta.responsable);
+        if (_rpPdf) extra.push("Responsable: " + ss(_rpPdf));
         if (d.fecha_compromiso) extra.push("Fecha compromiso: " + ss(d.fecha_compromiso));
         if (extra.length) partes.push(extra.join("     |     "));
         cbody.push([{ content: partes.join("\n"), colSpan: 3, styles: { halign: "left", fillColor: PDF_C.rojoClaro, textColor: [100, 40, 40], fontSize: 8.5, cellPadding: { top: 2, bottom: 2.6, left: 13, right: 3 } } }]);
@@ -6060,7 +6086,7 @@ function renderReconocimientoChecklist() {
   (auditorias || []).forEach(function(a){
     if (!registroPasaFiltroCL(a)) return;
     (Array.isArray(a.incumplimientos) ? a.incumplimientos : []).forEach(function(x){
-      var r = respN2(a.sector) || x.responsable || "";
+      var r = respPlan(a.sector, x.responsable, a.responsable) || "";
       if (!r) return;
       if (!porResp[r]) porResp[r] = {lev: 0, total: 0, levMes: 0};
       porResp[r].total++;
